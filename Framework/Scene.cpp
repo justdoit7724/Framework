@@ -28,7 +28,7 @@ Scene::Scene(IGraphic* graphic)
 
 	Debugging::EnableGrid(10);
 
-	//TextureMgr::Instance()->Load(graphic, "marine_s.png", 8);
+	TextureMgr::Instance()->Load(graphic, "marine_s.png", 8);
 	TextureMgr::Instance()->Load(graphic, "woodbox.jpg");
 
 	/*UINT spriteX=0;
