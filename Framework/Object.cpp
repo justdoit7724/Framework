@@ -40,7 +40,7 @@ Object::Object(IGraphic* graphic, Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmb
 
 	D3D11_SAMPLER_DESC samplerDesc;
 	ZeroMemory(&samplerDesc, sizeof(D3D11_SAMPLER_DESC));
-	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR;
 	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
 	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
 	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;

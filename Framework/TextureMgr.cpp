@@ -34,7 +34,7 @@ void TextureMgr::Load(IGraphic* graphic, std::string fileName)
 		SRVs.insert(std::pair<std::string, ID3D11ShaderResourceView*>(fileName, newSRV));
 	}
 }
-void TextureMgr::Load(IGraphic * graphic, std::string fileName, UINT spriteX)
+void TextureMgr::Load(IGraphic * graphic, std::string fileName, UINT count)
 {
 	if (animSRVs.find(fileName) == animSRVs.end())
 	{
@@ -53,9 +53,11 @@ void TextureMgr::Load(IGraphic * graphic, std::string fileName, UINT spriteX)
 		oriResource->QueryInterface(IID_ID3D11Texture2D, (void**)&oriTex);
 		D3D11_TEXTURE2D_DESC st_desc;
 		oriTex->GetDesc(&st_desc);
-		float sWidth = st_desc.Width / spriteX;
+		float sWidth = st_desc.Width / count;
 		float sHeight = st_desc.Height;
-		st_desc.ArraySize = spriteX;
+		
+		st_desc.Format = st_desc.Format;
+		st_desc.ArraySize = count;
 		st_desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 		st_desc.CPUAccessFlags = 0;
 		st_desc.Width = sWidth;
@@ -65,13 +67,14 @@ void TextureMgr::Load(IGraphic * graphic, std::string fileName, UINT spriteX)
 		st_desc.SampleDesc.Count = 1;
 		st_desc.SampleDesc.Quality = 0;
 		st_desc.Usage = D3D11_USAGE_DEFAULT;
+
 		ID3D11Texture2D* animTex;
 		r_assert(
 			graphic->Device()->CreateTexture2D(
 				&st_desc, nullptr, &animTex)
 		);
 
-		for (int i = 0; i < spriteX; ++i)
+		for (int i = 0; i < count; ++i)
 		{
 			graphic->DContext()->CopySubresourceRegion(animTex, i, 0, 0, 0, oriTex, 0, &CD3D11_BOX(i*sWidth, 0, 0, (i + 1)*sWidth, sHeight, 1));
 		}
@@ -79,15 +82,17 @@ void TextureMgr::Load(IGraphic * graphic, std::string fileName, UINT spriteX)
 		ID3D11ShaderResourceView* animSRV;
 		D3D11_SHADER_RESOURCE_VIEW_DESC srv_desc;
 		srv_desc.Format = st_desc.Format;
-		srv_desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-		srv_desc.Texture2D.MipLevels = 1;
-		srv_desc.Texture2D.MostDetailedMip = 0;
+		srv_desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
+		srv_desc.Texture2DArray.ArraySize = count;
+		srv_desc.Texture2DArray.FirstArraySlice = 0;
+		srv_desc.Texture2DArray.MipLevels = 1;
+		srv_desc.Texture2DArray.MostDetailedMip = 0;
 		r_assert(
 			graphic->Device()->CreateShaderResourceView(
 				animTex, &srv_desc, &animSRV)
 		);
 
-		animSRVs.insert(std::pair<std::string, AnimSRV>(fileName, AnimSRV(animSRV, spriteX)));
+		animSRVs.insert(std::pair<std::string, AnimSRV>(fileName, AnimSRV(animSRV, count)));
 	}
 }
 

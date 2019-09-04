@@ -26,16 +26,17 @@ Scene::Scene(IGraphic* graphic)
 
 	canvas = new UICanvas(device, SCREEN_WIDTH, SCREEN_HEIGHT);
 
-	Debugging::EnableGrid(10);
+	Debugging::EnableGrid(10,50);
 
 	TextureMgr::Instance()->Load(graphic, "marine_s.png", 8);
 	TextureMgr::Instance()->Load(graphic, "woodbox.jpg");
 
-	/*UINT spriteX=0;
-	ID3D11ShaderResourceView** srv=nullptr;
-	TextureMgr::Instance()->Get("marine_s.png", srv, &spriteX);
-	canvas->Add(device, "Test", XMFLOAT2(0, 0), 200, 200, 1, srv);
-*/
+	UINT spriteX=0;
+	ID3D11ShaderResourceView* srv=nullptr;
+	TextureMgr::Instance()->Get("marine_s.png", &srv, &spriteX);
+	
+	canvas->Add(device, "Test", XMFLOAT2(0, 0), 200, 200, 1, srv, 8, 12);
+
 	Sphere* tempQuad = new Sphere(device,3);
 
 	int objCountX = 6;
@@ -75,6 +76,7 @@ void Scene::Update()
 {
 	Timer::Update();
 	camera->Update(Timer::SPF());
+	canvas->Update(Timer::SPF());
 
 	Debugging::Draw("Camera1 Pos", camera->Pos(), 10, 10);
 

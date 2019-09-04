@@ -7,11 +7,10 @@
 #include "Network.h"
 #include "Transform.h"
 
-UI::UI(ID3D11Device* device, float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView*const* texture)
-	:texture(texture)
+UI::UI(ID3D11Device* device, float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView * srv, UINT maxSliceIdx, UINT slicePerSec)
+	:srv(srv), maxSliceIdx(maxSliceIdx), secPerSlice(1.0f/ slicePerSec)
 {
 	assert(0 <= zDepth && zDepth <= 1);
-
 
 	quad = new Quad(device);
 	transform = new Transform();
@@ -22,10 +21,11 @@ UI::UI(ID3D11Device* device, float canvasWidth, float canvasHeight, XMFLOAT2 piv
 	shader = new VPShader(device, L"UIVS.cso", L"UIPS.cso", std_ILayouts, ARRAYSIZE(std_ILayouts));
 
 	cb_vs_property = new ConstantBuffer<VS_Property>(device);
+	cb_ps_sliceIdx = new ConstantBuffer<float>(device);
 
 	D3D11_SAMPLER_DESC samplerDesc;
 	ZeroMemory(&samplerDesc, sizeof(D3D11_SAMPLER_DESC));
-	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR;
 	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -42,14 +42,28 @@ UI::~UI()
 	delete quad;
 	delete shader;
 	delete cb_vs_property;
+	delete cb_ps_sliceIdx;
 	texSampState->Release();
+}
+
+void UI::Update(float spf)
+{
+	curTime += spf;
+	if (curTime >= secPerSlice)
+	{
+		if (++curSliceIdx >= maxSliceIdx)
+			curSliceIdx = 0;
+		curTime = 0;
+	}
 }
 
 void UI::Render(ID3D11DeviceContext* dContext, const XMMATRIX& vpMat)
 {
 	shader->SetPipline(dContext);
 	cb_vs_property->VSSetData(dContext, &VS_Property(transform, vpMat));
-	dContext->PSSetShaderResources(0, 1, texture);
+	float tempSliceIdx = curSliceIdx;
+	cb_ps_sliceIdx->PSSetData(dContext, &tempSliceIdx);
+	dContext->PSSetShaderResources(0, 1, &srv);
 	dContext->PSSetSamplers(0, 1, &texSampState);
 	quad->Render(dContext);
 }
@@ -72,11 +86,11 @@ UICanvas::~UICanvas()
 	}
 }
 
-void UICanvas::Add(ID3D11Device* device, std::string id, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView*const* srv)
+void UICanvas::Add(ID3D11Device* device, std::string id, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView*const srv, UINT maxSliceIdx, UINT slicePerSec)
 {
 	if (UIs.find(id) == UIs.end())
 	{
-		UIs.insert(std::pair<std::string, UI*>(id, new UI(device, totalWidth, totalHeight, pivot,width,height, zDepth, srv)));
+		UIs.insert(std::pair<std::string, UI*>(id, new UI(device, totalWidth, totalHeight, pivot,width,height, zDepth, srv, maxSliceIdx, slicePerSec)));
 	}
 }
 
@@ -86,6 +100,14 @@ void UICanvas::Remove(std::string id)
 	{
 		delete UIs[id];
 		UIs.erase(id);
+	}
+}
+
+void UICanvas::Update(float spf)
+{
+	for (auto& ui : UIs)
+	{
+		ui.second->Update(spf);
 	}
 }
 
