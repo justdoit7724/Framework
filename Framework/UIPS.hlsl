@@ -23,10 +23,8 @@ float4 main(PS_INPUT input) : SV_Target
         color.y == MAGENTA.y &&
         color.z == MAGENTA.z)
     {
-        return TRANSPARANCY;
+        clip(-1);
     }
-    else
-    {
-        return color;
-    }
+    
+    return color;
 }

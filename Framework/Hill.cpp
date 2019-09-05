@@ -5,7 +5,7 @@
 #include "CustomFormat.h"
 #include "Debugging.h"
 
-Hill::Hill(ID3D11Device* device, ID3D11DeviceContext* dContext, int n, int m, XMFLOAT2 heightRange, ID3D11ShaderResourceView*const* heightMap)
+Hill::Hill(ID3D11Device* device, ID3D11DeviceContext* dContext, int n, int m, XMFLOAT2 heightRange, ID3D11ShaderResourceView * heightMap)
 	:Shape()
 {
 #pragma region define x, z
@@ -43,7 +43,7 @@ Hill::Hill(ID3D11Device* device, ID3D11DeviceContext* dContext, int n, int m, XM
 	std::unique_ptr<ConstantBuffer<XMFLOAT2>> cbResol(new ConstantBuffer<XMFLOAT2>(device));
 	cbResol->CSSetData(dContext, &XMFLOAT2(n, m), 1);
 
-	dContext->CSSetShaderResources(0, 1, heightMap);
+	dContext->CSSetShaderResources(0, 1, &heightMap);
 
 	Texture2D<float>* heightBuffer = new Texture2D<float>(
 		device,
@@ -85,6 +85,11 @@ Hill::Hill(ID3D11Device* device, ID3D11DeviceContext* dContext, int n, int m, XM
 	dContext->Unmap(outputBuffer->Get(), 0);
 
 #pragma endregion
+
+#pragma region Normal vector
+
+#pragma endregion
+
 
 #pragma region define index
 
