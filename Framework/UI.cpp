@@ -12,7 +12,6 @@ UI::UI(ID3D11Device* device, float canvasWidth, float canvasHeight, XMFLOAT2 piv
 {
 	assert(0 <= zDepth && zDepth <= 1);
 
-
 	quad = new Quad(device);
 	transform = new Transform();
 	transform->SetScale(width, height, 1);
@@ -43,9 +42,9 @@ UI::UI(ID3D11Device* device, float canvasWidth, float canvasHeight, XMFLOAT2 piv
 	blend_desc.AlphaToCoverageEnable = false;
 	blend_desc.IndependentBlendEnable = false;
 	blend_desc.RenderTarget[0].BlendEnable = true;
-	blend_desc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+	blend_desc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
 	blend_desc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ZERO;
-	blend_desc.RenderTarget[0].DestBlend = D3D11_BLEND_ZERO;
+	blend_desc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
 	blend_desc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
 	blend_desc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
 	blend_desc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;

@@ -177,7 +177,6 @@ float4 main(PS_INPUT input) : SV_Target
     ambient += A;
     diffuse += D;
     specular += S;
-    return A;
     ComputePointLight(input.wPos, input.normal, toEye, A, D, S);
     ambient += A;
     diffuse += D;
