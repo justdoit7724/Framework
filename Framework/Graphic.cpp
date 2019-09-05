@@ -140,7 +140,7 @@ void Graphic::Present()
 {
 	swapchain->Present(1, 0);
 
-	dContext->ClearRenderTargetView(rtv.Get(), DirectX::Colors::Transparent);
+	dContext->ClearRenderTargetView(rtv.Get(), DirectX::Colors::Black);
 	dContext->ClearDepthStencilView(dsView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
 
