@@ -35,6 +35,26 @@ UI::UI(ID3D11Device* device, float canvasWidth, float canvasHeight, XMFLOAT2 piv
 	r_assert(
 		device->CreateSamplerState(&samplerDesc, &texSampState)
 	);
+
+#pragma region BLEND STATE
+
+	D3D11_BLEND_DESC blend_desc;
+	blend_desc.AlphaToCoverageEnable = false;
+	blend_desc.IndependentBlendEnable = false;
+	blend_desc.RenderTarget[0].BlendEnable = true;
+	blend_desc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	blend_desc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ZERO;
+	blend_desc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	blend_desc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	blend_desc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	blend_desc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	blend_desc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	r_assert(
+		device->CreateBlendState(&blend_desc, &blendState)
+	);
+
+#pragma endregion
+
 }
 
 UI::~UI()
@@ -43,6 +63,7 @@ UI::~UI()
 	delete shader;
 	delete cb_vs_property;
 	delete cb_ps_sliceIdx;
+	blendState->Release();
 	texSampState->Release();
 }
 
@@ -51,8 +72,7 @@ void UI::Update(float spf)
 	curTime += spf;
 	if (curTime >= secPerSlice)
 	{
-		if (++curSliceIdx >= maxSliceIdx)
-			curSliceIdx = 0;
+		curSliceIdx = (curSliceIdx+1) % maxSliceIdx;
 		curTime = 0;
 	}
 }
@@ -65,6 +85,7 @@ void UI::Render(ID3D11DeviceContext* dContext, const XMMATRIX& vpMat)
 	cb_ps_sliceIdx->PSSetData(dContext, &tempSliceIdx);
 	dContext->PSSetShaderResources(0, 1, &srv);
 	dContext->PSSetSamplers(0, 1, &texSampState);
+	dContext->OMSetBlendState(blendState, nullptr, 1);
 	quad->Render(dContext);
 }
 

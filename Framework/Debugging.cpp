@@ -23,6 +23,7 @@ std::unique_ptr<ConstantBuffer<VS_Property>> Debugging::cb_transformation=nullpt
 std::unique_ptr<ConstantBuffer<XMVECTOR>> Debugging::cb_color=nullptr;
 std::unique_ptr<DirectX::SpriteBatch> Debugging::spriteBatch=nullptr;
 std::unique_ptr<DirectX::SpriteFont> Debugging::spriteFont=nullptr;
+ComPtr<ID3D11BlendState> Debugging::blendState=nullptr;
 
 float Debugging::gridInterval;
 
@@ -173,6 +174,25 @@ void Debugging::Render(Camera* camera, IGraphic* graphic)
 	ID3D11DeviceContext* dContext = graphic->DContext();
 
 	XMMATRIX vpMat = camera->ViewMat() * camera->ProjMat(Z_ORDER_STANDARD);
+
+	if (blendState == nullptr)
+	{
+		D3D11_BLEND_DESC blend_desc;
+		blend_desc.AlphaToCoverageEnable = false;
+		blend_desc.IndependentBlendEnable = false;
+		blend_desc.RenderTarget[0].BlendEnable = true;
+		blend_desc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+		blend_desc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+		blend_desc.RenderTarget[0].DestBlend = D3D11_BLEND_ZERO;
+		blend_desc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+		blend_desc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+		blend_desc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+		blend_desc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+		r_assert(
+			device->CreateBlendState(&blend_desc, blendState.GetAddressOf())
+		);
+	}
+	dContext->OMSetBlendState(blendState.Get(), nullptr, 1);
 
 	#pragma region Marks
 

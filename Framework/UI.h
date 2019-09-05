@@ -24,6 +24,7 @@ private:
 	VPShader* shader;
 	ConstantBuffer<VS_Property>* cb_vs_property;
 	ConstantBuffer<float>* cb_ps_sliceIdx;
+	ID3D11BlendState* blendState;
 	ID3D11ShaderResourceView *const srv;
 	float curTime=0;
 	const int maxSliceIdx;

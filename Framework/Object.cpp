@@ -113,6 +113,25 @@ Object::Object(IGraphic* graphic, Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmb
 	}
 #pragma endregion
 
+#pragma region Blending
+	
+	D3D11_BLEND_DESC blend_desc;
+	blend_desc.AlphaToCoverageEnable = false;
+	blend_desc.IndependentBlendEnable = false;
+	blend_desc.RenderTarget[0].BlendEnable = true;
+	blend_desc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+	blend_desc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	blend_desc.RenderTarget[0].DestBlend = D3D11_BLEND_ZERO;
+	blend_desc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	blend_desc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	blend_desc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	blend_desc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	r_assert(
+		device->CreateBlendState(&blend_desc, blendState.GetAddressOf())
+	);
+
+#pragma endregion
+
 }
 
 Object::~Object()
@@ -158,7 +177,9 @@ void Object::Render(IGraphic* graphic, Camera* camera, const SHADER_DIRECTIONAL_
 	dContext->PSSetShaderResources(0, 1, bodySRV.GetAddressOf());
 	dContext->PSSetSamplers(0, 1, bodySameplerState.GetAddressOf());
 
+	// STATE
 	graphic->SetRasterizerState();
 	graphic->SetDepthStencilState();
+	graphic->DContext()->OMSetBlendState(blendState.Get(), nullptr, 1);
 	shape->Render(dContext);
 }

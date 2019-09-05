@@ -39,5 +39,6 @@ private:
 	ConstantBuffer<ShaderMaterial>* cb_ps_material;
 	ComPtr<ID3D11ShaderResourceView> bodySRV;
 	ComPtr<ID3D11SamplerState> bodySameplerState;
+	ComPtr<ID3D11BlendState> blendState;
 };
 

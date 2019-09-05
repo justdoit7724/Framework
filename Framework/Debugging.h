@@ -6,7 +6,6 @@
 #include <unordered_set>
 #include <unordered_map>
 #include "Resource.h"
-#include "Geometrics.h"
 
 class IGraphic;
 class Shape;
@@ -91,6 +90,7 @@ private:
 	static std::unique_ptr<VPShader> shader;
 	static std::unique_ptr<ConstantBuffer<VS_Property>> cb_transformation;
 	static std::unique_ptr<ConstantBuffer<XMVECTOR>> cb_color;
+	static ComPtr<ID3D11BlendState> blendState;
 
 	static float gridInterval;
 };

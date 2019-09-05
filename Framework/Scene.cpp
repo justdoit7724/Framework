@@ -28,14 +28,14 @@ Scene::Scene(IGraphic* graphic)
 
 	Debugging::EnableGrid(10,50);
 
-	TextureMgr::Instance()->Load(graphic, "marine_s.png", 8);
+	UINT spriteX=8;
+	TextureMgr::Instance()->Load(graphic, "marine_s.png", spriteX);
 	TextureMgr::Instance()->Load(graphic, "woodbox.jpg");
 
-	UINT spriteX=0;
 	ID3D11ShaderResourceView* srv=nullptr;
 	TextureMgr::Instance()->Get("marine_s.png", &srv, &spriteX);
 	
-	canvas->Add(device, "Test", XMFLOAT2(0, 0), 200, 200, 1, srv, 8, 12);
+	canvas->Add(device, "Test", XMFLOAT2(0, 0), 200, 200, 1, srv, spriteX, 12);
 
 	Sphere* tempQuad = new Sphere(device,3);
 
@@ -51,8 +51,8 @@ Scene::Scene(IGraphic* graphic)
 				XMFLOAT3(0.8f, 0.8f, 0.8f), XMFLOAT3(0.15f, 0.15f, 0.15f), XMFLOAT3(0.9f, 0.9f, 0.9f), 8.0f, XMFLOAT3(1, 1, 1),
 				"woodbox.jpg"
 			);
-			newObj->GetTransform()->SetScale(XMFLOAT3(1.0f, 1.0f, 1));
-			newObj->GetTransform()->SetRot(UP, -FORWARD);
+			newObj->GetTransform()->SetScale(XMFLOAT3(2.0f, 2.0f, 2.0f));
+			//newObj->GetTransform()->SetRot(UP, -FORWARD);
 			newObj->GetTransform()->SetTranslation(x*10,0,z*10);
 
 			objs.push_back(newObj);
@@ -86,10 +86,11 @@ void Scene::Render(IGraphic* graphic)
 {
 	Debugging::Render(camera, graphic);
 
-	canvas->Render(graphic);
-
 	for (auto obj : objs)
 	{
 		obj->Render(graphic, camera, DirectionalLight::Data(), PointLight::Data(), SpotLight::Data(), XMMatrixIdentity());
 	}
+
+	canvas->Render(graphic);
+
 }
