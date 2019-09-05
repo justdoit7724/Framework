@@ -28,6 +28,6 @@ VS_OUTPUT main(VS_INPUT input)
     output.pos = mul(VPMat, float4(output.wPos, 1)); 
     output.normal = mul(NMat, float4(input.normal, 1)).xyz;
     output.tex = mul(texMat, float4(input.tex, 0, 1)).xy;
-
+    
     return output;
 }

@@ -49,6 +49,7 @@ struct VS_Property
 
 		w = s * r * t;
 		n = XMMatrixTranspose(XMMatrixInverse(&XMMatrixDeterminant(r), r));
+		int a = 0;
 	}
 };
 

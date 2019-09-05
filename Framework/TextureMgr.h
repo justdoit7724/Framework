@@ -13,7 +13,7 @@ public:
 	~TextureMgr();
 	void Load(IGraphic* graphic, std::string fileName);
 	void Load(IGraphic* graphic, std::string fileName, UINT spriteX);
-	ID3D11ShaderResourceView* Get(std::string fileName);
+	ID3D11ShaderResourceView *const Get(std::string fileName);
 	void Get(std::string fileName, OUT ID3D11ShaderResourceView** srv, OUT UINT* count);
 	ID3D11Texture2D* GetTexture(std::string fileName);
 

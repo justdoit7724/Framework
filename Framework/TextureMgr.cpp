@@ -96,7 +96,7 @@ void TextureMgr::Load(IGraphic * graphic, std::string fileName, UINT count)
 	}
 }
 
-ID3D11ShaderResourceView* TextureMgr::Get(std::string fileName)
+ID3D11ShaderResourceView *const TextureMgr::Get(std::string fileName)
 {
 	auto iter = SRVs.find(fileName);
 

@@ -31,6 +31,7 @@ Scene::Scene(IGraphic* graphic)
 	UINT spriteX=8;
 	TextureMgr::Instance()->Load(graphic, "marine_s.png", spriteX);
 	TextureMgr::Instance()->Load(graphic, "woodbox.jpg");
+	TextureMgr::Instance()->Load(graphic, "heightmap3.jpg");
 
 	ID3D11ShaderResourceView* srv=nullptr;
 	TextureMgr::Instance()->Get("marine_s.png", &srv, &spriteX);
@@ -38,8 +39,10 @@ Scene::Scene(IGraphic* graphic)
 	canvas->Add(device, "Test", XMFLOAT2(0, 0), 200, 200, 1, srv, spriteX, 12);
 
 	Sphere* tempQuad = new Sphere(device,3);
+	ID3D11ShaderResourceView *const srv2 = TextureMgr::Instance()->Get("heightmap3.jpg");
+	Hill* hill = new Hill(device, graphic->DContext(), 200, 200, XMFLOAT2(0, 30), &srv2);
 
-	int objCountX = 6;
+	int objCountX = 4;
 	int objCountY = 4;
 	for (int z = 0; z < objCountY; ++z)
 	{
@@ -48,20 +51,28 @@ Scene::Scene(IGraphic* graphic)
 			Object* newObj = new Object(
 				graphic,
 				tempQuad,
-				XMFLOAT3(0.8f, 0.8f, 0.8f), XMFLOAT3(0.15f, 0.15f, 0.15f), XMFLOAT3(0.9f, 0.9f, 0.9f), 8.0f, XMFLOAT3(1, 1, 1),
+				XMFLOAT3(0.8f, 0.8f, 0.8f), XMFLOAT3(1, 1, 1), XMFLOAT3(0.9f, 0.9f, 0.9f), 8.0f, XMFLOAT3(1, 1, 1),
 				"woodbox.jpg"
 			);
-			newObj->GetTransform()->SetScale(XMFLOAT3(2.0f, 2.0f, 2.0f));
-			//newObj->GetTransform()->SetRot(UP, -FORWARD);
+			newObj->GetTransform()->SetScale(XMFLOAT3(4.0f, 4.0f, 4.0f));
 			newObj->GetTransform()->SetTranslation(x*10,0,z*10);
 
 			objs.push_back(newObj);
 
 		}
 	}
+	Object* hillObj = new Object(
+		graphic,
+		hill,
+		XMFLOAT3(0.8f, 0.8f, 0.8f), XMFLOAT3(1, 1, 1), XMFLOAT3(0.9f, 0.9f, 0.9f), 8.0f, XMFLOAT3(1, 1, 1),
+		"grass.jpg"
+	);
+	hillObj->GetTransform()->SetScale(XMFLOAT3(14.0f, 1.0f, 14.0f));
+	hillObj->GetTransform()->SetTranslation(10, 10, 0);
+	objs.push_back(hillObj);
 
 	dLight = new DirectionalLight(
-		XMFLOAT3(0.15f, 0.15f, 0.15f),
+		XMFLOAT3(0.25f, 0.25f, 0.25f),
 		XMFLOAT3(0.75f, 0.75f, 0.75f),
 		XMFLOAT3(0.9f, 0.9f, 0.9f),
 		FORWARD);
@@ -77,6 +88,9 @@ void Scene::Update()
 	Timer::Update();
 	camera->Update(Timer::SPF());
 	canvas->Update(Timer::SPF());
+
+	XMMATRIX rot = XMMatrixRotationX(-Timer::Elapsed());
+	(*(objs.rbegin()))->GetTransform()->SetRot(UP*rot, -FORWARD*rot);
 
 	Debugging::Draw("Camera1 Pos", camera->Pos(), 10, 10);
 

@@ -11,9 +11,6 @@ class DirectionalLight;
 class PointLight;
 class SpotLight;
 class UICanvas;
-struct SHADER_DIRECTIONAL_LIGHT;
-struct SHADER_POINT_LIGHT;
-struct SHADER_SPOT_LIGHT;
 
 class Scene
 {
