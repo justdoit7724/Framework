@@ -92,15 +92,23 @@ Graphic::Graphic(HWND _hwnd)
 			dsView.GetAddressOf())
 	);
 	dContext->OMSetRenderTargets(1, rtv.GetAddressOf(), dsView.Get());
-	//dContext->OMSetRenderTargets(1, &rtvs[1], dsView.Get());
 
 	D3D11_DEPTH_STENCIL_DESC ds_desc2;
 	ZeroMemory(&ds_desc2, sizeof(D3D11_DEPTH_STENCIL_DESC));
 	ds_desc2.DepthEnable = true;
 	ds_desc2.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	ds_desc2.DepthFunc = D3D11_COMPARISON_LESS;
-	ds_desc2.StencilEnable = false;
-
+	ds_desc2.StencilEnable = true;
+	ds_desc2.StencilReadMask = 0xff;
+	ds_desc2.StencilWriteMask = 0x01;
+	D3D11_DEPTH_STENCILOP_DESC dsOp_desc;
+	dsOp_desc.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	dsOp_desc.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	dsOp_desc.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
+	dsOp_desc.StencilFunc = D3D11_COMPARISON_EQUAL;
+	ds_desc2.FrontFace = dsOp_desc;
+	ds_desc2.BackFace = dsOp_desc;
+	
 	r_assert(
 		device->CreateDepthStencilState(
 			&ds_desc2, dsState.GetAddressOf())

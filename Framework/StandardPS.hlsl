@@ -190,7 +190,7 @@ float4 main(PS_INPUT input) : SV_Target
     diffuse *= tex;
     
     float4 color = ambient + diffuse + specular;
-    color.w = 1;
+    color.w = mDiffuse.a;
     
     return color;
 }

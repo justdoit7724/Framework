@@ -108,11 +108,21 @@ struct SHADER_SPOT_LIGHT {
 
 struct ShaderMaterial
 {
+private:
 	XMFLOAT4 diffuse;
 	XMFLOAT4 ambient;
 	XMFLOAT4 specular;
 	XMFLOAT4 reflection;
 
-	ShaderMaterial(XMFLOAT3 d, XMFLOAT3 a, XMFLOAT3 s, float sp, XMFLOAT3 r)
-		:diffuse(XMFLOAT4(d.x, d.y, d.z, 0)),ambient(XMFLOAT4(a.x, a.y, a.z, 0)),specular(XMFLOAT4(s.x, s.y, s.z, sp)), reflection(XMFLOAT4(r.x, r.y, r.z, 0)){}
+public:
+	ShaderMaterial(XMFLOAT3 d, float transparency, XMFLOAT3 a, XMFLOAT3 s, float sp, XMFLOAT3 r)
+		:diffuse(XMFLOAT4(d.x, d.y, d.z, transparency)),ambient(XMFLOAT4(a.x, a.y, a.z, 0)),specular(XMFLOAT4(s.x, s.y, s.z, sp)), reflection(XMFLOAT4(r.x, r.y, r.z, 0)){}
+	void SetTransparency(float t)
+	{
+		diffuse.w = t;
+	}
+	void SetSpecPower(float p)
+	{
+		specular.w = p;
+	}
 };

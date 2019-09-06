@@ -12,10 +12,7 @@ public:
 
 	ID3D11Device* Device() {return device.Get();}
 	ID3D11DeviceContext* DContext() {return dContext.Get();}
-	void SetDepthStencilState()
-	{
-		dContext->OMSetDepthStencilState(dsState.Get(), 0);
-	}
+
 	void SetRasterizerState()
 	{
 		dContext->RSSetState(rasterizerState.Get());

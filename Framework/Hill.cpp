@@ -3,11 +3,15 @@
 #include "Resource.h"
 #include "TextureMgr.h"
 #include "CustomFormat.h"
+#include "Network.h"
 #include "Debugging.h"
 
-Hill::Hill(ID3D11Device* device, ID3D11DeviceContext* dContext, int n, int m, XMFLOAT2 heightRange, ID3D11ShaderResourceView*const* heightMap)
+Hill::Hill(IGraphic* graphic, int n, int m, XMFLOAT2 heightRange, ID3D11ShaderResourceView *const* heightMap)
 	:Shape()
 {
+	ID3D11Device* device = graphic->Device();
+	ID3D11DeviceContext* dContext = graphic->DContext();
+
 #pragma region define x, z
 
 	float dx = 1.0f / (n - 1);
@@ -26,7 +30,7 @@ Hill::Hill(ID3D11Device* device, ID3D11DeviceContext* dContext, int n, int m, XM
 			float x = -0.5f + j * dx;
 			vertice[idx].pos = XMFLOAT3(x, 0.0f, z);
 
-			vertice[idx].n = XMFLOAT3(0.0f, 1.0f, 0.0f);
+			vertice[idx].n = XMFLOAT3(0.707f, 0.707f, 0.0f);
 			vertice[idx].tex.x = j * du; 
 			vertice[idx].tex.y = i * dv;
 		}
@@ -113,4 +117,11 @@ Hill::Hill(ID3D11Device* device, ID3D11DeviceContext* dContext, int n, int m, XM
 
 Hill::~Hill()
 {
+}
+
+void Hill::Render(ID3D11DeviceContext * dContext)
+{
+	Debugging::Draw("Normal of hill is only heading upward", 100, 30);
+
+	Shape::Render(dContext);
 }

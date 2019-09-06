@@ -96,7 +96,7 @@ void TextureMgr::Load(IGraphic * graphic, std::string fileName, UINT count)
 	}
 }
 
-ID3D11ShaderResourceView *const TextureMgr::Get(std::string fileName)
+ID3D11ShaderResourceView * TextureMgr::Get(std::string fileName)
 {
 	auto iter = SRVs.find(fileName);
 
@@ -105,7 +105,16 @@ ID3D11ShaderResourceView *const TextureMgr::Get(std::string fileName)
 	return iter->second;
 }
 
-void TextureMgr::Get(std::string fileName, OUT ID3D11ShaderResourceView ** srv, OUT UINT* count)
+ID3D11ShaderResourceView *const* TextureMgr::GetAddress(std::string fileName)
+{
+	auto iter = SRVs.find(fileName);
+
+	assert(iter != SRVs.end());
+
+	return &(iter->second);
+}
+
+void TextureMgr::Get(std::string fileName, OUT ID3D11ShaderResourceView const ** srv, OUT UINT* count)
 {
 	auto iter = animSRVs.find(fileName);
 

@@ -28,48 +28,51 @@ Scene::Scene(IGraphic* graphic)
 
 	Debugging::EnableGrid(10,50);
 
-	UINT spriteX=8;
-	TextureMgr::Instance()->Load(graphic, "marine_s.png", spriteX);
-	TextureMgr::Instance()->Load(graphic, "woodbox.jpg");
+	TextureMgr::Instance()->Load(graphic, "sample.jpg");
+	TextureMgr::Instance()->Load(graphic, "transparency.png");
+	TextureMgr::Instance()->Load(graphic, "marine_s.png");
 	TextureMgr::Instance()->Load(graphic, "heightmap3.jpg");
+	TextureMgr::Instance()->Load(graphic, "grass.jpg");
 
-	ID3D11ShaderResourceView* srv=nullptr;
-	TextureMgr::Instance()->Get("marine_s.png", &srv, &spriteX);
+	canvas->Add(device, "test", XMFLOAT2(380, 380), 380, 380, 0, TextureMgr::Instance()->Get("transparency.png"));
+	D3D11_DEPTH_STENCIL_DESC ds_desc;
+	ds_desc.DepthEnable = true;
+	ds_desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	ds_desc.DepthFunc = D3D11_COMPARISON_LESS;
+	ds_desc.StencilEnable = true;
+	ds_desc.StencilReadMask = 0xff;
+	ds_desc.StencilWriteMask = 0xff;
+	D3D11_DEPTH_STENCILOP_DESC dso_desc;
+	dso_desc.StencilPassOp = D3D11_STENCIL_OP_REPLACE;
+	dso_desc.StencilFailOp = D3D11_STENCIL_OP_REPLACE;
+	dso_desc.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
+	dso_desc.StencilFunc = D3D11_COMPARISON_ALWAYS;
 	
-	canvas->Add(device, "Test", XMFLOAT2(0, 0), 200, 200, 1, srv, spriteX, 12);
 
-	Sphere* tempQuad = new Sphere(device,3);
-	ID3D11ShaderResourceView *const srv2 = TextureMgr::Instance()->Get("heightmap3.jpg");
-	Hill* hill = new Hill(device, graphic->DContext(), 200, 200, XMFLOAT2(0, 30), &srv2);
+	Hill* hill = new Hill(graphic, 400, 400, XMFLOAT2(0, 30), TextureMgr::Instance()->GetAddress("heightmap3.jpg"));
+	Hill* water = new Hill(graphic, 50, 50, XMFLOAT2(10, 15), TextureMgr::Instance()->GetAddress("sample.jpg"));
 
-	int objCountX = 4;
-	int objCountY = 4;
-	for (int z = 0; z < objCountY; ++z)
-	{
-		for (int x = 0; x < objCountX; ++x)
-		{
-			Object* newObj = new Object(
-				graphic,
-				tempQuad,
-				XMFLOAT3(0.8f, 0.8f, 0.8f), XMFLOAT3(1, 1, 1), XMFLOAT3(0.9f, 0.9f, 0.9f), 8.0f, XMFLOAT3(1, 1, 1),
-				"woodbox.jpg"
-			);
-			newObj->GetTransform()->SetScale(XMFLOAT3(4.0f, 4.0f, 4.0f));
-			newObj->GetTransform()->SetTranslation(x*10,0,z*10);
+	Object* hillObj = new Object(graphic, hill, XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), XMFLOAT3(0.5f, 0.5f, 0.5f), 4, XMFLOAT3(1, 1, 1), "grass.jpg");
+	Object* waterObj = new Object(graphic, water, XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), 8, XMFLOAT3(1, 1, 1), "white.png");
+	waterObj->SetTransparency(0.5f);
+	waterObj->SetStencilRefValue(1);
+	D3D11_BLEND_DESC tDesc;
+	tDesc.AlphaToCoverageEnable = false;
+	tDesc.IndependentBlendEnable = false;
+	tDesc.RenderTarget[0].BlendEnable = true;
+	tDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	tDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	tDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	tDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	tDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	tDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	tDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	waterObj->SetBlendState(device, &tDesc);
 
-			objs.push_back(newObj);
-
-		}
-	}
-	Object* hillObj = new Object(
-		graphic,
-		hill,
-		XMFLOAT3(0.8f, 0.8f, 0.8f), XMFLOAT3(1, 1, 1), XMFLOAT3(0.9f, 0.9f, 0.9f), 8.0f, XMFLOAT3(1, 1, 1),
-		"grass.jpg"
-	);
-	hillObj->GetTransform()->SetScale(XMFLOAT3(14.0f, 1.0f, 14.0f));
-	hillObj->GetTransform()->SetTranslation(10, 10, 0);
+	hillObj->GetTransform()->SetScale(100, 1, 100);
+	waterObj->GetTransform()->SetScale(100, 1, 100);
 	objs.push_back(hillObj);
+	objs.push_back(waterObj);
 
 	dLight = new DirectionalLight(
 		XMFLOAT3(0.25f, 0.25f, 0.25f),
@@ -80,6 +83,7 @@ Scene::Scene(IGraphic* graphic)
 
 Scene::~Scene()
 {
+	
 }
 
 //static XMMATRIX
@@ -88,11 +92,6 @@ void Scene::Update()
 	Timer::Update();
 	camera->Update(Timer::SPF());
 	canvas->Update(Timer::SPF());
-
-	XMMATRIX rot = XMMatrixRotationX(-Timer::Elapsed());
-	(*(objs.rbegin()))->GetTransform()->SetRot(UP*rot, -FORWARD*rot);
-
-	Debugging::Draw("Camera1 Pos", camera->Pos(), 10, 10);
 
 }
 

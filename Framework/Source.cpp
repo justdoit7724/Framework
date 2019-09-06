@@ -13,6 +13,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	Graphic* graphic = new Graphic(window.Hwnd());
 	Debugging::Init(graphic);
 	Scene* scene = new Scene(graphic);
+	srand(time(NULL));
 
 	Timer::Init();
 

@@ -22,6 +22,14 @@ public:
 	void Update();
 	void Render(IGraphic* graphic, Camera* camera, const SHADER_DIRECTIONAL_LIGHT* dLight, const SHADER_POINT_LIGHT* pLight, const SHADER_SPOT_LIGHT* sLight, const XMMATRIX& texMat);
 
+	void SetBlendState(ID3D11Device* device, D3D11_BLEND_DESC *desc);
+	void SetDepthStencilState(ID3D11Device* device, D3D11_DEPTH_STENCIL_DESC* desc);
+	void SetTransparency(float t);
+	void SetStencilRefValue(UINT v)
+	{
+		stencilRefValue = v;
+	}
+
 	const bool isMipmap;
 	const int zOrder;
 
@@ -40,5 +48,7 @@ private:
 	ComPtr<ID3D11ShaderResourceView> bodySRV;
 	ComPtr<ID3D11SamplerState> bodySameplerState;
 	ComPtr<ID3D11BlendState> blendState;
+	ComPtr<ID3D11DepthStencilState> dsState;
+	UINT stencilRefValue;
 };
 

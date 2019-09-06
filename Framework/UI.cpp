@@ -8,7 +8,7 @@
 #include "Transform.h"
 
 UI::UI(ID3D11Device* device, float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView * srv, UINT maxSliceIdx, UINT slicePerSec)
-	:srv(srv), maxSliceIdx(maxSliceIdx), secPerSlice(1.0f/ slicePerSec)
+	:srv(srv), maxSliceIdx(maxSliceIdx), secPerSlice(1.0f / slicePerSec)
 {
 	assert(0 <= zDepth && zDepth <= 1);
 
@@ -16,7 +16,7 @@ UI::UI(ID3D11Device* device, float canvasWidth, float canvasHeight, XMFLOAT2 piv
 	transform = new Transform();
 	transform->SetScale(width, height, 1);
 	transform->SetRot(-FORWARD, UP);
-	transform->SetTranslation(pivot.x + width * 0.5f, (canvasHeight - height * 0.5f)- pivot.y, zDepth);
+	transform->SetTranslation(pivot.x + width * 0.5f, (canvasHeight - height * 0.5f) - pivot.y, zDepth);
 
 	shader = new VPShader(device, L"UIVS.cso", L"UIPS.cso", std_ILayouts, ARRAYSIZE(std_ILayouts));
 
@@ -55,6 +55,28 @@ UI::UI(ID3D11Device* device, float canvasWidth, float canvasHeight, XMFLOAT2 piv
 
 #pragma endregion
 
+#pragma region Depth/Stencil STATE
+	D3D11_DEPTH_STENCIL_DESC ds_desc;
+	ds_desc.DepthEnable = true;
+	ds_desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	ds_desc.DepthFunc = D3D11_COMPARISON_LESS;
+	ds_desc.StencilEnable = true;
+	ds_desc.StencilReadMask = D3D11_DEFAULT_STENCIL_READ_MASK;
+	ds_desc.StencilWriteMask = D3D11_DEFAULT_STENCIL_WRITE_MASK;
+	D3D11_DEPTH_STENCILOP_DESC dso_desc;
+	dso_desc.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	dso_desc.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	dso_desc.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
+	dso_desc.StencilFunc = D3D11_COMPARISON_EQUAL;
+	ds_desc.FrontFace = dso_desc;
+	ds_desc.BackFace = dso_desc;
+	r_assert(
+		device->CreateDepthStencilState(&ds_desc, &dsState)
+	);
+	stencilRefValue = 0;
+#pragma endregion
+
+
 }
 
 UI::~UI()
@@ -65,6 +87,7 @@ UI::~UI()
 	delete cb_ps_sliceIdx;
 	blendState->Release();
 	texSampState->Release();
+	dsState->Release();
 }
 
 void UI::Update(float spf)
@@ -86,7 +109,22 @@ void UI::Render(ID3D11DeviceContext* dContext, const XMMATRIX& vpMat)
 	dContext->PSSetShaderResources(0, 1, &srv);
 	dContext->PSSetSamplers(0, 1, &texSampState);
 	dContext->OMSetBlendState(blendState, nullptr, 1);
+	dContext->OMSetDepthStencilState(dsState, stencilRefValue);
 	quad->Render(dContext);
+}
+
+void UI::SetDepthStencilState(ID3D11Device* device, D3D11_DEPTH_STENCIL_DESC * desc)
+{
+	dsState->Release();
+
+	r_assert(
+		device->CreateDepthStencilState(desc, &dsState)
+	);
+}
+
+void UI::SetStencilRefValue(UINT v)
+{
+	stencilRefValue = v;
 }
 
 UICanvas::UICanvas(ID3D11Device* device, float width, float height)
@@ -107,7 +145,7 @@ UICanvas::~UICanvas()
 	}
 }
 
-void UICanvas::Add(ID3D11Device* device, std::string id, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView*const srv, UINT maxSliceIdx, UINT slicePerSec)
+void UICanvas::Add(ID3D11Device* device, std::string id, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView* srv, UINT maxSliceIdx, UINT slicePerSec)
 {
 	if (UIs.find(id) == UIs.end())
 	{
@@ -138,7 +176,6 @@ void UICanvas::Render(IGraphic* graphic)
 
 	for (auto& ui : UIs)
 	{
-		graphic->SetDepthStencilState();
 		graphic->SetRasterizerState();
 
 		ui.second->Render(graphic->DContext(), vpMat);

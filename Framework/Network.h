@@ -4,7 +4,6 @@
 class IGraphic
 {
 public:
-	virtual void SetDepthStencilState() = 0;
 	virtual void SetRasterizerState() = 0;
 	virtual void ClearDepth(float v=1) = 0;
 

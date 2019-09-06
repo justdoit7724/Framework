@@ -19,6 +19,9 @@ private:
 	void Render(ID3D11DeviceContext* dContext, const XMMATRIX& vpMat);
 	friend class UICanvas;
 
+	void SetDepthStencilState(ID3D11Device* device, D3D11_DEPTH_STENCIL_DESC* desc);
+	void SetStencilRefValue(UINT v);
+
 	Transform* transform;
 	Quad* quad;
 	VPShader* shader;
@@ -31,7 +34,8 @@ private:
 	const float secPerSlice;
 	int curSliceIdx = 0;
 	ID3D11SamplerState* texSampState;
-
+	ID3D11DepthStencilState* dsState;
+	UINT stencilRefValue;
 };
 
 class Camera;
@@ -43,7 +47,7 @@ public:
 	~UICanvas();
 
 	// screen coordinate
-	void Add(ID3D11Device* device, std::string id, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView*const srv, UINT maxSliceIdx = 1, UINT slicePerSec = 1);
+	void Add(ID3D11Device* device, std::string id, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView* srv, UINT maxSliceIdx = 1, UINT slicePerSec = 1);
 	void Remove(std::string id);
 
 	void Update(float spf);

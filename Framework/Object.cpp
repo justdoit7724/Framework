@@ -36,7 +36,7 @@ Object::Object(IGraphic* graphic, Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmb
 	cb_ps_eyePos = new ConstantBuffer<XMFLOAT3>(device);
 	cb_ps_material = new ConstantBuffer<ShaderMaterial>(device);
 
-	material = new ShaderMaterial(mDiffuse, mAmbient, mSpec, sP, r);
+	material = new ShaderMaterial(mDiffuse, 1, mAmbient, mSpec, sP, r);
 
 	D3D11_SAMPLER_DESC samplerDesc;
 	ZeroMemory(&samplerDesc, sizeof(D3D11_SAMPLER_DESC));
@@ -132,6 +132,25 @@ Object::Object(IGraphic* graphic, Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmb
 
 #pragma endregion
 
+#pragma region Depth and Stencil
+	D3D11_DEPTH_STENCIL_DESC ds_desc;
+	ds_desc.DepthEnable = true;
+	ds_desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	ds_desc.DepthFunc = D3D11_COMPARISON_LESS;
+	ds_desc.StencilEnable = true;
+	ds_desc.StencilReadMask = D3D11_DEFAULT_STENCIL_READ_MASK;
+	ds_desc.StencilWriteMask = D3D11_DEFAULT_STENCIL_WRITE_MASK;
+	D3D11_DEPTH_STENCILOP_DESC dso_desc;
+	dso_desc.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	dso_desc.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	dso_desc.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
+	dso_desc.StencilFunc = D3D11_COMPARISON_EQUAL;
+	ds_desc.FrontFace= dso_desc;
+	ds_desc.BackFace = dso_desc;
+	r_assert(device->CreateDepthStencilState(&ds_desc, dsState.GetAddressOf()));
+	stencilRefValue = 0;
+#pragma endregion
+
 }
 
 Object::~Object()
@@ -179,7 +198,34 @@ void Object::Render(IGraphic* graphic, Camera* camera, const SHADER_DIRECTIONAL_
 
 	// STATE
 	graphic->SetRasterizerState();
-	graphic->SetDepthStencilState();
+	graphic->DContext()->OMSetDepthStencilState(dsState.Get(), stencilRefValue);
 	graphic->DContext()->OMSetBlendState(blendState.Get(), nullptr, 1);
 	shape->Render(dContext);
+}
+
+void Object::SetBlendState(ID3D11Device* device, D3D11_BLEND_DESC * blendDesc)
+{
+	if (blendState)
+	{
+		blendState->Release();
+
+		r_assert(device->CreateBlendState(blendDesc, &blendState));
+	}
+}
+
+void Object::SetDepthStencilState(ID3D11Device * device, D3D11_DEPTH_STENCIL_DESC * desc)
+{
+	if (dsState)
+		dsState->Release();
+
+	r_assert(
+		device->CreateDepthStencilState(desc, dsState.GetAddressOf())
+	);
+}
+
+void Object::SetTransparency(float t)
+{
+	assert(0 <= t && t <= 1);
+
+	material->SetTransparency(t);
 }

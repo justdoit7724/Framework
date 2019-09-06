@@ -7,7 +7,7 @@ struct Vertex;
 class Shape
 {
 public:
-	void Render(ID3D11DeviceContext* dContext);
+	virtual void Render(ID3D11DeviceContext* dContext);
 
 protected:
 	Shape();
