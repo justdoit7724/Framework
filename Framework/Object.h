@@ -6,6 +6,8 @@ class Transform;
 class Shape;
 class VPShader;
 class IGraphic;
+class DepthStencilState;
+class BlendState;
 struct VS_Property;
 struct SHADER_DIRECTIONAL_LIGHT;
 struct SHADER_POINT_LIGHT;
@@ -22,13 +24,9 @@ public:
 	void Update();
 	void Render(IGraphic* graphic, Camera* camera, const SHADER_DIRECTIONAL_LIGHT* dLight, const SHADER_POINT_LIGHT* pLight, const SHADER_SPOT_LIGHT* sLight, const XMMATRIX& texMat);
 
-	void SetBlendState(ID3D11Device* device, D3D11_BLEND_DESC *desc);
-	void SetDepthStencilState(ID3D11Device* device, D3D11_DEPTH_STENCIL_DESC* desc);
 	void SetTransparency(float t);
-	void SetStencilRefValue(UINT v)
-	{
-		stencilRefValue = v;
-	}
+	DepthStencilState * GetDepthStencilState(){return dsState;}
+	BlendState* GetBlendState(){return blendState;}
 
 	const bool isMipmap;
 	const int zOrder;
@@ -47,8 +45,7 @@ private:
 	ConstantBuffer<ShaderMaterial>* cb_ps_material;
 	ComPtr<ID3D11ShaderResourceView> bodySRV;
 	ComPtr<ID3D11SamplerState> bodySameplerState;
-	ComPtr<ID3D11BlendState> blendState;
-	ComPtr<ID3D11DepthStencilState> dsState;
-	UINT stencilRefValue;
+	BlendState* blendState;
+	DepthStencilState * dsState;
 };
 

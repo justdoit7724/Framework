@@ -10,6 +10,8 @@
 #include "UI.h"
 #include "Object.h"
 #include "Geometrics.h"
+#include "DepthStencilState.h"
+#include "BlendState.h"""
 
 #include "Hill.h"
 #include "Sphere.h"
@@ -55,7 +57,6 @@ Scene::Scene(IGraphic* graphic)
 	Object* hillObj = new Object(graphic, hill, XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), XMFLOAT3(0.5f, 0.5f, 0.5f), 4, XMFLOAT3(1, 1, 1), "grass.jpg");
 	Object* waterObj = new Object(graphic, water, XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), 8, XMFLOAT3(1, 1, 1), "white.png");
 	waterObj->SetTransparency(0.5f);
-	waterObj->SetStencilRefValue(1);
 	D3D11_BLEND_DESC tDesc;
 	tDesc.AlphaToCoverageEnable = false;
 	tDesc.IndependentBlendEnable = false;
@@ -67,7 +68,7 @@ Scene::Scene(IGraphic* graphic)
 	tDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
 	tDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	tDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-	waterObj->SetBlendState(device, &tDesc);
+	waterObj->GetBlendState()->Modify(device, &tDesc);
 
 	hillObj->GetTransform()->SetScale(100, 1, 100);
 	waterObj->GetTransform()->SetScale(100, 1, 100);

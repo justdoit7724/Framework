@@ -235,7 +235,7 @@ void Debugging::Render(Camera* camera, IGraphic* graphic)
 		);
 	}
 
-	shader->SetPipline(dContext);
+	shader->Apply(dContext);
 	dContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 	for (auto& l : lines)
 	{

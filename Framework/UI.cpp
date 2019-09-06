@@ -6,6 +6,8 @@
 #include "CustomFormat.h"
 #include "Network.h"
 #include "Transform.h"
+#include "DepthStencilState.h"
+#include "BlendState.h"
 
 UI::UI(ID3D11Device* device, float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView * srv, UINT maxSliceIdx, UINT slicePerSec)
 	:srv(srv), maxSliceIdx(maxSliceIdx), secPerSlice(1.0f / slicePerSec)
@@ -18,7 +20,6 @@ UI::UI(ID3D11Device* device, float canvasWidth, float canvasHeight, XMFLOAT2 piv
 	transform->SetRot(-FORWARD, UP);
 	transform->SetTranslation(pivot.x + width * 0.5f, (canvasHeight - height * 0.5f) - pivot.y, zDepth);
 
-	shader = new VPShader(device, L"UIVS.cso", L"UIPS.cso", std_ILayouts, ARRAYSIZE(std_ILayouts));
 
 	cb_vs_property = new ConstantBuffer<VS_Property>(device);
 	cb_ps_sliceIdx = new ConstantBuffer<float>(device);
@@ -36,7 +37,7 @@ UI::UI(ID3D11Device* device, float canvasWidth, float canvasHeight, XMFLOAT2 piv
 		device->CreateSamplerState(&samplerDesc, &texSampState)
 	);
 
-#pragma region BLEND STATE
+	shader = new VPShader(device, L"UIVS.cso", L"UIPS.cso", std_ILayouts, ARRAYSIZE(std_ILayouts));
 
 	D3D11_BLEND_DESC blend_desc;
 	blend_desc.AlphaToCoverageEnable = false;
@@ -49,34 +50,9 @@ UI::UI(ID3D11Device* device, float canvasWidth, float canvasHeight, XMFLOAT2 piv
 	blend_desc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
 	blend_desc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	blend_desc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-	r_assert(
-		device->CreateBlendState(&blend_desc, &blendState)
-	);
+	blendState = new BlendState(device, &blend_desc);
 
-#pragma endregion
-
-#pragma region Depth/Stencil STATE
-	D3D11_DEPTH_STENCIL_DESC ds_desc;
-	ds_desc.DepthEnable = true;
-	ds_desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-	ds_desc.DepthFunc = D3D11_COMPARISON_LESS;
-	ds_desc.StencilEnable = true;
-	ds_desc.StencilReadMask = D3D11_DEFAULT_STENCIL_READ_MASK;
-	ds_desc.StencilWriteMask = D3D11_DEFAULT_STENCIL_WRITE_MASK;
-	D3D11_DEPTH_STENCILOP_DESC dso_desc;
-	dso_desc.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-	dso_desc.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-	dso_desc.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
-	dso_desc.StencilFunc = D3D11_COMPARISON_EQUAL;
-	ds_desc.FrontFace = dso_desc;
-	ds_desc.BackFace = dso_desc;
-	r_assert(
-		device->CreateDepthStencilState(&ds_desc, &dsState)
-	);
-	stencilRefValue = 0;
-#pragma endregion
-
-
+	dsState = new DepthStencilState(device);
 }
 
 UI::~UI()
@@ -85,9 +61,9 @@ UI::~UI()
 	delete shader;
 	delete cb_vs_property;
 	delete cb_ps_sliceIdx;
-	blendState->Release();
+	delete dsState;
+	delete blendState;
 	texSampState->Release();
-	dsState->Release();
 }
 
 void UI::Update(float spf)
@@ -102,29 +78,15 @@ void UI::Update(float spf)
 
 void UI::Render(ID3D11DeviceContext* dContext, const XMMATRIX& vpMat)
 {
-	shader->SetPipline(dContext);
+	shader->Apply(dContext);
 	cb_vs_property->VSSetData(dContext, &VS_Property(transform, vpMat));
 	float tempSliceIdx = curSliceIdx;
 	cb_ps_sliceIdx->PSSetData(dContext, &tempSliceIdx);
 	dContext->PSSetShaderResources(0, 1, &srv);
 	dContext->PSSetSamplers(0, 1, &texSampState);
-	dContext->OMSetBlendState(blendState, nullptr, 1);
-	dContext->OMSetDepthStencilState(dsState, stencilRefValue);
-	quad->Render(dContext);
-}
-
-void UI::SetDepthStencilState(ID3D11Device* device, D3D11_DEPTH_STENCIL_DESC * desc)
-{
-	dsState->Release();
-
-	r_assert(
-		device->CreateDepthStencilState(desc, &dsState)
-	);
-}
-
-void UI::SetStencilRefValue(UINT v)
-{
-	stencilRefValue = v;
+	blendState->Apply(dContext);
+	dsState->Apply(dContext);
+	quad->Apply(dContext);
 }
 
 UICanvas::UICanvas(ID3D11Device* device, float width, float height)
@@ -160,6 +122,15 @@ void UICanvas::Remove(std::string id)
 		delete UIs[id];
 		UIs.erase(id);
 	}
+}
+
+UI * UICanvas::Get(std::string id)
+{
+	auto i = UIs.find(id);
+
+	assert(i != UIs.end());
+
+	return i->second;
 }
 
 void UICanvas::Update(float spf)

@@ -130,9 +130,11 @@
   <ItemGroup>
     <ClCompile Include="BlendState.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="Component.cpp" />
     <ClCompile Include="Cube.cpp" />
     <ClCompile Include="Cylinder.cpp" />
     <ClCompile Include="Debugging.cpp" />
+    <ClCompile Include="DepthStencilState.cpp" />
     <ClCompile Include="Graphic.cpp" />
     <ClCompile Include="Hill.cpp" />
     <ClCompile Include="Keyboard.cpp" />
@@ -155,10 +157,12 @@
   <ItemGroup>
     <ClInclude Include="BlendState.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Component.h" />
     <ClInclude Include="Cube.h" />
     <ClInclude Include="CustomFormat.h" />
     <ClInclude Include="Cylinder.h" />
     <ClInclude Include="Debugging.h" />
+    <ClInclude Include="DepthStencilState.h" />
     <ClInclude Include="DX_info.h" />
     <ClInclude Include="Game_info.h" />
     <ClInclude Include="Graphic.h" />

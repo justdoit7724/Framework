@@ -40,7 +40,7 @@ void Shape::Init(ID3D11Device* device, const Vertex* vertice, const int vertexCo
 	);
 }
 
-void Shape::Render(ID3D11DeviceContext* dContext)
+void Shape::Apply(ID3D11DeviceContext* dContext)
 {
 	dContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	UINT stride = sizeof(Vertex);

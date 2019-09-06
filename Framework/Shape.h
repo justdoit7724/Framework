@@ -1,13 +1,13 @@
 #pragma once
-#include "DX_info.h"
+#include "Component.h"
 #include <vector>
 
 struct Vertex;
 
-class Shape
+class Shape : public Component
 {
 public:
-	virtual void Render(ID3D11DeviceContext* dContext);
+	virtual void Apply(ID3D11DeviceContext* dContext);
 
 protected:
 	Shape();

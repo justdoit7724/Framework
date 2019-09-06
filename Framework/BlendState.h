@@ -1,14 +1,17 @@
 #pragma once
-#include "DX_info.h"
+#include "Component.h"
 
-class BlendState
+class BlendState : public Component
 {
 public:
-	BlendState(ID3D11Device*);
+	BlendState(ID3D11Device* device, D3D11_BLEND_DESC * desc = nullptr);
+	~BlendState();
 
-	void SetPipeline(ID3D11DeviceContext*);
+	void Modify(ID3D11Device* device, D3D11_BLEND_DESC* desc);
+	void Apply(ID3D11DeviceContext* dContext);
+
 
 private:
-	ComPtr<ID3D11BlendState> state;
+	ID3D11BlendState* state;
 };
 

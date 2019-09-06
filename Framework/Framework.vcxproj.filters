@@ -45,52 +45,58 @@
     <ClCompile Include="Window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Mouse.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Medium.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Cube.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Cylinder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Hill.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Light.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Quad.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Object.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Shape.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Sphere.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureMgr.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Transform.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DepthStencilState.cpp">
       <Filter>Components</Filter>
     </ClCompile>
-    <ClCompile Include="Shader.cpp">
+    <ClCompile Include="Component.cpp">
       <Filter>Components</Filter>
     </ClCompile>
     <ClCompile Include="BlendState.cpp">
       <Filter>Components</Filter>
     </ClCompile>
-    <ClCompile Include="Quad.cpp">
-      <Filter>Components</Filter>
-    </ClCompile>
-    <ClCompile Include="Cube.cpp">
-      <Filter>Components</Filter>
-    </ClCompile>
-    <ClCompile Include="Mouse.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Camera.cpp">
-      <Filter>Components</Filter>
-    </ClCompile>
-    <ClCompile Include="Medium.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Cylinder.cpp">
-      <Filter>Components</Filter>
-    </ClCompile>
-    <ClCompile Include="Light.cpp">
-      <Filter>Components</Filter>
-    </ClCompile>
-    <ClCompile Include="TextureMgr.cpp">
-      <Filter>Components</Filter>
-    </ClCompile>
-    <ClCompile Include="Sphere.cpp">
-      <Filter>Components</Filter>
-    </ClCompile>
-    <ClCompile Include="Hill.cpp">
-      <Filter>Components</Filter>
-    </ClCompile>
-    <ClCompile Include="Shape.cpp">
-      <Filter>Components</Filter>
-    </ClCompile>
-    <ClCompile Include="UI.cpp">
-      <Filter>Components</Filter>
-    </ClCompile>
-    <ClCompile Include="Object.cpp">
+    <ClCompile Include="Shader.cpp">
       <Filter>Components</Filter>
     </ClCompile>
   </ItemGroup>
@@ -125,29 +131,8 @@
     <ClInclude Include="Window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BlendState.h">
-      <Filter>Components</Filter>
-    </ClInclude>
-    <ClInclude Include="Resource.h">
-      <Filter>Components</Filter>
-    </ClInclude>
-    <ClInclude Include="Shader.h">
-      <Filter>Components</Filter>
-    </ClInclude>
-    <ClInclude Include="Transform.h">
-      <Filter>Components</Filter>
-    </ClInclude>
-    <ClInclude Include="Quad.h">
-      <Filter>Components</Filter>
-    </ClInclude>
-    <ClInclude Include="Cube.h">
-      <Filter>Components</Filter>
-    </ClInclude>
     <ClInclude Include="Mouse.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Camera.h">
-      <Filter>Components</Filter>
     </ClInclude>
     <ClInclude Include="Medium.h">
       <Filter>Header Files</Filter>
@@ -155,31 +140,58 @@
     <ClInclude Include="Geometrics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Cylinder.h">
-      <Filter>Components</Filter>
-    </ClInclude>
-    <ClInclude Include="Light.h">
-      <Filter>Components</Filter>
-    </ClInclude>
-    <ClInclude Include="TextureMgr.h">
-      <Filter>Components</Filter>
-    </ClInclude>
-    <ClInclude Include="Sphere.h">
-      <Filter>Components</Filter>
-    </ClInclude>
     <ClInclude Include="Network.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Cube.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Cylinder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Hill.h">
-      <Filter>Components</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Shape.h">
-      <Filter>Components</Filter>
-    </ClInclude>
-    <ClInclude Include="UI.h">
-      <Filter>Components</Filter>
+    <ClInclude Include="Light.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Object.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Quad.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Shape.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Sphere.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureMgr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Transform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BlendState.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Component.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="DepthStencilState.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
       <Filter>Components</Filter>
     </ClInclude>
   </ItemGroup>

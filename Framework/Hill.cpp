@@ -40,7 +40,7 @@ Hill::Hill(IGraphic* graphic, int n, int m, XMFLOAT2 heightRange, ID3D11ShaderRe
 #pragma region define y
 
 	std::unique_ptr<CShader> cShader(new CShader(device, L"HillCS.cso"));
-	cShader->SetPipline(dContext);
+	cShader->Apply(dContext);
 
 	std::unique_ptr<ConstantBuffer<XMFLOAT2>> cbRange(new ConstantBuffer<XMFLOAT2>(device));
 	cbRange->CSSetData(dContext, &heightRange);
@@ -119,9 +119,9 @@ Hill::~Hill()
 {
 }
 
-void Hill::Render(ID3D11DeviceContext * dContext)
+void Hill::Apply(ID3D11DeviceContext * dContext)
 {
 	Debugging::Draw("Normal of hill is only heading upward", 100, 30);
 
-	Shape::Render(dContext);
+	Shape::Apply(dContext);
 }

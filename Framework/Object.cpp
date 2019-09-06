@@ -5,6 +5,8 @@
 #include "Network.h"
 #include "TextureMgr.h"
 #include "Transform.h"
+#include "DepthStencilState.h"
+#include "BlendState.h"
 
 int CalculateMaxMiplevel(int width, int height)
 {
@@ -113,43 +115,8 @@ Object::Object(IGraphic* graphic, Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmb
 	}
 #pragma endregion
 
-#pragma region Blending
-	
-	D3D11_BLEND_DESC blend_desc;
-	blend_desc.AlphaToCoverageEnable = false;
-	blend_desc.IndependentBlendEnable = false;
-	blend_desc.RenderTarget[0].BlendEnable = true;
-	blend_desc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
-	blend_desc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
-	blend_desc.RenderTarget[0].DestBlend = D3D11_BLEND_ZERO;
-	blend_desc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
-	blend_desc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
-	blend_desc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-	blend_desc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-	r_assert(
-		device->CreateBlendState(&blend_desc, blendState.GetAddressOf())
-	);
-
-#pragma endregion
-
-#pragma region Depth and Stencil
-	D3D11_DEPTH_STENCIL_DESC ds_desc;
-	ds_desc.DepthEnable = true;
-	ds_desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-	ds_desc.DepthFunc = D3D11_COMPARISON_LESS;
-	ds_desc.StencilEnable = true;
-	ds_desc.StencilReadMask = D3D11_DEFAULT_STENCIL_READ_MASK;
-	ds_desc.StencilWriteMask = D3D11_DEFAULT_STENCIL_WRITE_MASK;
-	D3D11_DEPTH_STENCILOP_DESC dso_desc;
-	dso_desc.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-	dso_desc.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-	dso_desc.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
-	dso_desc.StencilFunc = D3D11_COMPARISON_EQUAL;
-	ds_desc.FrontFace= dso_desc;
-	ds_desc.BackFace = dso_desc;
-	r_assert(device->CreateDepthStencilState(&ds_desc, dsState.GetAddressOf()));
-	stencilRefValue = 0;
-#pragma endregion
+	blendState = new BlendState(device);
+	dsState = new DepthStencilState(device);
 
 }
 
@@ -165,6 +132,9 @@ Object::~Object()
 	delete cb_ps_eyePos;
 	delete cb_ps_material;
 	delete material;
+
+	delete dsState;
+	delete blendState;
 }
 
 void Object::Update()
@@ -176,7 +146,7 @@ void Object::Render(IGraphic* graphic, Camera* camera, const SHADER_DIRECTIONAL_
 	ID3D11DeviceContext* dContext = graphic->DContext();
 	XMMATRIX vpMat = camera->ViewMat()*camera->ProjMat(zOrder);
 
-	shader->SetPipline(dContext);
+	shader->Apply(dContext);
 
 	// TRANSFORM
 	cb_vs_property->VSSetData(dContext, &VS_Property(transform, vpMat));
@@ -198,29 +168,9 @@ void Object::Render(IGraphic* graphic, Camera* camera, const SHADER_DIRECTIONAL_
 
 	// STATE
 	graphic->SetRasterizerState();
-	graphic->DContext()->OMSetDepthStencilState(dsState.Get(), stencilRefValue);
-	graphic->DContext()->OMSetBlendState(blendState.Get(), nullptr, 1);
-	shape->Render(dContext);
-}
-
-void Object::SetBlendState(ID3D11Device* device, D3D11_BLEND_DESC * blendDesc)
-{
-	if (blendState)
-	{
-		blendState->Release();
-
-		r_assert(device->CreateBlendState(blendDesc, &blendState));
-	}
-}
-
-void Object::SetDepthStencilState(ID3D11Device * device, D3D11_DEPTH_STENCIL_DESC * desc)
-{
-	if (dsState)
-		dsState->Release();
-
-	r_assert(
-		device->CreateDepthStencilState(desc, dsState.GetAddressOf())
-	);
+	dsState->Apply(dContext);
+	blendState->Apply(dContext);
+	shape->Apply(dContext);
 }
 
 void Object::SetTransparency(float t)

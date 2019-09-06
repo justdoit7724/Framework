@@ -56,7 +56,7 @@ VPShader::VPShader(ID3D11Device* device, const std::wstring VSfileName, const st
 	);
 }
 
-void VPShader::SetPipline(ID3D11DeviceContext* dContext)
+void VPShader::Apply(ID3D11DeviceContext* dContext)
 {
 	dContext->IASetInputLayout(iLayout.Get());
 	dContext->VSSetShader(vs.Get(), nullptr, 0);
@@ -82,7 +82,7 @@ CShader::CShader(ID3D11Device* device, const std::wstring CSfileName)
 	);
 }
 
-void CShader::SetPipline(ID3D11DeviceContext* dContext)
+void CShader::Apply(ID3D11DeviceContext* dContext)
 {
 	dContext->CSSetShader(cs.Get(), nullptr, 0);
 }
