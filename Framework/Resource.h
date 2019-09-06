@@ -1,10 +1,11 @@
 #pragma once
-#include "Component.h"
+#include "DX_info.h"
 
-class Texture2D : public Component {
+template<typename T>
+class Texture2D {
 public:
-	Texture2D(ID3D11Device* device, const CD3D11_TEXTURE2D_DESC desc, UINT size)
-		:resourceDesc(desc), size(size)
+	Texture2D(ID3D11Device* device, const CD3D11_TEXTURE2D_DESC desc)
+		:resourceDesc(desc)
 	{
 		r_assert(
 			device->CreateTexture2D(
@@ -13,14 +14,19 @@ public:
 				resource.GetAddressOf())
 		);
 	}
-	Texture2D(ID3D11Device* device, const CD3D11_TEXTURE2D_DESC desc, void* initValue, UINT byteSize, UINT size)
-		:resourceDesc(desc), size(size)
+	Texture2D(ID3D11Device* device, const CD3D11_TEXTURE2D_DESC desc, const T _initValue)
+		:resourceDesc(desc)
 	{
-		MB("check if works first");
+		int size = desc.Width * desc.Height;
+		T* initValues = new T[size];
+		ZeroMemory(initValues, sizeof(T)*size);
+		for (int i = 0; i < size; ++i) {
+			initValues[i] = _initValue;
+		}
 
 		D3D11_SUBRESOURCE_DATA data;
-		data.pSysMem = initValue;
-		data.SysMemPitch = byteSize * desc.Width;
+		data.pSysMem = initValues;
+		data.SysMemPitch = sizeof(T)*desc.Width;
 
 		r_assert(
 			device->CreateTexture2D(
@@ -72,24 +78,26 @@ public:
 
 	ID3D11Texture2D* Get () {return resource.Get();}
 
-	ID3D11ShaderResourceView const*const* NullSRV() {return &nullSRV;}
-	ID3D11UnorderedAccessView const*const* NullUAV() {return &nullUAV;}
+	ID3D11ShaderResourceView*const* NullSRV() {return &nullSRV;}
+	ID3D11UnorderedAccessView*const* NullUAV() {return &nullUAV;}
 
 	const CD3D11_TEXTURE2D_DESC resourceDesc;
-	const UINT size;
 private:
 	ComPtr<ID3D11Texture2D> resource;
 	ComPtr<ID3D11ShaderResourceView> srv = nullptr;
 	ID3D11ShaderResourceView* nullSRV = nullptr;
 	ComPtr<ID3D11UnorderedAccessView> uav = nullptr;
 	ID3D11UnorderedAccessView* nullUAV = nullptr;
+
 };
 
-class Buffer : public Component {
+template<typename T>
+class Buffer {
 public:
 	Buffer(ID3D11Device* device, const CD3D11_BUFFER_DESC desc)
-		:desc(desc)
 	{
+		resourceDesc = desc;
+		
 		r_assert(
 			device->CreateBuffer(
 				&desc,
@@ -97,18 +105,23 @@ public:
 				resource.GetAddressOf())
 		);
 	}
-	Buffer(ID3D11Device* device, const CD3D11_BUFFER_DESC desc, void* initValue)
-		:desc(desc)
+	Buffer(ID3D11Device* device, const CD3D11_BUFFER_DESC desc, const T _initValue)
 	{
-		MB("check if works first");
+		resourceDesc = desc;
+
+		int size = desc.ByteWidth / desc.StructureByteStride;
+		T* initValues = new T[size];
+		for (int i = 0; i < size; ++i) {
+			initValues[i] = _initValue;
+		}
 
 		D3D11_SUBRESOURCE_DATA data;
-		data.pSysMem = initValue;
+		data.pSysMem = initValues;
 
 		r_assert(
 			device->CreateBuffer(
 				&desc,
-				&data,
+				data,
 				resource.GetAddressOf())
 		);
 	}
@@ -117,17 +130,17 @@ public:
 
 		if (srv == nullptr)
 		{
-			D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+			D3D11_SHADER_RESOURCE_VIEW_DESC desc;
 
-			srvDesc.Format = DXGI_FORMAT_UNKNOWN;
-			srvDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
-			srvDesc.Buffer.ElementOffset = 0;
-			srvDesc.Buffer.ElementWidth = desc.ByteWidth/ desc.StructureByteStride;
+			desc.Format = DXGI_FORMAT_UNKNOWN;
+			desc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
+			desc.Buffer.ElementOffset = 0;
+			desc.Buffer.ElementWidth = resourceDesc.ByteWidth/ resourceDesc.StructureByteStride;
 
 			r_assert(
 				device->CreateShaderResourceView(
 					resource.Get(),
-					&srvDesc,
+					&desc,
 					srv.GetAddressOf())
 			);
 		}
@@ -143,10 +156,9 @@ public:
 		dContext->Unmap(resource.Get(), 0);
 	}
 
-	const D3D11_BUFFER_DESC desc;
-
 private:
 
+	D3D11_BUFFER_DESC resourceDesc;
 
 	ComPtr<ID3D11Buffer> resource;
 	ComPtr<ID3D11ShaderResourceView> srv;
@@ -156,11 +168,11 @@ private:
 // coherent code -> constant buffer
 // incoherent code -> structed buffer
 template<class T>
-class ConstantBuffer : public Component
+class ConstantBuffer
 {
 public:
-	ConstantBuffer(ID3D11Device* device)
-	{
+	ConstantBuffer(ID3D11Device* device) {
+
 		D3D11_BUFFER_DESC desc;
 		desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 		desc.Usage = D3D11_USAGE_DYNAMIC;
@@ -177,7 +189,7 @@ public:
 		);
 	}
 
-	void VSSetData(ID3D11DeviceContext* dContext, const T* data, int startSlot){
+	void VSSetData(ID3D11DeviceContext* dContext, const T* data, int startSlot=0){
 
 		D3D11_MAPPED_SUBRESOURCE mappedData;
 
@@ -187,7 +199,7 @@ public:
 
 		dContext->VSSetConstantBuffers(startSlot, 1, buffer.GetAddressOf());
 	}
-	void PSSetData(ID3D11DeviceContext* dContext, const T* data, int startSlot){
+	void PSSetData(ID3D11DeviceContext* dContext, const T* data, int startSlot=0){
 
 		D3D11_MAPPED_SUBRESOURCE mappedData;
 
@@ -197,7 +209,7 @@ public:
 
 		dContext->PSSetConstantBuffers(startSlot, 1, buffer.GetAddressOf());
 	}
-	void CSSetData(ID3D11DeviceContext* dContext, const T* data, UINT startSlot){
+	void CSSetData(ID3D11DeviceContext* dContext, const T* data, UINT startSlot=0){
 
 		D3D11_MAPPED_SUBRESOURCE mappedData;
 

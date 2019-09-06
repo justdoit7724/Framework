@@ -21,6 +21,9 @@ UI::UI(ID3D11Device* device, float canvasWidth, float canvasHeight, XMFLOAT2 piv
 	transform->SetTranslation(pivot.x + width * 0.5f, (canvasHeight - height * 0.5f) - pivot.y, zDepth);
 
 
+	cb_vs_property = new ConstantBuffer<VS_Property>(device);
+	cb_ps_sliceIdx = new ConstantBuffer<float>(device);
+
 	D3D11_SAMPLER_DESC samplerDesc;
 	ZeroMemory(&samplerDesc, sizeof(D3D11_SAMPLER_DESC));
 	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR;
@@ -33,8 +36,6 @@ UI::UI(ID3D11Device* device, float canvasWidth, float canvasHeight, XMFLOAT2 piv
 	r_assert(
 		device->CreateSamplerState(&samplerDesc, &texSampState)
 	);
-
-#pragma region Components
 
 	shader = new VPShader(device, L"UIVS.cso", L"UIPS.cso", std_ILayouts, ARRAYSIZE(std_ILayouts));
 
@@ -52,13 +53,6 @@ UI::UI(ID3D11Device* device, float canvasWidth, float canvasHeight, XMFLOAT2 piv
 	blendState = new BlendState(device, &blend_desc);
 
 	dsState = new DepthStencilState(device);
-
-	cb_vs_property = new ConstantBuffer<VS_Property>(device);
-	cb_ps_sliceIdx = new ConstantBuffer<float>(device);
-
-#pragma endregion
-
-	
 }
 
 UI::~UI()
@@ -85,9 +79,9 @@ void UI::Update(float spf)
 void UI::Render(ID3D11DeviceContext* dContext, const XMMATRIX& vpMat)
 {
 	shader->Apply(dContext);
-	cb_vs_property->VSSetData(dContext, &VS_Property(transform, vpMat),0);
+	cb_vs_property->VSSetData(dContext, &VS_Property(transform, vpMat));
 	float tempSliceIdx = curSliceIdx;
-	cb_ps_sliceIdx->PSSetData(dContext, &tempSliceIdx,0);
+	cb_ps_sliceIdx->PSSetData(dContext, &tempSliceIdx);
 	dContext->PSSetShaderResources(0, 1, &srv);
 	dContext->PSSetSamplers(0, 1, &texSampState);
 	blendState->Apply(dContext);

@@ -43,7 +43,7 @@ Hill::Hill(IGraphic* graphic, int n, int m, XMFLOAT2 heightRange, ID3D11ShaderRe
 	cShader->Apply(dContext);
 
 	std::unique_ptr<ConstantBuffer<XMFLOAT2>> cbRange(new ConstantBuffer<XMFLOAT2>(device));
-	cbRange->CSSetData(dContext, &heightRange,0);
+	cbRange->CSSetData(dContext, &heightRange);
 	std::unique_ptr<ConstantBuffer<XMFLOAT2>> cbResol(new ConstantBuffer<XMFLOAT2>(device));
 	cbResol->CSSetData(dContext, &XMFLOAT2(n, m), 1);
 
