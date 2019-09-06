@@ -37,15 +37,15 @@ private:
 	Shape* shape;
 	VPShader* shader;
 	ShaderMaterial* material;
+	BlendState* blendState;
+	DepthStencilState * dsState;
 	ConstantBuffer<VS_Property>* cb_vs_property;
 	ConstantBuffer<SHADER_DIRECTIONAL_LIGHT>* cb_ps_dLights;
 	ConstantBuffer<SHADER_POINT_LIGHT>* cb_ps_pLights;
 	ConstantBuffer<SHADER_SPOT_LIGHT>* cb_ps_sLights;
 	ConstantBuffer<XMFLOAT3>* cb_ps_eyePos;
 	ConstantBuffer<ShaderMaterial>* cb_ps_material;
-	ComPtr<ID3D11ShaderResourceView> bodySRV;
-	ComPtr<ID3D11SamplerState> bodySameplerState;
-	BlendState* blendState;
-	DepthStencilState * dsState;
+	ID3D11ShaderResourceView* bodySRV;
+	ID3D11SamplerState* bodySameplerState;
 };
 

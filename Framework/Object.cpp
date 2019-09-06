@@ -31,12 +31,6 @@ Object::Object(IGraphic* graphic, Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmb
 
 	shader = new VPShader(device, L"StandardVS.cso", L"StandardPS.cso", std_ILayouts, ARRAYSIZE(std_ILayouts));
 
-	cb_vs_property = new ConstantBuffer<VS_Property>(device);
-	cb_ps_dLights = new ConstantBuffer<SHADER_DIRECTIONAL_LIGHT>(device);
-	cb_ps_pLights = new ConstantBuffer<SHADER_POINT_LIGHT>(device);
-	cb_ps_sLights = new ConstantBuffer<SHADER_SPOT_LIGHT>(device);
-	cb_ps_eyePos = new ConstantBuffer<XMFLOAT3>(device);
-	cb_ps_material = new ConstantBuffer<ShaderMaterial>(device);
 
 	material = new ShaderMaterial(mDiffuse, 1, mAmbient, mSpec, sP, r);
 
@@ -107,8 +101,8 @@ Object::Object(IGraphic* graphic, Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmb
 		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Texture2D.MipLevels = texDesc.MipLevels;
 		srvDesc.Texture2D.MostDetailedMip = 0;
-		r_assert(device->CreateShaderResourceView(mipmapTexture.Get(), &srvDesc, bodySRV.GetAddressOf()));
-		graphic->DContext()->GenerateMips(bodySRV.Get());
+		r_assert(device->CreateShaderResourceView(mipmapTexture.Get(), &srvDesc, &bodySRV));
+		graphic->DContext()->GenerateMips(bodySRV);
 	}
 	else {
 		bodySRV = TextureMgr::Instance()->Get(imageName);
@@ -118,6 +112,12 @@ Object::Object(IGraphic* graphic, Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmb
 	blendState = new BlendState(device);
 	dsState = new DepthStencilState(device);
 
+	cb_vs_property = new ConstantBuffer<VS_Property>(device);
+	cb_ps_dLights = new ConstantBuffer<SHADER_DIRECTIONAL_LIGHT>(device);
+	cb_ps_pLights = new ConstantBuffer<SHADER_POINT_LIGHT>(device);
+	cb_ps_sLights = new ConstantBuffer<SHADER_SPOT_LIGHT>(device);
+	cb_ps_eyePos = new ConstantBuffer<XMFLOAT3>(device);
+	cb_ps_material = new ConstantBuffer<ShaderMaterial>(device);
 }
 
 Object::~Object()
@@ -149,7 +149,7 @@ void Object::Render(IGraphic* graphic, Camera* camera, const SHADER_DIRECTIONAL_
 	shader->Apply(dContext);
 
 	// TRANSFORM
-	cb_vs_property->VSSetData(dContext, &VS_Property(transform, vpMat));
+	cb_vs_property->VSSetData(dContext, &VS_Property(transform, vpMat),0);
 
 	// LIGHTS
 	cb_ps_dLights->PSSetData(dContext, dLight, 0);
@@ -163,8 +163,8 @@ void Object::Render(IGraphic* graphic, Camera* camera, const SHADER_DIRECTIONAL_
 	cb_ps_material->PSSetData(dContext, material, 4);
 
 	// TEXTURE
-	dContext->PSSetShaderResources(0, 1, bodySRV.GetAddressOf());
-	dContext->PSSetSamplers(0, 1, bodySameplerState.GetAddressOf());
+	dContext->PSSetShaderResources(0, 1, &bodySRV);
+	dContext->PSSetSamplers(0, 1, &bodySameplerState);
 
 	// STATE
 	graphic->SetRasterizerState();

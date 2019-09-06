@@ -27,8 +27,6 @@ private:
 
 	Transform* transform;
 	Quad* quad;
-	ConstantBuffer<VS_Property>* cb_vs_property;
-	ConstantBuffer<float>* cb_ps_sliceIdx;
 	ID3D11ShaderResourceView *const srv;
 	float curTime=0;
 	const int maxSliceIdx;
@@ -38,6 +36,8 @@ private:
 	VPShader* shader;
 	DepthStencilState* dsState;
 	BlendState* blendState;
+	ConstantBuffer<VS_Property>* cb_vs_property;
+	ConstantBuffer<float>* cb_ps_sliceIdx;
 
 public:
 	VPShader* GetShader(){return shader;}
