@@ -1,6 +1,6 @@
 #include "Hill.h"
 #include "Shader.h"
-#include "Resource.h"
+#include "Texture2D.h"
 #include "TextureMgr.h"
 #include "CustomFormat.h"
 #include "Network.h"
@@ -49,22 +49,26 @@ Hill::Hill(IGraphic* graphic, int n, int m, XMFLOAT2 heightRange, ID3D11ShaderRe
 
 	dContext->CSSetShaderResources(0, 1, heightMap);
 
-	Texture2D<float>* heightBuffer = new Texture2D<float>(
+	Texture2D* heightBuffer = new Texture2D(
 		device,
-		CD3D11_TEXTURE2D_DESC(
+		&CD3D11_TEXTURE2D_DESC(
 			DXGI_FORMAT_R32_FLOAT,
 			n, m,
 			1, 1,
-			D3D11_BIND_UNORDERED_ACCESS), 
-		0);
-
+			D3D11_BIND_UNORDERED_ACCESS)
+	);
+	D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc;
+	uavDesc.Format = DXGI_FORMAT_R32_FLOAT;
+	uavDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
+	uavDesc.Texture2D.MipSlice = 0;
+	heightBuffer->SetupUAV(device, &uavDesc);
 	dContext->CSSetUnorderedAccessViews(0, 1, heightBuffer->UAV(device), nullptr);
 	dContext->Dispatch(ceil(n/16.0f), ceil(m/16.0f), 1);
-	dContext->CSSetUnorderedAccessViews(0, 1, heightBuffer->NullUAV(), nullptr);
+	dContext->CSSetUnorderedAccessViews(0, 1, &(heightBuffer->nullUav), nullptr);
 
-	Texture2D<float>* outputBuffer = new Texture2D<float>(
+	Texture2D* outputBuffer = new Texture2D(
 		device,
-		CD3D11_TEXTURE2D_DESC(
+		&CD3D11_TEXTURE2D_DESC(
 			DXGI_FORMAT_R32_FLOAT,
 			n, m,
 			1, 1,

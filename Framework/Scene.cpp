@@ -19,6 +19,7 @@
 #include "Cube.h"
 #include "Shader.h"
 #include "Light.h"
+#include "Texture2D.h"
 
 Scene::Scene(IGraphic* graphic)
 {
