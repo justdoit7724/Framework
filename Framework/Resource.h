@@ -1,6 +1,15 @@
 #pragma once
 #include "DX_info.h"
 
+class Resource
+{
+public:
+	static void VSUnbindSRV(ID3D11DeviceContext* dContext, UINT startIdx, UINT numViews);
+	static void PSUnbindSRV(ID3D11DeviceContext* dContext, UINT startIdx, UINT numViews);
+	static void CSUnbindSRV(ID3D11DeviceContext* dContext, UINT startIdx, UINT numViews);
+	static void CSUnbindUAV(ID3D11DeviceContext* dContext, UINT startIdx, UINT numViews);
+
+};
 
 // coherent code -> constant buffer
 // incoherent code -> structed buffer

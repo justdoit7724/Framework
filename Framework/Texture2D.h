@@ -1,7 +1,7 @@
 #pragma once
-#include "DX_info.h"
+#include "Resource.h"
 
-class Texture2D
+class Texture2D : public Resource
 {
 public:
 	Texture2D(ID3D11Device* device, D3D11_TEXTURE2D_DESC* desc);
@@ -16,9 +16,6 @@ public:
 	ID3D11RenderTargetView*const* RTV(ID3D11Device* device);
 
 	const D3D11_TEXTURE2D_DESC desc;
-	static ID3D11ShaderResourceView*const nullSrv;
-	static ID3D11UnorderedAccessView*const nullUav;
-	static ID3D11RenderTargetView*const nullRtv;
 	
 private:
 	ComPtr<ID3D11Texture2D> tex=nullptr;

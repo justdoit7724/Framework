@@ -64,7 +64,7 @@ Hill::Hill(IGraphic* graphic, int n, int m, XMFLOAT2 heightRange, ID3D11ShaderRe
 	heightBuffer->SetupUAV(device, &uavDesc);
 	dContext->CSSetUnorderedAccessViews(0, 1, heightBuffer->UAV(device), nullptr);
 	dContext->Dispatch(ceil(n/16.0f), ceil(m/16.0f), 1);
-	dContext->CSSetUnorderedAccessViews(0, 1, &(heightBuffer->nullUav), nullptr);
+	Resource::CSUnbindUAV(dContext, 0, 1);
 
 	Texture2D* outputBuffer = new Texture2D(
 		device,

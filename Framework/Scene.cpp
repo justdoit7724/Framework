@@ -20,6 +20,7 @@
 #include "Shader.h"
 #include "Light.h"
 #include "Texture2D.h"
+#include "Buffer.h"
 
 Scene::Scene(IGraphic* graphic)
 {

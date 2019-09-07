@@ -3,10 +3,6 @@
 //delete
 #include <vector>
 
-ID3D11ShaderResourceView*const Texture2D::nullSrv=nullptr;
-ID3D11UnorderedAccessView*const Texture2D::nullUav=nullptr;
-ID3D11RenderTargetView*const Texture2D::nullRtv=nullptr;
-
 Texture2D::Texture2D(ID3D11Device * device, D3D11_TEXTURE2D_DESC * desc)
 	:desc(*desc)
 {

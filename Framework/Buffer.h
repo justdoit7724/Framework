@@ -1,74 +1,24 @@
 #pragma once
-#include "DX_info.h"
+#include "Resource.h"
 
-template<typename T>
-class Buffer {
+class Buffer : public Resource 
+{
 public:
-	Buffer(ID3D11Device* device, const CD3D11_BUFFER_DESC desc)
-	{
-		resourceDesc = desc;
+	Buffer(ID3D11Device* device, const CD3D11_BUFFER_DESC* desc);
+	
+	Buffer(ID3D11Device* device, const CD3D11_BUFFER_DESC* desc, void* _initValue);
+	
+	void SetSRV(ID3D11Device* device, D3D11_SHADER_RESOURCE_VIEW_DESC* srvDesc);
+	void SetUAV(ID3D11Device* device, D3D11_UNORDERED_ACCESS_VIEW_DESC* uavDesc);
 
-		r_assert(
-			device->CreateBuffer(
-				&desc,
-				nullptr,
-				resource.GetAddressOf())
-		);
-	}
-	Buffer(ID3D11Device* device, const CD3D11_BUFFER_DESC desc, const T _initValue)
-	{
-		resourceDesc = desc;
+	void Update(ID3D11DeviceContext* dContext, void* data, UINT byteSize);
 
-		int size = desc.ByteWidth / desc.StructureByteStride;
-		T* initValues = new T[size];
-		for (int i = 0; i < size; ++i) {
-			initValues[i] = _initValue;
-		}
+	ID3D11Buffer* Get(){return resource.Get(); }
 
-		D3D11_SUBRESOURCE_DATA data;
-		data.pSysMem = initValues;
-
-		r_assert(
-			device->CreateBuffer(
-				&desc,
-				data,
-				resource.GetAddressOf())
-		);
-	}
-
-	ID3D11ShaderResourceView*const* SRV(ID3D11Device* device) {
-
-		if (srv == nullptr)
-		{
-			D3D11_SHADER_RESOURCE_VIEW_DESC desc;
-
-			desc.Format = DXGI_FORMAT_UNKNOWN;
-			desc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
-			desc.Buffer.ElementOffset = 0;
-			desc.Buffer.ElementWidth = resourceDesc.ByteWidth / resourceDesc.StructureByteStride;
-
-			r_assert(
-				device->CreateShaderResourceView(
-					resource.Get(),
-					&desc,
-					srv.GetAddressOf())
-			);
-		}
-
-		return srv.GetAddressOf();
-	}
-	void Update(ID3D11DeviceContext* dContext, T* data) {
-
-		D3D11_MAPPED_SUBRESOURCE mappedData;
-
-		dContext->Map(resource.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
-		CopyMemory(mappedData.pData, data, resourceDesc.ByteWidth);
-		dContext->Unmap(resource.Get(), 0);
-	}
+	const D3D11_BUFFER_DESC desc;
 
 private:
 
-	D3D11_BUFFER_DESC resourceDesc;
 
 	ComPtr<ID3D11Buffer> resource;
 	ComPtr<ID3D11ShaderResourceView> srv;
