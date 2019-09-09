@@ -5,12 +5,12 @@
 #include <SpriteFont.h>
 #include <unordered_set>
 #include <unordered_map>
-#include "Resource.h"
 
 class Shape;
 class IGraphic;
 class VPShader;
 class Camera;
+class Buffer;
 struct VS_Property;
 
 class Debugging
@@ -80,8 +80,8 @@ private:
 	static ComPtr<ID3D11Buffer> originVB;
 	static UINT gridVerticeCount;
 	static std::unique_ptr<VPShader> shader;
-	static std::unique_ptr<ConstantBuffer<VS_Property>> cb_transformation;
-	static std::unique_ptr<ConstantBuffer<XMVECTOR>> cb_color;
+	static std::unique_ptr<Buffer> cb_transformation;
+	static std::unique_ptr<Buffer> cb_color;
 	static ComPtr<ID3D11BlendState> blendState;
 
 	static float gridInterval;

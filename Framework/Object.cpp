@@ -2,11 +2,11 @@
 #include "Shader.h"
 #include "CustomFormat.h"
 #include "Shape.h"
-#include "Network.h"
 #include "TextureMgr.h"
 #include "Transform.h"
 #include "DepthStencilState.h"
 #include "BlendState.h"
+#include "Buffer.h"
 
 int CalculateMaxMiplevel(int width, int height)
 {
@@ -27,14 +27,14 @@ Object::Object(Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpe
 {
 	transform = new Transform();
 
-	shader = new VPShader(device, L"StandardVS.cso", L"StandardPS.cso", std_ILayouts, ARRAYSIZE(std_ILayouts));
+	shader = new VPShader("StandardVS.cso", "StandardPS.cso", std_ILayouts, ARRAYSIZE(std_ILayouts));
 
-	cb_vs_property = new ConstantBuffer<VS_Property>(device);
-	cb_ps_dLights = new ConstantBuffer<SHADER_DIRECTIONAL_LIGHT>(device);
-	cb_ps_pLights = new ConstantBuffer<SHADER_POINT_LIGHT>(device);
-	cb_ps_sLights = new ConstantBuffer<SHADER_SPOT_LIGHT>(device);
-	cb_ps_eyePos = new ConstantBuffer<XMFLOAT3>(device);
-	cb_ps_material = new ConstantBuffer<ShaderMaterial>(device);
+	cb_vs_property.reset(new Buffer(sizeof(VS_Property)));
+	cb_ps_dLights.reset(new Buffer(sizeof(SHADER_DIRECTIONAL_LIGHT)));
+	cb_ps_pLights.reset(new Buffer(sizeof(SHADER_POINT_LIGHT)));
+	cb_ps_sLights.reset(new Buffer(sizeof(SHADER_SPOT_LIGHT)));
+	cb_ps_eyePos.reset(new Buffer(sizeof(XMFLOAT3)));
+	cb_ps_material.reset(new Buffer(sizeof(ShaderMaterial)));
 
 	material = new ShaderMaterial(mDiffuse, 1, mAmbient, mSpec, sP, r);
 
@@ -123,41 +123,42 @@ Object::~Object()
 	delete transform;
 	delete shape;
 	delete shader;
-	delete cb_vs_property;
-	delete cb_ps_dLights;
-	delete cb_ps_pLights;
-	delete cb_ps_sLights;
-	delete cb_ps_eyePos;
-	delete cb_ps_material;
 	delete material;
 
 	delete dsState;
 	delete blendState;
 }
 
-void Object::Update()
-{
-}
-
-void Object::Render(Camera* camera, const SHADER_DIRECTIONAL_LIGHT* dLight, const SHADER_POINT_LIGHT* pLight, const SHADER_SPOT_LIGHT* sLight, const XMMATRIX& texMat)
+void Object::Update(Camera* camera, const SHADER_DIRECTIONAL_LIGHT* dLight, const SHADER_POINT_LIGHT* pLight, const SHADER_SPOT_LIGHT* sLight, const XMMATRIX& texMat)
 {
 	XMMATRIX vpMat = camera->ViewMat()*camera->ProjMat(zOrder);
 
-	shader->Apply(dContext);
+	cb_vs_property->Write(&VS_Property(transform, vpMat, texMat));
+	cb_ps_dLights->Write((void*)dLight);
+	cb_ps_pLights->Write((void*)pLight);
+	cb_ps_sLights->Write((void*)sLight);
+	cb_ps_eyePos->Write(&(camera->Pos()));
+	cb_ps_material->Write(material);
+}
+
+void Object::Render()
+{
+
+	shader->Apply();
 
 	// TRANSFORM
-	cb_vs_property->VSSetData(dContext, &VS_Property(transform, vpMat));
+	dContext->VSSetConstantBuffers(0, 1, cb_vs_property->GetAddress());
 
 	// LIGHTS
-	cb_ps_dLights->PSSetData(dContext, dLight, 0);
-	cb_ps_pLights->PSSetData(dContext, pLight, 1);
-	cb_ps_sLights->PSSetData(dContext, sLight, 2);
+	dContext->PSSetConstantBuffers(0, 1, cb_ps_dLights->GetAddress());
+	dContext->PSSetConstantBuffers(1, 1, cb_ps_pLights->GetAddress());
+	dContext->PSSetConstantBuffers(2, 1, cb_ps_sLights->GetAddress());
 
 	// EYE
-	cb_ps_eyePos->PSSetData(dContext, &camera->Pos(), 3);
+	dContext->PSSetConstantBuffers(3, 1, cb_ps_eyePos->GetAddress());
 
 	// MATERIAL
-	cb_ps_material->PSSetData(dContext, material, 4);
+	dContext->PSSetConstantBuffers(4, 1, cb_ps_material->GetAddress());
 
 	// TEXTURE
 	dContext->PSSetShaderResources(0, 1, bodySRV.GetAddressOf());

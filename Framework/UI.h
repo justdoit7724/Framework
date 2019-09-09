@@ -2,12 +2,10 @@
 #include <string>
 #include <unordered_map>
 #include "DX_info.h"
-#include "Geometrics.h"
-#include "Resource.h"
 
 class Transform;
 class Quad;
-
+class Buffer;
 class VPShader;
 class DepthStencilState;
 class BlendState;
@@ -22,13 +20,13 @@ private:
 	// screen coordinate
 	UI(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView * srv, UINT maxSliceIdx, UINT slicePerSec);
 	~UI();
-	void Update(float spf);
-	void Render(const XMMATRIX& vpMat);
+	void Update(float spf, const XMMATRIX& vpMat, const XMMATRIX& texMat);
+	void Render();
 
 	Transform* transform;
 	Quad* quad;
-	ConstantBuffer<VS_Property>* cb_vs_property;
-	ConstantBuffer<float>* cb_ps_sliceIdx;
+	std::unique_ptr<Buffer> cb_vs_property;
+	std::unique_ptr<Buffer> cb_ps_sliceIdx;
 	ID3D11ShaderResourceView *const srv;
 	float curTime=0;
 	const int maxSliceIdx;

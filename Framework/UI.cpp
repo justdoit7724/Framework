@@ -8,6 +8,7 @@
 #include "Transform.h"
 #include "DepthStencilState.h"
 #include "BlendState.h"
+#include "Buffer.h"
 
 UI::UI(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView * srv, UINT maxSliceIdx, UINT slicePerSec)
 	:srv(srv), maxSliceIdx(maxSliceIdx), secPerSlice(1.0f / slicePerSec)
@@ -21,8 +22,8 @@ UI::UI(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float
 	transform->SetTranslation(pivot.x + width * 0.5f, (canvasHeight - height * 0.5f) - pivot.y, zDepth);
 
 
-	cb_vs_property = new ConstantBuffer<VS_Property>(device);
-	cb_ps_sliceIdx = new ConstantBuffer<float>(device);
+	cb_vs_property.reset(new Buffer(sizeof(VS_Property)));
+	cb_ps_sliceIdx.reset(new Buffer(sizeof(float)));
 
 	D3D11_SAMPLER_DESC samplerDesc;
 	ZeroMemory(&samplerDesc, sizeof(D3D11_SAMPLER_DESC));
@@ -37,7 +38,7 @@ UI::UI(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float
 		device->CreateSamplerState(&samplerDesc, &texSampState)
 	);
 
-	shader = new VPShader(device, L"UIVS.cso", L"UIPS.cso", std_ILayouts, ARRAYSIZE(std_ILayouts));
+	shader = new VPShader("UIVS.cso", "UIPS.cso", std_ILayouts, ARRAYSIZE(std_ILayouts));
 
 	D3D11_BLEND_DESC blend_desc;
 	blend_desc.AlphaToCoverageEnable = false;
@@ -59,14 +60,12 @@ UI::~UI()
 {
 	delete quad;
 	delete shader;
-	delete cb_vs_property;
-	delete cb_ps_sliceIdx;
 	delete dsState;
 	delete blendState;
 	texSampState->Release();
 }
 
-void UI::Update(float spf)
+void UI::Update(float spf, const XMMATRIX& vpMat, const XMMATRIX& texMat)
 {
 	curTime += spf;
 	if (curTime >= secPerSlice)
@@ -74,14 +73,16 @@ void UI::Update(float spf)
 		curSliceIdx = (curSliceIdx+1) % maxSliceIdx;
 		curTime = 0;
 	}
+
+	cb_vs_property->Write(&VS_Property(transform, vpMat, texMat));
+	cb_ps_sliceIdx->Write(&curSliceIdx);
 }
 
-void UI::Render(const XMMATRIX& vpMat)
+void UI::Render()
 {
-	shader->Apply(dContext);
-	cb_vs_property->VSSetData(dContext, &VS_Property(transform, vpMat));
-	float tempSliceIdx = curSliceIdx;
-	cb_ps_sliceIdx->PSSetData(dContext, &tempSliceIdx);
+	shader->Apply();
+	dContext->VSSetConstantBuffers(0, 1, cb_vs_property->GetAddress());
+	dContext->PSSetConstantBuffers(0, 1, cb_ps_sliceIdx->GetAddress());
 	dContext->PSSetShaderResources(0, 1, &srv);
 	dContext->PSSetSamplers(0, 1, &texSampState);
 	blendState->Apply(dContext);
@@ -137,17 +138,15 @@ void UICanvas::Update(float spf)
 {
 	for (auto& ui : UIs)
 	{
-		ui.second->Update(spf);
+		ui.second->Update(spf, camera->VPMat(Z_ORDER_UI),XMMatrixIdentity());
 	}
 }
 
 void UICanvas::Render()
 {
-	XMMATRIX vpMat = camera->VPMat(Z_ORDER_UI);
-
 	for (auto& ui : UIs)
 	{
-		ui.second->Render(vpMat);
+		ui.second->Render();
 	}
 }
 

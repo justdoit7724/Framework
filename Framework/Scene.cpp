@@ -93,6 +93,10 @@ void Scene::Update()
 	camera->Update(Timer::SPF());
 	canvas->Update(Timer::SPF());
 
+	for (auto obj : objs)
+	{
+		obj->Update(camera, DirectionalLight::Data(), PointLight::Data(), SpotLight::Data(), XMMatrixIdentity());
+	}
 }
 
 void Scene::Render()
@@ -101,7 +105,7 @@ void Scene::Render()
 
 	for (auto obj : objs)
 	{
-		obj->Render(camera, DirectionalLight::Data(), PointLight::Data(), SpotLight::Data(), XMMatrixIdentity());
+		obj->Render();
 	}
 
 	canvas->Render();

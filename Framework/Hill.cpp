@@ -3,7 +3,7 @@
 #include "Texture2D.h"
 #include "TextureMgr.h"
 #include "CustomFormat.h"
-#include "Network.h"
+#include "Buffer.h"
 #include "Debugging.h"
 
 Hill::Hill(int n, int m, XMFLOAT2 heightRange, ID3D11ShaderResourceView *const* heightMap)
@@ -36,13 +36,15 @@ Hill::Hill(int n, int m, XMFLOAT2 heightRange, ID3D11ShaderResourceView *const* 
 
 #pragma region define y
 
-	std::unique_ptr<CShader> cShader(new CShader(device, L"HillCS.cso"));
-	cShader->Apply(dContext);
+	std::unique_ptr<CShader> cShader(new CShader("HillCS.cso"));
+	cShader->Apply();
 
-	std::unique_ptr<ConstantBuffer<XMFLOAT2>> cbRange(new ConstantBuffer<XMFLOAT2>(device));
-	cbRange->CSSetData(dContext, &heightRange);
-	std::unique_ptr<ConstantBuffer<XMFLOAT2>> cbResol(new ConstantBuffer<XMFLOAT2>(device));
-	cbResol->CSSetData(dContext, &XMFLOAT2(n, m), 1);
+	std::unique_ptr<Buffer> cbRange(new Buffer(sizeof(XMFLOAT2)));
+	cbRange->Write(&heightRange);
+	std::unique_ptr<Buffer> cbResol(new Buffer(sizeof(XMFLOAT2)));
+	cbResol->Write(&XMFLOAT2(n, m));
+	dContext->CSSetConstantBuffers(0, 1, cbRange->GetAddress());
+	dContext->CSSetConstantBuffers(1, 1, cbResol->GetAddress());
 
 	dContext->CSSetShaderResources(0, 1, heightMap);
 

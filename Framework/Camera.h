@@ -1,5 +1,5 @@
 #pragma once
-#include "Geometrics.h"
+#include "DX_info.h"
 
 enum FRAME_KIND {
 	FRAME_KIND_PERSPECTIVE,

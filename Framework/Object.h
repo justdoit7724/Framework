@@ -1,6 +1,6 @@
 #pragma once
-#include "Resource.h"
 #include "Camera.h"
+#include <string>
 
 class Transform;
 class Shape;
@@ -8,6 +8,7 @@ class VPShader;
 class IGraphic;
 class DepthStencilState;
 class BlendState;
+class Buffer;
 struct VS_Property;
 struct SHADER_DIRECTIONAL_LIGHT;
 struct SHADER_POINT_LIGHT;
@@ -21,8 +22,8 @@ public:
 	~Object();
 
 	Transform* GetTransform(){return transform;}
-	void Update();
-	void Render(Camera* camera, const SHADER_DIRECTIONAL_LIGHT* dLight, const SHADER_POINT_LIGHT* pLight, const SHADER_SPOT_LIGHT* sLight, const XMMATRIX& texMat);
+	void Update(Camera* camera, const SHADER_DIRECTIONAL_LIGHT* dLight, const SHADER_POINT_LIGHT* pLight, const SHADER_SPOT_LIGHT* sLight, const XMMATRIX& texMat = XMMatrixIdentity());
+	void Render();
 
 	void SetTransparency(float t);
 	DepthStencilState * GetDepthStencilState(){return dsState;}
@@ -37,12 +38,12 @@ private:
 	Shape* shape;
 	VPShader* shader;
 	ShaderMaterial* material;
-	ConstantBuffer<VS_Property>* cb_vs_property;
-	ConstantBuffer<SHADER_DIRECTIONAL_LIGHT>* cb_ps_dLights;
-	ConstantBuffer<SHADER_POINT_LIGHT>* cb_ps_pLights;
-	ConstantBuffer<SHADER_SPOT_LIGHT>* cb_ps_sLights;
-	ConstantBuffer<XMFLOAT3>* cb_ps_eyePos;
-	ConstantBuffer<ShaderMaterial>* cb_ps_material;
+	std::unique_ptr<Buffer> cb_vs_property;
+	std::unique_ptr<Buffer> cb_ps_dLights;
+	std::unique_ptr<Buffer> cb_ps_pLights;
+	std::unique_ptr<Buffer> cb_ps_sLights;
+	std::unique_ptr<Buffer> cb_ps_eyePos;
+	std::unique_ptr<Buffer> cb_ps_material;
 	ComPtr<ID3D11ShaderResourceView> bodySRV;
 	ComPtr<ID3D11SamplerState> bodySameplerState;
 	BlendState* blendState;

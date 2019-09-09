@@ -4,6 +4,7 @@
 #include "Camera.h"
 #include "Graphic.h"
 #include "CustomFormat.h"
+#include "Buffer.h"
 
 #include "Cube.h"
 #include "Sphere.h"
@@ -16,8 +17,8 @@ ComPtr<ID3D11Buffer> Debugging::gridVB = nullptr;
 ComPtr<ID3D11Buffer> Debugging::originVB = nullptr;
 UINT Debugging::gridVerticeCount=0;
 std::unique_ptr<VPShader> Debugging::shader = nullptr;
-std::unique_ptr<ConstantBuffer<VS_Property>> Debugging::cb_transformation=nullptr;
-std::unique_ptr<ConstantBuffer<XMVECTOR>> Debugging::cb_color=nullptr;
+std::unique_ptr<Buffer> Debugging::cb_transformation=nullptr;
+std::unique_ptr<Buffer> Debugging::cb_color=nullptr;
 std::unique_ptr<DirectX::SpriteBatch> Debugging::spriteBatch=nullptr;
 std::unique_ptr<DirectX::SpriteFont> Debugging::spriteFont=nullptr;
 ComPtr<ID3D11BlendState> Debugging::blendState=nullptr;
@@ -192,9 +193,9 @@ void Debugging::Render(Camera* camera)
 
 	if (shader == nullptr)
 	{
-		shader.reset(new VPShader(device,L"MarkVS.cso", L"MarkPS.cso", std_ILayouts, ARRAYSIZE(std_ILayouts)));
-		cb_transformation.reset(new ConstantBuffer<VS_Property>(device));
-		cb_color.reset(new ConstantBuffer<XMVECTOR>(device));
+		shader.reset(new VPShader("MarkVS.cso", "MarkPS.cso", std_ILayouts, ARRAYSIZE(std_ILayouts)));
+		cb_transformation.reset(new Buffer(sizeof(VS_Property)));
+		cb_color.reset(new Buffer(sizeof(XMVECTOR)));
 	}
 
 	/*
@@ -229,7 +230,7 @@ void Debugging::Render(Camera* camera)
 		);
 	}
 
-	shader->Apply(dContext);
+	shader->Apply();
 	dContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 	for (auto& l : lines)
 	{
@@ -242,37 +243,46 @@ void Debugging::Render(Camera* camera)
 		pVB[1].pos = l.second.p2;
 		dContext->Unmap(lineVB.Get(), 0);
 		
-		cb_transformation->VSSetData(dContext, &VS_Property(vpMat), 0);
-		cb_color->PSSetData(dContext, &(l.second.color), 0);
+		cb_transformation->Write(&VS_Property(vpMat, XMMatrixIdentity()));
+		dContext->VSSetConstantBuffers(0, 1, cb_transformation->GetAddress());
+		cb_color->Write(&(l.second.color));
+		dContext->PSSetConstantBuffers(0, 1, cb_color->GetAddress());
 
 		UINT stride = sizeof(Vertex);
 		UINT offset = 0;
-
 		dContext->IASetVertexBuffers(0, 1, lineVB.GetAddressOf(), &stride, &offset);
 		dContext->Draw(2, 0);
 	}
 
 	if(gridVB != nullptr)
 	{
-		cb_transformation->VSSetData(dContext, &VS_Property(vpMat), 0);
-		cb_color->PSSetData(dContext, &((XMVECTOR)Colors::Red), 0);
+		cb_transformation->Write(&VS_Property(vpMat, XMMatrixIdentity()));
+		dContext->VSSetConstantBuffers(0, 1, cb_transformation->GetAddress());
+		cb_color->Write((void*)(&(Colors::Red)));
+		dContext->PSSetConstantBuffers(0, 1, cb_color->GetAddress());
 		UINT stride = sizeof(Vertex);
 		UINT offset = 0;
 		dContext->IASetVertexBuffers(0, 1, originVB.GetAddressOf(), &stride, &offset);
 		dContext->Draw(2, 0);
 
-		cb_transformation->VSSetData(dContext, &VS_Property(vpMat), 0);
-		cb_color->PSSetData(dContext, &((XMVECTOR)Colors::Green), 0);
+		cb_transformation->Write(&VS_Property(vpMat, XMMatrixIdentity()));
+		dContext->VSSetConstantBuffers(0, 1, cb_transformation->GetAddress());
+		cb_color->Write((void*)(&(Colors::Green)));
+		dContext->PSSetConstantBuffers(0, 1, cb_color->GetAddress());
 		dContext->IASetVertexBuffers(0, 1, originVB.GetAddressOf(), &stride, &offset);
 		dContext->Draw(2, 2);
 
-		cb_transformation->VSSetData(dContext, &VS_Property(vpMat), 0);
-		cb_color->PSSetData(dContext, &((XMVECTOR)Colors::Blue), 0);
+		cb_transformation->Write(&VS_Property(vpMat, XMMatrixIdentity()));
+		dContext->VSSetConstantBuffers(0, 1, cb_transformation->GetAddress());
+		cb_color->Write((void*)(&(Colors::Blue)));
+		dContext->PSSetConstantBuffers(0, 1, cb_color->GetAddress());
 		dContext->IASetVertexBuffers(0, 1, originVB.GetAddressOf(), &stride, &offset);
 		dContext->Draw(2, 4);
 
-		cb_transformation->VSSetData(dContext, &VS_Property(vpMat), 0);
-		cb_color->PSSetData(dContext, &((XMVECTOR)Colors::Gray), 0);
+		cb_transformation->Write(&VS_Property(vpMat, XMMatrixIdentity()));
+		dContext->VSSetConstantBuffers(0, 1, cb_transformation->GetAddress());
+		cb_color->Write((void*)(&(Colors::Gray)));
+		dContext->PSSetConstantBuffers(0, 1, cb_color->GetAddress());
 		dContext->IASetVertexBuffers(0, 1, gridVB.GetAddressOf(), &stride, &offset);
 		dContext->Draw(gridVerticeCount, 0);
 	}
