@@ -42,7 +42,7 @@ void Subdivide(std::vector<XMFLOAT3>& vertice, std::vector<UINT>& indice)
 	}
 }
 
-Sphere::Sphere(ID3D11Device* device, int numSubDivision)
+Sphere::Sphere(int numSubDivision)
 	:Shape()
 {
 	// Put a cap on the number of subdivisions. 
@@ -104,7 +104,7 @@ Sphere::Sphere(ID3D11Device* device, int numSubDivision)
 		vertice2.emplace_back(pos, n, tex);
 	}
 
-	Init(device, vertice2.data(), vertice2.size(), indice.data(), indice.size());
+	Init(vertice2.data(), vertice2.size(), indice.data(), indice.size());
 }
 
 

@@ -6,7 +6,7 @@
 #include "Network.h"
 #include "Debugging.h"
 
-Hill::Hill(IGraphic* graphic, int n, int m, XMFLOAT2 heightRange, ID3D11ShaderResourceView *const* heightMap)
+Hill::Hill(int n, int m, XMFLOAT2 heightRange, ID3D11ShaderResourceView *const* heightMap)
 	:Shape()
 {
 #pragma region define x, z
@@ -47,7 +47,6 @@ Hill::Hill(IGraphic* graphic, int n, int m, XMFLOAT2 heightRange, ID3D11ShaderRe
 	dContext->CSSetShaderResources(0, 1, heightMap);
 
 	Texture2D* heightBuffer = new Texture2D(
-		device,
 		&CD3D11_TEXTURE2D_DESC(
 			DXGI_FORMAT_R32_FLOAT,
 			n, m,
@@ -58,13 +57,12 @@ Hill::Hill(IGraphic* graphic, int n, int m, XMFLOAT2 heightRange, ID3D11ShaderRe
 	uavDesc.Format = DXGI_FORMAT_R32_FLOAT;
 	uavDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
 	uavDesc.Texture2D.MipSlice = 0;
-	heightBuffer->SetupUAV(device, &uavDesc);
-	dContext->CSSetUnorderedAccessViews(0, 1, heightBuffer->UAV(device), nullptr);
+	heightBuffer->SetupUAV(&uavDesc);
+	dContext->CSSetUnorderedAccessViews(0, 1, heightBuffer->UAV(), nullptr);
 	dContext->Dispatch(ceil(n/16.0f), ceil(m/16.0f), 1);
-	Resource::CSUnbindUAV(dContext, 0, 1);
+	Resource::CSUnbindUAV(0, 1);
 
 	Texture2D* outputBuffer = new Texture2D(
-		device,
 		&CD3D11_TEXTURE2D_DESC(
 			DXGI_FORMAT_R32_FLOAT,
 			n, m,
@@ -112,7 +110,7 @@ Hill::Hill(IGraphic* graphic, int n, int m, XMFLOAT2 heightRange, ID3D11ShaderRe
 #pragma endregion
 
 
-	Init(device, vertice.data(), vertice.size(), indice.data(), indice.size());
+	Init(vertice.data(), vertice.size(), indice.data(), indice.size());
 }
 
 
@@ -120,9 +118,9 @@ Hill::~Hill()
 {
 }
 
-void Hill::Apply(ID3D11DeviceContext * dContext)
+void Hill::Apply()
 {
 	Debugging::Draw("Normal of hill is only heading upward", 100, 30);
 
-	Shape::Apply(dContext);
+	Shape::Apply();
 }

@@ -4,6 +4,6 @@ class Cube :
 	public Shape
 {
 public:
-	Cube(ID3D11Device* device);
+	Cube();
 };
 

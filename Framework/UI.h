@@ -20,10 +20,10 @@ private:
 	friend class UICanvas;
 
 	// screen coordinate
-	UI(ID3D11Device* device, float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView * srv, UINT maxSliceIdx, UINT slicePerSec);
+	UI(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView * srv, UINT maxSliceIdx, UINT slicePerSec);
 	~UI();
 	void Update(float spf);
-	void Render(ID3D11DeviceContext* dContext, const XMMATRIX& vpMat);
+	void Render(const XMMATRIX& vpMat);
 
 	Transform* transform;
 	Quad* quad;
@@ -50,11 +50,11 @@ class IGraphic;
 class UICanvas
 {
 public:
-	UICanvas(ID3D11Device* device, float width, float height);
+	UICanvas(float width, float height);
 	~UICanvas();
 
 	// screen coordinate
-	void Add(ID3D11Device* device, std::string id, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView* srv, UINT maxSliceIdx = 1, UINT slicePerSec = 1);
+	void Add(std::string id, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView* srv, UINT maxSliceIdx = 1, UINT slicePerSec = 1);
 	void Remove(std::string id);
 	UI* Get(std::string id);
 

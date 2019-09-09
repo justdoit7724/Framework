@@ -4,10 +4,10 @@
 class Resource
 {
 public:
-	static void VSUnbindSRV(ID3D11DeviceContext* dContext, UINT startIdx, UINT numViews);
-	static void PSUnbindSRV(ID3D11DeviceContext* dContext, UINT startIdx, UINT numViews);
-	static void CSUnbindSRV(ID3D11DeviceContext* dContext, UINT startIdx, UINT numViews);
-	static void CSUnbindUAV(ID3D11DeviceContext* dContext, UINT startIdx, UINT numViews);
+	static void VSUnbindSRV(UINT startIdx, UINT numViews);
+	static void PSUnbindSRV(UINT startIdx, UINT numViews);
+	static void CSUnbindSRV(UINT startIdx, UINT numViews);
+	static void CSUnbindUAV(UINT startIdx, UINT numViews);
 
 };
 

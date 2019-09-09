@@ -3,7 +3,6 @@
 #include "Camera.h"
 #include "Keyboard.h"
 #include "TextureMgr.h"
-#include "Network.h"
 #include "Camera.h"
 #include "Timer.h"
 #include "CustomFormat.h"
@@ -22,11 +21,11 @@
 #include "Texture2D.h"
 #include "Buffer.h"
 
-Scene::Scene(IGraphic* graphic)
+Scene::Scene()
 {
 	camera = new Camera(FRAME_KIND_PERSPECTIVE, SCREEN_WIDTH, SCREEN_HEIGHT ,0.1,200,1.1f, 1.0f, XMFLOAT3(0,0,-100), FORWARD, RIGHT);
 
-	canvas = new UICanvas(device, SCREEN_WIDTH, SCREEN_HEIGHT);
+	canvas = new UICanvas(SCREEN_WIDTH, SCREEN_HEIGHT);
 
 	Debugging::EnableGrid(10,50);
 
@@ -36,7 +35,7 @@ Scene::Scene(IGraphic* graphic)
 	TextureMgr::Instance()->Load("heightmap3.jpg");
 	TextureMgr::Instance()->Load("grass.jpg");
 
-	canvas->Add(device, "test", XMFLOAT2(380, 380), 380, 380, 0, TextureMgr::Instance()->Get("sample.jpg"));
+	canvas->Add("test", XMFLOAT2(380, 380), 380, 380, 0, TextureMgr::Instance()->Get("sample.jpg"));
 	D3D11_DEPTH_STENCIL_DESC ds_desc;
 	ds_desc.DepthEnable = true;
 	ds_desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
@@ -51,8 +50,8 @@ Scene::Scene(IGraphic* graphic)
 	dso_desc.StencilFunc = D3D11_COMPARISON_ALWAYS;
 	
 
-	Hill* hill = new Hill(graphic, 400, 400, XMFLOAT2(0, 30), TextureMgr::Instance()->GetAddress("heightmap3.jpg"));
-	Hill* water = new Hill(graphic, 50, 50, XMFLOAT2(10, 15), TextureMgr::Instance()->GetAddress("sample.jpg"));
+	Hill* hill = new Hill(400, 400, XMFLOAT2(0, 30), TextureMgr::Instance()->GetAddress("heightmap3.jpg"));
+	Hill* water = new Hill(50, 50, XMFLOAT2(10, 15), TextureMgr::Instance()->GetAddress("sample.jpg"));
 
 	Object* hillObj = new Object(hill, XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), XMFLOAT3(0.5f, 0.5f, 0.5f), 4, XMFLOAT3(1, 1, 1), "grass.jpg");
 	Object* waterObj = new Object(water, XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), 8, XMFLOAT3(1, 1, 1), "white.png");

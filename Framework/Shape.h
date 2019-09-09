@@ -7,11 +7,11 @@ struct Vertex;
 class Shape : public Component
 {
 public:
-	virtual void Apply(ID3D11DeviceContext* dContext);
+	virtual void Apply();
 
 protected:
 	Shape();
-	void Init(ID3D11Device* device, const Vertex* vertice, const int vertexCount, const UINT* indice, const int idxCount);
+	void Init(const Vertex* vertice, const int vertexCount, const UINT* indice, const int idxCount);
 
 private:
 	ComPtr<ID3D11Buffer> vertexBuffer;

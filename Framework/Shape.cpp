@@ -5,7 +5,7 @@ Shape::Shape()
 {
 }
 
-void Shape::Init(ID3D11Device* device, const Vertex* vertice, const int vertexCount, const UINT* indice, const int idxCount)
+void Shape::Init(const Vertex* vertice, const int vertexCount, const UINT* indice, const int idxCount)
 {
 	indexCount = idxCount;
 
@@ -40,7 +40,7 @@ void Shape::Init(ID3D11Device* device, const Vertex* vertice, const int vertexCo
 	);
 }
 
-void Shape::Apply(ID3D11DeviceContext* dContext)
+void Shape::Apply()
 {
 	dContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	UINT stride = sizeof(Vertex);

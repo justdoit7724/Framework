@@ -166,7 +166,7 @@ void Object::Render(Camera* camera, const SHADER_DIRECTIONAL_LIGHT* dLight, cons
 	// STATE
 	dsState->Apply(dContext);
 	blendState->Apply(dContext);
-	shape->Apply(dContext);
+	shape->Apply();
 }
 
 void Object::SetTransparency(float t)

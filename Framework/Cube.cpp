@@ -17,7 +17,7 @@ static const UINT OBJ_CUBE_INDICE[36] =
 	20,22,23
 };
 
-Cube::Cube(ID3D11Device* device)
+Cube::Cube()
 	:Shape()
 {
 	static Vertex OBJ_CUBE[24];
@@ -100,5 +100,5 @@ Cube::Cube(ID3D11Device* device)
 	OBJ_CUBE[23].pos = XMFLOAT3(0.5, -0.5, 0.5);
 	OBJ_CUBE[23].tex = XMFLOAT2(1, 1);
 
-	Init(device, &OBJ_CUBE[0], int(ARRAYSIZE(OBJ_CUBE)), &OBJ_CUBE_INDICE[0], int(ARRAYSIZE(OBJ_CUBE_INDICE)));
+	Init(&OBJ_CUBE[0], int(ARRAYSIZE(OBJ_CUBE)), &OBJ_CUBE_INDICE[0], int(ARRAYSIZE(OBJ_CUBE_INDICE)));
 }

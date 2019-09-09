@@ -11,7 +11,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 	Window window(hInstance, "2D -> 3D");
 	Graphic* graphic = new Graphic(window.Hwnd());
-	Scene* scene = new Scene(graphic);
+	Scene* scene = new Scene();
 	srand(time(NULL));
 
 	Timer::Init();

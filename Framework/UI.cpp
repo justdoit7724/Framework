@@ -9,12 +9,12 @@
 #include "DepthStencilState.h"
 #include "BlendState.h"
 
-UI::UI(ID3D11Device* device, float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView * srv, UINT maxSliceIdx, UINT slicePerSec)
+UI::UI(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView * srv, UINT maxSliceIdx, UINT slicePerSec)
 	:srv(srv), maxSliceIdx(maxSliceIdx), secPerSlice(1.0f / slicePerSec)
 {
 	assert(0 <= zDepth && zDepth <= 1);
 
-	quad = new Quad(device);
+	quad = new Quad();
 	transform = new Transform();
 	transform->SetScale(width, height, 1);
 	transform->SetRot(-FORWARD, UP);
@@ -76,7 +76,7 @@ void UI::Update(float spf)
 	}
 }
 
-void UI::Render(ID3D11DeviceContext* dContext, const XMMATRIX& vpMat)
+void UI::Render(const XMMATRIX& vpMat)
 {
 	shader->Apply(dContext);
 	cb_vs_property->VSSetData(dContext, &VS_Property(transform, vpMat));
@@ -86,10 +86,10 @@ void UI::Render(ID3D11DeviceContext* dContext, const XMMATRIX& vpMat)
 	dContext->PSSetSamplers(0, 1, &texSampState);
 	blendState->Apply(dContext);
 	dsState->Apply(dContext);
-	quad->Apply(dContext);
+	quad->Apply();
 }
 
-UICanvas::UICanvas(ID3D11Device* device, float width, float height)
+UICanvas::UICanvas(float width, float height)
 	: totalWidth(width), totalHeight(height)
 {
 	Debugging::Line(29035, XMFLOAT3(0, height, 0), XMFLOAT3(width, height, 0), Colors::Cyan);
@@ -107,11 +107,11 @@ UICanvas::~UICanvas()
 	}
 }
 
-void UICanvas::Add(ID3D11Device* device, std::string id, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView* srv, UINT maxSliceIdx, UINT slicePerSec)
+void UICanvas::Add(std::string id, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView* srv, UINT maxSliceIdx, UINT slicePerSec)
 {
 	if (UIs.find(id) == UIs.end())
 	{
-		UIs.insert(std::pair<std::string, UI*>(id, new UI(device, totalWidth, totalHeight, pivot,width,height, zDepth, srv, maxSliceIdx, slicePerSec)));
+		UIs.insert(std::pair<std::string, UI*>(id, new UI(totalWidth, totalHeight, pivot,width,height, zDepth, srv, maxSliceIdx, slicePerSec)));
 	}
 }
 
@@ -147,7 +147,7 @@ void UICanvas::Render()
 
 	for (auto& ui : UIs)
 	{
-		ui.second->Render(dContext, vpMat);
+		ui.second->Render(vpMat);
 	}
 }
 
