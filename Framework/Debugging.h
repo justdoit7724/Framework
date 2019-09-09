@@ -1,46 +1,52 @@
 #pragma once
 #include "DX_info.h"
+#include "Game_info.h"
 #include <SpriteBatch.h>
 #include <SpriteFont.h>
 #include <unordered_set>
 #include <unordered_map>
-#include "Singleton.h"
+#include "Resource.h"
 
-
+class IGraphic;
 class Shape;
-class Buffer;
+class IGraphic;
 class VPShader;
 class Camera;
-class Transform;
-class RasterizerState;
-class DepthStencilState;
 struct VS_Property;
 
-class Debugging : public Singleton<Debugging>
+class Debugging
 {
 public:
-	void Draw(const std::string tex, const float x, const float y,  const XMVECTORF32 _color = Colors::White,  const float _scale = 1.5f);
-	void Draw(const int tex, const float x, const float y, const XMVECTORF32 _color = Colors::White, const float _scale = 1.5f);
-	void Draw(float tex, const float x, const float y, XMVECTORF32 _color = Colors::White, float _scale = 1.5f);
-	void Draw(std::string title, XMFLOAT3 v, const float x, const float y, XMVECTORF32 _color = Colors::White, float _scale = 1.0f);
-	void Draw3D(const std::string tex, const XMFLOAT3 _pos, const XMVECTORF32 _color = Colors::White, const float _scale = 1.5f);
-	void Draw3D(const int tex, const XMFLOAT3 _pos, const XMVECTORF32 _color = Colors::White, const float _scale = 1.5f);
-	void Draw3D(float tex, const XMFLOAT3 _pos, XMVECTORF32 _color = Colors::White, float _scale = 1.5f);
-	void Draw3D(std::string title, XMFLOAT3 v,  const XMFLOAT3 _pos, XMVECTORF32 _color = Colors::White, float _scale = 1.0f);
-	void Mark(const UINT key, XMFLOAT3 pos, float radius = 1.0f, XMVECTORF32 color = Colors::Red);
-	void Line(const UINT key, XMFLOAT3 p1, XMFLOAT3 p2, XMVECTORF32 color = Colors::White);
 
-	void EnableGrid(float interval, int num=100);
-	void DisableGrid();
+	static void Init(IGraphic* _graphic)
+	{
+		graphic = _graphic;
+	}
+	
+	static void Draw(const std::string tex, const float x, const float y,  const XMVECTORF32 _color = Colors::White,  const float _scale = 1.5f);
+	static void Draw(const int tex, const float x, const float y, const XMVECTORF32 _color = Colors::White, const float _scale = 1.5f);
+	static void Draw(float tex, const float x, const float y, XMVECTORF32 _color = Colors::White, float _scale = 1.5f);
+	static void Draw(std::string title, XMFLOAT3 v, const float x, const float y, XMVECTORF32 _color = Colors::White, float _scale = 1.0f);
+	static void Draw3D(const std::string tex, const XMFLOAT3 _pos, const XMVECTORF32 _color = Colors::White, const float _scale = 1.5f);
+	static void Draw3D(const int tex, const XMFLOAT3 _pos, const XMVECTORF32 _color = Colors::White, const float _scale = 1.5f);
+	static void Draw3D(float tex, const XMFLOAT3 _pos, XMVECTORF32 _color = Colors::White, float _scale = 1.5f);
+	static void Draw3D(std::string title, XMFLOAT3 v,  const XMFLOAT3 _pos, XMVECTORF32 _color = Colors::White, float _scale = 1.0f);
+	static void Mark(const UINT key, XMFLOAT3 pos, float radius = 1.0f, XMVECTORF32 color = Colors::Red);
+	static void Line(const UINT key, XMFLOAT3 p1, XMFLOAT3 p2, XMVECTORF32 color = Colors::White);
 
-	void Render(Camera* camera);
+	static void EnableGrid(float interval, int num=100);
+	static void DisableGrid();
 
+	static void Render(Camera* camera, IGraphic* graphic);
+
+	//edit - move into private
 private:
-	friend class Singleton<Debugging>;
-	Debugging();
+	Debugging() {};
 
-	std::unique_ptr<DirectX::SpriteBatch> spriteBatch;
-	std::unique_ptr<DirectX::SpriteFont> spriteFont;
+	static IGraphic* graphic;
+
+	static std::unique_ptr<DirectX::SpriteBatch> spriteBatch;
+	static std::unique_ptr<DirectX::SpriteFont> spriteFont;
 
 	struct ScreenTextInfo {
 		std::string tex;
@@ -51,23 +57,19 @@ private:
 
 		ScreenTextInfo() {}
 	};
-	std::vector<ScreenTextInfo> texts;
+	static std::vector<ScreenTextInfo> texts;
 
 	struct MarkInfo {
-		Transform* transform;
 		Shape* geom;
 		XMVECTOR color;
 
 		MarkInfo() {}
-		MarkInfo(Transform* transform, Shape* geom, XMVECTOR color)
-			:transform(transform), geom(geom), color(color){}
+		MarkInfo(Shape* _geom, XMVECTOR _color) {
+			geom = _geom;
+			color = _color;
+		}
 	};
-	std::unordered_map<UINT, MarkInfo> marks;
-	std::unique_ptr<Buffer> cb_vs_property = nullptr;
-	std::unique_ptr<Buffer> cb_ps_color = nullptr;
-	std::unique_ptr<VPShader> shader = nullptr;
-	std::unique_ptr< RasterizerState> rasterizerState = nullptr;
-	std::unique_ptr<DepthStencilState> dsState = nullptr;
+	static std::unordered_map<UINT, MarkInfo> marks;
 
 	struct LineInfo {
 		XMFLOAT3 p1, p2;
@@ -80,13 +82,16 @@ private:
 			color = _c;
 		}
 	};
-	std::unordered_map<UINT,LineInfo> lines;
-	ComPtr<ID3D11Buffer> lineVB = nullptr;
-	ComPtr<ID3D11Buffer> gridVB = nullptr;
-	ComPtr<ID3D11Buffer> originVB = nullptr;
-	UINT gridVerticeCount=0;
-	ComPtr<ID3D11BlendState> blendState = nullptr;
+	static std::unordered_map<UINT,LineInfo> lines;
+	static ComPtr<ID3D11Buffer> lineVB;
+	static ComPtr<ID3D11Buffer> gridVB;
+	static ComPtr<ID3D11Buffer> originVB;
+	static UINT gridVerticeCount;
+	static std::unique_ptr<VPShader> shader;
+	static std::unique_ptr<ConstantBuffer<VS_Property>> cb_transformation;
+	static std::unique_ptr<ConstantBuffer<XMVECTOR>> cb_color;
+	static ComPtr<ID3D11BlendState> blendState;
 
-	float gridInterval;
+	static float gridInterval;
 };
 

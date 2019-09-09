@@ -16,18 +16,16 @@ static const wchar_t* ShaderPath() {
 #endif
 }
 
-VPShader::VPShader(std::string VSfileName, std::string PSfileName, const D3D11_INPUT_ELEMENT_DESC * layoutDesc, UINT layoutNum)
+VPShader::VPShader(ID3D11Device* device, const std::wstring VSfileName, const std::wstring PSfileName, const D3D11_INPUT_ELEMENT_DESC * layoutDesc, int layoutNum)
 {
-	std::wstring wVS(VSfileName.begin(), VSfileName.end());
-
 	ComPtr<ID3DBlob> vsBlob;
 	r_assert(
 		D3DReadFileToBlob(
-		(ShaderPath() + wVS).c_str(),
+		(ShaderPath() + VSfileName).c_str(),
 			vsBlob.GetAddressOf())
 	);
 	r_assert(
-		DX_Device->CreateVertexShader(
+		device->CreateVertexShader(
 			vsBlob->GetBufferPointer(),
 			vsBlob->GetBufferSize(),
 			nullptr,
@@ -35,7 +33,7 @@ VPShader::VPShader(std::string VSfileName, std::string PSfileName, const D3D11_I
 	);
 
 	r_assert(
-		DX_Device->CreateInputLayout(
+		device->CreateInputLayout(
 			layoutDesc,
 			layoutNum,
 			vsBlob->GetBufferPointer(),
@@ -43,15 +41,14 @@ VPShader::VPShader(std::string VSfileName, std::string PSfileName, const D3D11_I
 			iLayout.GetAddressOf())
 	);
 
-	std::wstring wPS(PSfileName.begin(), PSfileName.end());
 	ComPtr<ID3DBlob> psBlob;
 	r_assert(
 		D3DReadFileToBlob(
-		(ShaderPath() + wPS).c_str(),
+		(ShaderPath() + PSfileName).c_str(),
 			psBlob.GetAddressOf())
 	);
 	r_assert(
-		DX_Device->CreatePixelShader(
+		device->CreatePixelShader(
 			psBlob->GetBufferPointer(),
 			psBlob->GetBufferSize(),
 			nullptr,
@@ -59,15 +56,15 @@ VPShader::VPShader(std::string VSfileName, std::string PSfileName, const D3D11_I
 	);
 }
 
-void VPShader::Apply()
+void VPShader::Apply(ID3D11DeviceContext* dContext)
 {
-	DX_DContext->IASetInputLayout(iLayout.Get());
-	DX_DContext->VSSetShader(vs.Get(), nullptr, 0);
-	DX_DContext->PSSetShader(ps.Get(), nullptr, 0);
+	dContext->IASetInputLayout(iLayout.Get());
+	dContext->VSSetShader(vs.Get(), nullptr, 0);
+	dContext->PSSetShader(ps.Get(), nullptr, 0);
 }
 
 
-CShader::CShader(const std::wstring CSfileName)
+CShader::CShader(ID3D11Device* device, const std::wstring CSfileName)
 {
 	ComPtr<ID3DBlob> csBlob;
 
@@ -77,7 +74,7 @@ CShader::CShader(const std::wstring CSfileName)
 			csBlob.GetAddressOf())
 	);
 	r_assert(
-		DX_Device->CreateComputeShader(
+		device->CreateComputeShader(
 			csBlob->GetBufferPointer(),
 			csBlob->GetBufferSize(),
 			nullptr,
@@ -85,7 +82,7 @@ CShader::CShader(const std::wstring CSfileName)
 	);
 }
 
-void CShader::Apply()
+void CShader::Apply(ID3D11DeviceContext* dContext)
 {
-	DX_DContext->CSSetShader(cs.Get(), nullptr, 0);
+	dContext->CSSetShader(cs.Get(), nullptr, 0);
 }

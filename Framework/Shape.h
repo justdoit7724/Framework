@@ -2,21 +2,20 @@
 #include "Component.h"
 #include <vector>
 
-class Buffer;
+struct Vertex;
 
 class Shape : public Component
 {
 public:
-	virtual void Apply();
-	UINT IndexCount() {return indexCount;}
+	virtual void Apply(ID3D11DeviceContext* dContext);
 
 protected:
 	Shape();
-	void Init(void* vertice, const int vertexCount, void* indice, UINT idxCount);
+	void Init(ID3D11Device* device, const Vertex* vertice, const int vertexCount, const UINT* indice, const int idxCount);
 
 private:
-	Buffer* vertexBuffer=nullptr;
-	Buffer* indexBuffer=nullptr;
-	UINT indexCount;
+	ComPtr<ID3D11Buffer> vertexBuffer;
+	ComPtr<ID3D11Buffer> indexBuffer;
+	int indexCount;
 };
 

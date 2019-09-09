@@ -4,25 +4,21 @@
 class Buffer : public Resource 
 {
 public:
-	Buffer(D3D11_BUFFER_DESC* desc);
-	Buffer(D3D11_BUFFER_DESC* desc, void* _initValue);
-	//constant buffer
-	Buffer(UINT byteSize);
+	Buffer(ID3D11Device* device, const CD3D11_BUFFER_DESC* desc);
 	
-	void SetSRV(D3D11_SHADER_RESOURCE_VIEW_DESC* srvDesc);
-	void SetUAV(D3D11_UNORDERED_ACCESS_VIEW_DESC* uavDesc);
-	ID3D11ShaderResourceView** SRV() {return srv.GetAddressOf(); }
-	ID3D11UnorderedAccessView** UAV() {return uav.GetAddressOf(); }
+	Buffer(ID3D11Device* device, const CD3D11_BUFFER_DESC* desc, void* _initValue);
+	
+	void SetSRV(ID3D11Device* device, D3D11_SHADER_RESOURCE_VIEW_DESC* srvDesc);
+	void SetUAV(ID3D11Device* device, D3D11_UNORDERED_ACCESS_VIEW_DESC* uavDesc);
 
-	void Write(void* data);
+	void Update(ID3D11DeviceContext* dContext, void* data, UINT byteSize);
 
-	ID3D11Buffer* Get() { return resource.Get();}
-	ID3D11Buffer*const* GetAddress(){ return resource.GetAddressOf(); }
+	ID3D11Buffer* Get(){return resource.Get(); }
 
-	const bool isCB;
+	const D3D11_BUFFER_DESC desc;
+
 private:
 
-	D3D11_BUFFER_DESC desc;
 
 	ComPtr<ID3D11Buffer> resource;
 	ComPtr<ID3D11ShaderResourceView> srv;

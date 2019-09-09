@@ -3,6 +3,7 @@
 #include "Camera.h"
 #include "Keyboard.h"
 #include "TextureMgr.h"
+#include "Network.h"
 #include "Camera.h"
 #include "Timer.h"
 #include "CustomFormat.h"
@@ -21,22 +22,23 @@
 #include "Texture2D.h"
 #include "Buffer.h"
 
-Scene::Scene()
+Scene::Scene(IGraphic* graphic)
 {
+	ID3D11Device* device = graphic->Device();
+
 	camera = new Camera(FRAME_KIND_PERSPECTIVE, SCREEN_WIDTH, SCREEN_HEIGHT ,0.1,200,1.1f, 1.0f, XMFLOAT3(0,0,-100), FORWARD, RIGHT);
 
-	canvas = new UICanvas(SCREEN_WIDTH, SCREEN_HEIGHT);
+	canvas = new UICanvas(device, SCREEN_WIDTH, SCREEN_HEIGHT);
 
-	Debugging::Instance()->EnableGrid(10,50);
+	Debugging::EnableGrid(10,50);
 
-	TextureMgr::Instance()->Load("sample.jpg");
-	TextureMgr::Instance()->Load("transparency.png");
-	TextureMgr::Instance()->Load("white.png");
-	TextureMgr::Instance()->Load("marine_s.png");
-	TextureMgr::Instance()->Load("heightmap3.jpg");
-	TextureMgr::Instance()->Load("grass.jpg");
+	TextureMgr::Instance()->Load(graphic, "sample.jpg");
+	TextureMgr::Instance()->Load(graphic, "transparency.png");
+	TextureMgr::Instance()->Load(graphic, "marine_s.png");
+	TextureMgr::Instance()->Load(graphic, "heightmap3.jpg");
+	TextureMgr::Instance()->Load(graphic, "grass.jpg");
 
-	canvas->Add("test", XMFLOAT2(380, 380), 380, 380, 0, TextureMgr::Instance()->Get("sample.jpg"));
+	canvas->Add(device, "test", XMFLOAT2(380, 380), 380, 380, 0, TextureMgr::Instance()->Get("transparency.png"));
 	D3D11_DEPTH_STENCIL_DESC ds_desc;
 	ds_desc.DepthEnable = true;
 	ds_desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
@@ -51,32 +53,32 @@ Scene::Scene()
 	dso_desc.StencilFunc = D3D11_COMPARISON_ALWAYS;
 	
 
-	Hill* hill = new Hill(400, 400, TextureMgr::Instance()->GetAddress("heightmap3.jpg"));
-	Hill* water = new Hill(50, 50, TextureMgr::Instance()->GetAddress("sample.jpg"));
+	Hill* hill = new Hill(graphic, 400, 400, XMFLOAT2(0, 30), TextureMgr::Instance()->GetAddress("heightmap3.jpg"));
+	Hill* water = new Hill(graphic, 50, 50, XMFLOAT2(10, 15), TextureMgr::Instance()->GetAddress("sample.jpg"));
 
-	Object* hillObj = new Object(hill, XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), XMFLOAT3(0.5f, 0.5f, 0.5f), 4, XMFLOAT3(1, 1, 1), "grass.jpg",false);
-	Object* waterObj = new Object(water, XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), 8, XMFLOAT3(1, 1, 1), "white.png",false);
+	Object* hillObj = new Object(graphic, hill, XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), XMFLOAT3(0.5f, 0.5f, 0.5f), 4, XMFLOAT3(1, 1, 1), "grass.jpg");
+	Object* waterObj = new Object(graphic, water, XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), 8, XMFLOAT3(1, 1, 1), "white.png");
 	waterObj->SetTransparency(0.5f);
 	D3D11_BLEND_DESC tDesc;
 	tDesc.AlphaToCoverageEnable = false;
 	tDesc.IndependentBlendEnable = false;
 	tDesc.RenderTarget[0].BlendEnable = true;
 	tDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
-	tDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ZERO;
+	tDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
 	tDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
 	tDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
 	tDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
 	tDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	tDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-	waterObj->GetBlendState()->Modify(&tDesc);
+	waterObj->GetBlendState()->Modify(device, &tDesc);
 
-	hillObj->GetTransform()->SetScale(100, 10, 100);
-	waterObj->GetTransform()->SetScale(100, 10, 100);
+	hillObj->GetTransform()->SetScale(100, 1, 100);
+	waterObj->GetTransform()->SetScale(100, 1, 100);
 	objs.push_back(hillObj);
 	objs.push_back(waterObj);
 
 	dLight = new DirectionalLight(
-		XMFLOAT3(10.25f, 10.25f, 10.25f),
+		XMFLOAT3(0.25f, 0.25f, 0.25f),
 		XMFLOAT3(0.75f, 0.75f, 0.75f),
 		XMFLOAT3(0.9f, 0.9f, 0.9f),
 		FORWARD);
@@ -92,23 +94,19 @@ void Scene::Update()
 {
 	Timer::Update();
 	camera->Update(Timer::SPF());
-	//canvas->Update(Timer::SPF());
+	canvas->Update(Timer::SPF());
 
-	for (auto obj : objs)
-	{
-		obj->Update(camera, DirectionalLight::Data(), PointLight::Data(), SpotLight::Data());
-	}
 }
 
-void Scene::Render()
+void Scene::Render(IGraphic* graphic)
 {
-	Debugging::Instance()->Render(camera);
+	Debugging::Render(camera, graphic);
 
 	for (auto obj : objs)
 	{
-		obj->Render();
+		obj->Render(graphic, camera, DirectionalLight::Data(), PointLight::Data(), SpotLight::Data(), XMMatrixIdentity());
 	}
 
-	//canvas->Render();
+	canvas->Render(graphic);
 
 }

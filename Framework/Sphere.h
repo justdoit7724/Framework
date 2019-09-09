@@ -4,6 +4,6 @@ class Sphere :
 	public Shape
 {
 public:
-	Sphere(const int numSubDivision);
+	Sphere(ID3D11Device* device, const int numSubDivision);
 };
 

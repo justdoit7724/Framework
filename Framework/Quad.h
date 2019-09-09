@@ -4,6 +4,6 @@ class Quad :
 	public Shape
 {
 public:
-	Quad();
+	Quad(ID3D11Device* device);
 };
 

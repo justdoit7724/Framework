@@ -6,6 +6,7 @@
 class Camera;
 class Object;
 class Timer;
+class IGraphic;
 class DirectionalLight;
 class PointLight;
 class SpotLight;
@@ -14,11 +15,11 @@ class UICanvas;
 class Scene
 {
 public:
-	Scene();
+	Scene(IGraphic* graphic);
 	~Scene();
 
 	void Update();
-	void Render();
+	void Render(IGraphic* graphic);
 
 private:
 

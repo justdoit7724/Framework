@@ -4,27 +4,25 @@
 #include "Camera.h"
 #include "Game_info.h"
 #include "CustomFormat.h"
-
+#include "Network.h"
 #include "Transform.h"
 #include "DepthStencilState.h"
 #include "BlendState.h"
-#include "Buffer.h"
-#include "RasterizerState.h"
 
-UI::UI(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView * srv, UINT maxSliceIdx, UINT slicePerSec)
+UI::UI(ID3D11Device* device, float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView * srv, UINT maxSliceIdx, UINT slicePerSec)
 	:srv(srv), maxSliceIdx(maxSliceIdx), secPerSlice(1.0f / slicePerSec)
 {
 	assert(0 <= zDepth && zDepth <= 1);
 
-	quad = new Quad();
+	quad = new Quad(device);
 	transform = new Transform();
 	transform->SetScale(width, height, 1);
 	transform->SetRot(-FORWARD, UP);
 	transform->SetTranslation(pivot.x + width * 0.5f, (canvasHeight - height * 0.5f) - pivot.y, zDepth);
 
 
-	cb_vs_property = new Buffer(sizeof(VS_Property));
-	cb_ps_sliceIdx = new Buffer(sizeof(float));
+	cb_vs_property = new ConstantBuffer<VS_Property>(device);
+	cb_ps_sliceIdx = new ConstantBuffer<float>(device);
 
 	D3D11_SAMPLER_DESC samplerDesc;
 	ZeroMemory(&samplerDesc, sizeof(D3D11_SAMPLER_DESC));
@@ -36,10 +34,10 @@ UI::UI(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float
 	samplerDesc.MinLOD = 0;
 	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	r_assert(
-		DX_Device->CreateSamplerState(&samplerDesc, &texSampState)
+		device->CreateSamplerState(&samplerDesc, &texSampState)
 	);
 
-	shader = new VPShader("UIVS.cso", "UIPS.cso", std_ILayouts, ARRAYSIZE(std_ILayouts));
+	shader = new VPShader(device, L"UIVS.cso", L"UIPS.cso", std_ILayouts, ARRAYSIZE(std_ILayouts));
 
 	D3D11_BLEND_DESC blend_desc;
 	blend_desc.AlphaToCoverageEnable = false;
@@ -52,10 +50,9 @@ UI::UI(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float
 	blend_desc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
 	blend_desc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	blend_desc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-	blendState = new BlendState(&blend_desc);
+	blendState = new BlendState(device, &blend_desc);
 
-	dsState = new DepthStencilState();
-	rasterizerState = new RasterizerState();
+	dsState = new DepthStencilState(device);
 }
 
 UI::~UI()
@@ -66,11 +63,10 @@ UI::~UI()
 	delete cb_ps_sliceIdx;
 	delete dsState;
 	delete blendState;
-	delete rasterizerState;
 	texSampState->Release();
 }
 
-void UI::Update(float spf, const XMMATRIX& vpMat)
+void UI::Update(float spf)
 {
 	curTime += spf;
 	if (curTime >= secPerSlice)
@@ -78,31 +74,26 @@ void UI::Update(float spf, const XMMATRIX& vpMat)
 		curSliceIdx = (curSliceIdx+1) % maxSliceIdx;
 		curTime = 0;
 	}
-
-	cb_vs_property->Write(&VS_Property(transform, vpMat, XMMatrixIdentity()));
-	cb_ps_sliceIdx->Write(&curSliceIdx);
 }
 
-void UI::Render()
+void UI::Render(ID3D11DeviceContext* dContext, const XMMATRIX& vpMat)
 {
-	shader->Apply();
-	DX_DContext->VSSetConstantBuffers(0, 1, cb_vs_property->GetAddress());
-	DX_DContext->PSSetConstantBuffers(0, 1, cb_ps_sliceIdx->GetAddress());
-	DX_DContext->PSSetShaderResources(0, 1, &srv);
-	DX_DContext->PSSetSamplers(0, 1, &texSampState);
-	blendState->Apply();
-	dsState->Apply();
-	rasterizerState->Apply();
-	quad->Apply();
-
-	DX_DContext->DrawIndexed(quad->IndexCount(), 0, 0);
+	shader->Apply(dContext);
+	cb_vs_property->VSSetData(dContext, &VS_Property(transform, vpMat));
+	float tempSliceIdx = curSliceIdx;
+	cb_ps_sliceIdx->PSSetData(dContext, &tempSliceIdx);
+	dContext->PSSetShaderResources(0, 1, &srv);
+	dContext->PSSetSamplers(0, 1, &texSampState);
+	blendState->Apply(dContext);
+	dsState->Apply(dContext);
+	quad->Apply(dContext);
 }
 
-UICanvas::UICanvas(float width, float height)
-	:totalWidth(width), totalHeight(height)
+UICanvas::UICanvas(ID3D11Device* device, float width, float height)
+	: totalWidth(width), totalHeight(height)
 {
-	Debugging::Instance()->Line(29035, XMFLOAT3(0, height, 0), XMFLOAT3(width, height, 0), Colors::Cyan);
-	Debugging::Instance()->Line(29036, XMFLOAT3(width, height, 0), XMFLOAT3(width, 0, 0), Colors::Cyan);
+	Debugging::Line(29035, XMFLOAT3(0, height, 0), XMFLOAT3(width, height, 0), Colors::Cyan);
+	Debugging::Line(29036, XMFLOAT3(width, height, 0), XMFLOAT3(width, 0, 0), Colors::Cyan);
 
 	camera = new Camera(FRAME_KIND_ORTHOGONAL, width, height, 0.1f, 10, NULL, NULL, XMFLOAT3(width*0.5f, height*0.5f, -5), FORWARD, UP);
 }
@@ -116,11 +107,11 @@ UICanvas::~UICanvas()
 	}
 }
 
-void UICanvas::Add(std::string id, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView* srv, UINT maxSliceIdx, UINT slicePerSec)
+void UICanvas::Add(ID3D11Device* device, std::string id, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView* srv, UINT maxSliceIdx, UINT slicePerSec)
 {
 	if (UIs.find(id) == UIs.end())
 	{
-		UIs.insert(std::pair<std::string, UI*>(id, new UI(totalWidth, totalHeight, pivot,width,height, zDepth, srv, maxSliceIdx, slicePerSec)));
+		UIs.insert(std::pair<std::string, UI*>(id, new UI(device, totalWidth, totalHeight, pivot,width,height, zDepth, srv, maxSliceIdx, slicePerSec)));
 	}
 }
 
@@ -144,19 +135,21 @@ UI * UICanvas::Get(std::string id)
 
 void UICanvas::Update(float spf)
 {
+	for (auto& ui : UIs)
+	{
+		ui.second->Update(spf);
+	}
+}
+
+void UICanvas::Render(IGraphic* graphic)
+{
 	XMMATRIX vpMat = camera->VPMat(Z_ORDER_UI);
 
 	for (auto& ui : UIs)
 	{
-		ui.second->Update(spf, vpMat);
-	}
-}
+		graphic->SetRasterizerState();
 
-void UICanvas::Render()
-{
-	for (auto& ui : UIs)
-	{
-		ui.second->Render();
+		ui.second->Render(graphic->DContext(), vpMat);
 	}
 }
 

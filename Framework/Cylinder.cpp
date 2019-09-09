@@ -1,7 +1,7 @@
 #include "Cylinder.h"
 #include "CustomFormat.h"
 
-Cylinder::Cylinder(const float height, const float rad, const int sliceCount)
+Cylinder::Cylinder(ID3D11Device* device, const float height, const float rad, const int sliceCount)
 	:Shape()
 {
 	assert(sliceCount >= 3);
@@ -105,7 +105,7 @@ Cylinder::Cylinder(const float height, const float rad, const int sliceCount)
 	}
 #pragma endregion
 
-	Init(vertice.data(), vertice.size(), indice.data(), indice.size());
+	Init(device, vertice.data(), vertice.size(), indice.data(), indice.size());
 }
 
 

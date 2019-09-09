@@ -1,27 +1,27 @@
 #include "Resource.h"
 
-void Resource::VSUnbindSRV(UINT startIdx, UINT numViews)
+void Resource::VSUnbindSRV(ID3D11DeviceContext * dContext, UINT startIdx, UINT numViews)
 {
 	ID3D11ShaderResourceView* null = nullptr;
-	DX_DContext->VSSetShaderResources(startIdx, numViews, &null);
+	dContext->VSSetShaderResources(startIdx, numViews, &null);
 }
 
-void Resource::PSUnbindSRV(UINT startIdx, UINT numViews)
+void Resource::PSUnbindSRV(ID3D11DeviceContext * dContext, UINT startIdx, UINT numViews)
 {
 	ID3D11ShaderResourceView* null = nullptr;
-	DX_DContext->PSSetShaderResources(startIdx, numViews, &null);
+	dContext->PSSetShaderResources(startIdx, numViews, &null);
 }
 
-void Resource::CSUnbindSRV(UINT startIdx, UINT numViews)
+void Resource::CSUnbindSRV(ID3D11DeviceContext * dContext, UINT startIdx, UINT numViews)
 {
 	ID3D11ShaderResourceView* null = nullptr;
-	DX_DContext->CSSetShaderResources(startIdx, numViews, &null);
+	dContext->CSSetShaderResources(startIdx, numViews, &null);
 }
 
-void Resource::CSUnbindUAV(UINT startIdx, UINT numViews)
+void Resource::CSUnbindUAV(ID3D11DeviceContext * dContext, UINT startIdx, UINT numViews)
 {
 	OutputDebugString(std::string("\n consider pUAVInitialCounts in CSUnbindUAV() of Resource class\n").c_str());
 
 	ID3D11UnorderedAccessView* null = nullptr;
-	DX_DContext->CSSetUnorderedAccessViews(startIdx, numViews, &null, nullptr);
+	dContext->CSSetUnorderedAccessViews(startIdx, numViews, &null, nullptr);
 }

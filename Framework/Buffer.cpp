@@ -1,82 +1,57 @@
 #include "Buffer.h"
 
-Buffer::Buffer(D3D11_BUFFER_DESC* desc)
-	:desc(*desc), isCB(false)
+Buffer::Buffer(ID3D11Device * device, const CD3D11_BUFFER_DESC* desc)
+	:desc(*desc)
 {
 	r_assert(
-		DX_Device->CreateBuffer(
+		device->CreateBuffer(
 			desc,
 			nullptr,
 			resource.GetAddressOf())
 	);
 }
 
-Buffer::Buffer(D3D11_BUFFER_DESC* desc, void * initValue)
-	:desc(*desc), isCB(false)
+Buffer::Buffer(ID3D11Device * device, const CD3D11_BUFFER_DESC* desc, void * initValue)
+	:desc(*desc)
 {
 	D3D11_SUBRESOURCE_DATA data;
 	data.pSysMem = initValue;
 
 	r_assert(
-		DX_Device->CreateBuffer(
+		device->CreateBuffer(
 			desc,
 			&data,
 			resource.GetAddressOf())
 	);
 }
 
-Buffer::Buffer(UINT byteSize)
-	:isCB(true)
+void Buffer::SetSRV(ID3D11Device * device, D3D11_SHADER_RESOURCE_VIEW_DESC* srvDesc)
 {
-	UINT cbSize = 15 + byteSize - (byteSize - 1) % 16;
-
-	desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	desc.Usage = D3D11_USAGE_DYNAMIC;
-	desc.ByteWidth = cbSize;
-	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	desc.StructureByteStride = 0;
-	desc.MiscFlags = 0;
-
 	r_assert(
-		DX_Device->CreateBuffer(
-			&desc,
-			nullptr,
-			resource.GetAddressOf())
-	);
-}
-
-void Buffer::SetSRV(D3D11_SHADER_RESOURCE_VIEW_DESC* srvDesc)
-{
-	assert(!isCB);
-
-	r_assert(
-		DX_Device->CreateShaderResourceView(
+		device->CreateShaderResourceView(
 			resource.Get(),
 			srvDesc,
 			srv.GetAddressOf())
 	);
 }
 
-void Buffer::SetUAV(D3D11_UNORDERED_ACCESS_VIEW_DESC * uavDesc)
+void Buffer::SetUAV(ID3D11Device * device, D3D11_UNORDERED_ACCESS_VIEW_DESC * uavDesc)
 {
-	assert(!isCB);
-
 	r_assert(
-		DX_Device->CreateUnorderedAccessView(
+		device->CreateUnorderedAccessView(
 			resource.Get(),
 			uavDesc,
 			uav.GetAddressOf())
 	);
 }
 
-void Buffer::Write(void * data)
+void Buffer::Update(ID3D11DeviceContext * dContext, void * data, UINT byteSize)
 {
-	assert(isCB);
+	MB("Check if works first !!");
 
 	D3D11_MAPPED_SUBRESOURCE mappedData;
 
-	r_assert(DX_DContext->Map(resource.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData));
-	CopyMemory(mappedData.pData, data, desc.ByteWidth);
-	DX_DContext->Unmap(resource.Get(), 0);
+	dContext->Map(resource.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
+	CopyMemory(mappedData.pData, data, byteSize);
+	dContext->Unmap(resource.Get(), 0);
 }
-

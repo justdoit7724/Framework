@@ -4,9 +4,9 @@
 class VPShader : public Component
 {
 public:
-	VPShader(std::string VSfileName, std::string PSfileName, const D3D11_INPUT_ELEMENT_DESC* layoutDesc, UINT layoutNum);
+	VPShader(ID3D11Device* device, const std::wstring VSfileName, const std::wstring PSfileName, const D3D11_INPUT_ELEMENT_DESC* layoutDesc, int layoutNum);
 
-	void Apply();
+	void Apply(ID3D11DeviceContext* dContext);
 
 private:
 	ComPtr<ID3D11InputLayout> iLayout = nullptr;
@@ -18,9 +18,9 @@ private:
 class CShader : public Component
 {
 public:
-	CShader(const std::wstring CSfileName);
+	CShader(ID3D11Device* device, const std::wstring CSfileName);
 
-	void Apply();
+	void Apply(ID3D11DeviceContext* dContext);
 
 private:
 	ComPtr<ID3D11ComputeShader> cs = nullptr;

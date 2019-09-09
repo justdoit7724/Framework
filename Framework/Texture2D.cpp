@@ -3,15 +3,15 @@
 //delete
 #include <vector>
 
-Texture2D::Texture2D(D3D11_TEXTURE2D_DESC * desc)
+Texture2D::Texture2D(ID3D11Device * device, D3D11_TEXTURE2D_DESC * desc)
 	:desc(*desc)
 {
 	r_assert(
-		DX_Device->CreateTexture2D(desc, nullptr, tex.GetAddressOf())
+		device->CreateTexture2D(desc, nullptr, tex.GetAddressOf())
 	);
 }
 
-Texture2D::Texture2D(D3D11_TEXTURE2D_DESC * desc, void * data, UINT typeByteSize)
+Texture2D::Texture2D(ID3D11Device * device, ID3D11DeviceContext* dContext, D3D11_TEXTURE2D_DESC * desc, void * data, UINT typeByteSize)
 	:desc(*desc)
 {
 	D3D11_SUBRESOURCE_DATA subData;
@@ -19,11 +19,11 @@ Texture2D::Texture2D(D3D11_TEXTURE2D_DESC * desc, void * data, UINT typeByteSize
 	subData.SysMemPitch = typeByteSize * desc->Width;
 
 	r_assert(
-		DX_Device->CreateTexture2D(desc, &subData, tex.GetAddressOf())
+		device->CreateTexture2D(desc, &subData, tex.GetAddressOf())
 	);
 }
 
-void Texture2D::SetupSRV(D3D11_SHADER_RESOURCE_VIEW_DESC * srvDesc)
+void Texture2D::SetupSRV(ID3D11Device * device, D3D11_SHADER_RESOURCE_VIEW_DESC * srvDesc)
 {
 	if (srv)
 	{
@@ -31,11 +31,11 @@ void Texture2D::SetupSRV(D3D11_SHADER_RESOURCE_VIEW_DESC * srvDesc)
 	}
 
 	r_assert(
-		DX_Device->CreateShaderResourceView(tex.Get(), srvDesc, srv.GetAddressOf())
+		device->CreateShaderResourceView(tex.Get(), srvDesc, srv.GetAddressOf())
 	);
 }
 
-void Texture2D::SetupUAV(D3D11_UNORDERED_ACCESS_VIEW_DESC * uavDesc)
+void Texture2D::SetupUAV(ID3D11Device * device, D3D11_UNORDERED_ACCESS_VIEW_DESC * uavDesc)
 {
 	if (uav)
 	{
@@ -43,11 +43,11 @@ void Texture2D::SetupUAV(D3D11_UNORDERED_ACCESS_VIEW_DESC * uavDesc)
 	}
 
 	r_assert(
-		DX_Device->CreateUnorderedAccessView(tex.Get(), uavDesc, uav.GetAddressOf())
+		device->CreateUnorderedAccessView(tex.Get(), uavDesc, uav.GetAddressOf())
 	);
 }
 
-void Texture2D::SetupRTV(D3D11_RENDER_TARGET_VIEW_DESC * rtvDesc)
+void Texture2D::SetupRTV(ID3D11Device * device, D3D11_RENDER_TARGET_VIEW_DESC * rtvDesc)
 {
 	if (rtv)
 	{
@@ -55,25 +55,25 @@ void Texture2D::SetupRTV(D3D11_RENDER_TARGET_VIEW_DESC * rtvDesc)
 	}
 
 	r_assert(
-		DX_Device->CreateRenderTargetView(tex.Get(), rtvDesc, rtv.GetAddressOf())
+		device->CreateRenderTargetView(tex.Get(), rtvDesc, rtv.GetAddressOf())
 	);
 }
 
-ID3D11ShaderResourceView*const* Texture2D::SRV()
+ID3D11ShaderResourceView*const* Texture2D::SRV(ID3D11Device * device)
 {
 	assert(srv != nullptr);
 
 	return srv.GetAddressOf();
 }
 
-ID3D11UnorderedAccessView *const* Texture2D::UAV()
+ID3D11UnorderedAccessView *const* Texture2D::UAV(ID3D11Device * device)
 {
 	assert(uav != nullptr);
 
 	return uav.GetAddressOf();
 }
 
-ID3D11RenderTargetView*const* Texture2D::RTV()
+ID3D11RenderTargetView*const* Texture2D::RTV(ID3D11Device * device)
 {
 	assert(rtv != nullptr);
 

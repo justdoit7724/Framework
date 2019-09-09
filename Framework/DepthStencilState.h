@@ -11,10 +11,10 @@ private:
 	UINT refValue;
 
 public:
-	DepthStencilState(D3D11_DEPTH_STENCIL_DESC* desc=nullptr);
+	DepthStencilState(ID3D11Device* device, D3D11_DEPTH_STENCIL_DESC* desc=nullptr);
 	~DepthStencilState();
-	void Modify(D3D11_DEPTH_STENCIL_DESC* desc);
-	void Apply();
+	void Modify(ID3D11Device* device, D3D11_DEPTH_STENCIL_DESC* desc);
+	void Apply(ID3D11DeviceContext* dContext);
 	void SetRefValue(UINT v);
 };
 
