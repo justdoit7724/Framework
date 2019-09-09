@@ -48,7 +48,7 @@ Object::Object(Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpe
 	samplerDesc.MinLOD = 0;
 	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	r_assert(
-		device->CreateSamplerState(&samplerDesc, &bodySameplerState)
+		DX_Device->CreateSamplerState(&samplerDesc, &bodySameplerState)
 	);
 
 #pragma region MIPMAPPING
@@ -72,7 +72,7 @@ Object::Object(Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpe
 		texDesc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
 		texDesc.Usage = D3D11_USAGE_DEFAULT;
 		texDesc.SampleDesc = { 1,0 };
-		r_assert(device->CreateTexture2D(&texDesc, nullptr, mipmapTexture.GetAddressOf()));
+		r_assert(DX_Device->CreateTexture2D(&texDesc, nullptr, mipmapTexture.GetAddressOf()));
 
 		ComPtr<ID3D11Texture2D> stagTex;
 		D3D11_TEXTURE2D_DESC stagDesc;
@@ -86,18 +86,18 @@ Object::Object(Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpe
 		stagDesc.MiscFlags = 0;
 		stagDesc.Usage = D3D11_USAGE_STAGING;
 		stagDesc.SampleDesc = { 1,0 };
-		r_assert(device->CreateTexture2D(&stagDesc, nullptr, &stagTex));
+		r_assert(DX_Device->CreateTexture2D(&stagDesc, nullptr, &stagTex));
 
-		dContext->CopyResource(stagTex.Get(), image);
+		DX_DContext->CopyResource(stagTex.Get(), image);
 
 		D3D11_MAPPED_SUBRESOURCE mapped;
-		r_assert(dContext->Map(stagTex.Get(), 0, D3D11_MAP_READ, 0, &mapped));
+		r_assert(DX_DContext->Map(stagTex.Get(), 0, D3D11_MAP_READ, 0, &mapped));
 		UINT* arr = new UINT[(mapped.RowPitch / (float)sizeof(UINT)) * imageDesc.Height];
 		ZeroMemory(arr, mapped.RowPitch*imageDesc.Height);
 		CopyMemory(arr, mapped.pData, mapped.RowPitch*imageDesc.Height);
-		dContext->Unmap(stagTex.Get(), 0);
+		DX_DContext->Unmap(stagTex.Get(), 0);
 
-		dContext->UpdateSubresource(mipmapTexture.Get(), 0, &CD3D11_BOX(0, 0, 0, imageDesc.Width, imageDesc.Height, 1), arr, mapped.RowPitch, mapped.DepthPitch);
+		DX_DContext->UpdateSubresource(mipmapTexture.Get(), 0, &CD3D11_BOX(0, 0, 0, imageDesc.Width, imageDesc.Height, 1), arr, mapped.RowPitch, mapped.DepthPitch);
 		delete[] arr;
 
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
@@ -105,16 +105,16 @@ Object::Object(Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpe
 		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Texture2D.MipLevels = texDesc.MipLevels;
 		srvDesc.Texture2D.MostDetailedMip = 0;
-		r_assert(device->CreateShaderResourceView(mipmapTexture.Get(), &srvDesc, bodySRV.GetAddressOf()));
-		dContext->GenerateMips(bodySRV.Get());
+		r_assert(DX_Device->CreateShaderResourceView(mipmapTexture.Get(), &srvDesc, bodySRV.GetAddressOf()));
+		DX_DContext->GenerateMips(bodySRV.Get());
 	}
 	else {
 		bodySRV = TextureMgr::Instance()->Get(imageName);
 	}
 #pragma endregion
 
-	blendState = new BlendState(device);
-	dsState = new DepthStencilState(device);
+	blendState = new BlendState();
+	dsState = new DepthStencilState();
 
 }
 
@@ -147,26 +147,26 @@ void Object::Render()
 	shader->Apply();
 
 	// TRANSFORM
-	dContext->VSSetConstantBuffers(0, 1, cb_vs_property->GetAddress());
+	DX_DContext->VSSetConstantBuffers(0, 1, cb_vs_property->GetAddress());
 
 	// LIGHTS
-	dContext->PSSetConstantBuffers(0, 1, cb_ps_dLights->GetAddress());
-	dContext->PSSetConstantBuffers(1, 1, cb_ps_pLights->GetAddress());
-	dContext->PSSetConstantBuffers(2, 1, cb_ps_sLights->GetAddress());
+	DX_DContext->PSSetConstantBuffers(0, 1, cb_ps_dLights->GetAddress());
+	DX_DContext->PSSetConstantBuffers(1, 1, cb_ps_pLights->GetAddress());
+	DX_DContext->PSSetConstantBuffers(2, 1, cb_ps_sLights->GetAddress());
 
 	// EYE
-	dContext->PSSetConstantBuffers(3, 1, cb_ps_eyePos->GetAddress());
+	DX_DContext->PSSetConstantBuffers(3, 1, cb_ps_eyePos->GetAddress());
 
 	// MATERIAL
-	dContext->PSSetConstantBuffers(4, 1, cb_ps_material->GetAddress());
+	DX_DContext->PSSetConstantBuffers(4, 1, cb_ps_material->GetAddress());
 
 	// TEXTURE
-	dContext->PSSetShaderResources(0, 1, bodySRV.GetAddressOf());
-	dContext->PSSetSamplers(0, 1, bodySameplerState.GetAddressOf());
+	DX_DContext->PSSetShaderResources(0, 1, bodySRV.GetAddressOf());
+	DX_DContext->PSSetSamplers(0, 1, bodySameplerState.GetAddressOf());
 
 	// STATE
-	dsState->Apply(dContext);
-	blendState->Apply(dContext);
+	dsState->Apply();
+	blendState->Apply();
 	shape->Apply();
 }
 

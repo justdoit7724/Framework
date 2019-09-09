@@ -1,8 +1,6 @@
 #pragma once
 #include "Shape.h"
 
-// not light effect because of normal of vertice
-class IGraphic;
 class Hill :
 	public Shape
 {

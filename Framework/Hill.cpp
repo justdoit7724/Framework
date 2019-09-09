@@ -43,10 +43,10 @@ Hill::Hill(int n, int m, XMFLOAT2 heightRange, ID3D11ShaderResourceView *const* 
 	cbRange->Write(&heightRange);
 	std::unique_ptr<Buffer> cbResol(new Buffer(sizeof(XMFLOAT2)));
 	cbResol->Write(&XMFLOAT2(n, m));
-	dContext->CSSetConstantBuffers(0, 1, cbRange->GetAddress());
-	dContext->CSSetConstantBuffers(1, 1, cbResol->GetAddress());
+	DX_DContext->CSSetConstantBuffers(0, 1, cbRange->GetAddress());
+	DX_DContext->CSSetConstantBuffers(1, 1, cbResol->GetAddress());
 
-	dContext->CSSetShaderResources(0, 1, heightMap);
+	DX_DContext->CSSetShaderResources(0, 1, heightMap);
 
 	Texture2D* heightBuffer = new Texture2D(
 		&CD3D11_TEXTURE2D_DESC(
@@ -60,8 +60,8 @@ Hill::Hill(int n, int m, XMFLOAT2 heightRange, ID3D11ShaderResourceView *const* 
 	uavDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
 	uavDesc.Texture2D.MipSlice = 0;
 	heightBuffer->SetupUAV(&uavDesc);
-	dContext->CSSetUnorderedAccessViews(0, 1, heightBuffer->UAV(), nullptr);
-	dContext->Dispatch(ceil(n/16.0f), ceil(m/16.0f), 1);
+	DX_DContext->CSSetUnorderedAccessViews(0, 1, heightBuffer->UAV(), nullptr);
+	DX_DContext->Dispatch(ceil(n/16.0f), ceil(m/16.0f), 1);
 	Resource::CSUnbindUAV(0, 1);
 
 	Texture2D* outputBuffer = new Texture2D(
@@ -73,10 +73,10 @@ Hill::Hill(int n, int m, XMFLOAT2 heightRange, ID3D11ShaderResourceView *const* 
 			D3D11_USAGE_STAGING,
 			D3D11_CPU_ACCESS_READ));
 
-	dContext->CopyResource(outputBuffer->Get(), heightBuffer->Get());
+	DX_DContext->CopyResource(outputBuffer->Get(), heightBuffer->Get());
 
 	D3D11_MAPPED_SUBRESOURCE mapped;
-	dContext->Map(outputBuffer->Get(), 0, D3D11_MAP_READ, 0, &mapped);
+	DX_DContext->Map(outputBuffer->Get(), 0, D3D11_MAP_READ, 0, &mapped);
 	float* outputArr = reinterpret_cast<float*>(mapped.pData);
 	std::vector<float> testV;
 	for (int y = 0; y < m; ++y)
@@ -87,7 +87,7 @@ Hill::Hill(int n, int m, XMFLOAT2 heightRange, ID3D11ShaderResourceView *const* 
 			//vertice[y * n + x].pos.y = *((float*)((char*)mapped.pData + (y*mapped.RowPitch) + (x*sizeof(float)))); //possible either way
 		}
 	}
-	dContext->Unmap(outputBuffer->Get(), 0);
+	DX_DContext->Unmap(outputBuffer->Get(), 0);
 
 #pragma endregion
 
@@ -122,7 +122,7 @@ Hill::~Hill()
 
 void Hill::Apply()
 {
-	Debugging::Draw("Normal of hill is only heading upward", 100, 30);
+	Debugging::Instance()->Draw("Normal of hill is only heading upward", 100, 30);
 
 	Shape::Apply();
 }

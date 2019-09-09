@@ -3,8 +3,6 @@
 #include <unordered_map>
 #include "Singleton.h"
 
-class IGraphic;
-
 class TextureMgr : public Singleton<TextureMgr>
 {
 public:

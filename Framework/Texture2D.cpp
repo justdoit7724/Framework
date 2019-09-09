@@ -1,13 +1,10 @@
 #include "Texture2D.h"
 
-//delete
-#include <vector>
-
 Texture2D::Texture2D(D3D11_TEXTURE2D_DESC * desc)
 	:desc(*desc)
 {
 	r_assert(
-		device->CreateTexture2D(desc, nullptr, tex.GetAddressOf())
+		DX_Device->CreateTexture2D(desc, nullptr, tex.GetAddressOf())
 	);
 }
 
@@ -19,7 +16,7 @@ Texture2D::Texture2D(D3D11_TEXTURE2D_DESC * desc, void * data, UINT typeByteSize
 	subData.SysMemPitch = typeByteSize * desc->Width;
 
 	r_assert(
-		device->CreateTexture2D(desc, &subData, tex.GetAddressOf())
+		DX_Device->CreateTexture2D(desc, &subData, tex.GetAddressOf())
 	);
 }
 
@@ -31,7 +28,7 @@ void Texture2D::SetupSRV(D3D11_SHADER_RESOURCE_VIEW_DESC * srvDesc)
 	}
 
 	r_assert(
-		device->CreateShaderResourceView(tex.Get(), srvDesc, srv.GetAddressOf())
+		DX_Device->CreateShaderResourceView(tex.Get(), srvDesc, srv.GetAddressOf())
 	);
 }
 
@@ -43,7 +40,7 @@ void Texture2D::SetupUAV(D3D11_UNORDERED_ACCESS_VIEW_DESC * uavDesc)
 	}
 
 	r_assert(
-		device->CreateUnorderedAccessView(tex.Get(), uavDesc, uav.GetAddressOf())
+		DX_Device->CreateUnorderedAccessView(tex.Get(), uavDesc, uav.GetAddressOf())
 	);
 }
 
@@ -55,7 +52,7 @@ void Texture2D::SetupRTV(D3D11_RENDER_TARGET_VIEW_DESC * rtvDesc)
 	}
 
 	r_assert(
-		device->CreateRenderTargetView(tex.Get(), rtvDesc, rtv.GetAddressOf())
+		DX_Device->CreateRenderTargetView(tex.Get(), rtvDesc, rtv.GetAddressOf())
 	);
 }
 

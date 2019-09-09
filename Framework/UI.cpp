@@ -4,7 +4,7 @@
 #include "Camera.h"
 #include "Game_info.h"
 #include "CustomFormat.h"
-#include "Network.h"
+
 #include "Transform.h"
 #include "DepthStencilState.h"
 #include "BlendState.h"
@@ -35,7 +35,7 @@ UI::UI(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float
 	samplerDesc.MinLOD = 0;
 	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	r_assert(
-		device->CreateSamplerState(&samplerDesc, &texSampState)
+		DX_Device->CreateSamplerState(&samplerDesc, &texSampState)
 	);
 
 	shader = new VPShader("UIVS.cso", "UIPS.cso", std_ILayouts, ARRAYSIZE(std_ILayouts));
@@ -51,9 +51,9 @@ UI::UI(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float
 	blend_desc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
 	blend_desc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	blend_desc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-	blendState = new BlendState(device, &blend_desc);
+	blendState = new BlendState(&blend_desc);
 
-	dsState = new DepthStencilState(device);
+	dsState = new DepthStencilState();
 }
 
 UI::~UI()
@@ -81,20 +81,20 @@ void UI::Update(float spf, const XMMATRIX& vpMat, const XMMATRIX& texMat)
 void UI::Render()
 {
 	shader->Apply();
-	dContext->VSSetConstantBuffers(0, 1, cb_vs_property->GetAddress());
-	dContext->PSSetConstantBuffers(0, 1, cb_ps_sliceIdx->GetAddress());
-	dContext->PSSetShaderResources(0, 1, &srv);
-	dContext->PSSetSamplers(0, 1, &texSampState);
-	blendState->Apply(dContext);
-	dsState->Apply(dContext);
+	DX_DContext->VSSetConstantBuffers(0, 1, cb_vs_property->GetAddress());
+	DX_DContext->PSSetConstantBuffers(0, 1, cb_ps_sliceIdx->GetAddress());
+	DX_DContext->PSSetShaderResources(0, 1, &srv);
+	DX_DContext->PSSetSamplers(0, 1, &texSampState);
+	blendState->Apply();
+	dsState->Apply();
 	quad->Apply();
 }
 
 UICanvas::UICanvas(float width, float height)
 	: totalWidth(width), totalHeight(height)
 {
-	Debugging::Line(29035, XMFLOAT3(0, height, 0), XMFLOAT3(width, height, 0), Colors::Cyan);
-	Debugging::Line(29036, XMFLOAT3(width, height, 0), XMFLOAT3(width, 0, 0), Colors::Cyan);
+	Debugging::Instance()->Line(29035, XMFLOAT3(0, height, 0), XMFLOAT3(width, height, 0), Colors::Cyan);
+	Debugging::Instance()->Line(29036, XMFLOAT3(width, height, 0), XMFLOAT3(width, 0, 0), Colors::Cyan);
 
 	camera = new Camera(FRAME_KIND_ORTHOGONAL, width, height, 0.1f, 10, NULL, NULL, XMFLOAT3(width*0.5f, height*0.5f, -5), FORWARD, UP);
 }

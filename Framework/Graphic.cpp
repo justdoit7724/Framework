@@ -3,8 +3,8 @@
 
 #pragma comment(lib, "d3d11.lib")
 
-ID3D11Device* device=nullptr;
-ID3D11DeviceContext* dContext=nullptr;
+ID3D11Device* DX_Device=nullptr;
+ID3D11DeviceContext* DX_DContext=nullptr;
 
 Graphic::Graphic(HWND _hwnd)
 {
@@ -44,9 +44,9 @@ Graphic::Graphic(HWND _hwnd)
 		D3D11_SDK_VERSION,
 		&scd,
 		swapchain.GetAddressOf(),
-		&device,
+		&DX_Device,
 		NULL,
-		&dContext)
+		&DX_DContext)
 	);
 
 	ComPtr<ID3D11Texture2D> backBuffer; 
@@ -57,7 +57,7 @@ Graphic::Graphic(HWND _hwnd)
 			reinterpret_cast<void**>(backBuffer.GetAddressOf()))
 	); 
 	r_assert(
-		device->CreateRenderTargetView(
+		DX_Device->CreateRenderTargetView(
 			backBuffer.Get(), 
 			nullptr, 
 			rtv.GetAddressOf())
@@ -82,41 +82,19 @@ Graphic::Graphic(HWND _hwnd)
 
 	ComPtr<ID3D11Texture2D> depthStencilBuffer;
 	r_assert(
-		device->CreateTexture2D(
+		DX_Device->CreateTexture2D(
 			&ds_desc,
 			nullptr,
 			depthStencilBuffer.GetAddressOf())
 	);
 
 	r_assert(
-		device->CreateDepthStencilView(
+		DX_Device->CreateDepthStencilView(
 			depthStencilBuffer.Get(),
 			nullptr,
 			dsView.GetAddressOf())
 	);
-	dContext->OMSetRenderTargets(1, rtv.GetAddressOf(), dsView.Get());
-
-	D3D11_DEPTH_STENCIL_DESC ds_desc2;
-	ZeroMemory(&ds_desc2, sizeof(D3D11_DEPTH_STENCIL_DESC));
-	ds_desc2.DepthEnable = true;
-	ds_desc2.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-	ds_desc2.DepthFunc = D3D11_COMPARISON_LESS;
-	ds_desc2.StencilEnable = true;
-	ds_desc2.StencilReadMask = 0xff;
-	ds_desc2.StencilWriteMask = 0x01;
-	D3D11_DEPTH_STENCILOP_DESC dsOp_desc;
-	dsOp_desc.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-	dsOp_desc.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-	dsOp_desc.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
-	dsOp_desc.StencilFunc = D3D11_COMPARISON_EQUAL;
-	ds_desc2.FrontFace = dsOp_desc;
-	ds_desc2.BackFace = dsOp_desc;
-	
-	r_assert(
-		device->CreateDepthStencilState(
-			&ds_desc2, dsState.GetAddressOf())
-	);
-	dContext->OMSetDepthStencilState(dsState.Get(), 0);
+	DX_DContext->OMSetRenderTargets(1, rtv.GetAddressOf(), dsView.Get());
 
 #pragma endregion
 
@@ -131,7 +109,7 @@ Graphic::Graphic(HWND _hwnd)
 	vp.MinDepth = 0.0f;
 	vp.MaxDepth = 1.0f;
 
-	dContext->RSSetViewports(1, &vp);
+	DX_DContext->RSSetViewports(1, &vp);
 #pragma endregion
 
 #pragma region Rasterizer
@@ -140,9 +118,9 @@ Graphic::Graphic(HWND _hwnd)
 	rs_desc.FillMode = D3D11_FILL_SOLID;
 	rs_desc.CullMode = D3D11_CULL_BACK;
 	r_assert(
-		device->CreateRasterizerState(&rs_desc, rasterizerState.GetAddressOf())
+		DX_Device->CreateRasterizerState(&rs_desc, rasterizerState.GetAddressOf())
 	);
-	dContext->RSSetState(rasterizerState.Get());
+	DX_DContext->RSSetState(rasterizerState.Get());
 #pragma endregion
 
 }
@@ -151,8 +129,8 @@ void Graphic::Present()
 {
 	swapchain->Present(1, 0);
 
-	dContext->ClearRenderTargetView(rtv.Get(), DirectX::Colors::Transparent);
-	dContext->ClearDepthStencilView(dsView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	DX_DContext->ClearRenderTargetView(rtv.Get(), DirectX::Colors::Transparent);
+	DX_DContext->ClearDepthStencilView(dsView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
 
 	

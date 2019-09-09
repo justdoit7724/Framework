@@ -25,37 +25,21 @@ Scene::Scene()
 {
 	camera = new Camera(FRAME_KIND_PERSPECTIVE, SCREEN_WIDTH, SCREEN_HEIGHT ,0.1,200,1.1f, 1.0f, XMFLOAT3(0,0,-100), FORWARD, RIGHT);
 
-	canvas = new UICanvas(SCREEN_WIDTH, SCREEN_HEIGHT);
-
-	Debugging::EnableGrid(10,50);
-
 	TextureMgr::Instance()->Load("sample.jpg");
-	TextureMgr::Instance()->Load("transparency.png");
+	TextureMgr::Instance()->Load("white.png");
 	TextureMgr::Instance()->Load("marine_s.png");
 	TextureMgr::Instance()->Load("heightmap3.jpg");
-	TextureMgr::Instance()->Load("grass.jpg");
+	TextureMgr::Instance()->Load("woodbox.jpg");
 
-	canvas->Add("test", XMFLOAT2(380, 380), 380, 380, 0, TextureMgr::Instance()->Get("sample.jpg"));
-	D3D11_DEPTH_STENCIL_DESC ds_desc;
-	ds_desc.DepthEnable = true;
-	ds_desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-	ds_desc.DepthFunc = D3D11_COMPARISON_LESS;
-	ds_desc.StencilEnable = true;
-	ds_desc.StencilReadMask = 0xff;
-	ds_desc.StencilWriteMask = 0xff;
-	D3D11_DEPTH_STENCILOP_DESC dso_desc;
-	dso_desc.StencilPassOp = D3D11_STENCIL_OP_REPLACE;
-	dso_desc.StencilFailOp = D3D11_STENCIL_OP_REPLACE;
-	dso_desc.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
-	dso_desc.StencilFunc = D3D11_COMPARISON_ALWAYS;
-	
+	canvas = new UICanvas(SCREEN_WIDTH, SCREEN_HEIGHT);
+	canvas->Add("TestUI", XMFLOAT2(30, 30), 100, 100, 0, TextureMgr::Instance()->Get("sample.jpg"));
 
-	Hill* hill = new Hill(400, 400, XMFLOAT2(0, 30), TextureMgr::Instance()->GetAddress("heightmap3.jpg"));
-	Hill* water = new Hill(50, 50, XMFLOAT2(10, 15), TextureMgr::Instance()->GetAddress("sample.jpg"));
+	Debugging::Instance()->EnableGrid(10,50);
 
-	Object* hillObj = new Object(hill, XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), XMFLOAT3(0.5f, 0.5f, 0.5f), 4, XMFLOAT3(1, 1, 1), "grass.jpg");
-	Object* waterObj = new Object(water, XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), 8, XMFLOAT3(1, 1, 1), "white.png");
-	waterObj->SetTransparency(0.5f);
+	Object* mask = new Object(new Quad(), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), 8, XMFLOAT3(1, 1, 1), "white.png");
+	Object* obj = new Object(new Cube(), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), 8, XMFLOAT3(1, 1, 1), "sample.jpg");
+	Object* obj2 = new Object(new Cube(), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), 8, XMFLOAT3(1, 1, 1), "sample.jpg");
+
 	D3D11_BLEND_DESC tDesc;
 	tDesc.AlphaToCoverageEnable = false;
 	tDesc.IndependentBlendEnable = false;
@@ -67,17 +51,55 @@ Scene::Scene()
 	tDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
 	tDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	tDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-	waterObj->GetBlendState()->Modify(device, &tDesc);
+	mask->GetBlendState()->Modify(&tDesc);
+	D3D11_DEPTH_STENCIL_DESC maskDesc;
+	maskDesc.DepthEnable = true;
+	maskDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+	maskDesc.DepthFunc = D3D11_COMPARISON_LESS;
+	maskDesc.StencilEnable = true;
+	maskDesc.StencilReadMask = 0xff;
+	maskDesc.StencilWriteMask = 0xff;
+	D3D11_DEPTH_STENCILOP_DESC dsoDesc;
+	dsoDesc.StencilPassOp = D3D11_STENCIL_OP_REPLACE;
+	dsoDesc.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	dsoDesc.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
+	dsoDesc.StencilFunc = D3D11_COMPARISON_ALWAYS;
+	maskDesc.FrontFace = dsoDesc;
+	maskDesc.BackFace = dsoDesc;
+	mask->GetDepthStencilState()->Modify(&maskDesc);
+	mask->GetDepthStencilState()->SetRefValue(1);
+	D3D11_DEPTH_STENCIL_DESC normalDesc;
+	normalDesc.DepthEnable = true;
+	normalDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	normalDesc.DepthFunc = D3D11_COMPARISON_LESS;
+	normalDesc.StencilEnable = true;
+	normalDesc.StencilReadMask = 0xff;
+	normalDesc.StencilWriteMask = 0xff;
+	dsoDesc.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	dsoDesc.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	dsoDesc.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
+	dsoDesc.StencilFunc = D3D11_COMPARISON_EQUAL;
+	normalDesc.FrontFace = dsoDesc;
+	normalDesc.BackFace = dsoDesc;
+	obj->GetDepthStencilState()->Modify(&normalDesc);
+	obj->GetDepthStencilState()->SetRefValue(1);
 
-	hillObj->GetTransform()->SetScale(100, 1, 100);
-	waterObj->GetTransform()->SetScale(100, 1, 100);
-	objs.push_back(hillObj);
-	objs.push_back(waterObj);
+	mask->SetTransparency(0.3f);
+
+	obj->GetTransform()->SetScale(30, 30, 25);
+	obj->GetTransform()->SetTranslation(0, 0, 50);
+	obj2->GetTransform()->SetScale(30, 30, 25);
+	obj2->GetTransform()->SetTranslation(0, 0, -50);
+	mask->GetTransform()->SetScale(75, 75, 1);
+	mask->GetTransform()->SetRot(-FORWARD, UP);
+	objs.push_back(mask);
+	objs.push_back(obj);
+	objs.push_back(obj2);
 
 	dLight = new DirectionalLight(
 		XMFLOAT3(0.25f, 0.25f, 0.25f),
-		XMFLOAT3(0.75f, 0.75f, 0.75f),
-		XMFLOAT3(0.9f, 0.9f, 0.9f),
+		XMFLOAT3(0.7f, 0.7f, 0.7f),
+		XMFLOAT3(0.8f, 0.8f, 0.8f),
 		FORWARD);
 }
 
@@ -86,7 +108,6 @@ Scene::~Scene()
 	
 }
 
-//static XMMATRIX
 void Scene::Update()
 {
 	Timer::Update();
@@ -101,7 +122,7 @@ void Scene::Update()
 
 void Scene::Render()
 {
-	Debugging::Render(camera);
+	Debugging::Instance()->Render(camera);
 
 	for (auto obj : objs)
 	{

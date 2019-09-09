@@ -5,7 +5,6 @@
 class Transform;
 class Shape;
 class VPShader;
-class IGraphic;
 class DepthStencilState;
 class BlendState;
 class Buffer;

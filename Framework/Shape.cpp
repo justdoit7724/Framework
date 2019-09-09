@@ -20,7 +20,7 @@ void Shape::Init(const Vertex* vertice, const int vertexCount, const UINT* indic
 	D3D11_SUBRESOURCE_DATA vb_data;
 	vb_data.pSysMem = vertice;
 	r_assert(
-		device->CreateBuffer(
+		DX_Device->CreateBuffer(
 			&vb_desc,
 			&vb_data,
 			vertexBuffer.GetAddressOf())
@@ -36,17 +36,17 @@ void Shape::Init(const Vertex* vertice, const int vertexCount, const UINT* indic
 	D3D11_SUBRESOURCE_DATA iinitData;
 	iinitData.pSysMem = indice;
 	r_assert(
-		device->CreateBuffer(&ibd, &iinitData, indexBuffer.GetAddressOf())
+		DX_Device->CreateBuffer(&ibd, &iinitData, indexBuffer.GetAddressOf())
 	);
 }
 
 void Shape::Apply()
 {
-	dContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	DX_DContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	UINT stride = sizeof(Vertex);
 	UINT offset = 0;
-	dContext->IASetVertexBuffers(0, 1, vertexBuffer.GetAddressOf(), &stride, &offset);
-	dContext->IASetIndexBuffer(indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+	DX_DContext->IASetVertexBuffers(0, 1, vertexBuffer.GetAddressOf(), &stride, &offset);
+	DX_DContext->IASetIndexBuffer(indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 
-	dContext->DrawIndexed(indexCount, 0, 0);
+	DX_DContext->DrawIndexed(indexCount, 0, 0);
 }

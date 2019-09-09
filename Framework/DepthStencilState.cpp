@@ -1,8 +1,8 @@
 #include "DepthStencilState.h"
-#include "Network.h"
 
 
-DepthStencilState::DepthStencilState(ID3D11Device* device, D3D11_DEPTH_STENCIL_DESC* desc)
+
+DepthStencilState::DepthStencilState(D3D11_DEPTH_STENCIL_DESC* desc)
 	:refValue(0)
 {
 	D3D11_DEPTH_STENCIL_DESC firstDesc;
@@ -28,22 +28,22 @@ DepthStencilState::DepthStencilState(ID3D11Device* device, D3D11_DEPTH_STENCIL_D
 	}
 
 	r_assert(
-		device->CreateDepthStencilState(&firstDesc, &state)
+		DX_Device->CreateDepthStencilState(&firstDesc, &state)
 	);
 }
 
-void DepthStencilState::Modify(ID3D11Device* device, D3D11_DEPTH_STENCIL_DESC * desc)
+void DepthStencilState::Modify(D3D11_DEPTH_STENCIL_DESC * desc)
 {
 	state->Release();
 
 	r_assert(
-		device->CreateDepthStencilState(desc, &state)
+		DX_Device->CreateDepthStencilState(desc, &state)
 	);
 }
 
-void DepthStencilState::Apply(ID3D11DeviceContext * dContext)
+void DepthStencilState::Apply()
 {
-	dContext->OMSetDepthStencilState(state, refValue);
+	DX_DContext->OMSetDepthStencilState(state, refValue);
 }
 
 void DepthStencilState::SetRefValue(UINT v)

@@ -1,6 +1,6 @@
 #include "TextureMgr.h"
 #include <WICTextureLoader.h>
-#include "Network.h"
+
 
 TextureMgr::~TextureMgr()
 {
@@ -25,7 +25,7 @@ void TextureMgr::Load(std::string fileName)
 
 		r_assert(
 			DirectX::CreateWICTextureFromFile(
-				device,
+				DX_Device,
 				(L"Data\\Texture\\" + wFileName).c_str(),
 				nullptr,
 				&newSRV)
@@ -44,7 +44,7 @@ void TextureMgr::Load(std::string fileName, UINT count)
 
 		r_assert(
 			DirectX::CreateWICTextureFromFile(
-				device,
+				DX_Device,
 				(L"Data\\Texture\\" + wFileName).c_str(),
 				&oriResource,
 				nullptr)
@@ -70,13 +70,13 @@ void TextureMgr::Load(std::string fileName, UINT count)
 
 		ID3D11Texture2D* animTex;
 		r_assert(
-			device->CreateTexture2D(
+			DX_Device->CreateTexture2D(
 				&st_desc, nullptr, &animTex)
 		);
 
 		for (int i = 0; i < count; ++i)
 		{
-			dContext->CopySubresourceRegion(animTex, i, 0, 0, 0, oriTex, 0, &CD3D11_BOX(i*sWidth, 0, 0, (i + 1)*sWidth, sHeight, 1));
+			DX_DContext->CopySubresourceRegion(animTex, i, 0, 0, 0, oriTex, 0, &CD3D11_BOX(i*sWidth, 0, 0, (i + 1)*sWidth, sHeight, 1));
 		}
 
 		ID3D11ShaderResourceView* animSRV;
@@ -88,7 +88,7 @@ void TextureMgr::Load(std::string fileName, UINT count)
 		srv_desc.Texture2DArray.MipLevels = 1;
 		srv_desc.Texture2DArray.MostDetailedMip = 0;
 		r_assert(
-			device->CreateShaderResourceView(
+			DX_Device->CreateShaderResourceView(
 				animTex, &srv_desc, &animSRV)
 		);
 

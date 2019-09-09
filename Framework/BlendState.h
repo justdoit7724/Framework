@@ -4,14 +4,14 @@
 class BlendState : public Component
 {
 public:
-	BlendState(ID3D11Device* device, D3D11_BLEND_DESC * desc = nullptr);
-	~BlendState();
+	BlendState(D3D11_BLEND_DESC * desc = nullptr);
 
-	void Modify(ID3D11Device* device, D3D11_BLEND_DESC* desc);
-	void Apply(ID3D11DeviceContext* dContext);
+	void Modify(D3D11_BLEND_DESC* desc);
+	void Apply();
 
 
 private:
-	ID3D11BlendState* state;
+	D3D11_BLEND_DESC desc;
+	ComPtr<ID3D11BlendState> state;
 };
 

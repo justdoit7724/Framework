@@ -32,10 +32,10 @@ private:
 	const int maxSliceIdx;
 	const float secPerSlice;
 	int curSliceIdx = 0;
-	ID3D11SamplerState* texSampState;
 	VPShader* shader;
 	DepthStencilState* dsState;
 	BlendState* blendState;
+	ID3D11SamplerState* texSampState;
 
 public:
 	VPShader* GetShader(){return shader;}
@@ -44,7 +44,6 @@ public:
 };
 
 class Camera;
-class IGraphic;
 class UICanvas
 {
 public:
