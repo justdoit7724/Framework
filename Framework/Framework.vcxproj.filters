@@ -22,6 +22,9 @@
     <Filter Include="PBR">
       <UniqueIdentifier>{02737186-4e35-44bd-9a8f-c933fdba25fd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Design Pattern">
+      <UniqueIdentifier>{ff4ab2bc-8ae4-4340-895d-0d508cf94074}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Debugging.cpp">
@@ -51,13 +54,7 @@
     <ClCompile Include="Medium.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Cube.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Camera.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Cylinder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Hill.cpp">
@@ -66,16 +63,7 @@
     <ClCompile Include="Light.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Quad.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Object.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Shape.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Sphere.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TextureMgr.cpp">
@@ -108,6 +96,24 @@
     <ClCompile Include="Resource.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="RasterizerState.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Quad.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Cube.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Cylinder.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Sphere.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Shape.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CustomFormat.h">
@@ -131,9 +137,6 @@
     <ClInclude Include="Scene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Singleton.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Timer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -155,12 +158,6 @@
     <ClInclude Include="Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Cube.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Cylinder.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Hill.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -170,16 +167,7 @@
     <ClInclude Include="Object.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Quad.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Shape.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Sphere.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TextureMgr.h">
@@ -208,6 +196,27 @@
     </ClInclude>
     <ClInclude Include="Buffer.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RasterizerState.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Singleton.h">
+      <Filter>Design Pattern</Filter>
+    </ClInclude>
+    <ClInclude Include="Sphere.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Shape.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Quad.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Cylinder.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Cube.h">
+      <Filter>Components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

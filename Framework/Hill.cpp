@@ -3,15 +3,13 @@
 #include "Texture2D.h"
 #include "TextureMgr.h"
 #include "CustomFormat.h"
-#include "Network.h"
-#include "Debugging.h"
 
-Hill::Hill(IGraphic* graphic, int n, int m, XMFLOAT2 heightRange, ID3D11ShaderResourceView *const* heightMap)
+#include "Debugging.h"
+#include "Buffer.h"
+
+Hill::Hill(int n, int m, ID3D11ShaderResourceView *const* heightMap)
 	:Shape()
 {
-	ID3D11Device* device = graphic->Device();
-	ID3D11DeviceContext* dContext = graphic->DContext();
-
 #pragma region define x, z
 
 	float dx = 1.0f / (n - 1);
@@ -39,18 +37,16 @@ Hill::Hill(IGraphic* graphic, int n, int m, XMFLOAT2 heightRange, ID3D11ShaderRe
 
 #pragma region define y
 
-	std::unique_ptr<CShader> cShader(new CShader(device, L"HillCS.cso"));
-	cShader->Apply(dContext);
+	std::unique_ptr<CShader> cShader(new CShader(L"HillCS.cso"));
+	cShader->Apply();
 
-	std::unique_ptr<ConstantBuffer<XMFLOAT2>> cbRange(new ConstantBuffer<XMFLOAT2>(device));
-	cbRange->CSSetData(dContext, &heightRange);
-	std::unique_ptr<ConstantBuffer<XMFLOAT2>> cbResol(new ConstantBuffer<XMFLOAT2>(device));
-	cbResol->CSSetData(dContext, &XMFLOAT2(n, m), 1);
+	std::unique_ptr<Buffer> cbResol(new Buffer(sizeof(XMFLOAT2)));
+	cbResol->Write(&XMFLOAT2(n, m));
+	DX_DContext->CSSetConstantBuffers(0, 1, cbResol->GetAddress());
 
-	dContext->CSSetShaderResources(0, 1, heightMap);
+	DX_DContext->CSSetShaderResources(0, 1, heightMap);
 
 	Texture2D* heightBuffer = new Texture2D(
-		device,
 		&CD3D11_TEXTURE2D_DESC(
 			DXGI_FORMAT_R32_FLOAT,
 			n, m,
@@ -61,13 +57,12 @@ Hill::Hill(IGraphic* graphic, int n, int m, XMFLOAT2 heightRange, ID3D11ShaderRe
 	uavDesc.Format = DXGI_FORMAT_R32_FLOAT;
 	uavDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
 	uavDesc.Texture2D.MipSlice = 0;
-	heightBuffer->SetupUAV(device, &uavDesc);
-	dContext->CSSetUnorderedAccessViews(0, 1, heightBuffer->UAV(device), nullptr);
-	dContext->Dispatch(ceil(n/16.0f), ceil(m/16.0f), 1);
-	Resource::CSUnbindUAV(dContext, 0, 1);
+	heightBuffer->SetupUAV(&uavDesc);
+	DX_DContext->CSSetUnorderedAccessViews(0, 1, heightBuffer->UAV(), nullptr);
+	DX_DContext->Dispatch(ceil(n/16.0f), ceil(m/16.0f), 1);
+	Resource::CSUnbindUAV(0, 1);
 
 	Texture2D* outputBuffer = new Texture2D(
-		device,
 		&CD3D11_TEXTURE2D_DESC(
 			DXGI_FORMAT_R32_FLOAT,
 			n, m,
@@ -76,10 +71,10 @@ Hill::Hill(IGraphic* graphic, int n, int m, XMFLOAT2 heightRange, ID3D11ShaderRe
 			D3D11_USAGE_STAGING,
 			D3D11_CPU_ACCESS_READ));
 
-	dContext->CopyResource(outputBuffer->Get(), heightBuffer->Get());
+	DX_DContext->CopyResource(outputBuffer->Get(), heightBuffer->Get());
 
 	D3D11_MAPPED_SUBRESOURCE mapped;
-	dContext->Map(outputBuffer->Get(), 0, D3D11_MAP_READ, 0, &mapped);
+	r_assert(DX_DContext->Map(outputBuffer->Get(), 0, D3D11_MAP_READ, 0, &mapped));
 	float* outputArr = reinterpret_cast<float*>(mapped.pData);
 	std::vector<float> testV;
 	for (int y = 0; y < m; ++y)
@@ -90,7 +85,7 @@ Hill::Hill(IGraphic* graphic, int n, int m, XMFLOAT2 heightRange, ID3D11ShaderRe
 			//vertice[y * n + x].pos.y = *((float*)((char*)mapped.pData + (y*mapped.RowPitch) + (x*sizeof(float)))); //possible either way
 		}
 	}
-	dContext->Unmap(outputBuffer->Get(), 0);
+	DX_DContext->Unmap(outputBuffer->Get(), 0);
 
 #pragma endregion
 
@@ -115,7 +110,7 @@ Hill::Hill(IGraphic* graphic, int n, int m, XMFLOAT2 heightRange, ID3D11ShaderRe
 #pragma endregion
 
 
-	Init(device, vertice.data(), vertice.size(), indice.data(), indice.size());
+	Init(vertice.data(), vertice.size(), indice.data(), indice.size());
 }
 
 
@@ -123,9 +118,9 @@ Hill::~Hill()
 {
 }
 
-void Hill::Apply(ID3D11DeviceContext * dContext)
+void Hill::Apply()
 {
-	Debugging::Draw("Normal of hill is only heading upward", 100, 30);
+	Debugging::Instance()->Draw("Normal of hill is only heading upward", 100, 30);
 
-	Shape::Apply(dContext);
+	Shape::Apply();
 }

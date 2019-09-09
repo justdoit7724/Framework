@@ -1,7 +1,7 @@
 #include "Quad.h"
 #include "CustomFormat.h"
 
-Quad::Quad(ID3D11Device* device)
+Quad::Quad()
 	: Shape()
 {
 	static Vertex OBJ_QUAD[4];
@@ -25,6 +25,6 @@ Quad::Quad(ID3D11Device* device)
 		3,1,0
 	};
 
-	Init(device, &OBJ_QUAD[0], int(ARRAYSIZE(OBJ_QUAD)), OBJ_QUAD_INDICE, int(ARRAYSIZE(OBJ_QUAD_INDICE)));
+	Init(&OBJ_QUAD[0], int(ARRAYSIZE(OBJ_QUAD)), OBJ_QUAD_INDICE, int(ARRAYSIZE(OBJ_QUAD_INDICE)));
 }
 

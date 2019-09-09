@@ -1,9 +1,5 @@
 
-cbuffer CB_HEIGHT_INFO : register(b0)
-{
-    float2 range;
-};
-cbuffer CB_HILL_RESOLUTION : register(b1)
+cbuffer CB_HILL_RESOLUTION : register(b0)
 {
     float2 hillResol;
 };
@@ -25,6 +21,6 @@ void main(int3 id : SV_DispatchThreadID)
     float2 ratio = float2((texWN - 1) / (hillResol.x - 1), (texHN - 1) / (hillResol.y - 1));
     int2 texIdx = ceil(id.xy * ratio);
 
-    posBuffer[id.xy] = lerp(range.x, range.y, hillTexture[texIdx.xy].y);
+    posBuffer[id.xy] = hillTexture[texIdx.xy].y;
 
 }

@@ -38,9 +38,9 @@ struct VS_Property
 	XMMATRIX n;
 	XMMATRIX tex;
 
-	VS_Property(const XMMATRIX& vp, const XMMATRIX& tex = XMMatrixIdentity())
+	VS_Property(const XMMATRIX& vp, const XMMATRIX& tex)
 		:w(XMMatrixIdentity()), vp(vp),n(XMMatrixIdentity()), tex(tex){}
-	VS_Property(Transform* transform, const XMMATRIX& vp, const XMMATRIX& tex = XMMatrixIdentity())
+	VS_Property(Transform* transform, const XMMATRIX& vp, const XMMATRIX& tex)
 		:vp(vp), tex(tex)
 	{
 		const XMMATRIX s = transform->S();
@@ -49,7 +49,6 @@ struct VS_Property
 
 		w = s * r * t;
 		n = XMMatrixTranspose(XMMatrixInverse(&XMMatrixDeterminant(r), r));
-		int a = 0;
 	}
 };
 

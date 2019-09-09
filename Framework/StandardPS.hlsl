@@ -185,7 +185,7 @@ float4 main(PS_INPUT input) : SV_Target
     ambient += A;
     diffuse += D;
     specular += S;
-
+    
     ambient *= tex;
     diffuse *= tex;
     

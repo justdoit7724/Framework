@@ -2,11 +2,13 @@
 #include "Shader.h"
 #include "CustomFormat.h"
 #include "Shape.h"
-#include "Network.h"
+
 #include "TextureMgr.h"
 #include "Transform.h"
 #include "DepthStencilState.h"
 #include "BlendState.h"
+#include "Buffer.h"
+#include "RasterizerState.h"
 
 int CalculateMaxMiplevel(int width, int height)
 {
@@ -22,21 +24,19 @@ int CalculateMaxMiplevel(int width, int height)
 	return maxMiplevel;
 }
 
-Object::Object(IGraphic* graphic, Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpec, float sP, XMFLOAT3 r, std::string imageName, bool mipmap, int zOrder)
+Object::Object(Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpec, float sP, XMFLOAT3 r, std::string imageName, bool mipmap, int zOrder)
 	: isMipmap(mipmap), zOrder(zOrder), shape(shape)
 {
-	ID3D11Device* device = graphic->Device();
-
 	transform = new Transform();
 
-	shader = new VPShader(device, L"StandardVS.cso", L"StandardPS.cso", std_ILayouts, ARRAYSIZE(std_ILayouts));
+	shader = new VPShader("StandardVS.cso", "StandardPS.cso", std_ILayouts, ARRAYSIZE(std_ILayouts));
 
-	cb_vs_property = new ConstantBuffer<VS_Property>(device);
-	cb_ps_dLights = new ConstantBuffer<SHADER_DIRECTIONAL_LIGHT>(device);
-	cb_ps_pLights = new ConstantBuffer<SHADER_POINT_LIGHT>(device);
-	cb_ps_sLights = new ConstantBuffer<SHADER_SPOT_LIGHT>(device);
-	cb_ps_eyePos = new ConstantBuffer<XMFLOAT3>(device);
-	cb_ps_material = new ConstantBuffer<ShaderMaterial>(device);
+	cb_vs_property = new Buffer(sizeof(VS_Property));
+	cb_ps_dLights = new Buffer(sizeof(SHADER_DIRECTIONAL_LIGHT));
+	cb_ps_pLights = new Buffer(sizeof(SHADER_POINT_LIGHT));
+	cb_ps_sLights = new Buffer(sizeof(SHADER_SPOT_LIGHT));
+	cb_ps_eyePos = new Buffer(sizeof(XMFLOAT3));
+	cb_ps_material = new Buffer(sizeof(ShaderMaterial));
 
 	material = new ShaderMaterial(mDiffuse, 1, mAmbient, mSpec, sP, r);
 
@@ -50,14 +50,14 @@ Object::Object(IGraphic* graphic, Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmb
 	samplerDesc.MinLOD = 0;
 	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	r_assert(
-		device->CreateSamplerState(&samplerDesc, &bodySameplerState)
+		DX_Device->CreateSamplerState(&samplerDesc, &bodySameplerState)
 	);
 
 #pragma region MIPMAPPING
 
 	if (mipmap)
 	{
-		TextureMgr::Instance()->Load(graphic, imageName);
+		TextureMgr::Instance()->Load(imageName);
 		ID3D11Texture2D* image = TextureMgr::Instance()->GetTexture(imageName);
 		ComPtr<ID3D11Texture2D> mipmapTexture = nullptr;
 		D3D11_TEXTURE2D_DESC imageDesc;
@@ -74,7 +74,7 @@ Object::Object(IGraphic* graphic, Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmb
 		texDesc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
 		texDesc.Usage = D3D11_USAGE_DEFAULT;
 		texDesc.SampleDesc = { 1,0 };
-		r_assert(device->CreateTexture2D(&texDesc, nullptr, mipmapTexture.GetAddressOf()));
+		r_assert(DX_Device->CreateTexture2D(&texDesc, nullptr, mipmapTexture.GetAddressOf()));
 
 		ComPtr<ID3D11Texture2D> stagTex;
 		D3D11_TEXTURE2D_DESC stagDesc;
@@ -88,18 +88,18 @@ Object::Object(IGraphic* graphic, Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmb
 		stagDesc.MiscFlags = 0;
 		stagDesc.Usage = D3D11_USAGE_STAGING;
 		stagDesc.SampleDesc = { 1,0 };
-		r_assert(device->CreateTexture2D(&stagDesc, nullptr, &stagTex));
+		r_assert(DX_Device->CreateTexture2D(&stagDesc, nullptr, &stagTex));
 
-		graphic->DContext()->CopyResource(stagTex.Get(), image);
+		DX_DContext->CopyResource(stagTex.Get(), image);
 
 		D3D11_MAPPED_SUBRESOURCE mapped;
-		r_assert(graphic->DContext()->Map(stagTex.Get(), 0, D3D11_MAP_READ, 0, &mapped));
+		r_assert(DX_DContext->Map(stagTex.Get(), 0, D3D11_MAP_READ, 0, &mapped));
 		UINT* arr = new UINT[(mapped.RowPitch / (float)sizeof(UINT)) * imageDesc.Height];
 		ZeroMemory(arr, mapped.RowPitch*imageDesc.Height);
 		CopyMemory(arr, mapped.pData, mapped.RowPitch*imageDesc.Height);
-		graphic->DContext()->Unmap(stagTex.Get(), 0);
+		DX_DContext->Unmap(stagTex.Get(), 0);
 
-		graphic->DContext()->UpdateSubresource(mipmapTexture.Get(), 0, &CD3D11_BOX(0, 0, 0, imageDesc.Width, imageDesc.Height, 1), arr, mapped.RowPitch, mapped.DepthPitch);
+		DX_DContext->UpdateSubresource(mipmapTexture.Get(), 0, &CD3D11_BOX(0, 0, 0, imageDesc.Width, imageDesc.Height, 1), arr, mapped.RowPitch, mapped.DepthPitch);
 		delete[] arr;
 
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
@@ -107,17 +107,17 @@ Object::Object(IGraphic* graphic, Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmb
 		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Texture2D.MipLevels = texDesc.MipLevels;
 		srvDesc.Texture2D.MostDetailedMip = 0;
-		r_assert(device->CreateShaderResourceView(mipmapTexture.Get(), &srvDesc, bodySRV.GetAddressOf()));
-		graphic->DContext()->GenerateMips(bodySRV.Get());
+		r_assert(DX_Device->CreateShaderResourceView(mipmapTexture.Get(), &srvDesc, bodySRV.GetAddressOf()));
+		DX_DContext->GenerateMips(bodySRV.Get());
 	}
 	else {
 		bodySRV = TextureMgr::Instance()->Get(imageName);
 	}
 #pragma endregion
 
-	blendState = new BlendState(device);
-	dsState = new DepthStencilState(device);
-
+	blendState = new BlendState();
+	dsState = new DepthStencilState();
+	rasterizerState = new RasterizerState();
 }
 
 Object::~Object()
@@ -137,40 +137,47 @@ Object::~Object()
 	delete blendState;
 }
 
-void Object::Update()
+void Object::Update(Camera* camera, const SHADER_DIRECTIONAL_LIGHT* dLight, const SHADER_POINT_LIGHT* pLight, const SHADER_SPOT_LIGHT* sLight, const XMMATRIX& texMat)
 {
+	cb_vs_property->Write(&VS_Property(transform, camera->VPMat(zOrder), texMat));
+	cb_ps_dLights->Write((void*)dLight);
+	cb_ps_pLights->Write((void*)pLight);
+	cb_ps_sLights->Write((void*)sLight);
+	cb_ps_eyePos->Write((void*)(&(camera->Pos())));
+	cb_ps_material->Write((void*)(&material));
 }
 
-void Object::Render(IGraphic* graphic, Camera* camera, const SHADER_DIRECTIONAL_LIGHT* dLight, const SHADER_POINT_LIGHT* pLight, const SHADER_SPOT_LIGHT* sLight, const XMMATRIX& texMat)
+void Object::Render()
 {
-	ID3D11DeviceContext* dContext = graphic->DContext();
-	XMMATRIX vpMat = camera->ViewMat()*camera->ProjMat(zOrder);
-
-	shader->Apply(dContext);
+	shader->Apply();
 
 	// TRANSFORM
-	cb_vs_property->VSSetData(dContext, &VS_Property(transform, vpMat));
+	DX_DContext->VSSetConstantBuffers(0, 1, cb_vs_property->GetAddress());
 
 	// LIGHTS
-	cb_ps_dLights->PSSetData(dContext, dLight, 0);
-	cb_ps_pLights->PSSetData(dContext, pLight, 1);
-	cb_ps_sLights->PSSetData(dContext, sLight, 2);
+	DX_DContext->PSSetConstantBuffers(0, 1, cb_ps_dLights->GetAddress());
+	DX_DContext->PSSetConstantBuffers(1, 1, cb_ps_pLights->GetAddress());
+	DX_DContext->PSSetConstantBuffers(2, 1, cb_ps_sLights->GetAddress());
 
 	// EYE
-	cb_ps_eyePos->PSSetData(dContext, &camera->Pos(), 3);
+	DX_DContext->PSSetConstantBuffers(3, 1, cb_ps_eyePos->GetAddress());
 
 	// MATERIAL
-	cb_ps_material->PSSetData(dContext, material, 4);
+	DX_DContext->PSSetConstantBuffers(4, 1, cb_ps_material->GetAddress());
 
 	// TEXTURE
-	dContext->PSSetShaderResources(0, 1, bodySRV.GetAddressOf());
-	dContext->PSSetSamplers(0, 1, bodySameplerState.GetAddressOf());
+	DX_DContext->PSSetShaderResources(0, 1, bodySRV.GetAddressOf());
+	DX_DContext->PSSetSamplers(0, 1, bodySameplerState.GetAddressOf());
 
 	// STATE
-	graphic->SetRasterizerState();
-	dsState->Apply(dContext);
-	blendState->Apply(dContext);
-	shape->Apply(dContext);
+	dsState->Apply();
+	blendState->Apply();
+	rasterizerState->Apply();
+
+	// Shape
+	shape->Apply();
+
+	DX_DContext->DrawIndexed(shape->IndexCount(),0,0);
 }
 
 void Object::SetTransparency(float t)
