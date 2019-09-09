@@ -11,7 +11,6 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 	Window window(hInstance, "2D -> 3D");
 	Graphic* graphic = new Graphic(window.Hwnd());
-	Debugging::Init(graphic);
 	Scene* scene = new Scene(graphic);
 	srand(time(NULL));
 
@@ -30,7 +29,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		else
 		{
 			scene->Update();
-			scene->Render(graphic);
+			scene->Render();
 
 			graphic->Present();
 

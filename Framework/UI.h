@@ -59,7 +59,7 @@ public:
 	UI* Get(std::string id);
 
 	void Update(float spf);
-	void Render(IGraphic* graphic);
+	void Render();
 
 	const float totalWidth, totalHeight;
 

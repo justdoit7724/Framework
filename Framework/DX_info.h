@@ -10,6 +10,9 @@
 using namespace DirectX;
 using namespace Microsoft::WRL;
 
+extern ID3D11Device* device;
+extern ID3D11DeviceContext* dContext;
+
 #define MB(s) MessageBox(0,s,0,0)
 
 #define r_assert(r)	assert(SUCCEEDED(r))

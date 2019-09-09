@@ -1,6 +1,6 @@
 #include "Buffer.h"
 
-Buffer::Buffer(ID3D11Device * device, const CD3D11_BUFFER_DESC* desc)
+Buffer::Buffer(const CD3D11_BUFFER_DESC* desc)
 	:desc(*desc)
 {
 	r_assert(
@@ -11,7 +11,7 @@ Buffer::Buffer(ID3D11Device * device, const CD3D11_BUFFER_DESC* desc)
 	);
 }
 
-Buffer::Buffer(ID3D11Device * device, const CD3D11_BUFFER_DESC* desc, void * initValue)
+Buffer::Buffer(const CD3D11_BUFFER_DESC* desc, void * initValue)
 	:desc(*desc)
 {
 	D3D11_SUBRESOURCE_DATA data;
@@ -25,7 +25,7 @@ Buffer::Buffer(ID3D11Device * device, const CD3D11_BUFFER_DESC* desc, void * ini
 	);
 }
 
-void Buffer::SetSRV(ID3D11Device * device, D3D11_SHADER_RESOURCE_VIEW_DESC* srvDesc)
+void Buffer::SetSRV(D3D11_SHADER_RESOURCE_VIEW_DESC* srvDesc)
 {
 	r_assert(
 		device->CreateShaderResourceView(
@@ -35,7 +35,7 @@ void Buffer::SetSRV(ID3D11Device * device, D3D11_SHADER_RESOURCE_VIEW_DESC* srvD
 	);
 }
 
-void Buffer::SetUAV(ID3D11Device * device, D3D11_UNORDERED_ACCESS_VIEW_DESC * uavDesc)
+void Buffer::SetUAV(D3D11_UNORDERED_ACCESS_VIEW_DESC * uavDesc)
 {
 	r_assert(
 		device->CreateUnorderedAccessView(
@@ -45,7 +45,7 @@ void Buffer::SetUAV(ID3D11Device * device, D3D11_UNORDERED_ACCESS_VIEW_DESC * ua
 	);
 }
 
-void Buffer::Update(ID3D11DeviceContext * dContext, void * data, UINT byteSize)
+void Buffer::Update(void * data, UINT byteSize)
 {
 	MB("Check if works first !!");
 

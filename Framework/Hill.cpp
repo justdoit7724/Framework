@@ -9,9 +9,6 @@
 Hill::Hill(IGraphic* graphic, int n, int m, XMFLOAT2 heightRange, ID3D11ShaderResourceView *const* heightMap)
 	:Shape()
 {
-	ID3D11Device* device = graphic->Device();
-	ID3D11DeviceContext* dContext = graphic->DContext();
-
 #pragma region define x, z
 
 	float dx = 1.0f / (n - 1);

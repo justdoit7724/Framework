@@ -19,7 +19,7 @@ public:
 	~Scene();
 
 	void Update();
-	void Render(IGraphic* graphic);
+	void Render();
 
 private:
 

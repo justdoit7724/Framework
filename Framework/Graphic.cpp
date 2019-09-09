@@ -3,6 +3,9 @@
 
 #pragma comment(lib, "d3d11.lib")
 
+ID3D11Device* device=nullptr;
+ID3D11DeviceContext* dContext=nullptr;
+
 Graphic::Graphic(HWND _hwnd)
 {
 	hwnd = _hwnd;
@@ -41,9 +44,9 @@ Graphic::Graphic(HWND _hwnd)
 		D3D11_SDK_VERSION,
 		&scd,
 		swapchain.GetAddressOf(),
-		device.GetAddressOf(),
+		&device,
 		NULL,
-		dContext.GetAddressOf())
+		&dContext)
 	);
 
 	ComPtr<ID3D11Texture2D> backBuffer; 

@@ -22,11 +22,9 @@ int CalculateMaxMiplevel(int width, int height)
 	return maxMiplevel;
 }
 
-Object::Object(IGraphic* graphic, Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpec, float sP, XMFLOAT3 r, std::string imageName, bool mipmap, int zOrder)
+Object::Object(Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpec, float sP, XMFLOAT3 r, std::string imageName, bool mipmap, int zOrder)
 	: isMipmap(mipmap), zOrder(zOrder), shape(shape)
 {
-	ID3D11Device* device = graphic->Device();
-
 	transform = new Transform();
 
 	shader = new VPShader(device, L"StandardVS.cso", L"StandardPS.cso", std_ILayouts, ARRAYSIZE(std_ILayouts));
@@ -57,7 +55,7 @@ Object::Object(IGraphic* graphic, Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmb
 
 	if (mipmap)
 	{
-		TextureMgr::Instance()->Load(graphic, imageName);
+		TextureMgr::Instance()->Load(imageName);
 		ID3D11Texture2D* image = TextureMgr::Instance()->GetTexture(imageName);
 		ComPtr<ID3D11Texture2D> mipmapTexture = nullptr;
 		D3D11_TEXTURE2D_DESC imageDesc;
@@ -90,16 +88,16 @@ Object::Object(IGraphic* graphic, Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmb
 		stagDesc.SampleDesc = { 1,0 };
 		r_assert(device->CreateTexture2D(&stagDesc, nullptr, &stagTex));
 
-		graphic->DContext()->CopyResource(stagTex.Get(), image);
+		dContext->CopyResource(stagTex.Get(), image);
 
 		D3D11_MAPPED_SUBRESOURCE mapped;
-		r_assert(graphic->DContext()->Map(stagTex.Get(), 0, D3D11_MAP_READ, 0, &mapped));
+		r_assert(dContext->Map(stagTex.Get(), 0, D3D11_MAP_READ, 0, &mapped));
 		UINT* arr = new UINT[(mapped.RowPitch / (float)sizeof(UINT)) * imageDesc.Height];
 		ZeroMemory(arr, mapped.RowPitch*imageDesc.Height);
 		CopyMemory(arr, mapped.pData, mapped.RowPitch*imageDesc.Height);
-		graphic->DContext()->Unmap(stagTex.Get(), 0);
+		dContext->Unmap(stagTex.Get(), 0);
 
-		graphic->DContext()->UpdateSubresource(mipmapTexture.Get(), 0, &CD3D11_BOX(0, 0, 0, imageDesc.Width, imageDesc.Height, 1), arr, mapped.RowPitch, mapped.DepthPitch);
+		dContext->UpdateSubresource(mipmapTexture.Get(), 0, &CD3D11_BOX(0, 0, 0, imageDesc.Width, imageDesc.Height, 1), arr, mapped.RowPitch, mapped.DepthPitch);
 		delete[] arr;
 
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
@@ -108,7 +106,7 @@ Object::Object(IGraphic* graphic, Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmb
 		srvDesc.Texture2D.MipLevels = texDesc.MipLevels;
 		srvDesc.Texture2D.MostDetailedMip = 0;
 		r_assert(device->CreateShaderResourceView(mipmapTexture.Get(), &srvDesc, bodySRV.GetAddressOf()));
-		graphic->DContext()->GenerateMips(bodySRV.Get());
+		dContext->GenerateMips(bodySRV.Get());
 	}
 	else {
 		bodySRV = TextureMgr::Instance()->Get(imageName);
@@ -141,9 +139,8 @@ void Object::Update()
 {
 }
 
-void Object::Render(IGraphic* graphic, Camera* camera, const SHADER_DIRECTIONAL_LIGHT* dLight, const SHADER_POINT_LIGHT* pLight, const SHADER_SPOT_LIGHT* sLight, const XMMATRIX& texMat)
+void Object::Render(Camera* camera, const SHADER_DIRECTIONAL_LIGHT* dLight, const SHADER_POINT_LIGHT* pLight, const SHADER_SPOT_LIGHT* sLight, const XMMATRIX& texMat)
 {
-	ID3D11DeviceContext* dContext = graphic->DContext();
 	XMMATRIX vpMat = camera->ViewMat()*camera->ProjMat(zOrder);
 
 	shader->Apply(dContext);
@@ -167,7 +164,6 @@ void Object::Render(IGraphic* graphic, Camera* camera, const SHADER_DIRECTIONAL_
 	dContext->PSSetSamplers(0, 1, bodySameplerState.GetAddressOf());
 
 	// STATE
-	graphic->SetRasterizerState();
 	dsState->Apply(dContext);
 	blendState->Apply(dContext);
 	shape->Apply(dContext);

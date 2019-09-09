@@ -7,7 +7,6 @@
 #include <unordered_map>
 #include "Resource.h"
 
-class IGraphic;
 class Shape;
 class IGraphic;
 class VPShader;
@@ -18,11 +17,6 @@ class Debugging
 {
 public:
 
-	static void Init(IGraphic* _graphic)
-	{
-		graphic = _graphic;
-	}
-	
 	static void Draw(const std::string tex, const float x, const float y,  const XMVECTORF32 _color = Colors::White,  const float _scale = 1.5f);
 	static void Draw(const int tex, const float x, const float y, const XMVECTORF32 _color = Colors::White, const float _scale = 1.5f);
 	static void Draw(float tex, const float x, const float y, XMVECTORF32 _color = Colors::White, float _scale = 1.5f);
@@ -37,13 +31,11 @@ public:
 	static void EnableGrid(float interval, int num=100);
 	static void DisableGrid();
 
-	static void Render(Camera* camera, IGraphic* graphic);
+	static void Render(Camera* camera);
 
 	//edit - move into private
 private:
 	Debugging() {};
-
-	static IGraphic* graphic;
 
 	static std::unique_ptr<DirectX::SpriteBatch> spriteBatch;
 	static std::unique_ptr<DirectX::SpriteFont> spriteFont;

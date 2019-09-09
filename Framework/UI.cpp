@@ -141,15 +141,13 @@ void UICanvas::Update(float spf)
 	}
 }
 
-void UICanvas::Render(IGraphic* graphic)
+void UICanvas::Render()
 {
 	XMMATRIX vpMat = camera->VPMat(Z_ORDER_UI);
 
 	for (auto& ui : UIs)
 	{
-		graphic->SetRasterizerState();
-
-		ui.second->Render(graphic->DContext(), vpMat);
+		ui.second->Render(dContext, vpMat);
 	}
 }
 

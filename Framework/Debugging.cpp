@@ -3,13 +3,10 @@
 #include "Shader.h"
 #include "Camera.h"
 #include "Graphic.h"
-#include "Network.h"
 #include "CustomFormat.h"
 
 #include "Cube.h"
 #include "Sphere.h"
-
-IGraphic* Debugging::graphic=nullptr;
 
 std::vector<Debugging::ScreenTextInfo> Debugging::texts;
 std::unordered_map<UINT, Debugging::MarkInfo> Debugging::marks;
@@ -149,7 +146,7 @@ void Debugging::EnableGrid(float interval, int num)
 	originVB_desc.Usage = D3D11_USAGE_IMMUTABLE;
 	D3D11_SUBRESOURCE_DATA originVB_data;
 	originVB_data.pSysMem = originVertice.data();
-	r_assert(graphic->Device()->CreateBuffer(&originVB_desc, &originVB_data, originVB.ReleaseAndGetAddressOf()));
+	r_assert(device->CreateBuffer(&originVB_desc, &originVB_data, originVB.ReleaseAndGetAddressOf()));
 	D3D11_BUFFER_DESC gridVB_desc;
 	gridVB_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	gridVB_desc.ByteWidth = sizeof(Vertex)*gridVertice.size();
@@ -159,7 +156,7 @@ void Debugging::EnableGrid(float interval, int num)
 	gridVB_desc.Usage = D3D11_USAGE_IMMUTABLE;
 	D3D11_SUBRESOURCE_DATA gridVB_data;
 	gridVB_data.pSysMem = gridVertice.data();
-	r_assert(graphic->Device()->CreateBuffer(&gridVB_desc, &gridVB_data, gridVB.ReleaseAndGetAddressOf()));
+	r_assert(device->CreateBuffer(&gridVB_desc, &gridVB_data, gridVB.ReleaseAndGetAddressOf()));
 }
 
 void Debugging::DisableGrid()
@@ -168,11 +165,8 @@ void Debugging::DisableGrid()
 	gridVB = nullptr;
 }
 
-void Debugging::Render(Camera* camera, IGraphic* graphic)
+void Debugging::Render(Camera* camera)
 {
-	ID3D11Device* device = graphic->Device();
-	ID3D11DeviceContext* dContext = graphic->DContext();
-
 	XMMATRIX vpMat = camera->ViewMat() * camera->ProjMat(Z_ORDER_STANDARD);
 
 	if (blendState == nullptr)
