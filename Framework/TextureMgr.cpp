@@ -105,7 +105,7 @@ ID3D11ShaderResourceView * TextureMgr::Get(std::string fileName)
 	return iter->second;
 }
 
-ID3D11ShaderResourceView *const* TextureMgr::GetAddress(std::string fileName)
+ID3D11ShaderResourceView ** TextureMgr::GetAddress(std::string fileName)
 {
 	auto iter = SRVs.find(fileName);
 

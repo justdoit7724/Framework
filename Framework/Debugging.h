@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include "Singleton.h"
 
+class Transform;
 class Shape;
 class VPShader;
 class Camera;
@@ -14,6 +15,7 @@ class Buffer;
 class DepthStencilState;
 class BlendState;
 struct VS_Property;
+
 
 
 class Debugging : public Singleton<Debugging>
@@ -29,7 +31,8 @@ public:
 	void Draw3D(float tex, const XMFLOAT3 _pos, XMVECTORF32 _color = Colors::White, float _scale = 1.5f);
 	void Draw3D(std::string title, XMFLOAT3 v,  const XMFLOAT3 _pos, XMVECTORF32 _color = Colors::White, float _scale = 1.0f);
 	void Mark(const UINT key, XMFLOAT3 pos, float radius = 1.0f, XMVECTORF32 color = Colors::Red);
-	void Line(const UINT key, XMFLOAT3 p1, XMFLOAT3 p2, XMVECTORF32 color = Colors::White);
+	void PtLine(const UINT key, XMFLOAT3 p1, XMFLOAT3 p2, XMVECTORF32 color = Colors::White);
+	void DirLine(const UINT key, XMFLOAT3 p1, XMFLOAT3 dir, XMVECTORF32 color = Colors::White);
 
 	void EnableGrid(float interval, int num=100);
 	void DisableGrid();
@@ -39,6 +42,7 @@ private:
 
 	friend class Singleton<Debugging>;
 	Debugging();
+	~Debugging();
 
 	std::unique_ptr<DirectX::SpriteBatch> spriteBatch;
 	std::unique_ptr<DirectX::SpriteFont> spriteFont;
@@ -55,13 +59,14 @@ private:
 	std::vector<ScreenTextInfo> texts;
 
 	struct MarkInfo {
+		Transform* transform;
 		Shape* geom;
 		XMVECTOR color;
 
 		MarkInfo() {}
-		MarkInfo(Shape* _geom, XMVECTOR _color) {
-			geom = _geom;
-			color = _color;
+		MarkInfo(Transform* transform, Shape* geom, XMVECTOR color) 
+			:transform(transform), geom(geom), color(color)
+		{
 		}
 	};
 	std::unordered_map<UINT, MarkInfo> marks;
@@ -78,15 +83,15 @@ private:
 		}
 	};
 	std::unordered_map<UINT,LineInfo> lines;
-	ComPtr<ID3D11Buffer> lineVB;
-	ComPtr<ID3D11Buffer> gridVB;
-	ComPtr<ID3D11Buffer> originVB;
+	Buffer* lineVB=nullptr;
+	Buffer* gridVB=nullptr;
+	Buffer* originVB=nullptr;
 	UINT gridVerticeCount;
-	std::unique_ptr<VPShader> shader;
-	std::unique_ptr<Buffer> cb_transformation;
-	std::unique_ptr<Buffer> cb_color;
-	std::unique_ptr<DepthStencilState> dsState;
-	std::unique_ptr<BlendState> blendState;
+	VPShader* shader;
+	Buffer* cb_transformation;
+	Buffer* cb_color;
+	DepthStencilState* dsState;
+	BlendState* blendState;
 
 	float gridInterval;
 };

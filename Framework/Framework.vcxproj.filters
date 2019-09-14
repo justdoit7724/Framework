@@ -240,5 +240,11 @@
     <FxCompile Include="UIPS.hlsl">
       <Filter>hlsl</Filter>
     </FxCompile>
+    <FxCompile Include="ShadowVS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="ShadowPS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

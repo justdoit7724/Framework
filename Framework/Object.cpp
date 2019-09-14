@@ -1,12 +1,6 @@
 #include "Object.h"
-#include "Shader.h"
-#include "CustomFormat.h"
-#include "Shape.h"
 #include "TextureMgr.h"
-#include "Transform.h"
-#include "DepthStencilState.h"
-#include "BlendState.h"
-#include "Buffer.h"
+#include "Light.h"
 
 int CalculateMaxMiplevel(int width, int height)
 {
@@ -27,7 +21,7 @@ Object::Object(Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpe
 {
 	transform = new Transform();
 
-	shader = new VPShader("StandardVS.cso", "StandardPS.cso", std_ILayouts, ARRAYSIZE(std_ILayouts));
+	shader = new VPShader("StandardVS.cso", "StandardPS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
 
 	cb_vs_property.reset(new Buffer(sizeof(VS_Property)));
 	cb_ps_dLights.reset(new Buffer(sizeof(SHADER_DIRECTIONAL_LIGHT)));
@@ -50,8 +44,6 @@ Object::Object(Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpe
 	r_assert(
 		DX_Device->CreateSamplerState(&samplerDesc, &bodySameplerState)
 	);
-
-#pragma region MIPMAPPING
 
 	if (mipmap)
 	{
@@ -111,11 +103,13 @@ Object::Object(Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpe
 	else {
 		bodySRV = TextureMgr::Instance()->Get(imageName);
 	}
-#pragma endregion
 
 	blendState = new BlendState();
 	dsState = new DepthStencilState();
 
+	shadow_Shader = new VPShader("ShadowVS.cso", "ShadowPS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
+	cb_vs_shadow_property = new Buffer(sizeof(VS_Shadow_Property));
+	cb_ps_shadow_transparency = new Buffer(sizeof(float));
 }
 
 Object::~Object()
@@ -127,23 +121,80 @@ Object::~Object()
 
 	delete dsState;
 	delete blendState;
+
+	delete shadow_Shader;
+	delete cb_vs_shadow_property;
+	delete cb_ps_shadow_transparency;
 }
+
+void Object::EnableShadow(XMFLOAT3 shadowPlaneN, float shadowPlaneDist, float shadowTransparency)
+{
+	isShadow = true;
+	this->shadowPlaneDist = shadowPlaneDist;
+	this->shadowPlaneNormal = shadowPlaneN;
+	cb_ps_shadow_transparency->Write(&shadowTransparency);
+}
+
 
 void Object::Update(Camera* camera, const SHADER_DIRECTIONAL_LIGHT* dLight, const SHADER_POINT_LIGHT* pLight, const SHADER_SPOT_LIGHT* sLight, const XMMATRIX& texMat)
 {
 	XMMATRIX vpMat = camera->ViewMat()*camera->ProjMat(zOrder);
+	XMMATRIX wMat = transform->WorldMatrix();
 
-	cb_vs_property->Write(&VS_Property(transform, vpMat, texMat));
+	cb_vs_property->Write(&VS_Property(wMat, vpMat, texMat));
 	cb_ps_dLights->Write((void*)dLight);
 	cb_ps_pLights->Write((void*)pLight);
 	cb_ps_sLights->Write((void*)sLight);
 	cb_ps_eyePos->Write(&(camera->Pos()));
 	cb_ps_material->Write(material);
+
+	if (isShadow)
+	{
+		for (int i = 0; i < LIGHT_MAX_EACH; ++i)
+		{
+			if (DirectionalLight::Data()->enabled[i] != LIGHT_ENABLED)
+				continue;
+
+			XMFLOAT3 n = shadowPlaneNormal;
+			float d = shadowPlaneDist;
+			XMFLOAT3 l = XMFLOAT3(
+				DirectionalLight::Data()->dir[i].x,
+				DirectionalLight::Data()->dir[i].y,
+				DirectionalLight::Data()->dir[i].z);
+			float nl = Dot(n, l);
+			dir_light_shadowMats[i] = XMMATRIX(
+				nl - l.x*n.x, -l.y*n.x, -l.z*n.x, 0,
+				-l.x*n.y, nl - l.y*n.y, -l.z*n.y, 0,
+				-l.x*n.z, -l.y*n.z, nl - l.z*n.z, 0,
+				l.x*d, l.y*d, l.z*d, nl
+			);
+		}
+		for (int i = 0; i < LIGHT_MAX_EACH; ++i)
+		{
+			if (PointLight::Data()->enabled[i] != LIGHT_ENABLED)
+				continue;
+
+			XMFLOAT3 n = shadowPlaneNormal;
+			float d = shadowPlaneDist;
+			XMFLOAT3 l = XMFLOAT3(
+				PointLight::Data()->pos[i].x,
+				PointLight::Data()->pos[i].y,
+				PointLight::Data()->pos[i].z);
+			float nl = Dot(n, l);
+			pt_light_shadowMats[i] = XMMATRIX(
+				nl - d - l.x*n.x,	-l.y*n.x,			-l.z*n.x,			-n.x,
+				-l.x*n.y,			nl + d - l.y*n.y,	-l.z*n.y,			-n.y,
+				-l.x*n.z,			-l.y*n.z,			nl + d - l.z*n.z,	-n.z,
+				l.x*d,				l.y*d,				l.z*d,				nl
+			);
+		}
+	}
+
+	
 }
 
 void Object::Render()
 {
-
 	shader->Apply();
 
 	// TRANSFORM
@@ -168,6 +219,34 @@ void Object::Render()
 	dsState->Apply();
 	blendState->Apply();
 	shape->Apply();
+
+	if (isShadow)
+	{
+		shadow_Shader->Apply();
+
+		for (int i = 0; i < LIGHT_MAX_EACH; ++i)
+		{
+			if (DirectionalLight::Data()->enabled[i] != LIGHT_ENABLED)
+				continue;
+
+			cb_vs_property->Write(&dir_light_shadowMats[i]);
+			DX_DContext->VSSetConstantBuffers(0, 1, cb_vs_property->GetAddress());
+			DX_DContext->PSSetConstantBuffers(0, 1, cb_ps_shadow_transparency->GetAddress());
+
+			shape->Apply();
+		}
+		for (int i = 0; i < LIGHT_MAX_EACH; ++i)
+		{
+			if (PointLight::Data()->enabled[i] != LIGHT_ENABLED)
+				continue;
+
+			cb_vs_property->Write(&pt_light_shadowMats[i]);
+			DX_DContext->VSSetConstantBuffers(0, 1, cb_vs_property->GetAddress());
+			DX_DContext->PSSetConstantBuffers(0, 1, cb_ps_shadow_transparency->GetAddress());
+
+			shape->Apply();
+		}
+	}
 }
 
 void Object::SetTransparency(float t)

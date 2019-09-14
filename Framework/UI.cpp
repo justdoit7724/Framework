@@ -38,7 +38,7 @@ UI::UI(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float
 		DX_Device->CreateSamplerState(&samplerDesc, &texSampState)
 	);
 
-	shader = new VPShader("UIVS.cso", "UIPS.cso", std_ILayouts, ARRAYSIZE(std_ILayouts));
+	shader = new VPShader("UIVS.cso", "UIPS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
 
 	D3D11_BLEND_DESC blend_desc;
 	blend_desc.AlphaToCoverageEnable = false;
@@ -74,7 +74,7 @@ void UI::Update(float spf, const XMMATRIX& vpMat, const XMMATRIX& texMat)
 		curTime = 0;
 	}
 
-	cb_vs_property->Write(&VS_Property(transform, vpMat, texMat));
+	cb_vs_property->Write(&VS_Property(transform->WorldMatrix(), vpMat, texMat));
 	cb_ps_sliceIdx->Write(&curSliceIdx);
 }
 
@@ -93,9 +93,6 @@ void UI::Render()
 UICanvas::UICanvas(float width, float height)
 	: totalWidth(width), totalHeight(height)
 {
-	Debugging::Instance()->Line(29035, XMFLOAT3(0, height, 0), XMFLOAT3(width, height, 0), Colors::Cyan);
-	Debugging::Instance()->Line(29036, XMFLOAT3(width, height, 0), XMFLOAT3(width, 0, 0), Colors::Cyan);
-
 	camera = new Camera(FRAME_KIND_ORTHOGONAL, width, height, 0.1f, 10, NULL, NULL, XMFLOAT3(width*0.5f, height*0.5f, -5), FORWARD, UP);
 }
 

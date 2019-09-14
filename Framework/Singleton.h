@@ -15,7 +15,8 @@ public:
 
 protected:
 	Singleton() {}
-	~Singleton() {}
+	~Singleton() {
+	}
 
 
 private:

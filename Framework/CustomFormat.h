@@ -1,9 +1,8 @@
 #pragma once
-#include "Transform.h"
 #include "Geometrics.h"
 #include "DX_info.h"
 
-static const D3D11_INPUT_ELEMENT_DESC std_ILayouts[] =
+static const D3D11_INPUT_ELEMENT_DESC Std_ILayouts[] =
 {
 	{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, sizeof(XMFLOAT3), D3D11_INPUT_PER_VERTEX_DATA, 0 },
@@ -40,17 +39,19 @@ struct VS_Property
 
 	VS_Property(const XMMATRIX& vp, const XMMATRIX& tex)
 		:w(XMMatrixIdentity()), vp(vp),n(XMMatrixIdentity()), tex(tex){}
-	VS_Property(Transform* transform, const XMMATRIX& vp, const XMMATRIX& tex)
-		:vp(vp), tex(tex)
+	VS_Property(const XMMATRIX& world, const XMMATRIX& vp, const XMMATRIX& tex)
+		:w(world), vp(vp), tex(tex)
 	{
-		const XMMATRIX s = transform->S();
-		const XMMATRIX r = transform->R();
-		const XMMATRIX t = transform->T();
-
-		w = s * r * t;
-		n = XMMatrixTranspose(XMMatrixInverse(&XMMatrixDeterminant(r), r));
-		int a = 0;
+		n = XMMatrixTranspose(XMMatrixInverse(&XMMatrixDeterminant(world), world));
 	}
+};
+struct VS_Shadow_Property
+{
+	XMMATRIX worldMat;
+	XMMATRIX vpMat;
+
+	VS_Shadow_Property(const XMMATRIX& w, const XMMATRIX& vp)
+		: worldMat(w), vpMat(vp){}
 };
 
 #define LIGHT_ENABLED XMFLOAT4(1,1,1,1)
@@ -124,5 +125,23 @@ public:
 	void SetSpecPower(float p)
 	{
 		specular.w = p;
+	}
+	void SetDiffuse(XMFLOAT3 d)
+	{
+		diffuse.x = d.x;
+		diffuse.y = d.y;
+		diffuse.z = d.z;
+	}
+	void SetSpec(XMFLOAT3 s)
+	{
+		specular.x = s.x;
+		specular.y = s.y;
+		specular.z = s.z;
+	}
+	void SetAmbient(XMFLOAT3 a)
+	{
+		ambient.x = a.x;
+		ambient.y = a.y;
+		ambient.z = a.z;
 	}
 };

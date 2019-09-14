@@ -12,7 +12,7 @@ public:
 	void Load(std::string fileName);
 	void Load(std::string fileName, UINT spriteX);
 	ID3D11ShaderResourceView * Get(std::string fileName);
-	ID3D11ShaderResourceView *const* GetAddress(std::string fileName);
+	ID3D11ShaderResourceView ** GetAddress(std::string fileName);
 	void Get(std::string fileName, OUT ID3D11ShaderResourceView const** srv, OUT UINT* count);
 	ID3D11Texture2D* GetTexture(std::string fileName);
 

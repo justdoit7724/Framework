@@ -4,7 +4,7 @@ cbuffer CB_VS_PROPERTY : register(b0)
     float4x4 WMat;
     float4x4 VPMat;
     float4x4 NMat;
-    float renderPriority;
+    float4x4 texMat;
 };
 
 struct VS_INPUT

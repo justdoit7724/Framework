@@ -13,7 +13,7 @@ public:
 	void Write(void* data);
 
 	ID3D11Buffer* Get(){return resource.Get(); }
-	ID3D11Buffer*const* GetAddress() {return resource.GetAddressOf(); }
+	ID3D11Buffer** GetAddress() {return resource.GetAddressOf(); }
 
 	const D3D11_BUFFER_DESC desc;
 

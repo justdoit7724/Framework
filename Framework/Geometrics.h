@@ -126,6 +126,14 @@ inline XMFLOAT4 operator/=(XMFLOAT4& v, float f)
 {
 	return XMFLOAT4(v.x / f, v.y / f, v.z / f, v.w/f);
 }
+inline bool operator== (XMFLOAT4 a, XMFLOAT4 b)
+{
+	return (a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w);
+}
+inline bool operator!= (XMFLOAT4 a, XMFLOAT4 b)
+{
+	return (a.x != b.x || a.y != b.y || a.z != b.z || a.w != b.w);
+}
 inline XMFLOAT4 operator*(XMFLOAT4 v, const XMMATRIX& m)
 {
 	XMVECTOR mv = XMVector4Transform(XMLoadFloat4(&v), m);
