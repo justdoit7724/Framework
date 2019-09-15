@@ -57,5 +57,6 @@ protected:
 	VPShader* shadow_Shader;
 	Buffer* cb_vs_shadow_property;
 	Buffer* cb_ps_shadow_transparency;
+	XMMATRIX vpMat;
 };
 

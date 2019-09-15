@@ -138,7 +138,7 @@ void Object::EnableShadow(XMFLOAT3 shadowPlaneN, float shadowPlaneDist, float sh
 
 void Object::Update(Camera* camera, const SHADER_DIRECTIONAL_LIGHT* dLight, const SHADER_POINT_LIGHT* pLight, const SHADER_SPOT_LIGHT* sLight, const XMMATRIX& texMat)
 {
-	XMMATRIX vpMat = camera->ViewMat()*camera->ProjMat(zOrder);
+	vpMat = camera->ViewMat()*camera->ProjMat(zOrder);
 	XMMATRIX wMat = transform->WorldMatrix();
 
 	cb_vs_property->Write(&VS_Property(wMat, vpMat, texMat));
@@ -150,7 +150,7 @@ void Object::Update(Camera* camera, const SHADER_DIRECTIONAL_LIGHT* dLight, cons
 
 	if (isShadow)
 	{
-		for (int i = 0; i < LIGHT_MAX_EACH; ++i)
+		/*for (int i = 0; i < LIGHT_MAX_EACH; ++i)
 		{
 			if (DirectionalLight::Data()->enabled[i] != LIGHT_ENABLED)
 				continue;
@@ -168,7 +168,7 @@ void Object::Update(Camera* camera, const SHADER_DIRECTIONAL_LIGHT* dLight, cons
 				-l.x*n.z, -l.y*n.z, nl - l.z*n.z, 0,
 				l.x*d, l.y*d, l.z*d, nl
 			);
-		}
+		}*/
 		for (int i = 0; i < LIGHT_MAX_EACH; ++i)
 		{
 			if (PointLight::Data()->enabled[i] != LIGHT_ENABLED)
@@ -181,7 +181,7 @@ void Object::Update(Camera* camera, const SHADER_DIRECTIONAL_LIGHT* dLight, cons
 				PointLight::Data()->pos[i].y,
 				PointLight::Data()->pos[i].z);
 			float nl = Dot(n, l);
-			pt_light_shadowMats[i] = XMMATRIX(
+			pt_light_shadowMats[i] = -XMMATRIX(
 				nl - d - l.x*n.x,	-l.y*n.x,			-l.z*n.x,			-n.x,
 				-l.x*n.y,			nl + d - l.y*n.y,	-l.z*n.y,			-n.y,
 				-l.x*n.z,			-l.y*n.z,			nl + d - l.z*n.z,	-n.z,
@@ -224,24 +224,26 @@ void Object::Render()
 	{
 		shadow_Shader->Apply();
 
-		for (int i = 0; i < LIGHT_MAX_EACH; ++i)
+		XMMATRIX wMat = transform->WorldMatrix();
+		
+		/*for (int i = 0; i < LIGHT_MAX_EACH; ++i)
 		{
 			if (DirectionalLight::Data()->enabled[i] != LIGHT_ENABLED)
 				continue;
 
-			cb_vs_property->Write(&dir_light_shadowMats[i]);
-			DX_DContext->VSSetConstantBuffers(0, 1, cb_vs_property->GetAddress());
+			cb_vs_shadow_property->Write(&VS_Shadow_Property(wMat*dir_light_shadowMats[i], vpMat));
+			DX_DContext->VSSetConstantBuffers(0, 1, cb_vs_shadow_property->GetAddress());
 			DX_DContext->PSSetConstantBuffers(0, 1, cb_ps_shadow_transparency->GetAddress());
 
 			shape->Apply();
-		}
+		}*/
 		for (int i = 0; i < LIGHT_MAX_EACH; ++i)
 		{
 			if (PointLight::Data()->enabled[i] != LIGHT_ENABLED)
 				continue;
 
-			cb_vs_property->Write(&pt_light_shadowMats[i]);
-			DX_DContext->VSSetConstantBuffers(0, 1, cb_vs_property->GetAddress());
+			cb_vs_shadow_property->Write(&VS_Shadow_Property(wMat*pt_light_shadowMats[i], vpMat));
+			DX_DContext->VSSetConstantBuffers(0, 1, cb_vs_shadow_property->GetAddress());
 			DX_DContext->PSSetConstantBuffers(0, 1, cb_ps_shadow_transparency->GetAddress());
 
 			shape->Apply();
