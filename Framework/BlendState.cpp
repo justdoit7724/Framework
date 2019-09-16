@@ -33,7 +33,7 @@ void BlendState::Modify(D3D11_BLEND_DESC * desc)
 	);
 }
 
-void BlendState::Apply()
+void BlendState::Apply() const
 {
 	float blendFactors[] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	DX_DContext->OMSetBlendState(state.Get(), blendFactors, 0xffffffff);

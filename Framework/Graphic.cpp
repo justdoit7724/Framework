@@ -49,16 +49,15 @@ Graphic::Graphic(HWND _hwnd)
 		&DX_DContext)
 	);
 
-	ComPtr<ID3D11Texture2D> backBuffer; 
 	r_assert(
 		swapchain->GetBuffer(
 			0, 
 			__uuidof(ID3D11Texture2D), 
-			reinterpret_cast<void**>(backBuffer.GetAddressOf()))
+			reinterpret_cast<void**>(&backBuffer))
 	); 
 	r_assert(
 		DX_Device->CreateRenderTargetView(
-			backBuffer.Get(), 
+			backBuffer, 
 			nullptr, 
 			rtv.GetAddressOf())
 	);
@@ -72,7 +71,7 @@ Graphic::Graphic(HWND _hwnd)
 	ds_desc.Height = SCREEN_HEIGHT;
 	ds_desc.MipLevels = 1;
 	ds_desc.ArraySize = 1;
-	ds_desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	ds_desc.Format = DXGI_FORMAT_R24G8_TYPELESS;
 	ds_desc.SampleDesc.Count = 1;
 	ds_desc.SampleDesc.Quality = 0;
 	ds_desc.Usage = D3D11_USAGE_DEFAULT;
@@ -80,18 +79,22 @@ Graphic::Graphic(HWND _hwnd)
 	ds_desc.CPUAccessFlags = 0;
 	ds_desc.MiscFlags = 0;
 
-	ComPtr<ID3D11Texture2D> depthStencilBuffer;
 	r_assert(
 		DX_Device->CreateTexture2D(
 			&ds_desc,
 			nullptr,
-			depthStencilBuffer.GetAddressOf())
+			&depthStencilBuffer)
 	);
 
+	D3D11_DEPTH_STENCIL_VIEW_DESC dsv_desc;
+	dsv_desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	dsv_desc.Flags = 0;
+	dsv_desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	dsv_desc.Texture2D.MipSlice = 0;
 	r_assert(
 		DX_Device->CreateDepthStencilView(
-			depthStencilBuffer.Get(),
-			nullptr,
+			depthStencilBuffer,
+			&dsv_desc,
 			dsView.GetAddressOf())
 	);
 	DX_DContext->OMSetRenderTargets(1, rtv.GetAddressOf(), dsView.Get());
@@ -123,6 +126,12 @@ Graphic::Graphic(HWND _hwnd)
 	DX_DContext->RSSetState(rasterizerState.Get());
 #pragma endregion
 
+}
+
+Graphic::~Graphic()
+{
+	backBuffer->Release();
+	depthStencilBuffer->Release();
 }
 
 void Graphic::Present()

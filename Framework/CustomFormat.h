@@ -45,12 +45,12 @@ struct VS_Property
 		n = XMMatrixTranspose(XMMatrixInverse(&XMMatrixDeterminant(world), world));
 	}
 };
-struct VS_Shadow_Property
+struct VS_Simple_Property
 {
 	XMMATRIX worldMat;
 	XMMATRIX vpMat;
 
-	VS_Shadow_Property(const XMMATRIX& w, const XMMATRIX& vp)
+	VS_Simple_Property(const XMMATRIX& w, const XMMATRIX& vp)
 		: worldMat(w), vpMat(vp){}
 };
 

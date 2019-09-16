@@ -46,7 +46,7 @@ protected:
 	std::unique_ptr<Buffer> cb_ps_material;
 	ComPtr<ID3D11ShaderResourceView> bodySRV;
 	ComPtr<ID3D11SamplerState> bodySameplerState;
-	BlendState* blendState;
+	BlendState * blendState;
 	DepthStencilState * dsState;
 
 	XMMATRIX dir_light_shadowMats[LIGHT_MAX_EACH];

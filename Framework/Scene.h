@@ -10,15 +10,18 @@ class DirectionalLight;
 class PointLight;
 class SpotLight;
 class UICanvas;
+class IGraphic;
 
 class Scene
 {
 public:
-	Scene();
+	Scene(IGraphic* graphic);
 	~Scene();
 
 	void Update();
 	void Render();
+
+	IGraphic *const graphic;
 
 private:
 
@@ -28,6 +31,7 @@ private:
 
 	std::vector<Object*> objs;
 
-	DirectionalLight* dLight;
+	DirectionalLight* dLight = nullptr;
+	PointLight* pLight=nullptr;
 };
 

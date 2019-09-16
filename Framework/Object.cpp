@@ -108,7 +108,7 @@ Object::Object(Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpe
 	dsState = new DepthStencilState();
 
 	shadow_Shader = new VPShader("ShadowVS.cso", "ShadowPS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
-	cb_vs_shadow_property = new Buffer(sizeof(VS_Shadow_Property));
+	cb_vs_shadow_property = new Buffer(sizeof(VS_Simple_Property));
 	cb_ps_shadow_transparency = new Buffer(sizeof(float));
 }
 
@@ -242,7 +242,7 @@ void Object::Render()
 			if (PointLight::Data()->enabled[i] != LIGHT_ENABLED)
 				continue;
 
-			cb_vs_shadow_property->Write(&VS_Shadow_Property(wMat*pt_light_shadowMats[i], vpMat));
+			cb_vs_shadow_property->Write(&VS_Simple_Property(wMat*pt_light_shadowMats[i], vpMat));
 			DX_DContext->VSSetConstantBuffers(0, 1, cb_vs_shadow_property->GetAddress());
 			DX_DContext->PSSetConstantBuffers(0, 1, cb_ps_shadow_transparency->GetAddress());
 

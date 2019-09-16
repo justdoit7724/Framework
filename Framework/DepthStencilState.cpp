@@ -41,7 +41,7 @@ void DepthStencilState::Modify(D3D11_DEPTH_STENCIL_DESC * desc)
 	);
 }
 
-void DepthStencilState::Apply()
+void DepthStencilState::Apply() const
 {
 	DX_DContext->OMSetDepthStencilState(state, refValue);
 }

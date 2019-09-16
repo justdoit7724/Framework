@@ -7,7 +7,7 @@ public:
 	BlendState(D3D11_BLEND_DESC * desc = nullptr);
 
 	void Modify(D3D11_BLEND_DESC* desc);
-	void Apply();
+	void Apply() const;
 
 
 private:
