@@ -150,14 +150,18 @@ void Scene::Render()
 
 	DX_DContext->CopyResource(copyTex->Get(), graphic->DepthStencilBuffer());
 
-	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-	srvDesc.Format = DXGI_FORMAT_X24_TYPELESS_G8_UINT;
-	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Texture2D.MipLevels = 1;
-	srvDesc.Texture2D.MostDetailedMip = 0;
-	r_assert(DX_Device->CreateShaderResourceView(copyTex->Get(), &srvDesc, &depthComplexSrv));
-	
-	canvas->AddDC("DC", XMFLOAT2(0, 0), 300, 300, 0, depthComplexSrv);
+	static bool done = false;
+	if (!done)
+	{
+		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+		srvDesc.Format = DXGI_FORMAT_X24_TYPELESS_G8_UINT;
+		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		srvDesc.Texture2D.MipLevels = 1;
+		srvDesc.Texture2D.MostDetailedMip = 0;
+		r_assert(DX_Device->CreateShaderResourceView(copyTex->Get(), &srvDesc, &depthComplexSrv));
+
+		canvas->AddDC("DC", XMFLOAT2(0, 0), 300, 300, 0, depthComplexSrv);
+	}
 
 	canvas->Update(Timer::SPF());
 	canvas->Render();

@@ -6,7 +6,6 @@ struct PS_INPUT
 };
 
 Texture2D<uint2> uiTexture : register(t0);
-SamplerState sampState : register(s0);
 
 float4 main(PS_INPUT input) : SV_Target
 {

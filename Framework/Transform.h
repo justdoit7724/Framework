@@ -36,6 +36,7 @@ public:
 	}
 
 private:
+
 	XMFLOAT3 pos = XMFLOAT3(0.0f,0.0f,0.0f);
 	XMFLOAT3 forward = FORWARD;
 	XMFLOAT3 right = RIGHT;
