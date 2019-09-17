@@ -167,7 +167,6 @@ void Debugging::Render(Camera* camera)
 {
 	XMMATRIX vpMat = camera->ViewMat() * camera->ProjMat(Z_ORDER_STANDARD);
 
-	shader->Apply();
 	blendState->Apply();
 	dsState->Apply();
 
@@ -175,10 +174,10 @@ void Debugging::Render(Camera* camera)
 
 	for (auto& mark : marks) {
 
-		cb_transformation->Write(&VS_Property(mark.second.transform->WorldMatrix(), vpMat, XMMatrixIdentity()));
-		DX_DContext->VSSetConstantBuffers(0, 1, cb_transformation->GetAddress());
-		cb_color->Write(&(mark.second.color));
-		DX_DContext->PSSetConstantBuffers(0, 1, cb_color->GetAddress());
+		vs->WriteCB(0,&VS_Property(mark.second.transform->WorldMatrix(), vpMat, XMMatrixIdentity()));
+		ps->WriteCB(0,&(mark.second.color));
+		vs->Apply();
+		ps->Apply();
 		mark.second.geom->Apply();
 	}
 #pragma endregion
@@ -199,10 +198,10 @@ void Debugging::Render(Camera* camera)
 		pVB[1].pos = l.second.p2;
 		DX_DContext->Unmap(lineVB->Get(), 0);
 		
-		cb_transformation->Write(&VS_Property(vpMat, XMMatrixIdentity()));
-		DX_DContext->VSSetConstantBuffers(0, 1, cb_transformation->GetAddress());
-		cb_color->Write(&(l.second.color));
-		DX_DContext->PSSetConstantBuffers(0, 1, cb_color->GetAddress());
+		vs->WriteCB(0,&VS_Property(vpMat, XMMatrixIdentity()));
+		ps->WriteCB(0,&(l.second.color));
+		vs->Apply();
+		ps->Apply();
 
 		UINT stride = sizeof(Vertex);
 		UINT offset = 0;
@@ -212,33 +211,33 @@ void Debugging::Render(Camera* camera)
 
 	if (gridVB)
 	{
-		cb_transformation->Write(&VS_Property(vpMat, XMMatrixIdentity()));
-		DX_DContext->VSSetConstantBuffers(0, 1, cb_transformation->GetAddress());
-		cb_color->Write((void*)(&(Colors::Red)));
-		DX_DContext->PSSetConstantBuffers(0, 1, cb_color->GetAddress());
+		vs->WriteCB(0,&VS_Property(vpMat, XMMatrixIdentity()));
+		ps->WriteCB(0,(void*)(&(Colors::Red)));
+		vs->Apply();
+		ps->Apply();
 		UINT stride = sizeof(Vertex);
 		UINT offset = 0;
 		DX_DContext->IASetVertexBuffers(0, 1, originVB->GetAddress(), &stride, &offset);
 		DX_DContext->Draw(2, 0);
 
-		cb_transformation->Write(&VS_Property(vpMat, XMMatrixIdentity()));
-		DX_DContext->VSSetConstantBuffers(0, 1, cb_transformation->GetAddress());
-		cb_color->Write((void*)(&(Colors::Green)));
-		DX_DContext->PSSetConstantBuffers(0, 1, cb_color->GetAddress());
+		vs->WriteCB(0,&VS_Property(vpMat, XMMatrixIdentity()));
+		ps->WriteCB(0,(void*)(&(Colors::Green)));
+		vs->Apply();
+		ps->Apply();
 		DX_DContext->IASetVertexBuffers(0, 1, originVB->GetAddress(), &stride, &offset);
 		DX_DContext->Draw(2, 2);
 
-		cb_transformation->Write(&VS_Property(vpMat, XMMatrixIdentity()));
-		DX_DContext->VSSetConstantBuffers(0, 1, cb_transformation->GetAddress());
-		cb_color->Write((void*)(&(Colors::Blue)));
-		DX_DContext->PSSetConstantBuffers(0, 1, cb_color->GetAddress());
+		vs->WriteCB(0,&VS_Property(vpMat, XMMatrixIdentity()));
+		ps->WriteCB(0,(void*)(&(Colors::Blue)));
+		vs->Apply();
+		ps->Apply();
 		DX_DContext->IASetVertexBuffers(0, 1, originVB->GetAddress(), &stride, &offset);
 		DX_DContext->Draw(2, 4);
 
-		cb_transformation->Write(&VS_Property(vpMat, XMMatrixIdentity()));
-		DX_DContext->VSSetConstantBuffers(0, 1, cb_transformation->GetAddress());
-		cb_color->Write((void*)(&(Colors::Gray)));
-		DX_DContext->PSSetConstantBuffers(0, 1, cb_color->GetAddress());
+		vs->WriteCB(0,&VS_Property(vpMat, XMMatrixIdentity()));
+		ps->WriteCB(0,(void*)(&(Colors::Gray)));
+		vs->Apply();
+		ps->Apply();
 		DX_DContext->IASetVertexBuffers(0, 1, gridVB->GetAddress(), &stride, &offset);
 		DX_DContext->Draw(gridVerticeCount, 0);
 	}
@@ -283,9 +282,10 @@ void Debugging::Render(Camera* camera)
 
 Debugging::Debugging()
 {
-	shader = new VPShader("MarkVS.cso", "MarkPS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
-	cb_transformation = new Buffer(sizeof(VS_Property));
-	cb_color = new Buffer(sizeof(XMVECTOR));
+	vs = new VShader("MarkVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
+	ps = new PShader("MarkPS.cso");
+	vs->AddCB(0, 1, sizeof(VS_Property));
+	ps->AddCB(0, 1, sizeof(XMVECTOR));
 
 	blendState = new BlendState();
 	dsState = new DepthStencilState();
@@ -307,9 +307,8 @@ Debugging::Debugging()
 
 Debugging::~Debugging()
 {
-	delete shader;
-	delete cb_transformation;
-	delete cb_color;
+	delete vs;
+	delete ps;
 	delete blendState;
 	delete dsState;
 

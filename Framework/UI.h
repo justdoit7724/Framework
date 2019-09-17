@@ -5,8 +5,8 @@
 
 class Transform;
 class Quad;
-class Buffer;
-class VPShader;
+class VShader;
+class PShader;
 class DepthStencilState;
 class BlendState;
 
@@ -27,26 +27,23 @@ private:
 	void UpdateDC(float spf, const XMMATRIX& vpMat, const XMMATRIX& texMat);
 	void Update(float spf, const XMMATRIX& vpMat, const XMMATRIX& texMat);
 
-	//delete
-	void RenderDC();
 	void Render();
 
 	Transform* transform;
 	Quad* quad;
-	std::unique_ptr<Buffer> cb_vs_property;
-	std::unique_ptr<Buffer> cb_ps_sliceIdx;
-	ID3D11ShaderResourceView *const srv;
 	float curTime=0;
 	const int maxSliceIdx;
 	const float secPerSlice;
 	int curSliceIdx = 0;
-	VPShader* shader;
+	VShader* vs;
+	PShader* ps;
 	DepthStencilState* dsState;
 	BlendState* blendState;
-	ID3D11SamplerState* texSampState;
+	ID3D11SamplerState* texSampState=nullptr;
 
 public:
-	VPShader* GetShader(){return shader;}
+	VShader* GetVS(){return vs;}
+	PShader* GetPS(){return ps;}
 	DepthStencilState* GetDSState(){return dsState;}
 	BlendState* GetBlendState(){return blendState;}
 };

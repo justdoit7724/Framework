@@ -1,26 +1,84 @@
 #pragma once
+#include <unordered_map>
 #include "Component.h"
 
-class VPShader : public Component
+
+class Buffer;
+
+class Shader : public Component
 {
 public:
-	VPShader(std::string VSfileName, std::string PSfileName, const D3D11_INPUT_ELEMENT_DESC* layoutDesc, int layoutNum);
+	~Shader();
+	void AddCB(UINT slot, UINT arrayNum, UINT byteSize);
+	void AddSRV(UINT slot, UINT arrayNum, ID3D11ShaderResourceView* srv);
+	void AddSamp(UINT slot, UINT arrayNum, D3D11_SAMPLER_DESC* desc);
+	void WriteCB(UINT slot, void* data);
+	virtual void Apply()=0;
+	//TODO - remove
+protected:
+	struct BindingCB 
+	{
+		Buffer* data;
+		UINT arrayNum;
+		BindingCB()
+			:data(nullptr),arrayNum(0){}
+		BindingCB(Buffer* data, UINT arrayNum)
+			:data(data), arrayNum(arrayNum){}
+	};
+	struct BindingSRV
+	{
+		ID3D11ShaderResourceView* data;
+		UINT arrayNum;
+		BindingSRV() 
+			:data(nullptr),arrayNum(0){}
+		BindingSRV(ID3D11ShaderResourceView* data, UINT arrayNum)
+			:data(data), arrayNum(arrayNum) {}
+	};
+	struct BindingSamp
+	{
+		ID3D11SamplerState* data;
+		UINT arrayNum;
+		BindingSamp()
+			:data(nullptr), arrayNum(0){}
+		BindingSamp(ID3D11SamplerState* data, UINT arrayNum)
+			:data(data), arrayNum(arrayNum) {}
+	};
 
-	void Apply();
+	std::unordered_map<UINT, BindingCB> cbs;
+	std::unordered_map<UINT, BindingSRV> srvs;
+	std::unordered_map<UINT, BindingSamp> samps;
+};
+
+class VShader : public Shader
+{
+public:
+	VShader(std::string fileName, const D3D11_INPUT_ELEMENT_DESC* layoutDesc, int layoutNum);
+
+	void Apply()override;
 
 private:
 	ComPtr<ID3D11InputLayout> iLayout = nullptr;
 	ComPtr<ID3D11VertexShader> vs = nullptr;
+};
+
+class PShader : public Shader
+{
+public:
+	PShader(std::string fileName);
+
+	void Apply()override;
+
+private:
 	ComPtr<ID3D11PixelShader> ps = nullptr;
 };
 
 
-class CShader : public Component
+class CShader : public Shader
 {
 public:
 	CShader(const std::string CSfileName);
 
-	void Apply();
+	void Apply()override;
 
 private:
 	ComPtr<ID3D11ComputeShader> cs = nullptr;

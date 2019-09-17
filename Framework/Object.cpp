@@ -1,6 +1,7 @@
 #include "Object.h"
 #include "TextureMgr.h"
 #include "Light.h"
+#include "Shader.h"
 
 int CalculateMaxMiplevel(int width, int height)
 {
@@ -21,15 +22,16 @@ Object::Object(Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpe
 {
 	transform = new Transform();
 
-	shader = new VPShader("StandardVS.cso", "StandardPS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
+	vs = new VShader("StandardVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
+	ps = new PShader("StandardPS.cso");
 
-	cb_vs_property.reset(new Buffer(sizeof(VS_Property)));
-	cb_ps_dLights.reset(new Buffer(sizeof(SHADER_DIRECTIONAL_LIGHT)));
-	cb_ps_pLights.reset(new Buffer(sizeof(SHADER_POINT_LIGHT)));
-	cb_ps_sLights.reset(new Buffer(sizeof(SHADER_SPOT_LIGHT)));
-	cb_ps_eyePos.reset(new Buffer(sizeof(XMFLOAT3)));
-	cb_ps_material.reset(new Buffer(sizeof(ShaderMaterial)));
-
+	vs->AddCB(0, 1, sizeof(VS_Property));
+	ps->AddCB(0, 1, sizeof(SHADER_DIRECTIONAL_LIGHT));
+	ps->AddCB(1, 1, sizeof(SHADER_POINT_LIGHT));
+	ps->AddCB(2, 1, sizeof(SHADER_SPOT_LIGHT));
+	ps->AddCB(3, 1, sizeof(XMFLOAT3));
+	ps->AddCB(4, 1, sizeof(ShaderMaterial));
+	
 	material = new ShaderMaterial(mDiffuse, 1, mAmbient, mSpec, sP, r);
 
 	D3D11_SAMPLER_DESC samplerDesc;
@@ -41,9 +43,8 @@ Object::Object(Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpe
 	samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
 	samplerDesc.MinLOD = 0;
 	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
-	r_assert(
-		DX_Device->CreateSamplerState(&samplerDesc, &bodySameplerState)
-	);
+	ps->AddSamp(0, 1, &samplerDesc);
+
 
 	if (mipmap)
 	{
@@ -97,34 +98,37 @@ Object::Object(Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpe
 		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Texture2D.MipLevels = texDesc.MipLevels;
 		srvDesc.Texture2D.MostDetailedMip = 0;
-		r_assert(DX_Device->CreateShaderResourceView(mipmapTexture.Get(), &srvDesc, bodySRV.GetAddressOf()));
-		DX_DContext->GenerateMips(bodySRV.Get());
+		ID3D11ShaderResourceView* bodySrv = nullptr;
+		r_assert(DX_Device->CreateShaderResourceView(mipmapTexture.Get(), &srvDesc, &bodySrv));
+		DX_DContext->GenerateMips(bodySrv);
+		ps->AddSRV(0, 1, bodySrv);
 	}
 	else {
-		bodySRV = TextureMgr::Instance()->Get(imageName);
+		ps->AddSRV(0, 1, TextureMgr::Instance()->Get(imageName));
 	}
 
 	blendState = new BlendState();
 	dsState = new DepthStencilState();
 
-	shadow_Shader = new VPShader("ShadowVS.cso", "ShadowPS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
-	cb_vs_shadow_property = new Buffer(sizeof(VS_Simple_Property));
-	cb_ps_shadow_transparency = new Buffer(sizeof(float));
+	shadow_vs = new VShader("ShadowVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
+	shadow_ps = new PShader("ShadowPS.cso");
+	shadow_vs->AddCB(0, 1, sizeof(VS_Simple_Property));
+	shadow_ps->AddCB(0, 1, sizeof(float));
 }
 
 Object::~Object()
 {
 	delete transform;
 	delete shape;
-	delete shader;
+	delete vs;
+	delete ps;
 	delete material;
 
 	delete dsState;
 	delete blendState;
 
-	delete shadow_Shader;
-	delete cb_vs_shadow_property;
-	delete cb_ps_shadow_transparency;
+	delete shadow_vs;
+	delete shadow_ps;
 }
 
 void Object::EnableShadow(XMFLOAT3 shadowPlaneN, float shadowPlaneDist, float shadowTransparency)
@@ -132,7 +136,7 @@ void Object::EnableShadow(XMFLOAT3 shadowPlaneN, float shadowPlaneDist, float sh
 	isShadow = true;
 	this->shadowPlaneDist = shadowPlaneDist;
 	this->shadowPlaneNormal = shadowPlaneN;
-	cb_ps_shadow_transparency->Write(&shadowTransparency);
+	shadow_ps->WriteCB(0,&shadowTransparency);
 }
 
 
@@ -141,12 +145,12 @@ void Object::Update(Camera* camera, const SHADER_DIRECTIONAL_LIGHT* dLight, cons
 	vpMat = camera->ViewMat()*camera->ProjMat(zOrder);
 	XMMATRIX wMat = transform->WorldMatrix();
 
-	cb_vs_property->Write(&VS_Property(wMat, vpMat, texMat));
-	cb_ps_dLights->Write((void*)dLight);
-	cb_ps_pLights->Write((void*)pLight);
-	cb_ps_sLights->Write((void*)sLight);
-	cb_ps_eyePos->Write(&(camera->Pos()));
-	cb_ps_material->Write(material);
+	vs->WriteCB(0,&VS_Property(wMat, vpMat, texMat));
+	ps->WriteCB(0, (void*)dLight);
+	ps->WriteCB(1, (void*)pLight);
+	ps->WriteCB(2, (void*)sLight);
+	ps->WriteCB(3, &(camera->Pos()));
+	ps->WriteCB(4, material);
 
 	if (isShadow)
 	{
@@ -195,25 +199,8 @@ void Object::Update(Camera* camera, const SHADER_DIRECTIONAL_LIGHT* dLight, cons
 
 void Object::Render()
 {
-	shader->Apply();
-
-	// TRANSFORM
-	DX_DContext->VSSetConstantBuffers(0, 1, cb_vs_property->GetAddress());
-
-	// LIGHTS
-	DX_DContext->PSSetConstantBuffers(0, 1, cb_ps_dLights->GetAddress());
-	DX_DContext->PSSetConstantBuffers(1, 1, cb_ps_pLights->GetAddress());
-	DX_DContext->PSSetConstantBuffers(2, 1, cb_ps_sLights->GetAddress());
-
-	// EYE
-	DX_DContext->PSSetConstantBuffers(3, 1, cb_ps_eyePos->GetAddress());
-
-	// MATERIAL
-	DX_DContext->PSSetConstantBuffers(4, 1, cb_ps_material->GetAddress());
-
-	// TEXTURE
-	DX_DContext->PSSetShaderResources(0, 1, bodySRV.GetAddressOf());
-	DX_DContext->PSSetSamplers(0, 1, bodySameplerState.GetAddressOf());
+	vs->Apply();
+	ps->Apply();
 
 	// STATE
 	dsState->Apply();
@@ -222,29 +209,27 @@ void Object::Render()
 
 	if (isShadow)
 	{
-		shadow_Shader->Apply();
-
 		XMMATRIX wMat = transform->WorldMatrix();
 		
-		/*for (int i = 0; i < LIGHT_MAX_EACH; ++i)
+		for (int i = 0; i < LIGHT_MAX_EACH; ++i)
 		{
 			if (DirectionalLight::Data()->enabled[i] != LIGHT_ENABLED)
 				continue;
 
-			cb_vs_shadow_property->Write(&VS_Shadow_Property(wMat*dir_light_shadowMats[i], vpMat));
-			DX_DContext->VSSetConstantBuffers(0, 1, cb_vs_shadow_property->GetAddress());
-			DX_DContext->PSSetConstantBuffers(0, 1, cb_ps_shadow_transparency->GetAddress());
+			shadow_vs->WriteCB(0,&VS_Simple_Property(wMat*dir_light_shadowMats[i], vpMat));
+			shadow_vs->Apply();
+			shadow_ps->Apply();
 
 			shape->Apply();
-		}*/
+		}
 		for (int i = 0; i < LIGHT_MAX_EACH; ++i)
 		{
 			if (PointLight::Data()->enabled[i] != LIGHT_ENABLED)
 				continue;
 
-			cb_vs_shadow_property->Write(&VS_Simple_Property(wMat*pt_light_shadowMats[i], vpMat));
-			DX_DContext->VSSetConstantBuffers(0, 1, cb_vs_shadow_property->GetAddress());
-			DX_DContext->PSSetConstantBuffers(0, 1, cb_ps_shadow_transparency->GetAddress());
+			shadow_vs->WriteCB(0,&VS_Simple_Property(wMat*pt_light_shadowMats[i], vpMat));
+			shadow_vs->Apply();
+			shadow_ps->Apply();
 
 			shape->Apply();
 		}

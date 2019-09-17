@@ -5,11 +5,11 @@
 #include "DepthStencilState.h"
 #include "BlendState.h"
 #include "CustomFormat.h"
-#include "Shader.h"
 #include "Shape.h"
-#include "Buffer.h"
 
 class Shape;
+class VShader;
+class PShader;
 
 class Object
 {
@@ -34,18 +34,11 @@ protected:
 
 	Transform* transform;
 	Shape* shape;
-	VPShader* shader;
+	VShader* vs;
+	PShader* ps;
 	ShaderMaterial* material;
 	XMMATRIX worldMat;
 	XMMATRIX nMat;
-	std::unique_ptr<Buffer> cb_vs_property;
-	std::unique_ptr<Buffer> cb_ps_dLights;
-	std::unique_ptr<Buffer> cb_ps_pLights;
-	std::unique_ptr<Buffer> cb_ps_sLights;
-	std::unique_ptr<Buffer> cb_ps_eyePos;
-	std::unique_ptr<Buffer> cb_ps_material;
-	ComPtr<ID3D11ShaderResourceView> bodySRV;
-	ComPtr<ID3D11SamplerState> bodySameplerState;
 	BlendState * blendState;
 	DepthStencilState * dsState;
 
@@ -54,9 +47,8 @@ protected:
 	bool isShadow;
 	XMFLOAT3 shadowPlaneNormal;
 	float shadowPlaneDist;
-	VPShader* shadow_Shader;
-	Buffer* cb_vs_shadow_property;
-	Buffer* cb_ps_shadow_transparency;
+	VShader* shadow_vs;
+	PShader* shadow_ps;
 	XMMATRIX vpMat;
 };
 
