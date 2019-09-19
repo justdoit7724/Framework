@@ -20,8 +20,9 @@
 #include "Texture2D.h"
 #include "Buffer.h"
 
-//delete 
-Texture2D* copyTex;
+#include "Billboard.h"
+
+Billboard* bb;
 
 Scene::Scene(IGraphic* graphic)
 	:graphic(graphic)
@@ -71,19 +72,10 @@ Scene::Scene(IGraphic* graphic)
 
 	objs.push_back(wall);
 
-	D3D11_TEXTURE2D_DESC desc;
-	desc.ArraySize = 1;
-	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-	desc.CPUAccessFlags = 0;
-	desc.Format = DXGI_FORMAT_X24_TYPELESS_G8_UINT;
-	desc.Width = SCREEN_WIDTH;
-	desc.Height = SCREEN_HEIGHT;
-	desc.MipLevels = 1;
-	desc.MiscFlags = 0;
-	desc.SampleDesc.Count = 1;
-	desc.SampleDesc.Quality = 0;
-	desc.Usage = D3D11_USAGE_DEFAULT;
-	copyTex = new Texture2D(&desc);
+	bb = new Billboard(TextureMgr::Instance()->Get("sample.jpg"));
+	bb->Add(XMFLOAT3(200, 200, 100));
+	bb->Add(XMFLOAT3(-50, -50, 50));
+	bb->Add(XMFLOAT3(-60, 150, 50));
 }
 
 Scene::~Scene()
@@ -131,12 +123,14 @@ void Scene::Update()
 
 	
 	
+	canvas->Update(Timer::SPF());
 
 	for (auto obj : objs)
 	{
 		obj->Update(camera, DirectionalLight::Data(), PointLight::Data(), SpotLight::Data(), XMMatrixIdentity());
 	}
 
+	bb->Update(&(camera->VPMat(2)), camera->Pos());
 }
 
 void Scene::Render()
@@ -148,22 +142,8 @@ void Scene::Render()
 		obj->Render();
 	}
 
-	DX_DContext->CopyResource(copyTex->Get(), graphic->DepthStencilBuffer());
-
-	static bool done = false;
-	if (!done)
-	{
-		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-		srvDesc.Format = DXGI_FORMAT_X24_TYPELESS_G8_UINT;
-		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-		srvDesc.Texture2D.MipLevels = 1;
-		srvDesc.Texture2D.MostDetailedMip = 0;
-		r_assert(DX_Device->CreateShaderResourceView(copyTex->Get(), &srvDesc, &depthComplexSrv));
-
-		canvas->AddDC("DC", XMFLOAT2(0, 0), 300, 300, 0, depthComplexSrv);
-	}
-
-	canvas->Update(Timer::SPF());
 	canvas->Render();
+
+	bb->Render();
 
 }

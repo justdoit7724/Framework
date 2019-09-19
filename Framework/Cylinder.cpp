@@ -105,7 +105,7 @@ Cylinder::Cylinder(const float height, const float rad, const int sliceCount)
 	}
 #pragma endregion
 
-	Init(vertice.data(), vertice.size(), indice.data(), indice.size());
+	Init(vertice.data(), sizeof(Vertex), vertice.size(), indice.data(), indice.size(), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 

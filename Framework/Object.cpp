@@ -4,6 +4,10 @@
 #include "Shader.h"
 #include "Camera.h"
 
+Object::Object()
+{
+}
+
 Object::Object(Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpec, float sP, XMFLOAT3 r, ID3D11ShaderResourceView* bodyTex, int zOrder)
 	: zOrder(zOrder), shape(shape)
 {
@@ -58,12 +62,12 @@ Object::~Object()
 	delete shadow_ps;
 }
 
-void Object::EnableShadow(XMFLOAT3 shadowPlaneN, float shadowPlaneDist, float shadowTransparency)
+void Object::EnableShadow(XMFLOAT3 shadowPlaneN, float _shadowPlaneDist, float _shadowTransparency)
 {
 	isShadow = true;
-	this->shadowPlaneDist = shadowPlaneDist;
-	this->shadowPlaneNormal = shadowPlaneN;
-	shadow_ps->WriteCB(0,&shadowTransparency);
+	shadowPlaneDist = _shadowPlaneDist;
+	shadowPlaneNormal = shadowPlaneN;
+	shadow_ps->WriteCB(0,&_shadowTransparency);
 }
 
 
@@ -80,7 +84,7 @@ void Object::Update(Camera* camera, const SHADER_DIRECTIONAL_LIGHT* dLight, cons
 
 	if (isShadow)
 	{
-		/*for (int i = 0; i < LIGHT_MAX_EACH; ++i)
+		for (int i = 0; i < LIGHT_MAX_EACH; ++i)
 		{
 			if (DirectionalLight::Data()->enabled[i] != LIGHT_ENABLED)
 				continue;
@@ -98,7 +102,7 @@ void Object::Update(Camera* camera, const SHADER_DIRECTIONAL_LIGHT* dLight, cons
 				-l.x*n.z, -l.y*n.z, nl - l.z*n.z, 0,
 				l.x*d, l.y*d, l.z*d, nl
 			);
-		}*/
+		}
 		for (int i = 0; i < LIGHT_MAX_EACH; ++i)
 		{
 			if (PointLight::Data()->enabled[i] != LIGHT_ENABLED)

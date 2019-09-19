@@ -71,6 +71,7 @@ Graphic::Graphic(HWND _hwnd)
 	ds_desc.Height = SCREEN_HEIGHT;
 	ds_desc.MipLevels = 1;
 	ds_desc.ArraySize = 1;
+	// TYPELESS instead of UNORM for copying data
 	ds_desc.Format = DXGI_FORMAT_R24G8_TYPELESS;
 	ds_desc.SampleDesc.Count = 1;
 	ds_desc.SampleDesc.Quality = 0;

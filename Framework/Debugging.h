@@ -10,6 +10,7 @@
 class Transform;
 class Shape;
 class VShader;
+class GShader;
 class PShader;
 class Camera;
 class Buffer;
@@ -89,6 +90,7 @@ private:
 	Buffer* originVB=nullptr;
 	UINT gridVerticeCount;
 	VShader* vs;
+	GShader* gs;
 	PShader* ps;
 	DepthStencilState* dsState;
 	BlendState* blendState;

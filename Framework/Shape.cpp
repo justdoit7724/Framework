@@ -5,15 +5,26 @@ Shape::Shape()
 {
 }
 
-void Shape::Init(const Vertex* vertice, const int vertexCount, const UINT* indice, const int idxCount)
+void Shape::Init(void* vertice, UINT _vertexByteSize, UINT vertexCount, void* indice, UINT _idxCount, D3D_PRIMITIVE_TOPOLOGY _primitiveType)
 {
-	indexCount = idxCount;
+	indexCount = _idxCount;
+	vertByteSize = _vertexByteSize;
+	primitiveType = _primitiveType;
+
+	if (vertexBuffer)
+	{
+		vertexBuffer->Release();
+	}
+	if (indexBuffer)
+	{
+		indexBuffer->Release();
+	}
 
 	D3D11_BUFFER_DESC vb_desc;
 	ZeroMemory(&vb_desc, sizeof(D3D11_BUFFER_DESC));
 	vb_desc.Usage = D3D11_USAGE_IMMUTABLE;
 	vb_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vb_desc.ByteWidth = sizeof(Vertex) * vertexCount;
+	vb_desc.ByteWidth = vertByteSize * vertexCount;
 	vb_desc.CPUAccessFlags = 0;
 	vb_desc.MiscFlags = 0;
 	vb_desc.StructureByteStride = 0;
@@ -42,10 +53,9 @@ void Shape::Init(const Vertex* vertice, const int vertexCount, const UINT* indic
 
 void Shape::Apply()
 {
-	DX_DContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	UINT stride = sizeof(Vertex);
+	DX_DContext->IASetPrimitiveTopology(primitiveType);
 	UINT offset = 0;
-	DX_DContext->IASetVertexBuffers(0, 1, vertexBuffer.GetAddressOf(), &stride, &offset);
+	DX_DContext->IASetVertexBuffers(0, 1, vertexBuffer.GetAddressOf(), &vertByteSize, &offset);
 	DX_DContext->IASetIndexBuffer(indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 
 	DX_DContext->DrawIndexed(indexCount, 0, 0);

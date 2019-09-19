@@ -167,6 +167,7 @@ void Debugging::Render(Camera* camera)
 {
 	XMMATRIX vpMat = camera->ViewMat() * camera->ProjMat(Z_ORDER_STANDARD);
 
+	gs->Apply();
 	blendState->Apply();
 	dsState->Apply();
 
@@ -283,6 +284,7 @@ void Debugging::Render(Camera* camera)
 Debugging::Debugging()
 {
 	vs = new VShader("MarkVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
+	gs = new GShader();
 	ps = new PShader("MarkPS.cso");
 	vs->AddCB(0, 1, sizeof(VS_Property));
 	ps->AddCB(0, 1, sizeof(XMVECTOR));
@@ -308,6 +310,7 @@ Debugging::Debugging()
 Debugging::~Debugging()
 {
 	delete vs;
+	delete gs;
 	delete ps;
 	delete blendState;
 	delete dsState;

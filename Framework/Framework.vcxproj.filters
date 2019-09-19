@@ -28,6 +28,12 @@
     <Filter Include="Object">
       <UniqueIdentifier>{9bc5bc3c-dcc3-4d0f-994d-928c238c51ac}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Components\Shape">
+      <UniqueIdentifier>{aa4a1df1-a7c5-479f-bd82-bb00d71d8704}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tasks">
+      <UniqueIdentifier>{77fc1271-0aff-4c42-9baf-3758555cab9c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Debugging.cpp">
@@ -57,28 +63,10 @@
     <ClCompile Include="Medium.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Cube.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Cylinder.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Hill.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Light.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Quad.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Shape.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Sphere.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TextureMgr.cpp">
@@ -113,6 +101,30 @@
     </ClCompile>
     <ClCompile Include="Object.cpp">
       <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Cube.cpp">
+      <Filter>Components\Shape</Filter>
+    </ClCompile>
+    <ClCompile Include="Cylinder.cpp">
+      <Filter>Components\Shape</Filter>
+    </ClCompile>
+    <ClCompile Include="Hill.cpp">
+      <Filter>Components\Shape</Filter>
+    </ClCompile>
+    <ClCompile Include="Quad.cpp">
+      <Filter>Components\Shape</Filter>
+    </ClCompile>
+    <ClCompile Include="Sphere.cpp">
+      <Filter>Components\Shape</Filter>
+    </ClCompile>
+    <ClCompile Include="Shape.cpp">
+      <Filter>Components\Shape</Filter>
+    </ClCompile>
+    <ClCompile Include="DepthComplexity.cpp">
+      <Filter>Tasks</Filter>
+    </ClCompile>
+    <ClCompile Include="Billboard.cpp">
+      <Filter>Tasks</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -158,28 +170,10 @@
     <ClInclude Include="Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Cube.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Cylinder.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Hill.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Light.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Quad.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Shape.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Sphere.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TextureMgr.h">
@@ -215,6 +209,30 @@
     <ClInclude Include="Object.h">
       <Filter>Object</Filter>
     </ClInclude>
+    <ClInclude Include="Shape.h">
+      <Filter>Components\Shape</Filter>
+    </ClInclude>
+    <ClInclude Include="Sphere.h">
+      <Filter>Components\Shape</Filter>
+    </ClInclude>
+    <ClInclude Include="Hill.h">
+      <Filter>Components\Shape</Filter>
+    </ClInclude>
+    <ClInclude Include="Cube.h">
+      <Filter>Components\Shape</Filter>
+    </ClInclude>
+    <ClInclude Include="Cylinder.h">
+      <Filter>Components\Shape</Filter>
+    </ClInclude>
+    <ClInclude Include="Quad.h">
+      <Filter>Components\Shape</Filter>
+    </ClInclude>
+    <ClInclude Include="DepthComplexity.h">
+      <Filter>Tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="Billboard.h">
+      <Filter>Tasks</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ShaderInfo.cginc">
@@ -249,11 +267,20 @@
     <FxCompile Include="ShadowPS.hlsl">
       <Filter>hlsl</Filter>
     </FxCompile>
-    <FxCompile Include="DepthComplexUIPS.hlsl">
-      <Filter>hlsl</Filter>
-    </FxCompile>
     <FxCompile Include="GS.hlsl">
       <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="BillboardVS.hlsl">
+      <Filter>Tasks</Filter>
+    </FxCompile>
+    <FxCompile Include="BillboardGS.hlsl">
+      <Filter>Tasks</Filter>
+    </FxCompile>
+    <FxCompile Include="BillboardPS.hlsl">
+      <Filter>Tasks</Filter>
+    </FxCompile>
+    <FxCompile Include="DepthComplexUIPS.hlsl">
+      <Filter>Tasks</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

@@ -7,15 +7,15 @@ struct Vertex;
 class Shape : public Component
 {
 public:
+	Shape();
 	virtual void Apply();
+	void Init(void* vertice, UINT vertByteSize, UINT vertexCount, void* indice, UINT idxCount, D3D_PRIMITIVE_TOPOLOGY primitiveType);
 
 protected:
-	Shape();
-	void Init(const Vertex* vertice, const int vertexCount, const UINT* indice, const int idxCount);
-
-private:
-	ComPtr<ID3D11Buffer> vertexBuffer;
-	ComPtr<ID3D11Buffer> indexBuffer;
-	int indexCount;
+	ComPtr<ID3D11Buffer> vertexBuffer=nullptr;
+	ComPtr<ID3D11Buffer> indexBuffer=nullptr;
+	UINT indexCount;
+	UINT vertByteSize;
+	D3D_PRIMITIVE_TOPOLOGY primitiveType;
 };
 

@@ -104,7 +104,7 @@ Sphere::Sphere(int numSubDivision)
 		vertice2.emplace_back(pos, n, tex);
 	}
 
-	Init(vertice2.data(), vertice2.size(), indice.data(), indice.size());
+	Init(vertice2.data(), sizeof(Vertex), vertice2.size(), indice.data(), indice.size(), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 
