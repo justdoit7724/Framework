@@ -20,6 +20,13 @@ Texture2D::Texture2D(D3D11_TEXTURE2D_DESC * desc, void * data, UINT typeByteSize
 	);
 }
 
+
+void Texture2D::Mipmapping()
+{
+	assert(srv);
+	DX_DContext->GenerateMips(srv.Get());
+}
+
 void Texture2D::SetupSRV(D3D11_SHADER_RESOURCE_VIEW_DESC * srvDesc)
 {
 	if (srv)

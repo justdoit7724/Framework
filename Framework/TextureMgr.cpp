@@ -14,25 +14,87 @@ TextureMgr::~TextureMgr()
 	}
 }
 
-
-void TextureMgr::Load(std::string fileName)
+int CalculateMaxMiplevel(int width, int height)
 {
-	if (SRVs.find(fileName) == SRVs.end())
+	return log2(max(width, height));
+}
+void TextureMgr::Load(std::string fileName, bool mipmap)
+{
+	assert(SRVs.find(fileName) == SRVs.end());
+
+	ID3D11ShaderResourceView* newSRV = nullptr;
+	ComPtr<ID3D11Resource> newResource = nullptr;
+
+	std::wstring wFileName = std::wstring(fileName.begin(), fileName.end());
+
+	r_assert(
+		DirectX::CreateWICTextureFromFile(
+			DX_Device,
+			(L"Data\\Texture\\" + wFileName).c_str(),
+			newResource.GetAddressOf(),
+			&newSRV)
+	);
+	
+
+	
+	if (mipmap)
 	{
-		ID3D11ShaderResourceView* newSRV = nullptr;
-
-		std::wstring wFileName = std::wstring(fileName.begin(), fileName.end());
-
+		ComPtr<ID3D11Texture2D> oriTex = nullptr;
 		r_assert(
-			DirectX::CreateWICTextureFromFile(
-				DX_Device,
-				(L"Data\\Texture\\" + wFileName).c_str(),
-				nullptr,
-				&newSRV)
+			newResource->QueryInterface(IID_ID3D11Texture2D, (void**)oriTex.GetAddressOf())
 		);
 
-		SRVs.insert(std::pair<std::string, ID3D11ShaderResourceView*>(fileName, newSRV));
+		D3D11_TEXTURE2D_DESC ori_desc;
+		oriTex->GetDesc(&ori_desc);
+
+		ComPtr<ID3D11Texture2D> mipmapTexture = nullptr;
+		D3D11_TEXTURE2D_DESC mm_desc = ori_desc;
+		mm_desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+		mm_desc.MipLevels = CalculateMaxMiplevel(ori_desc.Width, ori_desc.Height);
+		mm_desc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
+		mm_desc.Usage = D3D11_USAGE_DEFAULT;
+		mm_desc.SampleDesc = { 1,0 };
+		r_assert(DX_Device->CreateTexture2D(&mm_desc, nullptr, mipmapTexture.GetAddressOf()));
+
+		ComPtr<ID3D11Texture2D> stagTex;
+		D3D11_TEXTURE2D_DESC stagDesc = ori_desc;
+		stagDesc.ArraySize = 1;
+		stagDesc.BindFlags = 0;
+		stagDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+		stagDesc.Format = ori_desc.Format;
+		stagDesc.Width = ori_desc.Width;
+		stagDesc.Height = ori_desc.Height;
+		stagDesc.MipLevels = 1;
+		stagDesc.MiscFlags = 0;
+		stagDesc.Usage = D3D11_USAGE_STAGING;
+		stagDesc.SampleDesc = { 1,0 };
+		r_assert(DX_Device->CreateTexture2D(&stagDesc, nullptr, &stagTex));
+
+		// use staging texture to read and paste image
+		// because for copying, we should match miplevels between dest and src
+		DX_DContext->CopyResource(stagTex.Get(), oriTex.Get());
+
+		D3D11_MAPPED_SUBRESOURCE mapped;
+		r_assert(DX_DContext->Map(stagTex.Get(), 0, D3D11_MAP_READ, 0, &mapped));
+		// use 'UINT' because format of images from file is one of 8888
+		UINT* arr = new UINT[(mapped.RowPitch / sizeof(UINT)) * ori_desc.Height];
+		ZeroMemory(arr, mapped.RowPitch * ori_desc.Height);
+		CopyMemory(arr, mapped.pData, mapped.RowPitch * ori_desc.Height);
+		DX_DContext->Unmap(stagTex.Get(), 0);
+
+		DX_DContext->UpdateSubresource(mipmapTexture.Get(), 0, &CD3D11_BOX(0, 0, 0, ori_desc.Width, ori_desc.Height, 1), arr, mapped.RowPitch, mapped.DepthPitch);
+		delete[] arr;
+
+		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+		srvDesc.Format = ori_desc.Format;
+		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		srvDesc.Texture2D.MipLevels = mm_desc.MipLevels;
+		srvDesc.Texture2D.MostDetailedMip = 0;
+		r_assert(DX_Device->CreateShaderResourceView(mipmapTexture.Get(), &srvDesc, &newSRV));
+		DX_DContext->GenerateMips(newSRV);
 	}
+
+	SRVs.insert(std::pair<std::string, ID3D11ShaderResourceView*>(fileName, newSRV));
 }
 void TextureMgr::Load(std::string fileName, UINT count)
 {

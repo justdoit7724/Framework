@@ -61,6 +61,18 @@ private:
 	ComPtr<ID3D11VertexShader> vs = nullptr;
 };
 
+class GShader : public Shader
+{
+public:
+	GShader(std::string fileName="");
+
+	void Apply()override;
+
+	const bool enabled;
+private:
+	ComPtr<ID3D11GeometryShader> gs = nullptr;
+};
+
 class PShader : public Shader
 {
 public:

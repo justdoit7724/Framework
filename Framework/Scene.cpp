@@ -42,15 +42,16 @@ Scene::Scene(IGraphic* graphic)
 		XMFLOAT3(0, 0, 0), 100, XMFLOAT3(0.25f, 0.025f, 0.0025f)
 	);
 
-	TextureMgr::Instance()->Load("sample.jpg");
-	TextureMgr::Instance()->Load("white.png");
-	TextureMgr::Instance()->Load("black.png");
-	TextureMgr::Instance()->Load("marine_s.png");
-	TextureMgr::Instance()->Load("heightmap3.jpg");
-	TextureMgr::Instance()->Load("woodbox.jpg");
+	TextureMgr::Instance()->Load("sample.jpg",false);
+	TextureMgr::Instance()->Load("white.png", false);
+	TextureMgr::Instance()->Load("black.png", false);
+	TextureMgr::Instance()->Load("marine_s.png", false);
+	TextureMgr::Instance()->Load("heightmap3.jpg", false);
+	TextureMgr::Instance()->Load("woodbox.jpg", true);
 
-	Object* wall = new Object(new Cube(), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), 4, XMFLOAT3(1, 1, 1), "woodbox.jpg");
+	Object* wall = new Object(new Cube(), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), 4, XMFLOAT3(1, 1, 1), TextureMgr::Instance()->Get("woodbox.jpg"),Z_ORDER_STANDARD);
 	wall->GetTransform()->SetScale(40, 40, 4);
+	wall->GetTransform()->SetTranslation(0, 40, 20);
 	D3D11_DEPTH_STENCIL_DESC maskDesc;
 	maskDesc.DepthEnable = true;
 	maskDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
@@ -58,16 +59,15 @@ Scene::Scene(IGraphic* graphic)
 	maskDesc.StencilEnable = true;
 	maskDesc.StencilReadMask = 0xff;
 	maskDesc.StencilWriteMask = 0xff;
-	maskDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_REPLACE;
-	maskDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_REPLACE;
+	maskDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_INCR;
+	maskDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
 	maskDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
 	maskDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
-	maskDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_REPLACE;
+	maskDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_INCR;
 	maskDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
 	maskDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
 	maskDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
-	wall->GetDepthStencilState()->SetRefValue(255);
-	wall->GetDepthStencilState()->Modify(&maskDesc);
+	wall->dsState->Modify(&maskDesc);
 
 	objs.push_back(wall);
 

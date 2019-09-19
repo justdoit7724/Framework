@@ -2,27 +2,15 @@
 #include "TextureMgr.h"
 #include "Light.h"
 #include "Shader.h"
+#include "Camera.h"
 
-int CalculateMaxMiplevel(int width, int height)
-{
-	int maxResol = max(width, height);
-	int maxMiplevel = 1;
-
-	while (maxResol > 1)
-	{
-		maxResol = floor(maxResol * 0.5f);
-		maxMiplevel++;
-	}
-
-	return maxMiplevel;
-}
-
-Object::Object(Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpec, float sP, XMFLOAT3 r, std::string imageName, bool mipmap, int zOrder)
-	: isMipmap(mipmap), zOrder(zOrder), shape(shape)
+Object::Object(Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpec, float sP, XMFLOAT3 r, ID3D11ShaderResourceView* bodyTex, int zOrder)
+	: zOrder(zOrder), shape(shape)
 {
 	transform = new Transform();
 
 	vs = new VShader("StandardVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
+	gs = new GShader();
 	ps = new PShader("StandardPS.cso");
 
 	vs->AddCB(0, 1, sizeof(VS_Property));
@@ -31,8 +19,8 @@ Object::Object(Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpe
 	ps->AddCB(2, 1, sizeof(SHADER_SPOT_LIGHT));
 	ps->AddCB(3, 1, sizeof(XMFLOAT3));
 	ps->AddCB(4, 1, sizeof(ShaderMaterial));
+	ps->WriteCB(4,&ShaderMaterial(mDiffuse, 1, mAmbient, mSpec, sP, r));
 	
-	material = new ShaderMaterial(mDiffuse, 1, mAmbient, mSpec, sP, r);
 
 	D3D11_SAMPLER_DESC samplerDesc;
 	ZeroMemory(&samplerDesc, sizeof(D3D11_SAMPLER_DESC));
@@ -44,68 +32,7 @@ Object::Object(Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpe
 	samplerDesc.MinLOD = 0;
 	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	ps->AddSamp(0, 1, &samplerDesc);
-
-
-	if (mipmap)
-	{
-		TextureMgr::Instance()->Load(imageName);
-		ID3D11Texture2D* image = TextureMgr::Instance()->GetTexture(imageName);
-		ComPtr<ID3D11Texture2D> mipmapTexture = nullptr;
-		D3D11_TEXTURE2D_DESC imageDesc;
-		image->GetDesc(&imageDesc);
-
-		D3D11_TEXTURE2D_DESC texDesc;
-		texDesc.ArraySize = 1;
-		texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-		texDesc.CPUAccessFlags = 0;
-		texDesc.Format = imageDesc.Format;
-		texDesc.Width = imageDesc.Width;
-		texDesc.Height = imageDesc.Height;
-		texDesc.MipLevels = CalculateMaxMiplevel(imageDesc.Width, imageDesc.Height);
-		texDesc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
-		texDesc.Usage = D3D11_USAGE_DEFAULT;
-		texDesc.SampleDesc = { 1,0 };
-		r_assert(DX_Device->CreateTexture2D(&texDesc, nullptr, mipmapTexture.GetAddressOf()));
-
-		ComPtr<ID3D11Texture2D> stagTex;
-		D3D11_TEXTURE2D_DESC stagDesc;
-		stagDesc.ArraySize = 1;
-		stagDesc.BindFlags = 0;
-		stagDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
-		stagDesc.Format = imageDesc.Format;
-		stagDesc.Width = imageDesc.Width;
-		stagDesc.Height = imageDesc.Height;
-		stagDesc.MipLevels = 1;
-		stagDesc.MiscFlags = 0;
-		stagDesc.Usage = D3D11_USAGE_STAGING;
-		stagDesc.SampleDesc = { 1,0 };
-		r_assert(DX_Device->CreateTexture2D(&stagDesc, nullptr, &stagTex));
-
-		DX_DContext->CopyResource(stagTex.Get(), image);
-
-		D3D11_MAPPED_SUBRESOURCE mapped;
-		r_assert(DX_DContext->Map(stagTex.Get(), 0, D3D11_MAP_READ, 0, &mapped));
-		UINT* arr = new UINT[(mapped.RowPitch / (float)sizeof(UINT)) * imageDesc.Height];
-		ZeroMemory(arr, mapped.RowPitch*imageDesc.Height);
-		CopyMemory(arr, mapped.pData, mapped.RowPitch*imageDesc.Height);
-		DX_DContext->Unmap(stagTex.Get(), 0);
-
-		DX_DContext->UpdateSubresource(mipmapTexture.Get(), 0, &CD3D11_BOX(0, 0, 0, imageDesc.Width, imageDesc.Height, 1), arr, mapped.RowPitch, mapped.DepthPitch);
-		delete[] arr;
-
-		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-		srvDesc.Format = imageDesc.Format;
-		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-		srvDesc.Texture2D.MipLevels = texDesc.MipLevels;
-		srvDesc.Texture2D.MostDetailedMip = 0;
-		ID3D11ShaderResourceView* bodySrv = nullptr;
-		r_assert(DX_Device->CreateShaderResourceView(mipmapTexture.Get(), &srvDesc, &bodySrv));
-		DX_DContext->GenerateMips(bodySrv);
-		ps->AddSRV(0, 1, bodySrv);
-	}
-	else {
-		ps->AddSRV(0, 1, TextureMgr::Instance()->Get(imageName));
-	}
+	ps->AddSRV(0, 1, bodyTex);
 
 	blendState = new BlendState();
 	dsState = new DepthStencilState();
@@ -121,8 +48,8 @@ Object::~Object()
 	delete transform;
 	delete shape;
 	delete vs;
+	delete gs;
 	delete ps;
-	delete material;
 
 	delete dsState;
 	delete blendState;
@@ -150,7 +77,6 @@ void Object::Update(Camera* camera, const SHADER_DIRECTIONAL_LIGHT* dLight, cons
 	ps->WriteCB(1, (void*)pLight);
 	ps->WriteCB(2, (void*)sLight);
 	ps->WriteCB(3, &(camera->Pos()));
-	ps->WriteCB(4, material);
 
 	if (isShadow)
 	{
@@ -200,6 +126,7 @@ void Object::Update(Camera* camera, const SHADER_DIRECTIONAL_LIGHT* dLight, cons
 void Object::Render()
 {
 	vs->Apply();
+	gs->Apply();
 	ps->Apply();
 
 	// STATE
@@ -234,11 +161,4 @@ void Object::Render()
 			shape->Apply();
 		}
 	}
-}
-
-void Object::SetTransparency(float t)
-{
-	assert(0 <= t && t <= 1);
-
-	material->SetTransparency(t);
 }

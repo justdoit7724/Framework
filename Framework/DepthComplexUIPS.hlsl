@@ -9,10 +9,36 @@ Texture2D<uint2> uiTexture : register(t0);
 
 float4 main(PS_INPUT input) : SV_Target
 {
-    int2 idx = int2(380, 380);
-    uint2 color = uiTexture[idx];
-    float colorl = smoothstep(0, 0xff, color.y);
+    uint width = 0, height = 0;
+    uiTexture.GetDimensions(width, height);
 
-    return float4(colorl.xxx, 1);
+    int2 curIdx = int2(
+		min(width * input.tex.x, width-1),
+		min(height * (input.tex.y), height - 1)
+	);
+    if (uiTexture[curIdx].y > 10)
+    {
+        return float4(0.5f, 0, 0, 1);
+    }
+    float complex = uiTexture[curIdx].y/10.0f;
+    float3 color = 0;
+    if (complex < 0.5f)
+    {
+        color = float3(
+            0,
+            lerp(0, 1, complex),
+            lerp(1, 0, complex)
+        );
+    }
+    else
+    {
+        color = float3(
+            lerp(0, 1, complex),
+            lerp(1, 0, complex),
+            0
+        );
+    }
+
+    return float4(color, 1);
 
 }

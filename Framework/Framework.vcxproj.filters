@@ -25,6 +25,9 @@
     <Filter Include="DesignPattern">
       <UniqueIdentifier>{d8d73e40-602b-4fee-9329-fcf5bb469cb5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Object">
+      <UniqueIdentifier>{9bc5bc3c-dcc3-4d0f-994d-928c238c51ac}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Debugging.cpp">
@@ -72,9 +75,6 @@
     <ClCompile Include="Quad.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Object.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Shape.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -110,6 +110,9 @@
     </ClCompile>
     <ClCompile Include="Resource.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Object.cpp">
+      <Filter>Object</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -167,9 +170,6 @@
     <ClInclude Include="Light.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Object.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Quad.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -212,6 +212,9 @@
     <ClInclude Include="Singleton.h">
       <Filter>DesignPattern</Filter>
     </ClInclude>
+    <ClInclude Include="Object.h">
+      <Filter>Object</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ShaderInfo.cginc">
@@ -247,6 +250,9 @@
       <Filter>hlsl</Filter>
     </FxCompile>
     <FxCompile Include="DepthComplexUIPS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="GS.hlsl">
       <Filter>hlsl</Filter>
     </FxCompile>
   </ItemGroup>

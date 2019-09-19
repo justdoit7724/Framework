@@ -7,9 +7,8 @@ class TextureMgr : public Singleton<TextureMgr>
 {
 public:
 	
-
 	~TextureMgr();
-	void Load(std::string fileName);
+	void Load(std::string fileName, bool mipmap);
 	void Load(std::string fileName, UINT spriteX);
 	ID3D11ShaderResourceView * Get(std::string fileName);
 	ID3D11ShaderResourceView ** GetAddress(std::string fileName);

@@ -165,6 +165,63 @@ void VShader::Apply()
 	}
 }
 
+
+GShader::GShader(std::string fileName)
+	:enabled(fileName != "")
+{
+	if (!enabled)
+		return;
+
+	std::wstring wGS(fileName.begin(), fileName.end());
+	ComPtr<ID3DBlob> blob;
+
+	r_assert(
+		D3DReadFileToBlob(
+		(ShaderPath() + wGS).c_str(),
+			blob.GetAddressOf())
+	);
+	r_assert(
+		DX_Device->CreateGeometryShader(
+			blob->GetBufferPointer(),
+			blob->GetBufferSize(),
+			nullptr,
+			gs.GetAddressOf())
+	);
+}
+
+void GShader::Apply()
+{
+	if (enabled)
+	{
+		DX_DContext->GSSetShader(gs.Get(), nullptr, 0);
+
+		for (auto i = cbs.begin(); i != cbs.end(); ++i)
+		{
+			DX_DContext->GSSetConstantBuffers(i->first, i->second.arrayNum, i->second.data->GetAddress());
+		}
+		for (auto i = srvs.begin(); i != srvs.end(); ++i)
+		{
+			UINT slot = i->first;
+			UINT arrayNum = i->second.arrayNum;
+			ID3D11ShaderResourceView* srv = i->second.data;
+
+			DX_DContext->GSSetShaderResources(slot, arrayNum, &srv);
+		}
+		for (auto i = samps.begin(); i != samps.end(); ++i)
+		{
+			UINT slot = i->first;
+			UINT arrayNum = i->second.arrayNum;
+			ID3D11SamplerState* samp = i->second.data;
+
+			DX_DContext->GSSetSamplers(slot, arrayNum, &samp);
+		}
+	}
+	else
+	{
+		DX_DContext->GSSetShader(nullptr, nullptr, 0);
+	}
+}
+
 void PShader::Apply()
 {
 	DX_DContext->PSSetShader(ps.Get(), nullptr, 0);
@@ -235,3 +292,4 @@ void CShader::Apply()
 		DX_DContext->CSSetSamplers(slot, arrayNum, &samp);
 	}
 }
+
