@@ -14,7 +14,7 @@ int CalculateMaxMiplevel(int width, int height)
 {
 	return log2(max(width, height));
 }
-void TextureMgr::Load(std::string fileName, bool mipmap, UINT spriteCount)
+void TextureMgr::Load(std::string fileName, UINT miplevel, UINT spriteCount)
 {
 	assert(SRVs.find(fileName) == SRVs.end());
 
@@ -30,17 +30,63 @@ void TextureMgr::Load(std::string fileName, bool mipmap, UINT spriteCount)
 			newResource.GetAddressOf(),
 			&newSRV)
 	);
+
+
+	ComPtr<ID3D11Texture2D> oriTex = nullptr;
+	r_assert(
+		newResource->QueryInterface(IID_ID3D11Texture2D, (void**)oriTex.GetAddressOf())
+	);
+
+	D3D11_TEXTURE2D_DESC ori_desc;
+	oriTex->GetDesc(&ori_desc);
+
+	float sWidth = ori_desc.Width / spriteCount;
+	float sHeight = ori_desc.Height;
+
+	D3D11_TEXTURE2D_DESC new_desc;
+	new_desc.Format = ori_desc.Format;
+	new_desc.ArraySize = spriteCount;
+	new_desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	new_desc.CPUAccessFlags = 0;
+	new_desc.Width = sWidth;
+	new_desc.Height = sHeight;
+	new_desc.MipLevels = miplevel;
+	new_desc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
+	new_desc.SampleDesc.Count = 1;
+	new_desc.SampleDesc.Quality = 0;
+	new_desc.Usage = D3D11_USAGE_DEFAULT;
+
+	ID3D11Texture2D* newTex;
+	r_assert(
+		DX_Device->CreateTexture2D(
+			&new_desc, nullptr, &newTex)
+	);
+
+	for (int i = 0; i < count; ++i)
+	{
+		DX_DContext->CopySubresourceRegion(animTex, i, 0, 0, 0, oriTex, 0, &CD3D11_BOX(i*sWidth, 0, 0, (i + 1)*sWidth, sHeight, 1));
+	}
+	/*
+
+	ID3D11ShaderResourceView* animSRV;
+	D3D11_SHADER_RESOURCE_VIEW_DESC srv_desc;
+	srv_desc.Format = st_desc.Format;
+	srv_desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
+	srv_desc.Texture2DArray.ArraySize = count;
+	srv_desc.Texture2DArray.FirstArraySlice = 0;
+	srv_desc.Texture2DArray.MipLevels = 1;
+	srv_desc.Texture2DArray.MostDetailedMip = 0;
+	r_assert(
+		DX_Device->CreateShaderResourceView(
+			animTex, &srv_desc, &animSRV)
+	);
+
+	animSRVs.insert(std::pair<std::string, AnimSRV>(fileName, AnimSRV(animSRV, count)));
+	*/
+	
 	
 	if (mipmap)
 	{
-		ComPtr<ID3D11Texture2D> oriTex = nullptr;
-		r_assert(
-			newResource->QueryInterface(IID_ID3D11Texture2D, (void**)oriTex.GetAddressOf())
-		);
-
-		D3D11_TEXTURE2D_DESC ori_desc;
-		oriTex->GetDesc(&ori_desc);
-
 		ComPtr<ID3D11Texture2D> mipmapTexture = nullptr;
 		D3D11_TEXTURE2D_DESC mm_desc = ori_desc;
 		mm_desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
