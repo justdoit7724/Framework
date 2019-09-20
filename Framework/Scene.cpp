@@ -39,14 +39,13 @@ Scene::Scene(IGraphic* graphic)
 		XMFLOAT3(0, 0, 0), 100, XMFLOAT3(0.25f, 0.025f, 0.0025f)
 	);
 
-	TextureMgr::Instance()->Load("sample.jpg",false);
-	TextureMgr::Instance()->Load("white.png", false);
-	TextureMgr::Instance()->Load("black.png", false);
-	TextureMgr::Instance()->Load("marine_s.png", 8);
-	TextureMgr::Instance()->Load("heightmap3.jpg", false);
-	TextureMgr::Instance()->Load("woodbox.jpg", true);
+	TextureMgr::Instance()->Load("marine_s.png", 2, 8);
+	TextureMgr::Instance()->Load("sample.jpg",1,1);
+	TextureMgr::Instance()->Load("white.png", 1,1);
+	TextureMgr::Instance()->Load("black.png", 1,1);
+	TextureMgr::Instance()->Load("heightmap3.jpg", 1,1);
 
-	Object* wall = new Object(new Cube(), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), 4, XMFLOAT3(1, 1, 1), TextureMgr::Instance()->Get("woodbox.jpg"),Z_ORDER_STANDARD);
+	Object* wall = new Object(new Cube(), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), 4, XMFLOAT3(1, 1, 1), "woodbox.jpg",Z_ORDER_STANDARD);
 	wall->GetTransform()->SetScale(40, 40, 4);
 	wall->GetTransform()->SetTranslation(0, 40, 20);
 	objs.push_back(wall);

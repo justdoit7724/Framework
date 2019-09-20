@@ -9,17 +9,17 @@ public:
 	
 	~TextureMgr();
 	void Load(std::string fileName, UINT miplevel, UINT spriteCount);
-	ID3D11ShaderResourceView * Get(std::string fileName);
-	ID3D11ShaderResourceView ** GetAddress(std::string fileName);
-	void Get(std::string fileName, OUT ID3D11ShaderResourceView const** srv, OUT UINT* count);
+	void Get(std::string fileName, OUT ComPtr<ID3D11ShaderResourceView>* srv, OUT UINT* count);
 	ID3D11Texture2D* GetTexture(std::string fileName);
 
 private:
 	struct SRV_Info
 	{
-		ID3D11ShaderResourceView* srv;
+		ComPtr<ID3D11ShaderResourceView> srv;
 		UINT countX;
 
+		SRV_Info()
+		:srv(nullptr), countX(1){}
 		SRV_Info(ID3D11ShaderResourceView* srv, UINT countX)
 			:srv(srv), countX(countX){}
 	};
