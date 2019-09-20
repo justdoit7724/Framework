@@ -8,7 +8,7 @@ class TextureMgr : public Singleton<TextureMgr>
 public:
 	
 	~TextureMgr();
-	void Load(std::string fileName, bool mipmap);
+	void Load(std::string fileName, bool mipmap, UINT spriteCount);
 	void Load(std::string fileName, UINT spriteX);
 	ID3D11ShaderResourceView * Get(std::string fileName);
 	ID3D11ShaderResourceView ** GetAddress(std::string fileName);
@@ -16,16 +16,14 @@ public:
 	ID3D11Texture2D* GetTexture(std::string fileName);
 
 private:
-	std::unordered_map<std::string, ID3D11ShaderResourceView*> SRVs;
-
-	struct AnimSRV
+	struct SRV_Info
 	{
 		ID3D11ShaderResourceView* srv;
 		UINT countX;
 
-		AnimSRV(ID3D11ShaderResourceView* srv, UINT countX)
+		SRV_Info(ID3D11ShaderResourceView* srv, UINT countX)
 			:srv(srv), countX(countX){}
 	};
-	std::unordered_map<std::string, AnimSRV> animSRVs;
+	std::unordered_map<std::string, SRV_Info> SRVs;
 };
 

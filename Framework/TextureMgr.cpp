@@ -6,10 +6,6 @@ TextureMgr::~TextureMgr()
 {
 	for (auto& e : SRVs) {
 
-		e.second->Release();
-	}
-	for (auto& e : animSRVs) {
-
 		e.second.srv->Release();
 	}
 }
@@ -18,7 +14,7 @@ int CalculateMaxMiplevel(int width, int height)
 {
 	return log2(max(width, height));
 }
-void TextureMgr::Load(std::string fileName, bool mipmap)
+void TextureMgr::Load(std::string fileName, bool mipmap, UINT spriteCount)
 {
 	assert(SRVs.find(fileName) == SRVs.end());
 
@@ -34,8 +30,6 @@ void TextureMgr::Load(std::string fileName, bool mipmap)
 			newResource.GetAddressOf(),
 			&newSRV)
 	);
-	
-
 	
 	if (mipmap)
 	{
@@ -94,11 +88,11 @@ void TextureMgr::Load(std::string fileName, bool mipmap)
 		DX_DContext->GenerateMips(newSRV);
 	}
 
-	SRVs.insert(std::pair<std::string, ID3D11ShaderResourceView*>(fileName, newSRV));
+	SRVs.insert(std::pair<std::string, SRV_Info>(fileName, SRV_Info(newSRV, spriteCount)));
 }
 void TextureMgr::Load(std::string fileName, UINT count)
 {
-	if (animSRVs.find(fileName) == animSRVs.end())
+	if (SRVs.find(fileName) == SRVs.end())
 	{
 		ID3D11Resource* oriResource = nullptr;
 
@@ -136,6 +130,7 @@ void TextureMgr::Load(std::string fileName, UINT count)
 				&st_desc, nullptr, &animTex)
 		);
 
+		/*
 		for (int i = 0; i < count; ++i)
 		{
 			DX_DContext->CopySubresourceRegion(animTex, i, 0, 0, 0, oriTex, 0, &CD3D11_BOX(i*sWidth, 0, 0, (i + 1)*sWidth, sHeight, 1));
@@ -155,32 +150,15 @@ void TextureMgr::Load(std::string fileName, UINT count)
 		);
 
 		animSRVs.insert(std::pair<std::string, AnimSRV>(fileName, AnimSRV(animSRV, count)));
+		*/
 	}
-}
-
-ID3D11ShaderResourceView * TextureMgr::Get(std::string fileName)
-{
-	auto iter = SRVs.find(fileName);
-
-	assert(iter != SRVs.end());
-	
-	return iter->second;
-}
-
-ID3D11ShaderResourceView ** TextureMgr::GetAddress(std::string fileName)
-{
-	auto iter = SRVs.find(fileName);
-
-	assert(iter != SRVs.end());
-
-	return &(iter->second);
 }
 
 void TextureMgr::Get(std::string fileName, OUT ID3D11ShaderResourceView const ** srv, OUT UINT* count)
 {
-	auto iter = animSRVs.find(fileName);
+	auto iter = SRVs.find(fileName);
 
-	assert(iter != animSRVs.end());
+	assert(iter != SRVs.end());
 
 	*srv = iter->second.srv;
 	*count = iter->second.countX;
@@ -191,7 +169,7 @@ ID3D11Texture2D * TextureMgr::GetTexture(std::string fileName)
 	assert(SRVs.find(fileName) != SRVs.end());
 
 	ID3D11Resource* resource=nullptr;
-	SRVs[fileName]->GetResource(&resource);
+	SRVs[fileName].srv->GetResource(&resource);
 	ID3D11Texture2D* tex=nullptr;
 	r_assert( resource->QueryInterface(IID_ID3D11Texture2D, (void**)&tex) );
 	return tex;

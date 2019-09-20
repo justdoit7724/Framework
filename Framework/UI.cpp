@@ -53,38 +53,6 @@ UI::UI(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float
 	dsState = new DepthStencilState();
 }
 
-UI::UI(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView * srv)
-	:maxSliceIdx(1), secPerSlice(1)
-{
-	assert(0 <= zDepth && zDepth <= 1);
-
-	quad = new Quad();
-	transform = new Transform();
-	transform->SetScale(width, height, 1);
-	transform->SetRot(-FORWARD, UP);
-	transform->SetTranslation(pivot.x + width * 0.5f, (canvasHeight - height * 0.5f) - pivot.y, zDepth);
-
-	vs = new VShader("UIVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
-	ps = new PShader("DepthComplexUIPS.cso");
-	vs->AddCB(0,1,sizeof(VS_Property));
-	ps->AddSRV(0, 1, srv);
-
-	D3D11_BLEND_DESC blend_desc;
-	blend_desc.AlphaToCoverageEnable = false;
-	blend_desc.IndependentBlendEnable = false;
-	blend_desc.RenderTarget[0].BlendEnable = true;
-	blend_desc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
-	blend_desc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ZERO;
-	blend_desc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
-	blend_desc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
-	blend_desc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
-	blend_desc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-	blend_desc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-	blendState = new BlendState(&blend_desc);
-	dsState = new DepthStencilState();
-
-}
-
 UI::~UI()
 {
 	delete quad;
@@ -94,11 +62,6 @@ UI::~UI()
 	delete blendState;
 	if(texSampState)
 	texSampState->Release();
-}
-
-void UI::UpdateDC(float spf, const XMMATRIX & vpMat, const XMMATRIX & texMat)
-{
-	vs->WriteCB(0,&VS_Property(transform->WorldMatrix(), vpMat, texMat));
 }
 
 void UI::Update(float spf, const XMMATRIX& vpMat, const XMMATRIX& texMat)
@@ -146,21 +109,6 @@ void UICanvas::Add(std::string id, XMFLOAT2 pivot, float width, float height, fl
 	}
 }
 
-void UICanvas::AddDC(std::string id, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView * srv)
-{
-	if (UIs.find(id) == UIs.end())
-	{
-		UIs.insert(std::pair<std::string, UI*>(id, new UI(totalWidth, totalHeight, pivot, width, height, zDepth, srv)));
-	}
-	else
-	{
-		delete UIs[id];
-		UIs[id] = new UI(totalWidth, totalHeight, pivot, width, height, zDepth, srv);
-
-
-	}
-}
-
 void UICanvas::Remove(std::string id)
 {
 	if (UIs.find(id) != UIs.end())
@@ -183,9 +131,7 @@ void UICanvas::Update(float spf)
 {
 	for (auto& ui : UIs)
 	{
-		//modify
-		//ui.second->Update(spf, camera->VPMat(Z_ORDER_UI),XMMatrixIdentity());
-		ui.second->UpdateDC(spf, camera->VPMat(Z_ORDER_UI), XMMatrixIdentity());
+		ui.second->Update(spf, camera->VPMat(Z_ORDER_UI),XMMatrixIdentity());
 	}
 }
 

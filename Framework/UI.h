@@ -20,11 +20,7 @@ private:
 	// screen coordinate
 	UI(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView * srv, UINT maxSliceIdx, UINT slicePerSec);
 	// depth complexity
-	//delete
-	UI(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView * srv);
 	~UI();
-	//delete
-	void UpdateDC(float spf, const XMMATRIX& vpMat, const XMMATRIX& texMat);
 	void Update(float spf, const XMMATRIX& vpMat, const XMMATRIX& texMat);
 
 	void Render();
@@ -58,8 +54,6 @@ public:
 	// screen coordinate
 	void Add(std::string id, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView* srv, UINT maxSliceIdx = 1, UINT slicePerSec = 1);
 
-	//delete
-	void AddDC(std::string id, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView* srv);
 	void Remove(std::string id);
 	UI* Get(std::string id);
 
