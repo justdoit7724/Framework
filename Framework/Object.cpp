@@ -8,7 +8,7 @@ Object::Object()
 {
 }
 
-Object::Object(Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpec, float sP, XMFLOAT3 r, std::string texName, int zOrder)
+Object::Object(Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpec, float sP, XMFLOAT3 r, ID3D11ShaderResourceView* srv, int zOrder)
 	: zOrder(zOrder), shape(shape)
 {
 	transform = new Transform();
@@ -36,10 +36,7 @@ Object::Object(Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpe
 	samplerDesc.MinLOD = 0;
 	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	ps->AddSamp(0, 1, &samplerDesc);
-	ComPtr<ID3D11ShaderResourceView> srv = nullptr;
-	TextureMgr::Instance()->Load(texName, 1, 1);
-	TextureMgr::Instance()->Get(texName, &srv, nullptr);
-	ps->AddSRV(0, 1, srv.Get());
+	ps->AddSRV(0, 1, srv);
 
 	blendState = new BlendState();
 	dsState = new DepthStencilState();

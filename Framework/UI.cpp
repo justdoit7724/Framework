@@ -22,15 +22,17 @@ UI::UI(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float
 
 
 	vs = new VShader("UIVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
+	gs = new GShader();
 	ps = new PShader("UIPS.cso");
 	vs->AddCB(0, 1, sizeof(VS_Property));
+
 	ps->AddCB(0, 1, sizeof(float));
 	D3D11_SAMPLER_DESC samplerDesc;
 	ZeroMemory(&samplerDesc, sizeof(D3D11_SAMPLER_DESC));
 	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR;
-	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
 	samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
 	samplerDesc.MinLOD = 0;
 	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
@@ -74,12 +76,14 @@ void UI::Update(float spf, const XMMATRIX& vpMat, const XMMATRIX& texMat)
 	}
 
 	vs->WriteCB(0,&VS_Property(transform->WorldMatrix(), vpMat, texMat));
-	ps->WriteCB(0,&curSliceIdx);
+	float fIdx = curSliceIdx;
+	ps->WriteCB(0,&fIdx);
 }
 
 void UI::Render()
 {
 	vs->Apply();
+	gs->Apply();
 	ps->Apply();
 	blendState->Apply();
 	dsState->Apply();

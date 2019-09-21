@@ -39,16 +39,13 @@ Scene::Scene(IGraphic* graphic)
 		XMFLOAT3(0, 0, 0), 100, XMFLOAT3(0.25f, 0.025f, 0.0025f)
 	);
 
-	TextureMgr::Instance()->Load("marine_s.png", 2, 8);
-	TextureMgr::Instance()->Load("sample.jpg",1,1);
-	TextureMgr::Instance()->Load("white.png", 1,1);
-	TextureMgr::Instance()->Load("black.png", 1,1);
-	TextureMgr::Instance()->Load("heightmap3.jpg", 1,1);
+	std::vector<std::string> list;
+	list.push_back("sample.jpg");
+	list.push_back("sample2.jpg");
+	TextureMgr::Instance()->Load("star", list, 10);
+	canvas->Add("newAnim", XMFLOAT2(50, 50), 200, 200, 0, TextureMgr::Instance()->Get("star"), 2, 2);
 
-	Object* wall = new Object(new Cube(), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), 4, XMFLOAT3(1, 1, 1), "woodbox.jpg",Z_ORDER_STANDARD);
-	wall->GetTransform()->SetScale(40, 40, 4);
-	wall->GetTransform()->SetTranslation(0, 40, 20);
-	objs.push_back(wall);
+	
 }
 
 Scene::~Scene()

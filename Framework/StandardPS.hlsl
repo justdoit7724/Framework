@@ -46,7 +46,7 @@ cbuffer MATERIAL : register(b4)
     float4 mReflection;
 };
 
-Texture2D<float4> bodyTex : register(t0);
+Texture2DArray bodyTex : register(t0);
 SamplerState bodySampleState : register(s0);
 
 void ComputeDirectionalLight(float3 normal, float3 toEye, out float4 ambient, out float4 diffuse, out float4 spec)
@@ -165,7 +165,10 @@ struct PS_INPUT
 };
 float4 main(PS_INPUT input) : SV_Target
 {
-    float4 tex = bodyTex.Sample(bodySampleState, input.tex);
+    //uint width, height, spriteCount;
+    //bodyTex.GetDimensions(width, height, spriteCount);
+
+    float4 tex = bodyTex.Sample(bodySampleState, float3(input.tex, 0));
     
     input.normal = normalize(input.normal);
     float3 toEye = normalize(eyePos - input.wPos);

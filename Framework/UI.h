@@ -6,6 +6,7 @@
 class Transform;
 class Quad;
 class VShader;
+class GShader;
 class PShader;
 class DepthStencilState;
 class BlendState;
@@ -32,6 +33,7 @@ private:
 	const float secPerSlice;
 	int curSliceIdx = 0;
 	VShader* vs;
+	GShader* gs;
 	PShader* ps;
 	DepthStencilState* dsState;
 	BlendState* blendState;
