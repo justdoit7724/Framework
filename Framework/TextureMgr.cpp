@@ -6,7 +6,7 @@ TextureMgr::~TextureMgr()
 {
 	for (auto& e : SRVs) {
 
-		e.second->Release();
+		e.second.srv->Release();
 	}
 }
 
@@ -89,7 +89,7 @@ void TextureMgr::Load(std::string key, std::vector<std::string> fileNames, UINT 
 		ZeroMemory(arr, mapped.RowPitch * ori_desc.Height);
 		CopyMemory(arr, mapped.pData, mapped.RowPitch * ori_desc.Height);
 		DX_DContext->Unmap(stagTex.Get(), 0);
-
+		
 		DX_DContext->UpdateSubresource(
 			arrTex.Get(), D3D11CalcSubresource(0, i, miplevel), 
 			nullptr, 
@@ -111,16 +111,18 @@ void TextureMgr::Load(std::string key, std::vector<std::string> fileNames, UINT 
 	DX_DContext->GenerateMips(integratedSRV);
 	
 
-	SRVs.insert(std::pair<std::string, ID3D11ShaderResourceView*>(key, integratedSRV));
+	SRVs.insert(std::pair<std::string, TextureInfo>(key, TextureInfo(integratedSRV, spriteCount)));
 	/*
 	*/
 }
 
-ID3D11ShaderResourceView* TextureMgr::Get(std::string key)
+void TextureMgr::Get(std::string key, ID3D11ShaderResourceView** srv, UINT* size)
 {
 	assert(SRVs.find(key) != SRVs.end());
 
-	return SRVs[key];
+	*srv = SRVs[key].srv;
+	if (size)
+		* size = SRVs[key].size;
 }
 
 ID3D11Texture2D* TextureMgr::GetTexture(std::string fileName)
@@ -128,7 +130,7 @@ ID3D11Texture2D* TextureMgr::GetTexture(std::string fileName)
 	assert(SRVs.find(fileName) != SRVs.end());
 
 	ID3D11Resource* resource=nullptr;
-	SRVs[fileName]->GetResource(&resource);
+	SRVs[fileName].srv->GetResource(&resource);
 	ID3D11Texture2D* tex=nullptr;
 	r_assert( resource->QueryInterface(IID_ID3D11Texture2D, (void**)&tex) );
 	return tex;

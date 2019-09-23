@@ -36,16 +36,22 @@ Scene::Scene(IGraphic* graphic)
 		XMFLOAT3(0, 0.25f, 0),
 		XMFLOAT3(0, 0.7f, 0),
 		XMFLOAT3(0, 0.8f, 0),
-		XMFLOAT3(0, 0, 0), 100, XMFLOAT3(0.25f, 0.025f, 0.0025f)
+		XMFLOAT3(0, 0, 0), 100, XMFLOAT3(0.15f, 0.015f, 0.0015f)
 	);
 
 	std::vector<std::string> list;
-	list.push_back("sample.jpg");
-	list.push_back("sample2.jpg");
+	list.push_back("marine_s.png");
 	TextureMgr::Instance()->Load("star", list, 10);
-	canvas->Add("newAnim", XMFLOAT2(50, 50), 200, 200, 0, TextureMgr::Instance()->Get("star"), 2, 2);
-
-	
+	ID3D11ShaderResourceView* sampleSRV;
+	UINT sampleCount;
+	TextureMgr::Instance()->Get("star", &sampleSRV, &sampleCount);
+	canvas->Add("newAnim", XMFLOAT2(0, 50), 1680, 360, 0, sampleSRV, sampleCount, 2);
+	D3D11_BLEND_DESC uiBlend_desc;
+	uiBlend_desc.AlphaToCoverageEnable = true;
+	uiBlend_desc.IndependentBlendEnable = false;
+	uiBlend_desc.RenderTarget[0].BlendEnable = false;
+	uiBlend_desc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	canvas->Get("newAnim")->blendState->Modify(&uiBlend_desc);
 }
 
 Scene::~Scene()
@@ -84,9 +90,9 @@ void Scene::Update()
 	if (pLight)
 	{
 		XMFLOAT3 pt = XMFLOAT3(
-			cos(Timer::Elapsed()*0.5f) * 40,
-			35,
-			sin(Timer::Elapsed()*0.5f) * 60);
+			cos(Timer::Elapsed()*0.5f) * 30,
+			25,
+			sin(Timer::Elapsed()*0.5f) * 50);
 		pLight->SetPos(pt);
 		Debugging::Instance()->Mark(0, pt, 1.5f, Colors::Green);
 	}

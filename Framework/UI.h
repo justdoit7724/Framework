@@ -26,24 +26,21 @@ private:
 
 	void Render();
 
-	Transform* transform;
-	Quad* quad;
 	float curTime=0;
 	const int maxSliceIdx;
 	const float secPerSlice;
 	int curSliceIdx = 0;
+	ID3D11SamplerState* texSampState=nullptr;
+
+public:
+	//TODO
+	Quad* quad;
+	Transform* transform;
 	VShader* vs;
 	GShader* gs;
 	PShader* ps;
 	DepthStencilState* dsState;
 	BlendState* blendState;
-	ID3D11SamplerState* texSampState=nullptr;
-
-public:
-	VShader* GetVS(){return vs;}
-	PShader* GetPS(){return ps;}
-	DepthStencilState* GetDSState(){return dsState;}
-	BlendState* GetBlendState(){return blendState;}
 };
 
 class Camera;

@@ -18,7 +18,6 @@ public:
 
 	void EnableShadow(XMFLOAT3 shadowPlaneN, float shadowPlaneDist, float shadowTransparency);
 
-	Transform* GetTransform(){return transform;}
 	void Update(Camera* camera, const SHADER_DIRECTIONAL_LIGHT* dLight, const SHADER_POINT_LIGHT* pLight, const SHADER_SPOT_LIGHT* sLight, const XMMATRIX& texMat = XMMatrixIdentity());
 	virtual void Render();
 

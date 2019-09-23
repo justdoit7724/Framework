@@ -18,14 +18,17 @@ cbuffer CB_SLICE_INDEX : register(b0)
 float4 main(PS_INPUT input) : SV_Target
 {
     float4 color = uiTexture.Sample(sampState, float3(input.tex, sliceIdx));
-
-    return float4(color.xyz, 1);
+    
+    //delete
+    color.w = 0.25f;
+    return color;
 
     if(color.x == MAGENTA.x && 
         color.y == MAGENTA.y &&
         color.z == MAGENTA.z)
     {
-        return TRANSPARANCY;
+        clip(-1.0f);
+        return 0;
     }
     else
     {

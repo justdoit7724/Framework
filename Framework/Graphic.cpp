@@ -23,7 +23,7 @@ Graphic::Graphic(HWND _hwnd)
 	scd.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 	scd.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
 
-	scd.SampleDesc.Count = 1;
+	scd.SampleDesc.Count = 8;
 	scd.SampleDesc.Quality = 0;
 
 	scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
@@ -73,8 +73,7 @@ Graphic::Graphic(HWND _hwnd)
 	ds_desc.ArraySize = 1;
 	// TYPELESS instead of UNORM for copying data
 	ds_desc.Format = DXGI_FORMAT_R24G8_TYPELESS;
-	ds_desc.SampleDesc.Count = 1;
-	ds_desc.SampleDesc.Quality = 0;
+	ds_desc.SampleDesc = scd.SampleDesc;
 	ds_desc.Usage = D3D11_USAGE_DEFAULT;
 	ds_desc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 	ds_desc.CPUAccessFlags = 0;
@@ -90,7 +89,7 @@ Graphic::Graphic(HWND _hwnd)
 	D3D11_DEPTH_STENCIL_VIEW_DESC dsv_desc;
 	dsv_desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 	dsv_desc.Flags = 0;
-	dsv_desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	dsv_desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
 	dsv_desc.Texture2D.MipSlice = 0;
 	r_assert(
 		DX_Device->CreateDepthStencilView(
