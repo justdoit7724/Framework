@@ -25,6 +25,8 @@ public:
 	Transform* transform;
 	Shape* shape;
 	VShader* vs;
+	HShader* hs;
+	DShader* ds;
 	GShader* gs;
 	PShader* ps;
 	BlendState * blendState;

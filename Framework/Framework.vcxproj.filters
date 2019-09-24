@@ -282,5 +282,11 @@
     <FxCompile Include="DepthComplexUIPS.hlsl">
       <Filter>Tasks</Filter>
     </FxCompile>
+    <FxCompile Include="HS.hlsl">
+      <Filter>Tasks</Filter>
+    </FxCompile>
+    <FxCompile Include="DS.hlsl">
+      <Filter>Tasks</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

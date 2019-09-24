@@ -293,3 +293,100 @@ void CShader::Apply()
 	}
 }
 
+HShader::HShader(std::string fileName)
+{
+	if (fileName == "")
+		return;
+
+	std::wstring wCS(fileName.begin(), fileName.end());
+	ComPtr<ID3DBlob> blob;
+
+	r_assert(
+		D3DReadFileToBlob(
+		(ShaderPath() + wCS).c_str(),
+			blob.GetAddressOf())
+	);
+
+	r_assert(
+		DX_Device->CreateHullShader(
+			blob->GetBufferPointer(),
+			blob->GetBufferSize(),
+			nullptr,
+			hs.GetAddressOf())
+	);
+}
+
+void HShader::Apply()
+{
+	DX_DContext->HSSetShader(hs.Get(), nullptr, 0);
+
+	for (auto i = cbs.begin(); i != cbs.end(); ++i)
+	{
+		DX_DContext->HSSetConstantBuffers(i->first, i->second.arrayNum, i->second.data->GetAddress());
+	}
+	for (auto i = srvs.begin(); i != srvs.end(); ++i)
+	{
+		UINT slot = i->first;
+		UINT arrayNum = i->second.arrayNum;
+		ID3D11ShaderResourceView* srv = i->second.data;
+
+		DX_DContext->HSSetShaderResources(slot, arrayNum, &srv);
+	}
+	for (auto i = samps.begin(); i != samps.end(); ++i)
+	{
+		UINT slot = i->first;
+		UINT arrayNum = i->second.arrayNum;
+		ID3D11SamplerState* samp = i->second.data;
+
+		DX_DContext->HSSetSamplers(slot, arrayNum, &samp);
+	}
+}
+
+DShader::DShader(std::string fileName)
+{
+	if (fileName == "")
+		return;
+
+	std::wstring wCS(fileName.begin(), fileName.end());
+	ComPtr<ID3DBlob> blob;
+
+	r_assert(
+		D3DReadFileToBlob(
+		(ShaderPath() + wCS).c_str(),
+			blob.GetAddressOf())
+	);
+
+	r_assert(
+		DX_Device->CreateDomainShader(
+			blob->GetBufferPointer(),
+			blob->GetBufferSize(),
+			nullptr,
+			ds.GetAddressOf())
+	);
+}
+
+void DShader::Apply()
+{
+	DX_DContext->DSSetShader(ds.Get(), nullptr, 0);
+
+	for (auto i = cbs.begin(); i != cbs.end(); ++i)
+	{
+		DX_DContext->DSSetConstantBuffers(i->first, i->second.arrayNum, i->second.data->GetAddress());
+	}
+	for (auto i = srvs.begin(); i != srvs.end(); ++i)
+	{
+		UINT slot = i->first;
+		UINT arrayNum = i->second.arrayNum;
+		ID3D11ShaderResourceView* srv = i->second.data;
+
+		DX_DContext->DSSetShaderResources(slot, arrayNum, &srv);
+	}
+	for (auto i = samps.begin(); i != samps.end(); ++i)
+	{
+		UINT slot = i->first;
+		UINT arrayNum = i->second.arrayNum;
+		ID3D11SamplerState* samp = i->second.data;
+
+		DX_DContext->DSSetSamplers(slot, arrayNum, &samp);
+	}
+}

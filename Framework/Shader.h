@@ -14,7 +14,7 @@ public:
 	void AddSamp(UINT slot, UINT arrayNum, D3D11_SAMPLER_DESC* desc);
 	void WriteCB(UINT slot, void* data);
 	virtual void Apply()=0;
-	//TODO - remove
+
 protected:
 	struct BindingCB 
 	{
@@ -72,6 +72,26 @@ public:
 private:
 	ComPtr<ID3D11GeometryShader> gs = nullptr;
 };
+
+class HShader : public Shader
+{
+public:
+	HShader(std::string fileName="");
+
+	void Apply()override;
+private:
+	ComPtr<ID3D11HullShader> hs = nullptr;
+};
+class DShader : public Shader
+{
+public:
+	DShader(std::string fileName = "");
+
+	void Apply()override;
+private:
+	ComPtr<ID3D11DomainShader> ds = nullptr;
+};
+
 
 class PShader : public Shader
 {

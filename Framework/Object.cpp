@@ -14,6 +14,8 @@ Object::Object(Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpe
 	transform = new Transform();
 
 	vs = new VShader("StandardVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
+	hs = new HShader();
+	ds = new DShader();
 	gs = new GShader();
 	ps = new PShader("StandardPS.cso");
 
@@ -130,6 +132,8 @@ void Object::Update(Camera* camera, const SHADER_DIRECTIONAL_LIGHT* dLight, cons
 void Object::Render()
 {
 	vs->Apply();
+	hs->Apply();
+	ds->Apply();
 	gs->Apply();
 	ps->Apply();
 
