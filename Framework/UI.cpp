@@ -22,6 +22,8 @@ UI::UI(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float
 
 
 	vs = new VShader("UIVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
+	hs = new HShader();
+	ds = new DShader();
 	gs = new GShader();
 	ps = new PShader("UIPS.cso");
 	vs->AddCB(0, 1, sizeof(VS_Property));
@@ -59,6 +61,9 @@ UI::~UI()
 {
 	delete quad;
 	delete vs;
+	delete hs;
+	delete ds;
+	delete gs;
 	delete ps;
 	delete dsState;
 	delete blendState;
@@ -83,6 +88,8 @@ void UI::Update(float spf, const XMMATRIX& vpMat, const XMMATRIX& texMat)
 void UI::Render()
 {
 	vs->Apply();
+	hs->Apply();
+	ds->Apply();
 	gs->Apply();
 	ps->Apply();
 	blendState->Apply();

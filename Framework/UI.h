@@ -6,6 +6,8 @@
 class Transform;
 class Quad;
 class VShader;
+class HShader;
+class DShader;
 class GShader;
 class PShader;
 class DepthStencilState;
@@ -33,10 +35,11 @@ private:
 	ID3D11SamplerState* texSampState=nullptr;
 
 public:
-	//TODO
 	Quad* quad;
 	Transform* transform;
 	VShader* vs;
+	HShader* hs;
+	DShader* ds;
 	GShader* gs;
 	PShader* ps;
 	DepthStencilState* dsState;

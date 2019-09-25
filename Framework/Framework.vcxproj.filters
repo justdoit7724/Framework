@@ -126,6 +126,12 @@
     <ClCompile Include="Billboard.cpp">
       <Filter>Tasks</Filter>
     </ClCompile>
+    <ClCompile Include="PlaneShadow.cpp">
+      <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="HDTester.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CustomFormat.h">
@@ -233,6 +239,12 @@
     <ClInclude Include="Billboard.h">
       <Filter>Tasks</Filter>
     </ClInclude>
+    <ClInclude Include="PlaneShadow.h">
+      <Filter>Object</Filter>
+    </ClInclude>
+    <ClInclude Include="HDTester.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ShaderInfo.cginc">
@@ -286,6 +298,12 @@
       <Filter>Tasks</Filter>
     </FxCompile>
     <FxCompile Include="DS.hlsl">
+      <Filter>Tasks</Filter>
+    </FxCompile>
+    <FxCompile Include="VS.hlsl">
+      <Filter>Tasks</Filter>
+    </FxCompile>
+    <FxCompile Include="PS.hlsl">
       <Filter>Tasks</Filter>
     </FxCompile>
   </ItemGroup>

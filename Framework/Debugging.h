@@ -10,6 +10,8 @@
 class Transform;
 class Shape;
 class VShader;
+class HShader;
+class DShader;
 class GShader;
 class PShader;
 class Camera;
@@ -17,8 +19,6 @@ class Buffer;
 class DepthStencilState;
 class BlendState;
 struct VS_Property;
-
-
 
 class Debugging : public Singleton<Debugging>
 {
@@ -90,6 +90,8 @@ private:
 	Buffer* originVB=nullptr;
 	UINT gridVerticeCount;
 	VShader* vs;
+	HShader* hs;
+	DShader* ds;
 	GShader* gs;
 	PShader* ps;
 	DepthStencilState* dsState;

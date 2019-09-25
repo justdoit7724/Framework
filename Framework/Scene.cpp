@@ -20,6 +20,8 @@
 #include "Texture2D.h"
 #include "Buffer.h"
 
+#include "HDTester.h"
+
 Scene::Scene(IGraphic* graphic)
 	:graphic(graphic)
 {
@@ -52,6 +54,9 @@ Scene::Scene(IGraphic* graphic)
 	uiBlend_desc.RenderTarget[0].BlendEnable = false;
 	uiBlend_desc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 	canvas->Get("newAnim")->blendState->Modify(&uiBlend_desc);
+
+	HDTester* tester = new HDTester();
+	objs.push_back(tester);
 }
 
 Scene::~Scene()
@@ -103,18 +108,18 @@ void Scene::Update()
 
 	for (auto obj : objs)
 	{
-		obj->Update(camera, DirectionalLight::Data(), PointLight::Data(), SpotLight::Data(), XMMatrixIdentity());
+		obj->Update(camera, XMMatrixIdentity());
 	}
 }
 
 void Scene::Render()
 {
-	Debugging::Instance()->Render(camera);
+	//Debugging::Instance()->Render(camera);
 
 	for (auto obj : objs)
 	{
 		obj->Render();
 	}
 
-	canvas->Render();
+	//canvas->Render();
 }
