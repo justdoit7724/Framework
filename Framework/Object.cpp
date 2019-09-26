@@ -9,11 +9,14 @@
 #include "Camera.h"
 #include "Shape.h"
 
+Object::Object()
+{
+}
+
 Object::Object(Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpec, float sP, XMFLOAT3 r, ID3D11ShaderResourceView* srv, int zOrder)
 	:zOrder(zOrder), shape(shape)
 {
 	transform = new Transform();
-
 	vs = new VShader("StandardVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
 	hs = new HShader();
 	ds = new DShader();
@@ -88,5 +91,7 @@ void Object::Render()
 		dsState->Apply();
 	if(blendState)
 		blendState->Apply();
+	if (rsState)
+		rsState->Apply();
 	shape->Apply();
 }

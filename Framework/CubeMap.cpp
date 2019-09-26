@@ -4,12 +4,17 @@
 #include "Sphere.h"
 #include "RasterizerState.h"
 #include "Camera.h"
+#include "DepthStencilState.h"
 
 CubeMap::CubeMap(ID3D11ShaderResourceView* srv)
 { 
 	transform = new Transform();
+	transform->SetScale(100, 75, 100);
 	vs = new VShader("CMVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
 	vs->AddCB(0, 1, sizeof(XMMATRIX));
+	hs = new HShader();
+	ds = new DShader();
+	gs = new GShader();
 	ps = new PShader("CMPS.cso");
 	ps->AddSRV(0, 1, srv);
 	D3D11_SAMPLER_DESC sampDesc;
@@ -27,11 +32,14 @@ CubeMap::CubeMap(ID3D11ShaderResourceView* srv)
 	ZeroMemory(&rs_desc, sizeof(D3D11_RASTERIZER_DESC));
 	rs_desc.CullMode = D3D11_CULL_FRONT;
 	rs_desc.FillMode = D3D11_FILL_SOLID;
+	rs_desc.FrontCounterClockwise = false;
 	rsState = new RasterizerState(&rs_desc);
+	dsState = new DepthStencilState();
 }
 
 void CubeMap::Update(Camera* camera, const XMMATRIX& texMat)
 {
+	transform->SetTranslation(camera->Pos());
 	XMMATRIX wvp = transform->WorldMatrix() * camera->VPMat(Z_ORDER_BACKGROUND);
 	vs->WriteCB(0, &wvp);
 }

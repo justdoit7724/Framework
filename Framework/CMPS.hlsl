@@ -1,5 +1,6 @@
-TextureCube cubeMap;
-sampler samp;
+TextureCube cubeMap : register(t0);
+
+sampler samp : register(s0);
 
 struct PS_INPUT
 {

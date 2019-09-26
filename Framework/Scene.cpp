@@ -19,11 +19,12 @@
 #include "Light.h"
 #include "Texture2D.h"
 #include "Buffer.h"
+#include "CubeMap.h"
 
 Scene::Scene(IGraphic* graphic)
 	:graphic(graphic)
 {
-	camera = new Camera(FRAME_KIND_PERSPECTIVE, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1, 200, 1.1f, 1.0f, XMFLOAT3(0, 0, -100), FORWARD, RIGHT);
+	camera = new Camera(FRAME_KIND_PERSPECTIVE, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1, 1000, 1.1f, 1.0f, XMFLOAT3(0, 0, -100), FORWARD, RIGHT);
 	canvas = new UICanvas(SCREEN_WIDTH, SCREEN_HEIGHT);
 	Debugging::Instance()->EnableGrid(10, 50);
 
@@ -46,12 +47,14 @@ Scene::Scene(IGraphic* graphic)
 	list.push_back("cm_normal_ny.png");
 	list.push_back("cm_normal_pz.png");
 	list.push_back("cm_normal_nz.png");
-	TextureMgr::Instance()->Load("star", list, 100);
+	TextureMgr::Instance()->LoadCM("sky", list);
 	ID3D11ShaderResourceView* sampleSRV;
 	UINT sampleCount;
-	TextureMgr::Instance()->Get("star", &sampleSRV, &sampleCount);
-	canvas->Add("newAnim", XMFLOAT2(0, 50), 760, 320, 0, sampleSRV, sampleCount, 2);
+	TextureMgr::Instance()->Get("sky", &sampleSRV, &sampleCount);
+	//canvas->Add("newAnim", XMFLOAT2(0, 50), 760, 320, 0, sampleSRV, sampleCount, 2);
 	
+	CubeMap* cm = new CubeMap(sampleSRV);
+	objs.push_back(cm);
 }
 
 Scene::~Scene()
@@ -106,8 +109,8 @@ void Scene::Update()
 
 void Scene::Render()
 {
-	Debugging::Instance()->Render(camera);
 
+	Debugging::Instance()->Render(camera);
 	for (auto obj : objs)
 	{
 		obj->Render();

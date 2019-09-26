@@ -18,7 +18,7 @@ class Camera;
 class Object
 {
 public:
-	Object() {}
+	Object();
 	Object(Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpec, float sP, XMFLOAT3 r, ID3D11ShaderResourceView* srv, int zOrder);
 	~Object();
 

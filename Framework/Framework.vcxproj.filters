@@ -129,14 +129,14 @@
     <ClCompile Include="PlaneShadow.cpp">
       <Filter>Object</Filter>
     </ClCompile>
-    <ClCompile Include="CubeMap.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="RasterizerState.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="HDTester.cpp">
       <Filter>Tasks</Filter>
+    </ClCompile>
+    <ClCompile Include="CubeMap.cpp">
+      <Filter>Object</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -248,14 +248,14 @@
     <ClInclude Include="PlaneShadow.h">
       <Filter>Object</Filter>
     </ClInclude>
-    <ClInclude Include="CubeMap.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="RasterizerState.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="HDTester.h">
       <Filter>Tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="CubeMap.h">
+      <Filter>Object</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
