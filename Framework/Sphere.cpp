@@ -46,7 +46,7 @@ Sphere::Sphere(int numSubDivision)
 	:Shape()
 {
 	// Put a cap on the number of subdivisions. 
-	numSubDivision = min(numSubDivision, 5u);
+	numSubDivision = min(numSubDivision, 6u);
 
 	// Approximate a sphere by tessellating an icosahedron. 
 	const float X = 0.525731f;

@@ -13,7 +13,6 @@ public:
 	void AddSRV(UINT slot, UINT arrayNum, ID3D11ShaderResourceView* srv);
 	void AddSamp(UINT slot, UINT arrayNum, D3D11_SAMPLER_DESC* desc);
 	void WriteCB(UINT slot, void* data);
-	virtual void Apply()=0;
 
 protected:
 	struct BindingCB 
@@ -54,7 +53,7 @@ class VShader : public Shader
 public:
 	VShader(std::string fileName, const D3D11_INPUT_ELEMENT_DESC* layoutDesc, int layoutNum);
 
-	void Apply()override;
+	void Apply()const override;
 
 private:
 	ComPtr<ID3D11InputLayout> iLayout = nullptr;
@@ -66,7 +65,7 @@ class GShader : public Shader
 public:
 	GShader(std::string fileName="");
 
-	void Apply()override;
+	void Apply()const override;
 
 	const bool enabled;
 private:
@@ -78,7 +77,7 @@ class HShader : public Shader
 public:
 	HShader(std::string fileName="");
 
-	void Apply()override;
+	void Apply()const override;
 private:
 	ComPtr<ID3D11HullShader> hs = nullptr;
 };
@@ -87,7 +86,7 @@ class DShader : public Shader
 public:
 	DShader(std::string fileName = "");
 
-	void Apply()override;
+	void Apply()const override;
 private:
 	ComPtr<ID3D11DomainShader> ds = nullptr;
 };
@@ -98,7 +97,7 @@ class PShader : public Shader
 public:
 	PShader(std::string fileName);
 
-	void Apply()override;
+	void Apply()const override;
 
 private:
 	ComPtr<ID3D11PixelShader> ps = nullptr;
@@ -110,7 +109,7 @@ class CShader : public Shader
 public:
 	CShader(const std::string CSfileName);
 
-	void Apply()override;
+	void Apply()const override;
 
 private:
 	ComPtr<ID3D11ComputeShader> cs = nullptr;

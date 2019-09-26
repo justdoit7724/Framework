@@ -1,6 +1,9 @@
 #include "PlaneShadow.h"
 #include "Light.h"
 #include "Camera.h"
+#include "Shader.h"
+#include "Transform.h"
+#include "Shape.h"
 
 PlaneShadow::PlaneShadow(Shape* shape, XMFLOAT3 planeN, float planeD)
 	: planeNormal(planeN), planeDist(planeD)

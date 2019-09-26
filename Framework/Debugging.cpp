@@ -247,7 +247,6 @@ void Debugging::Render(Camera* camera)
 
 #pragma endregion
 
-
 	#pragma region Texts
 
 	

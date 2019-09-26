@@ -8,7 +8,7 @@ public:
 	Hill(int n, int m, XMFLOAT2 heightRange, ID3D11ShaderResourceView *const* heightMap);
 	~Hill();
 
-	void Apply()override;
+	void Apply()const override;
 private:
 };
 

@@ -51,7 +51,7 @@ void Shape::Init(void* vertice, UINT _vertexByteSize, UINT vertexCount, void* in
 	);
 }
 
-void Shape::Apply()
+void Shape::Apply()const
 {
 	DX_DContext->IASetPrimitiveTopology(primitiveType);
 	UINT offset = 0;

@@ -1,8 +1,13 @@
 #include "Object.h"
 #include "TextureMgr.h"
 #include "Light.h"
+#include "Transform.h"
 #include "Shader.h"
+#include "BlendState.h"
+#include "DepthStencilState.h"
+#include "RasterizerState.h"
 #include "Camera.h"
+#include "Shape.h"
 
 Object::Object(Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpec, float sP, XMFLOAT3 r, ID3D11ShaderResourceView* srv, int zOrder)
 	:zOrder(zOrder), shape(shape)
@@ -45,11 +50,15 @@ Object::~Object()
 	delete transform;
 	delete shape;
 	delete vs;
+	delete hs;
+	delete ds;
 	delete gs;
 	delete ps;
 
-	delete dsState;
-	delete blendState;
+	if (dsState)
+		delete dsState;
+	if (blendState)
+		delete blendState;
 }
 
 void Object::Update(Camera* camera, const XMMATRIX& texMat)
@@ -75,7 +84,9 @@ void Object::Render()
 	ps->Apply();
 
 	// STATE
-	dsState->Apply();
-	blendState->Apply();
+	if(dsState)
+		dsState->Apply();
+	if(blendState)
+		blendState->Apply();
 	shape->Apply();
 }

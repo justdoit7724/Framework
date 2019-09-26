@@ -118,7 +118,7 @@ Graphic::Graphic(HWND _hwnd)
 #pragma region Rasterizer
 	D3D11_RASTERIZER_DESC rs_desc;
 	ZeroMemory(&rs_desc, sizeof(D3D11_RASTERIZER_DESC));
-	rs_desc.FillMode = D3D11_FILL_WIREFRAME;
+	rs_desc.FillMode = D3D11_FILL_SOLID;
 	rs_desc.CullMode = D3D11_CULL_BACK;
 	r_assert(
 		DX_Device->CreateRasterizerState(&rs_desc, rasterizerState.GetAddressOf())

@@ -120,7 +120,7 @@ Hill::~Hill()
 {
 }
 
-void Hill::Apply()
+void Hill::Apply()const
 {
 	Debugging::Instance()->Draw("Normal of hill is only heading upward", 100, 30);
 

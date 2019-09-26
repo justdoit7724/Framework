@@ -6,8 +6,8 @@ cbuffer CB_TRANSFORM : register(b0)
 
 struct Patch
 {
-    float edgeTessFactor[4] : SV_TessFactor;
-    float inTessFactor[2] : SV_InsideTessFactor;
+    float edgeTessFactor[3] : SV_TessFactor;
+    float inTessFactor : SV_InsideTessFactor;
 };
 
 struct DS_INPUT
@@ -19,15 +19,14 @@ struct DS_OUTPUT
     float4 pos : SV_POSITION;
 };
 
-[domain("quad")]
-DS_OUTPUT main(Patch p, float2 uv : SV_DomainLocation, const OutputPatch<DS_INPUT, 4> input)
+[domain("tri")]
+DS_OUTPUT main(Patch p, float2 uv : SV_DomainLocation, const OutputPatch<DS_INPUT, 3> input)
 {
     DS_OUTPUT output;
-
-    float3 p1 = lerp(input[0].pos, input[1].pos, 1 - uv.y);
-    float3 p2 = lerp(input[3].pos, input[2].pos, 1 - uv.y);
-    float3 p3 = lerp(p1, p2, uv.x);
-    //p3.y = 0.3f * (p3.z * sin(p3.x) + p3.x * cos(p3.z));
+    
+    float3 right = input[1].pos - input[0].pos;
+    float3 down = input[2].pos - input[0].pos;
+    float3 p3 = input[0].pos+right * uv.x + down * uv.y;
 
     output.pos = mul(wvp_mat, float4(p3, 1));
     return output;

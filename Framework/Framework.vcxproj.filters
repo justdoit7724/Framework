@@ -129,8 +129,14 @@
     <ClCompile Include="PlaneShadow.cpp">
       <Filter>Object</Filter>
     </ClCompile>
-    <ClCompile Include="HDTester.cpp">
+    <ClCompile Include="CubeMap.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RasterizerState.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HDTester.cpp">
+      <Filter>Tasks</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -242,8 +248,14 @@
     <ClInclude Include="PlaneShadow.h">
       <Filter>Object</Filter>
     </ClInclude>
-    <ClInclude Include="HDTester.h">
+    <ClInclude Include="CubeMap.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RasterizerState.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HDTester.h">
+      <Filter>Tasks</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -304,6 +316,12 @@
       <Filter>Tasks</Filter>
     </FxCompile>
     <FxCompile Include="PS.hlsl">
+      <Filter>Tasks</Filter>
+    </FxCompile>
+    <FxCompile Include="CMPS.hlsl">
+      <Filter>Tasks</Filter>
+    </FxCompile>
+    <FxCompile Include="CMVS.hlsl">
       <Filter>Tasks</Filter>
     </FxCompile>
   </ItemGroup>

@@ -1,12 +1,18 @@
 #pragma once
 #include <string>
-#include "Transform.h"
-#include "DepthStencilState.h"
-#include "BlendState.h"
 #include "CustomFormat.h"
-#include "Shader.h"
-#include "Shape.h"
 
+
+class Transform;
+class Shape;
+class VShader;
+class HShader;
+class DShader;
+class GShader;
+class PShader;
+class BlendState;
+class DepthStencilState;
+class RasterizerState;
 class Camera;
 
 class Object
@@ -29,8 +35,9 @@ protected:
 	DShader* ds;
 	GShader* gs;
 	PShader* ps;
-	BlendState * blendState;
-	DepthStencilState * dsState;
+	BlendState * blendState = nullptr;
+	DepthStencilState * dsState = nullptr;
+	RasterizerState* rsState = nullptr;
 
 	XMMATRIX worldMat;
 	XMMATRIX nMat;

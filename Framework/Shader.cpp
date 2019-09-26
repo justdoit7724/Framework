@@ -138,7 +138,7 @@ PShader::PShader(std::string fileName)
 	);
 }
 
-void VShader::Apply()
+void VShader::Apply()const
 {
 	DX_DContext->IASetInputLayout(iLayout.Get());
 	DX_DContext->VSSetShader(vs.Get(), nullptr, 0);
@@ -189,7 +189,7 @@ GShader::GShader(std::string fileName)
 	);
 }
 
-void GShader::Apply()
+void GShader::Apply()const
 {
 	if (enabled)
 	{
@@ -222,7 +222,7 @@ void GShader::Apply()
 	}
 }
 
-void PShader::Apply()
+void PShader::Apply()const
 {
 	DX_DContext->PSSetShader(ps.Get(), nullptr, 0);
 
@@ -267,7 +267,7 @@ CShader::CShader(const std::string CSfileName)
 	);
 }
 
-void CShader::Apply()
+void CShader::Apply()const
 {
 	DX_DContext->CSSetShader(cs.Get(), nullptr, 0);
 
@@ -316,7 +316,7 @@ HShader::HShader(std::string fileName)
 	);
 }
 
-void HShader::Apply()
+void HShader::Apply()const
 {
 	DX_DContext->HSSetShader(hs.Get(), nullptr, 0);
 
@@ -365,7 +365,7 @@ DShader::DShader(std::string fileName)
 	);
 }
 
-void DShader::Apply()
+void DShader::Apply()const
 {
 	DX_DContext->DSSetShader(ds.Get(), nullptr, 0);
 

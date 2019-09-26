@@ -19,10 +19,6 @@ float4 main(PS_INPUT input) : SV_Target
 {
     float4 color = uiTexture.Sample(sampState, float3(input.tex, sliceIdx));
     
-    //delete
-    color.w = 0.25f;
-    return color;
-
     if(color.x == MAGENTA.x && 
         color.y == MAGENTA.y &&
         color.z == MAGENTA.z)

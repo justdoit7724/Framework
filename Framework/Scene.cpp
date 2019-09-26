@@ -20,8 +20,6 @@
 #include "Texture2D.h"
 #include "Buffer.h"
 
-#include "HDTester.h"
-
 Scene::Scene(IGraphic* graphic)
 	:graphic(graphic)
 {
@@ -42,21 +40,18 @@ Scene::Scene(IGraphic* graphic)
 	);
 
 	std::vector<std::string> list;
-	list.push_back("marine_s.png");
-	TextureMgr::Instance()->Load("star", list, 10);
+	list.push_back("cm_normal_px.png");
+	list.push_back("cm_normal_nx.png");
+	list.push_back("cm_normal_py.png");
+	list.push_back("cm_normal_ny.png");
+	list.push_back("cm_normal_pz.png");
+	list.push_back("cm_normal_nz.png");
+	TextureMgr::Instance()->Load("star", list, 100);
 	ID3D11ShaderResourceView* sampleSRV;
 	UINT sampleCount;
 	TextureMgr::Instance()->Get("star", &sampleSRV, &sampleCount);
-	canvas->Add("newAnim", XMFLOAT2(0, 50), 1680, 360, 0, sampleSRV, sampleCount, 2);
-	D3D11_BLEND_DESC uiBlend_desc;
-	uiBlend_desc.AlphaToCoverageEnable = true;
-	uiBlend_desc.IndependentBlendEnable = false;
-	uiBlend_desc.RenderTarget[0].BlendEnable = false;
-	uiBlend_desc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-	canvas->Get("newAnim")->blendState->Modify(&uiBlend_desc);
-
-	HDTester* tester = new HDTester();
-	objs.push_back(tester);
+	canvas->Add("newAnim", XMFLOAT2(0, 50), 760, 320, 0, sampleSRV, sampleCount, 2);
+	
 }
 
 Scene::~Scene()
@@ -66,31 +61,28 @@ Scene::~Scene()
 	delete dLight;
 }
 
-
-ID3D11ShaderResourceView* depthComplexSrv;
 void Scene::Update()
 {
 	Timer::Update();
 	camera->Update(Timer::SPF());
-
-	/*if (Keyboard::IsPressing("F"))
+	/*
+	if (Keyboard::IsPressing("F"))
 	{
-		dLightDir = dLightDir*XMMatrixRotationZ(0.01f);
+		p3.x -= 0.1f;
 	}
 	else if (Keyboard::IsPressing("H"))
 	{
-		dLightDir = dLightDir * XMMatrixRotationZ(-0.01f);
-
+		p3.x += 0.1f;
 	}
 	if (Keyboard::IsPressing("T"))
 	{
-		dLightDir = dLightDir * XMMatrixRotationX(0.01f);
+		p3.y += 0.1f;
 	}
 	else if (Keyboard::IsPressing("G"))
 	{
-		dLightDir = dLightDir * XMMatrixRotationX(-0.01f);
-	}
-	dLight->SetDir(dLightDir);*/
+		p3.y -= 0.1f;
+	}*/
+	
 
 	if (pLight)
 	{
@@ -114,12 +106,12 @@ void Scene::Update()
 
 void Scene::Render()
 {
-	//Debugging::Instance()->Render(camera);
+	Debugging::Instance()->Render(camera);
 
 	for (auto obj : objs)
 	{
 		obj->Render();
 	}
 
-	//canvas->Render();
+	canvas->Render();
 }
