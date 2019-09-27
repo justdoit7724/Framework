@@ -33,5 +33,6 @@ private:
 
 	DirectionalLight* dLight = nullptr;
 	PointLight* pLight=nullptr;
+	PointLight* pLight2=nullptr;
 };
 

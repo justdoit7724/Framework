@@ -282,9 +282,15 @@ void Debugging::Render(Camera* camera)
 #pragma endregion
 }
 
+#include "InputLayoutBuilder.h"
 Debugging::Debugging()
 {
-	vs = new VShader("MarkVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
+	vs = new VShader("MarkVS.cso", 
+		InputLayoutBuilder().
+		SetInput("POSITION", DXGI_FORMAT_R32G32B32_FLOAT,0).
+		SetInput("NORMAL", DXGI_FORMAT_R32G32B32_FLOAT, sizeof(XMFLOAT3)).
+		SetInput("TEXCOORD", DXGI_FORMAT_R32G32_FLOAT, sizeof(XMFLOAT3)).Build(),
+		3);
 	hs = new HShader();
 	ds = new DShader();
 	gs = new GShader();

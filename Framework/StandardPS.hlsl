@@ -1,4 +1,6 @@
 
+#include "ShaderInfo.cginc"
+
 #define LIGHT_ENABLED 1
 #define LIGHT_DISABLED 0
 #define LIGHT_MAX_EACH 10
@@ -47,7 +49,10 @@ cbuffer MATERIAL : register(b4)
 };
 
 Texture2DArray bodyTex : register(t0);
+TextureCube cm_tex : register(t1);
+
 SamplerState bodySampleState : register(s0);
+SamplerState cmSampleState : register(s1);
 
 void ComputeDirectionalLight(float3 normal, float3 toEye, out float4 ambient, out float4 diffuse, out float4 spec)
 {
@@ -155,6 +160,10 @@ void ComputeSpotLight(float3 pos, float3 normal, float3 toEye, out float4 ambien
         spec += tmpS;
     }
 }
+void ComputeReflection(float3 normal, float3 look, out float4 color)
+{
+    color = cm_tex.Sample(cmSampleState, reflect(look, normal)) * mReflection;
+}
 
 struct PS_INPUT
 {
@@ -165,9 +174,6 @@ struct PS_INPUT
 };
 float4 main(PS_INPUT input) : SV_Target
 {
-    //uint width, height, spriteCount;
-    //bodyTex.GetDimensions(width, height, spriteCount);
-
     float4 tex = bodyTex.Sample(bodySampleState, float3(input.tex, 0));
     
     input.normal = normalize(input.normal);
@@ -175,6 +181,7 @@ float4 main(PS_INPUT input) : SV_Target
     float4 ambient = 0;
     float4 diffuse = 0;
     float4 specular = 0;
+    float4 reflection = 0;
     float4 A, D, S;
     ComputeDirectionalLight(input.normal, toEye, A, D, S);
     ambient += A;
@@ -188,12 +195,15 @@ float4 main(PS_INPUT input) : SV_Target
     ambient += A;
     diffuse += D;
     specular += S;
-
+    ComputeReflection(input.normal, -toEye, reflection);
+    
     ambient *= tex;
     diffuse *= tex;
     
     float4 color = ambient + diffuse + specular;
+    color = Lerp(color, reflection, 0.9f);
     color.w = mDiffuse.a;
+
     
     return color;
 }

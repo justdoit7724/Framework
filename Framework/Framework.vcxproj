@@ -183,6 +183,7 @@
     <ClInclude Include="Graphic.h" />
     <ClInclude Include="HDTester.h" />
     <ClInclude Include="Hill.h" />
+    <ClInclude Include="InputLayoutBuilder.h" />
     <ClInclude Include="Keyboard.h" />
     <ClInclude Include="Geometrics.h" />
     <ClInclude Include="Light.h" />

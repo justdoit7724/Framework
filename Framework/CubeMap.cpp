@@ -5,12 +5,23 @@
 #include "RasterizerState.h"
 #include "Camera.h"
 #include "DepthStencilState.h"
+#include "InputLayoutBuilder.h"
 
 CubeMap::CubeMap(ID3D11ShaderResourceView* srv)
 { 
+	int* pI = TestBuilder().SetInput(1).SetInput(2).SetInput(3).Build();
+	int a0 = pI[0];
+	int a1 = pI[1];
+	int a2 = pI[2];
+
 	transform = new Transform();
 	transform->SetScale(100, 75, 100);
-	vs = new VShader("CMVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
+	vs = new VShader("CMVS.cso", 
+		InputLayoutBuilder().
+		SetInput("POSITION", DXGI_FORMAT_R32G32B32_FLOAT, 0).
+		SetInput("NORMAL", DXGI_FORMAT_R32G32B32_FLOAT, sizeof(XMFLOAT3)).
+		SetInput("TEXCOORD", DXGI_FORMAT_R32G32_FLOAT, sizeof(XMFLOAT3)).Build(),
+		3);
 	vs->AddCB(0, 1, sizeof(XMMATRIX));
 	hs = new HShader();
 	ds = new DShader();

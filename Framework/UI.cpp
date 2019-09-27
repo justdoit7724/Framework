@@ -8,6 +8,7 @@
 #include "Transform.h"
 #include "DepthStencilState.h"
 #include "BlendState.h"
+#include "InputLayoutBuilder.h"
 
 UI::UI(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView * srv, UINT maxSliceIdx, UINT slicePerSec)
 	:maxSliceIdx(maxSliceIdx), secPerSlice(1.0f / slicePerSec)
@@ -21,7 +22,12 @@ UI::UI(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float
 	transform->SetTranslation(pivot.x + width * 0.5f, (canvasHeight - height * 0.5f) - pivot.y, zDepth);
 
 
-	vs = new VShader("UIVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
+	vs = new VShader("UIVS.cso", 
+		InputLayoutBuilder().
+		SetInput("POSITION", DXGI_FORMAT_R32G32B32_FLOAT, 0).
+		SetInput("NORMAL", DXGI_FORMAT_R32G32B32_FLOAT, sizeof(XMFLOAT3)).
+		SetInput("TEXCOORD", DXGI_FORMAT_R32G32_FLOAT, sizeof(XMFLOAT2)).Build(), 
+		3);
 	hs = new HShader();
 	ds = new DShader();
 	gs = new GShader();

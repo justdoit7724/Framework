@@ -20,6 +20,7 @@
 #include "Texture2D.h"
 #include "Buffer.h"
 #include "CubeMap.h"
+#include "Transform.h"
 
 Scene::Scene(IGraphic* graphic)
 	:graphic(graphic)
@@ -37,7 +38,13 @@ Scene::Scene(IGraphic* graphic)
 		XMFLOAT3(0, 0.25f, 0),
 		XMFLOAT3(0, 0.7f, 0),
 		XMFLOAT3(0, 0.8f, 0),
-		XMFLOAT3(0, 0, 0), 100, XMFLOAT3(0.15f, 0.015f, 0.0015f)
+		XMFLOAT3(0, 0, 0), 200, XMFLOAT3(0.1f, 0.005f, 0.0005f)
+	);
+	pLight2 = new PointLight(
+		XMFLOAT3(0.25f, 0,0),
+		XMFLOAT3(0.7f, 0,0),
+		XMFLOAT3(0.8f, 0,0),
+		XMFLOAT3(0, 0,0), 200, XMFLOAT3(0.1f, 0.005f, 0.0005f)
 	);
 
 	std::vector<std::string> list;
@@ -48,6 +55,7 @@ Scene::Scene(IGraphic* graphic)
 	list.push_back("cm_normal_pz.png");
 	list.push_back("cm_normal_nz.png");
 	TextureMgr::Instance()->LoadCM("sky", list);
+	TextureMgr::Instance()->Load("tex1", "woodbox.jpg", 4);
 	ID3D11ShaderResourceView* sampleSRV;
 	UINT sampleCount;
 	TextureMgr::Instance()->Get("sky", &sampleSRV, &sampleCount);
@@ -55,6 +63,13 @@ Scene::Scene(IGraphic* graphic)
 	
 	CubeMap* cm = new CubeMap(sampleSRV);
 	objs.push_back(cm);
+
+	ID3D11ShaderResourceView* texSRV;
+	UINT texCount;
+	TextureMgr::Instance()->Get("tex1", &texSRV, &texCount);
+	Object* obj = new Object(new Sphere(4), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), 4, XMFLOAT3(1, 1, 1), texSRV, sampleSRV, 2);
+	obj->transform->SetScale(30, 50, 30);
+	objs.push_back(obj);
 }
 
 Scene::~Scene()
@@ -94,9 +109,17 @@ void Scene::Update()
 			25,
 			sin(Timer::Elapsed()*0.5f) * 50);
 		pLight->SetPos(pt);
-		Debugging::Instance()->Mark(0, pt, 1.5f, Colors::Green);
+		Debugging::Instance()->Mark(999, pt, 1.5f, Colors::Green);
 	}
-
+	if (pLight2)
+	{
+		XMFLOAT3 pt = XMFLOAT3(
+			cos(Timer::Elapsed() * 0.45f) * 35,
+			cos(Timer::Elapsed()) * 10,
+			sin(Timer::Elapsed() * 0.45f) * 55);
+		pLight2->SetPos(pt);
+		Debugging::Instance()->Mark(9999, pt, 1.5f, Colors::Red);
+	}
 	
 	
 	canvas->Update(Timer::SPF());

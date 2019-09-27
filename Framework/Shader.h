@@ -51,7 +51,7 @@ protected:
 class VShader : public Shader
 {
 public:
-	VShader(std::string fileName, const D3D11_INPUT_ELEMENT_DESC* layoutDesc, int layoutNum);
+	VShader(std::string fileName, D3D11_INPUT_ELEMENT_DESC* layoutDesc, UINT layoutNum);
 
 	void Apply()const override;
 
@@ -63,7 +63,7 @@ private:
 class GShader : public Shader
 {
 public:
-	GShader(std::string fileName="");
+	GShader(std::string fileName = "");
 
 	void Apply()const override;
 

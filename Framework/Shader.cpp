@@ -93,7 +93,7 @@ void Shader::WriteCB(UINT slot, void * data)
 
 
 
-VShader::VShader(std::string fileName, const D3D11_INPUT_ELEMENT_DESC * layoutDesc, int layoutNum)
+VShader::VShader(std::string fileName, D3D11_INPUT_ELEMENT_DESC * layoutDesc, UINT layoutNum)
 {
 	std::wstring wVS(fileName.begin(), fileName.end());
 	ComPtr<ID3DBlob> vsBlob;

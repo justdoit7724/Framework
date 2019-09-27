@@ -257,6 +257,9 @@
     <ClInclude Include="CubeMap.h">
       <Filter>Object</Filter>
     </ClInclude>
+    <ClInclude Include="InputLayoutBuilder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ShaderInfo.cginc">

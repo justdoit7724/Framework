@@ -8,16 +8,20 @@
 #include "RasterizerState.h"
 #include "Camera.h"
 #include "Shape.h"
+#include "InputLayoutBuilder.h"
 
 Object::Object()
 {
 }
 
-Object::Object(Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpec, float sP, XMFLOAT3 r, ID3D11ShaderResourceView* srv, int zOrder)
+Object::Object(Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpec, float sP, XMFLOAT3 r, ID3D11ShaderResourceView* srv, ID3D11ShaderResourceView* cm, int zOrder)
 	:zOrder(zOrder), shape(shape)
 {
 	transform = new Transform();
-	vs = new VShader("StandardVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
+	vs = new VShader("StandardVS.cso", InputLayoutBuilder().
+		SetInput("POSITION", DXGI_FORMAT_R32G32B32_FLOAT, 0).
+		SetInput("NORMAL", DXGI_FORMAT_R32G32B32_FLOAT, sizeof(XMFLOAT3)).
+		SetInput("TEXCOORD", DXGI_FORMAT_R32G32_FLOAT, sizeof(XMFLOAT3)).Build(), 3);
 	hs = new HShader();
 	ds = new DShader();
 	gs = new GShader();
@@ -42,10 +46,13 @@ Object::Object(Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpe
 	samplerDesc.MinLOD = 0;
 	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	ps->AddSamp(0, 1, &samplerDesc);
+	ps->AddSamp(1, 1, &samplerDesc);
 	ps->AddSRV(0, 1, srv);
+	ps->AddSRV(1, 1, cm);
 
 	blendState = new BlendState();
 	dsState = new DepthStencilState();
+	rsState = new RasterizerState();
 }
 
 Object::~Object()

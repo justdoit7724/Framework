@@ -10,6 +10,14 @@ TextureMgr::~TextureMgr()
 	}
 }
 
+void TextureMgr::Load(std::string key, std::string fileName, UINT miplevel)
+{
+	std::vector<std::string> list;
+	list.push_back(fileName);
+
+	Load(key, list, miplevel);
+}
+
 int CalculateMaxMiplevel(int width, int height)
 {
 	return log2(max(width, height));
