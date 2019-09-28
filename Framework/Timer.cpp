@@ -2,19 +2,6 @@
 
 using namespace std::chrono;
 
-int Timer::fps;
-float Timer::spf;
-std::chrono::time_point<std::chrono::steady_clock> Timer::prev;
-std::chrono::time_point<std::chrono::steady_clock> Timer::first;
-
-void Timer::Init()
-{
-	fps = 0;
-	spf = 0;
-	prev = high_resolution_clock::now();
-	first = high_resolution_clock::now();
-}
-
 float fpsSec = 0;
 void Timer::Update()
 {
@@ -34,5 +21,13 @@ void Timer::Update()
 float Timer::Elapsed()
 {
 	return duration<float, std::deca>(high_resolution_clock::now() - first).count()*10;
+}
+
+Timer::Timer()
+{
+	fps = 0;
+	spf = 0;
+	prev = high_resolution_clock::now();
+	first = high_resolution_clock::now();
 }
 

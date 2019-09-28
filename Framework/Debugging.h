@@ -19,11 +19,13 @@ class DepthStencilState;
 class BlendState;
 class RasterizerState;
 class Camera;
+class DebuggingScene;
 struct VS_Property;
 
 class Debugging : public Singleton<Debugging>
 {
 public:
+	friend class DebuggingScene;
 
 	void Draw(const std::string tex, const float x, const float y,  const XMVECTORF32 _color = Colors::White,  const float _scale = 1.5f);
 	void Draw(const int tex, const float x, const float y, const XMVECTORF32 _color = Colors::White, const float _scale = 1.5f);
@@ -40,9 +42,9 @@ public:
 	void EnableGrid(float interval, int num=100);
 	void DisableGrid();
 
+private:
 	void Update(Camera* camera);
 	void Render();
-private:
 
 	friend class Singleton<Debugging>;
 	Debugging();

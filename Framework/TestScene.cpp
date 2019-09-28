@@ -5,7 +5,6 @@
 #include "Mouse.h"	
 #include "TextureMgr.h"
 #include "Camera.h"
-#include "Timer.h"
 #include "CustomFormat.h"
 #include "UI.h"
 #include "Object.h"
@@ -22,12 +21,14 @@
 #include "Buffer.h"
 #include "CubeMap.h"
 #include "Transform.h"
-#include "DynamicCubeMap.h"
+#include "Timer.h"
 
 TestScene::TestScene(IGraphic* graphic)
 	:Scene("Test")
 {
-	camera = new Camera(FRAME_KIND_PERSPECTIVE, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1, 1000, 70.0f, 1.0f, XMFLOAT3(0, 0, -100), FORWARD, RIGHT);
+	Camera* camera = new Camera("TestMain", FRAME_KIND_PERSPECTIVE, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1, 1000, 70.0f, 1.0f, XMFLOAT3(0, 0, -100), FORWARD, RIGHT);
+	camera->SetMain();
+	timer = new Timer();
 	canvas = new UICanvas(SCREEN_WIDTH, SCREEN_HEIGHT);
 	Debugging::Instance()->EnableGrid(10, 50);
 
@@ -70,51 +71,21 @@ TestScene::TestScene(IGraphic* graphic)
 	UINT texCount;
 	TextureMgr::Instance()->Get("tex1", &texSRV, &texCount);
 	Object* obj = new Object(new Sphere(4), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), 4, XMFLOAT3(1, 1, 1), texSRV, sampleSRV, 2);
-	obj->transform->SetScale(30, 50, 30);
+	obj->transform->SetScale(35, 35, 35);
 	objs.push_back(obj);
-
-	DynamicCubeMap* dcmObj = new DynamicCubeMap(graphic, new Sphere(4));
-	dcmObj->transform->SetScale(20, 20, 20);
-	dcmObj->transform->SetTranslation(100, 100, 0);
-	objs.push_back(dcmObj);
 }
 
 TestScene::~TestScene()
 {
-	delete camera;
 	delete canvas;
 	delete dLight;
 }
 
-void TestScene::Update(Camera* cam)
-{
-	Camera* curCamera = cam ? cam : camera;
+void CameraMove(Camera* camera, float spf) {
 
-	Timer::Update();
-	Debugging::Instance()->Update(curCamera);
-
-	/*
-	if (Keyboard::IsPressing("F"))
-	{
-		p3.x -= 0.1f;
-	}
-	else if (Keyboard::IsPressing("H"))
-	{
-		p3.x += 0.1f;
-	}
-	if (Keyboard::IsPressing("T"))
-	{
-		p3.y += 0.1f;
-	}
-	else if (Keyboard::IsPressing("G"))
-	{
-		p3.y -= 0.1f;
-	}
-	*/
-	float spf = Timer::SPF();
-	XMFLOAT3 newPos = curCamera->transform->GetPos();
-	XMFLOAT3 right = curCamera->transform->GetRight();
-	XMFLOAT3 forward = curCamera->transform->GetForward();
+	XMFLOAT3 newPos = camera->transform->GetPos();
+	XMFLOAT3 right = camera->transform->GetRight();
+	XMFLOAT3 forward = camera->transform->GetForward();
 	const float speed = 100;
 	if (Keyboard::IsPressing('A')) {
 
@@ -144,40 +115,51 @@ void TestScene::Update(Camera* cam)
 	prevMousePt.x = Mouse::Instance()->X();
 	prevMousePt.y = Mouse::Instance()->Y();
 	const XMMATRIX rotMat = XMMatrixRotationX(angleX) * XMMatrixRotationY(angleY);
-	curCamera->transform->SetTranslation(newPos);
-	curCamera->transform->SetRot(FORWARD * rotMat, UP * rotMat);
+	camera->transform->SetTranslation(newPos);
+	camera->transform->SetRot(FORWARD * rotMat, UP * rotMat);
+}
+void TestScene::Logic_Update(Camera* cam)
+{
+	timer->Update();
 
+	CameraMove(cam, timer->SPF());
+
+	Debugging::Instance()->Draw("Main camera = ", cam->transform->GetPos(), 10, 40);
+
+	float elaped = timer->Elapsed();
 	if (pLight)
 	{
 		XMFLOAT3 pt = XMFLOAT3(
-			cos(Timer::Elapsed() * 0.5f) * 30,
+			cos(elaped * 0.5f) * 30,
 			25,
-			sin(Timer::Elapsed() * 0.5f) * 50);
+			sin(elaped * 0.5f) * 50);
 		pLight->SetPos(pt);
 		Debugging::Instance()->Mark(999, pt, 1.5f, Colors::Green);
 	}
 	if (pLight2)
 	{
 		XMFLOAT3 pt = XMFLOAT3(
-			cos(Timer::Elapsed() * 0.45f) * 35,
-			cos(Timer::Elapsed()) * 10,
-			sin(Timer::Elapsed() * 0.45f) * 55);
+			cos(elaped * 0.45f) * 35,
+			cos(elaped) * 10,
+			sin(elaped * 0.45f) * 55);
 		pLight2->SetPos(pt);
 		Debugging::Instance()->Mark(9999, pt, 1.5f, Colors::Red);
 	}
 
 
-	canvas->Update(Timer::SPF());
+	canvas->Update(timer->SPF());
+}
 
+void TestScene::Render_Update(Camera* camera)
+{
 	for (auto obj : objs)
 	{
-		obj->Update(curCamera, XMMatrixIdentity());
+		obj->Update(camera, XMMatrixIdentity());
 	}
 }
 
 void TestScene::Render()const
 {
-	Debugging::Instance()->Render();
 	for (auto obj : objs)
 	{
 		obj->Render();

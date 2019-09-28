@@ -1,15 +1,27 @@
 #include "Camera.h"
 #include "Transform.h"
+#include "CameraMgr.h"
 
 #define Z_ORDER_MAX 5
 
-Camera::Camera(const FRAME_KIND	frameKind, UINT orthoScnWidth, UINT orthoScnHeight, const float n, const float f, const float verticalViewAngle, const float aspectRatio, const XMFLOAT3 firstPos, const XMFLOAT3 _forward, const XMFLOAT3 _up)
+Camera::Camera(std::string key, const FRAME_KIND	frameKind, UINT orthoScnWidth, UINT orthoScnHeight, const float n, const float f, const float verticalViewAngle, const float aspectRatio, const XMFLOAT3 firstPos, const XMFLOAT3 _forward, const XMFLOAT3 _up)
+	:key(key)
 {
+	CameraMgr::Instance()->Add(key, this);
+
 	transform = new Transform();
 
 	SetFrame(frameKind, orthoScnWidth, orthoScnHeight, n, f, verticalViewAngle, aspectRatio);
 	transform->SetTranslation(firstPos);
 	transform->SetRot(_forward, _up);
+}
+Camera::~Camera()
+{
+	CameraMgr::Instance()->Remove(key);
+}
+void Camera::SetMain()
+{
+	CameraMgr::Instance()->SetMain(key);
 }
 void Camera::SetFrame(const FRAME_KIND fKind, UINT screenWidth, UINT screenHeight, const float n, const float f, const float verticalViewAngle, const float aspectRatio)
 {

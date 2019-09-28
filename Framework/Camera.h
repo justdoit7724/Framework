@@ -17,7 +17,9 @@ class Transform;
 class Camera
 {
 public:
-	Camera(const FRAME_KIND	frameKind, UINT screenWidth, UINT screenHeight, const float nearPlane, const float farPlane, const float verticalViewAngle, const float aspectRatio, const XMFLOAT3 firstPos, const XMFLOAT3 _forward, const XMFLOAT3 _up);
+	Camera(std::string key, const FRAME_KIND frameKind, UINT screenWidth, UINT screenHeight, const float nearPlane, const float farPlane, const float verticalViewAngle, const float aspectRatio, const XMFLOAT3 firstPos, const XMFLOAT3 _forward, const XMFLOAT3 _up);
+	~Camera();
+	void SetMain();
 	void SetFrame(const FRAME_KIND fKind, UINT screenWidth, UINT screenHeight, const float nearPlane, const float farPlane, const float verticalViewAngle, const float aspectRatio);
 	void Update(float spf);
 
@@ -31,6 +33,8 @@ public:
 	}
 
 	Transform* transform;
+
+	const std::string key;
 
 private:
 	XMMATRIX* projMats;

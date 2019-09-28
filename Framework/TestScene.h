@@ -9,6 +9,7 @@ class PointLight;
 class SpotLight;
 class UICanvas;
 class IGraphic;
+class Timer;
 
 class TestScene :
 	public Scene
@@ -16,11 +17,12 @@ class TestScene :
 public:
 	TestScene(IGraphic* graphic);
 	~TestScene();
-	void Update(Camera* camera)override;
+	void Logic_Update(Camera* camera)override;
+	void Render_Update(Camera* camera)override;
 	void Render()const override;
 
 private:
-	Camera* camera;
+	Timer* timer;
 
 	UICanvas* canvas;
 

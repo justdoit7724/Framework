@@ -5,15 +5,17 @@
 #include "Shader.h"
 #include "Network.h"
 #include "CustomFormat.h"
+#include "Scene.h"
 
-DynamicCubeMap::DynamicCubeMap(IGraphic* graphic, Shape* shape)
+DynamicCubeMap::DynamicCubeMap(IGraphic* graphic, Scene* captureScene, Shape* shape)
 	:Object(
 		shape,
 		"CMVS.cso", Std_ILayouts,3,
 		"","","",
 		"CMPS.cso",
 		Z_ORDER_STANDARD),
-	graphic(graphic)
+	graphic(graphic),
+	captureScene(captureScene)
 {
 	vs->AddCB(0, 1, sizeof(XMMATRIX));
 	ps->AddSRV(0, 1);
@@ -99,17 +101,16 @@ DynamicCubeMap::DynamicCubeMap(IGraphic* graphic, Shape* shape)
 	captureViewport.MinDepth = 0.0f;
 	captureViewport.MaxDepth = 1.0f;
 
-	captureCamera[0] = new Camera(FRAME_KIND_PERSPECTIVE, captureLength, captureLength, 100.0f, 1000.0f, 90.0f, 1, XMFLOAT3(0,0,0), FORWARD, UP);
-	captureCamera[1] = new Camera(FRAME_KIND_PERSPECTIVE, captureLength, captureLength, 100.0f, 1000.0f, 90.0f, 1, XMFLOAT3(0,0,0), -FORWARD, UP);
-	captureCamera[2] = new Camera(FRAME_KIND_PERSPECTIVE, captureLength, captureLength, 100.0f, 1000.0f, 90.0f, 1, XMFLOAT3(0,0,0), RIGHT, UP);
-	captureCamera[3] = new Camera(FRAME_KIND_PERSPECTIVE, captureLength, captureLength, 100.0f, 1000.0f, 90.0f, 1, XMFLOAT3(0,0,0), -RIGHT, UP);
-	captureCamera[4] = new Camera(FRAME_KIND_PERSPECTIVE, captureLength, captureLength, 100.0f, 1000.0f, 90.0f, 1, XMFLOAT3(0,0,0), UP, -FORWARD);
-	captureCamera[5] = new Camera(FRAME_KIND_PERSPECTIVE, captureLength, captureLength, 100.0f, 1000.0f, 90.0f, 1, XMFLOAT3(0,0,0), -UP, FORWARD);
+	captureCamera[0] = new Camera("capture0", FRAME_KIND_PERSPECTIVE, captureLength, captureLength, 100.0f, 1000.0f, 90.0f, 1, XMFLOAT3(0,0,0), RIGHT, UP);
+	captureCamera[1] = new Camera("capture1", FRAME_KIND_PERSPECTIVE, captureLength, captureLength, 100.0f, 1000.0f, 90.0f, 1, XMFLOAT3(0,0,0), -RIGHT, UP);
+	captureCamera[2] = new Camera("capture2", FRAME_KIND_PERSPECTIVE, captureLength, captureLength, 100.0f, 1000.0f, 90.0f, 1, XMFLOAT3(0,0,0), UP, -FORWARD);
+	captureCamera[3] = new Camera("capture3", FRAME_KIND_PERSPECTIVE, captureLength, captureLength, 100.0f, 1000.0f, 90.0f, 1, XMFLOAT3(0,0,0), -UP, FORWARD);
+	captureCamera[4] = new Camera("capture4", FRAME_KIND_PERSPECTIVE, captureLength, captureLength, 100.0f, 1000.0f, 90.0f, 1, XMFLOAT3(0,0,0), FORWARD, UP);
+	captureCamera[5] = new Camera("capture5", FRAME_KIND_PERSPECTIVE, captureLength, captureLength, 100.0f, 1000.0f, 90.0f, 1, XMFLOAT3(0,0,0), -FORWARD, UP);
 }
 
 void DynamicCubeMap::Update( Camera* camera, const XMMATRIX& texMat)
 {
-	ID3D11RenderTargetView* renderTarget[1];
 	DX_DContext->RSSetViewports(1, &captureViewport);
 	for (int i = 0; i < 6; ++i)
 	{
@@ -120,13 +121,14 @@ void DynamicCubeMap::Update( Camera* camera, const XMMATRIX& texMat)
 		DX_DContext->ClearRenderTargetView(captureRTV[i], Colors::Transparent);
 		DX_DContext->ClearDepthStencilView(captureDSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
+		ID3D11RenderTargetView* renderTarget[1];
 		renderTarget[0] = captureRTV[i];
+		ID3D11ShaderResourceView* const nullSRV = nullptr;
+		DX_DContext->PSSetShaderResources(0, 1, &nullSRV);
 		DX_DContext->OMSetRenderTargets(1, renderTarget, captureDSV);
 
-		vs->Apply();
-		ps->Apply();
-
-		shape->Apply();
+		captureScene->Render_Update(captureCamera[i]);
+		captureScene->Render();
 	}
 
 	graphic->RestoreViewport();
