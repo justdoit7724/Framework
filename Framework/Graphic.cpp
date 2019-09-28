@@ -103,16 +103,15 @@ Graphic::Graphic(HWND _hwnd)
 
 #pragma region Viewport
 
-	D3D11_VIEWPORT vp;
-	ZeroMemory(&vp, sizeof(D3D11_VIEWPORT));
-	vp.TopLeftX = 0;
-	vp.TopLeftY = 0;
-	vp.Width = SCREEN_WIDTH;
-	vp.Height = SCREEN_HEIGHT;
-	vp.MinDepth = 0.0f;
-	vp.MaxDepth = 1.0f;
+	ZeroMemory(&viewport, sizeof(D3D11_VIEWPORT));
+	viewport.TopLeftX = 0;
+	viewport.TopLeftY = 0;
+	viewport.Width = SCREEN_WIDTH;
+	viewport.Height = SCREEN_HEIGHT;
+	viewport.MinDepth = 0.0f;
+	viewport.MaxDepth = 1.0f;
 
-	DX_DContext->RSSetViewports(1, &vp);
+	DX_DContext->RSSetViewports(1, &viewport);
 #pragma endregion
 
 #pragma region Rasterizer

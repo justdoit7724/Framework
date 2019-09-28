@@ -3,16 +3,18 @@
 #include "Game_info.h"
 #include "Graphic.h"
 #include "Timer.h"
+#include "TestScene.h"
+#include "SceneMgr.h"
 
 #pragma comment(lib, "D3DCompiler.lib")
 #pragma comment(lib, "DirectXTK.lib")
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 
-	Window window(hInstance, "2D -> 3D");
-	Graphic* graphic = new Graphic(window.Hwnd());
-	Scene* scene = new Scene(graphic);
 	srand(time(NULL));
+	Window window(hInstance, "Low Level");
+	Graphic* graphic = new Graphic(window.Hwnd());
+	TestScene* testScene = new TestScene(graphic);
 
 	Timer::Init();
 
@@ -28,8 +30,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		}
 		else
 		{
-			scene->Update();
-			scene->Render();
+			SceneMgr::Instance()->Process();
 
 			graphic->Present();
 

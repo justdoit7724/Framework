@@ -1,4 +1,5 @@
 #include "Object.h"
+#include "Camera.h"
 #include "TextureMgr.h"
 #include "Light.h"
 #include "Transform.h"
@@ -6,22 +7,29 @@
 #include "BlendState.h"
 #include "DepthStencilState.h"
 #include "RasterizerState.h"
-#include "Camera.h"
 #include "Shape.h"
-#include "InputLayoutBuilder.h"
 
-Object::Object()
+
+Object::Object(Shape* shape, std::string sVS, const D3D11_INPUT_ELEMENT_DESC* iLayouts, UINT layoutCount, std::string sHS, std::string sDS, std::string sGS, std::string sPS,int zOrder)
+	:shape(shape), zOrder(zOrder)
 {
+	transform = new Transform();
+	vs = new VShader(sVS, iLayouts, layoutCount);
+	hs = new HShader(sHS);
+	ds = new DShader(sDS);
+	gs = new GShader(sGS);
+	ps = new PShader(sPS);
+
+	blendState = new BlendState(nullptr);
+	dsState = new DepthStencilState(nullptr);
+	rsState = new RasterizerState(nullptr);
 }
 
 Object::Object(Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpec, float sP, XMFLOAT3 r, ID3D11ShaderResourceView* srv, ID3D11ShaderResourceView* cm, int zOrder)
 	:zOrder(zOrder), shape(shape)
 {
 	transform = new Transform();
-	vs = new VShader("StandardVS.cso", InputLayoutBuilder().
-		SetInput("POSITION", DXGI_FORMAT_R32G32B32_FLOAT, 0).
-		SetInput("NORMAL", DXGI_FORMAT_R32G32B32_FLOAT, sizeof(XMFLOAT3)).
-		SetInput("TEXCOORD", DXGI_FORMAT_R32G32_FLOAT, sizeof(XMFLOAT3)).Build(), 3);
+	vs = new VShader("StandardVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
 	hs = new HShader();
 	ds = new DShader();
 	gs = new GShader();
@@ -47,12 +55,14 @@ Object::Object(Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpe
 	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	ps->AddSamp(0, 1, &samplerDesc);
 	ps->AddSamp(1, 1, &samplerDesc);
-	ps->AddSRV(0, 1, srv);
-	ps->AddSRV(1, 1, cm);
+	ps->AddSRV(0, 1);
+	ps->AddSRV(1, 1);
+	ps->WriteSRV(0, srv);
+	ps->WriteSRV(1, cm);
 
-	blendState = new BlendState();
-	dsState = new DepthStencilState();
-	rsState = new RasterizerState();
+	blendState = new BlendState(nullptr);
+	dsState = new DepthStencilState(nullptr);
+	rsState = new RasterizerState(nullptr);
 }
 
 Object::~Object()
@@ -65,27 +75,23 @@ Object::~Object()
 	delete gs;
 	delete ps;
 
-	if (dsState)
-		delete dsState;
-	if (blendState)
-		delete blendState;
+	delete dsState;
+	delete blendState;
+	delete rsState;
 }
 
 void Object::Update(Camera* camera, const XMMATRIX& texMat)
 {
-	vpMat = camera->ViewMat()*camera->ProjMat(zOrder);
-	XMMATRIX wMat = transform->WorldMatrix();
-
-	vs->WriteCB(0,&VS_Property(wMat, vpMat, texMat));
+	vs->WriteCB(0,&VS_Property(transform->WorldMatrix(), camera->VPMat(zOrder), texMat));
 	ps->WriteCB(0, (void*)DirectionalLight::Data());
 	ps->WriteCB(1, (void*)PointLight::Data());
 	ps->WriteCB(2, (void*)SpotLight::Data());
-	ps->WriteCB(3, &(camera->Pos()));
+	ps->WriteCB(3, &camera->transform->GetPos());
 
 	
 }
 
-void Object::Render()
+void Object::Render() const
 {
 	vs->Apply();
 	hs->Apply();
@@ -94,11 +100,9 @@ void Object::Render()
 	ps->Apply();
 
 	// STATE
-	if(dsState)
-		dsState->Apply();
-	if(blendState)
-		blendState->Apply();
-	if (rsState)
-		rsState->Apply();
+	dsState->Apply();
+	blendState->Apply();
+	rsState->Apply();
+
 	shape->Apply();
 }

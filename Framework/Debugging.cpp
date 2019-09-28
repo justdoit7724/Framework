@@ -1,13 +1,14 @@
 #include "Debugging.h"
 #include <string>
 #include "Shader.h"
-#include "Camera.h"
 #include "Graphic.h"
 #include "CustomFormat.h"
 #include "Buffer.h"
 #include "BlendState.h"
 #include "DepthStencilState.h"
+#include "RasterizerState.h"
 #include "Transform.h"
+#include "Camera.h"
 
 #include "Cube.h"
 #include "Sphere.h"
@@ -163,21 +164,25 @@ void Debugging::DisableGrid()
 	gridVB = nullptr;
 }
 
-void Debugging::Render(Camera* camera)
+void Debugging::Update(Camera* camera)
 {
-	XMMATRIX vpMat = camera->ViewMat() * camera->ProjMat(Z_ORDER_STANDARD);
+	vp_mat = camera->VPMat(Z_ORDER_STANDARD);
+}
 
+void Debugging::Render()
+{
 	hs->Apply();
 	ds->Apply();
 	gs->Apply();
 	blendState->Apply();
 	dsState->Apply();
+	rsState->Apply();
 
 	#pragma region Marks
 
 	for (auto& mark : marks) {
 
-		vs->WriteCB(0,&VS_Property(mark.second.transform->WorldMatrix(), vpMat, XMMatrixIdentity()));
+		vs->WriteCB(0,&VS_Property(mark.second.transform->WorldMatrix(), vp_mat, XMMatrixIdentity()));
 		ps->WriteCB(0,&(mark.second.color));
 		vs->Apply();
 		ps->Apply();
@@ -201,7 +206,7 @@ void Debugging::Render(Camera* camera)
 		pVB[1].pos = l.second.p2;
 		DX_DContext->Unmap(lineVB->Get(), 0);
 		
-		vs->WriteCB(0,&VS_Property(vpMat, XMMatrixIdentity()));
+		vs->WriteCB(0,&VS_Property(vp_mat, XMMatrixIdentity()));
 		ps->WriteCB(0,&(l.second.color));
 		vs->Apply();
 		ps->Apply();
@@ -214,7 +219,7 @@ void Debugging::Render(Camera* camera)
 
 	if (gridVB)
 	{
-		vs->WriteCB(0,&VS_Property(vpMat, XMMatrixIdentity()));
+		vs->WriteCB(0,&VS_Property(vp_mat, XMMatrixIdentity()));
 		ps->WriteCB(0,(void*)(&(Colors::Red)));
 		vs->Apply();
 		ps->Apply();
@@ -223,21 +228,21 @@ void Debugging::Render(Camera* camera)
 		DX_DContext->IASetVertexBuffers(0, 1, originVB->GetAddress(), &stride, &offset);
 		DX_DContext->Draw(2, 0);
 
-		vs->WriteCB(0,&VS_Property(vpMat, XMMatrixIdentity()));
+		vs->WriteCB(0,&VS_Property(vp_mat, XMMatrixIdentity()));
 		ps->WriteCB(0,(void*)(&(Colors::Green)));
 		vs->Apply();
 		ps->Apply();
 		DX_DContext->IASetVertexBuffers(0, 1, originVB->GetAddress(), &stride, &offset);
 		DX_DContext->Draw(2, 2);
 
-		vs->WriteCB(0,&VS_Property(vpMat, XMMatrixIdentity()));
+		vs->WriteCB(0,&VS_Property(vp_mat, XMMatrixIdentity()));
 		ps->WriteCB(0,(void*)(&(Colors::Blue)));
 		vs->Apply();
 		ps->Apply();
 		DX_DContext->IASetVertexBuffers(0, 1, originVB->GetAddress(), &stride, &offset);
 		DX_DContext->Draw(2, 4);
 
-		vs->WriteCB(0,&VS_Property(vpMat, XMMatrixIdentity()));
+		vs->WriteCB(0,&VS_Property(vp_mat, XMMatrixIdentity()));
 		ps->WriteCB(0,(void*)(&(Colors::Gray)));
 		vs->Apply();
 		ps->Apply();
@@ -256,7 +261,7 @@ void Debugging::Render(Camera* camera)
 		XMFLOAT4 textPos = XMFLOAT4(text.pos.x, text.pos.y, text.pos.z,1);
 		if (text.is3D)
 		{
-			textPos = textPos * vpMat;
+			textPos = textPos * vp_mat;
 			textPos /= textPos.w;
 			textPos = textPos * textMat;
 
@@ -282,14 +287,11 @@ void Debugging::Render(Camera* camera)
 #pragma endregion
 }
 
-#include "InputLayoutBuilder.h"
+
 Debugging::Debugging()
 {
 	vs = new VShader("MarkVS.cso", 
-		InputLayoutBuilder().
-		SetInput("POSITION", DXGI_FORMAT_R32G32B32_FLOAT,0).
-		SetInput("NORMAL", DXGI_FORMAT_R32G32B32_FLOAT, sizeof(XMFLOAT3)).
-		SetInput("TEXCOORD", DXGI_FORMAT_R32G32_FLOAT, sizeof(XMFLOAT3)).Build(),
+		Std_ILayouts,
 		3);
 	hs = new HShader();
 	ds = new DShader();
@@ -298,8 +300,9 @@ Debugging::Debugging()
 	vs->AddCB(0, 1, sizeof(VS_Property));
 	ps->AddCB(0, 1, sizeof(XMVECTOR));
 
-	blendState = new BlendState();
-	dsState = new DepthStencilState();
+	blendState = new BlendState(nullptr);
+	dsState = new DepthStencilState(nullptr);
+	rsState = new RasterizerState(nullptr);
 
 	spriteBatch = std::make_unique<DirectX::SpriteBatch>(DX_DContext);
 	spriteFont = std::make_unique<DirectX::SpriteFont>(DX_Device, L"Data\\Font\\Font.spritefont");
@@ -323,6 +326,7 @@ Debugging::~Debugging()
 	delete ps;
 	delete blendState;
 	delete dsState;
+	delete rsState;
 
 	delete lineVB;
 	delete gridVB;

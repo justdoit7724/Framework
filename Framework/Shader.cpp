@@ -46,19 +46,11 @@ void Shader::AddCB(UINT slot, UINT arrayNum, UINT byteSize)
 	}
 }
 
-void Shader::AddSRV(UINT slot, UINT arrayNum, ID3D11ShaderResourceView * srv)
+void Shader::AddSRV(UINT slot, UINT arrayNum)
 {
-	if (srvs.find(slot) == srvs.end())
-	{
-		srvs.insert(std::pair<UINT, BindingSRV>(slot, BindingSRV(srv, arrayNum)));
-	}
-	else
-	{
-		// slot overlap
-		assert(false);
-	}
-	srvs[slot].arrayNum = arrayNum;
-	srvs[slot].data = srv;
+	assert(srvs.find(slot) == srvs.end());
+
+	srvs.insert(std::pair<UINT, BindingSRV>(slot, BindingSRV(nullptr, arrayNum)));
 }
 
 void Shader::AddSamp(UINT slot, UINT arrayNum, D3D11_SAMPLER_DESC * desc)
@@ -90,10 +82,17 @@ void Shader::WriteCB(UINT slot, void * data)
 	}
 }
 
+void Shader::WriteSRV(UINT slot, ID3D11ShaderResourceView* srv)
+{
+	assert(srvs.find(slot) != srvs.end());
+
+	srvs[slot].data = srv;
+}
 
 
 
-VShader::VShader(std::string fileName, D3D11_INPUT_ELEMENT_DESC * layoutDesc, UINT layoutNum)
+
+VShader::VShader(std::string fileName, const D3D11_INPUT_ELEMENT_DESC * layoutDesc, UINT layoutNum)
 {
 	std::wstring wVS(fileName.begin(), fileName.end());
 	ComPtr<ID3DBlob> vsBlob;

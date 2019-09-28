@@ -4,7 +4,7 @@ class RasterizerState :
 	public Component
 {
 public:
-	RasterizerState(D3D11_RASTERIZER_DESC* desc=nullptr);
+	RasterizerState(D3D11_RASTERIZER_DESC* desc);
 
 	void Apply()const override;
 

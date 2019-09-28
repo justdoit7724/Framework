@@ -9,6 +9,5 @@ public:
 	void Update(Camera* camera, const XMMATRIX& texMat = XMMatrixIdentity())override;
 
 private:
-
 };
 

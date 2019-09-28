@@ -4,18 +4,16 @@
 #include "Shader.h"
 #include "Transform.h"
 #include "Shape.h"
-#include "InputLayoutBuilder.h"
+
 
 PlaneShadow::PlaneShadow(Shape* shape, XMFLOAT3 planeN, float planeD)
-	: planeNormal(planeN), planeDist(planeD)
+	:Object(
+		shape,
+		"ShadowVS.cso", Std_ILayouts,ARRAYSIZE(Std_ILayouts),
+		"","","",
+		"ShadowPS.cso",2),
+	planeNormal(planeN), planeDist(planeD)
 {
-	vs = new VShader("ShadowVS.cso", 
-		InputLayoutBuilder().
-		SetInput("POSITION", DXGI_FORMAT_R32G32B32_FLOAT, 0).
-		SetInput("NORMAL", DXGI_FORMAT_R32G32B32_FLOAT, sizeof(XMFLOAT3)).
-		SetInput("TEXCOORD", DXGI_FORMAT_R32G32_FLOAT, sizeof(XMFLOAT3)).Build(),
-		3);
-	ps = new PShader("ShadowPS.cso");
 	vs->AddCB(0, 1, sizeof(VS_Simple_Property));
 	ps->AddCB(0, 1, sizeof(float));
 	float transparency = 0.5f;
@@ -24,7 +22,7 @@ PlaneShadow::PlaneShadow(Shape* shape, XMFLOAT3 planeN, float planeD)
 
 void PlaneShadow::Update(Camera* camera, const XMMATRIX& texMat)
 {
-	vpMat = camera->VPMat(2);
+	vpMat = camera->ViewMat() * camera->ProjMat(2);
 
 	XMFLOAT3 n = planeNormal;
 	float d = planeDist;
@@ -64,7 +62,7 @@ void PlaneShadow::Update(Camera* camera, const XMMATRIX& texMat)
 	}
 }
 
-void PlaneShadow::Render()
+void PlaneShadow::Render() const
 {
 	Object::Render();
 

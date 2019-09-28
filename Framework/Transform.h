@@ -14,6 +14,14 @@ public:
 	XMFLOAT3 GetForward() {
 		return forward;
 	}
+	XMFLOAT3 GetUp()
+	{
+		return up;
+	}
+	XMFLOAT3 GetRight()
+	{
+		return right;
+	}
 	void SetTranslation(float x, float y, float z) {
 		pos = { x,y,z };
 	}

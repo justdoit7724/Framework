@@ -34,6 +34,9 @@
     <Filter Include="Tasks">
       <UniqueIdentifier>{77fc1271-0aff-4c42-9baf-3758555cab9c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Scene">
+      <UniqueIdentifier>{e94ffcb7-f5d5-48ad-80da-b7ba08ffccb8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Debugging.cpp">
@@ -137,6 +140,15 @@
     </ClCompile>
     <ClCompile Include="CubeMap.cpp">
       <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="DynamicCubeMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneMgr.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TestScene.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -258,6 +270,15 @@
       <Filter>Object</Filter>
     </ClInclude>
     <ClInclude Include="InputLayoutBuilder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DynamicCubeMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneMgr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TestScene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

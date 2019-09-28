@@ -12,26 +12,27 @@ enum FRAME_KIND {
 #define Z_ORDER_LOWER		3
 #define Z_ORDER_BACKGROUND	4
 
+class Transform;
+
 class Camera
 {
 public:
-	Camera(const FRAME_KIND	frameKind, const float screenWidth, const float screenHeight, const float nearPlane, const float farPlane, const float verticalViewAngle, const float aspectRatio, const XMFLOAT3 firstPos, const XMFLOAT3 _forward, const XMFLOAT3 _up);
-	void SetFrame(const FRAME_KIND fKind, const float screenWidth, const float screenHeight, const float nearPlane, const float farPlane, const float verticalViewAngle, const float aspectRatio);
-	void SetTransform(const XMFLOAT3 firstPos, const XMFLOAT3 _forward, const XMFLOAT3 _up);
+	Camera(const FRAME_KIND	frameKind, UINT screenWidth, UINT screenHeight, const float nearPlane, const float farPlane, const float verticalViewAngle, const float aspectRatio, const XMFLOAT3 firstPos, const XMFLOAT3 _forward, const XMFLOAT3 _up);
+	void SetFrame(const FRAME_KIND fKind, UINT screenWidth, UINT screenHeight, const float nearPlane, const float farPlane, const float verticalViewAngle, const float aspectRatio);
 	void Update(float spf);
 
-	XMFLOAT3 Pos(){return pos;}
-	XMFLOAT3 Forward() {return forward;}
-	XMMATRIX ViewMat() {return viewMat;}
-	XMMATRIX ProjMat(int zOrder) {return projMats[zOrder];}
-	XMMATRIX VPMat(int zOrder) {return viewMat*projMats[zOrder]; }
+	XMMATRIX ViewMat();
+	XMMATRIX ProjMat(int zOrder) {
+		return projMats[zOrder];
+	}
+	XMMATRIX VPMat(int zOrder)
+	{
+		return ViewMat() * projMats[zOrder];
+	}
+
+	Transform* transform;
 
 private:
-	XMFLOAT3 pos;
-	XMFLOAT3 forward;
-	XMFLOAT3 up;
-	XMFLOAT3 right;
-	XMMATRIX viewMat;
 	XMMATRIX* projMats;
 
 	FRAME_KIND curFrame;

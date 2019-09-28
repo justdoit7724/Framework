@@ -78,16 +78,16 @@ LRESULT Window::HandleMsg(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 		Keyboard::Release(static_cast<char>(wparam));
 		return 0;
 	case WM_LBUTTONDOWN:
-		Mouse::UpdateLeft(true);
+		Mouse::Instance()->UpdateLeft(true);
 		return 0;
 	case WM_LBUTTONUP:
-		Mouse::UpdateLeft(false);
+		Mouse::Instance()->UpdateLeft(false);
 		return 0;
 	case WM_RBUTTONDOWN:
-		Mouse::UpdateRight(true);
+		Mouse::Instance()->UpdateRight(true);
 		return 0;
 	case WM_RBUTTONUP:
-		Mouse::UpdateRight(false);
+		Mouse::Instance()->UpdateRight(false);
 		return 0;
 	case WM_KEYDOWN:
 	{
@@ -103,7 +103,7 @@ LRESULT Window::HandleMsg(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 		return 0;
 
 	case WM_MOUSEMOVE:
-		Mouse::UpdatePt(lparam);
+		Mouse::Instance()->UpdatePt(lparam);
 		return 0;
 
 

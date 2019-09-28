@@ -14,10 +14,11 @@ class HShader;
 class DShader;
 class GShader;
 class PShader;
-class Camera;
 class Buffer;
 class DepthStencilState;
 class BlendState;
+class RasterizerState;
+class Camera;
 struct VS_Property;
 
 class Debugging : public Singleton<Debugging>
@@ -39,7 +40,8 @@ public:
 	void EnableGrid(float interval, int num=100);
 	void DisableGrid();
 
-	void Render(Camera* camera);
+	void Update(Camera* camera);
+	void Render();
 private:
 
 	friend class Singleton<Debugging>;
@@ -96,7 +98,11 @@ private:
 	PShader* ps;
 	DepthStencilState* dsState;
 	BlendState* blendState;
+	RasterizerState* rsState;
 
 	float gridInterval;
+
+	XMMATRIX vp_mat;
+
 };
 

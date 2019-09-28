@@ -11,7 +11,7 @@ private:
 	UINT refValue;
 
 public:
-	DepthStencilState(D3D11_DEPTH_STENCIL_DESC* desc=nullptr);
+	DepthStencilState(D3D11_DEPTH_STENCIL_DESC* desc);
 	~DepthStencilState();
 	void Modify(D3D11_DEPTH_STENCIL_DESC* desc);
 	void Apply() const;

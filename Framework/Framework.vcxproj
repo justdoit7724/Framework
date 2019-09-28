@@ -141,6 +141,7 @@
     <ClCompile Include="Debugging.cpp" />
     <ClCompile Include="DepthComplexity.cpp" />
     <ClCompile Include="DepthStencilState.cpp" />
+    <ClCompile Include="DynamicCubeMap.cpp" />
     <ClCompile Include="Graphic.cpp" />
     <ClCompile Include="HDTester.cpp" />
     <ClCompile Include="Hill.cpp" />
@@ -152,12 +153,14 @@
     <ClCompile Include="PlaneShadow.cpp" />
     <ClCompile Include="RasterizerState.cpp" />
     <ClCompile Include="Resource.cpp" />
+    <ClCompile Include="SceneMgr.cpp" />
     <ClCompile Include="Shape.cpp" />
     <ClCompile Include="Quad.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="Sphere.cpp" />
+    <ClCompile Include="TestScene.cpp" />
     <ClCompile Include="Texture2D.cpp" />
     <ClCompile Include="TextureMgr.cpp" />
     <ClCompile Include="Timer.cpp" />
@@ -179,6 +182,7 @@
     <ClInclude Include="DepthComplexity.h" />
     <ClInclude Include="DepthStencilState.h" />
     <ClInclude Include="DX_info.h" />
+    <ClInclude Include="DynamicCubeMap.h" />
     <ClInclude Include="Game_info.h" />
     <ClInclude Include="Graphic.h" />
     <ClInclude Include="HDTester.h" />
@@ -193,6 +197,7 @@
     <ClInclude Include="Object.h" />
     <ClInclude Include="PlaneShadow.h" />
     <ClInclude Include="RasterizerState.h" />
+    <ClInclude Include="SceneMgr.h" />
     <ClInclude Include="Shape.h" />
     <ClInclude Include="Quad.h" />
     <ClInclude Include="Resource.h" />
@@ -200,6 +205,7 @@
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="Sphere.h" />
+    <ClInclude Include="TestScene.h" />
     <ClInclude Include="Texture2D.h" />
     <ClInclude Include="TextureMgr.h" />
     <ClInclude Include="Timer.h" />

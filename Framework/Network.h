@@ -6,4 +6,6 @@ class IGraphic
 public:
 	virtual ID3D11Texture2D* BackBuffer() = 0;
 	virtual ID3D11Texture2D* DepthStencilBuffer() = 0;
+	virtual void RestoreViewport() = 0;
+	virtual void RestoreRTV() = 0;
 };

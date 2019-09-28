@@ -1,27 +1,28 @@
 #pragma once
 #include <Windows.h>
 #include <DirectXMath.h>
+#include "Singleton.h"
 
-class Mouse
+class Mouse : public Singleton<Mouse>
 {
 public:
 
-	static void UpdatePt(LPARAM lparam);
-	static void UpdateLeft(const bool press);
-	static void UpdateRight(const bool press);
+	void UpdatePt(LPARAM lparam);
+	void UpdateLeft(const bool press);
+	void UpdateRight(const bool press);
 
-	static float X() { return pt.x; }
-	static float Y() { return pt.y; }
-	static DirectX::XMFLOAT2 LeftDragStartPt() { return leftDragStartPt;}
-	static DirectX::XMFLOAT2 RightDragStartPt() { return rightDragStartPt;}
-	static bool IsLeftDown(){ return isLeftPressed;}
-	static bool IsRightDown(){ return isRightPressed;}
+	float X() { return pt.x; }
+	float Y() { return pt.y; }
+	DirectX::XMFLOAT2 LeftDragStartPt() { return leftDragStartPt;}
+	DirectX::XMFLOAT2 RightDragStartPt() { return rightDragStartPt;}
+	bool IsLeftDown(){ return isLeftPressed;}
+	bool IsRightDown(){ return isRightPressed;}
 	
 private:
-	static DirectX::XMFLOAT2 pt;
-	static bool isLeftPressed;
-	static bool isRightPressed;
-	static DirectX::XMFLOAT2 leftDragStartPt;
-	static DirectX::XMFLOAT2 rightDragStartPt;
+	DirectX::XMFLOAT2 pt= DirectX::XMFLOAT2(0,0);
+	bool isLeftPressed=false;
+	bool isRightPressed=false;
+	DirectX::XMFLOAT2 leftDragStartPt = DirectX::XMFLOAT2(0, 0);
+	DirectX::XMFLOAT2 rightDragStartPt = DirectX::XMFLOAT2(0, 0);
 };
 

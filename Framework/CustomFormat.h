@@ -2,6 +2,17 @@
 #include "Geometrics.h"
 #include "DX_info.h"
 
+static const D3D11_INPUT_ELEMENT_DESC simple_ILayouts[] =
+{
+	{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+};
+static const D3D11_INPUT_ELEMENT_DESC Std_ILayouts[] =
+{
+	{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, sizeof(XMFLOAT3), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, sizeof(XMFLOAT3) * 2, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+};
+
 struct Vertex {
 	XMFLOAT3 pos;
 	XMFLOAT3 n;
@@ -47,8 +58,8 @@ struct VS_Simple_Property
 		: worldMat(w), vpMat(vp){}
 };
 
-#define LIGHT_ENABLED XMFLOAT4(1,1,1,1)
-#define LIGHT_DISABLED XMFLOAT4(0,0,0,0)	
+#define LIGHT_ENABLED DirectX::XMFLOAT4(1,1,1,1)
+#define LIGHT_DISABLED DirectX::XMFLOAT4(0,0,0,0)	
 #define LIGHT_MAX_EACH 10
 struct SHADER_DIRECTIONAL_LIGHT {
 

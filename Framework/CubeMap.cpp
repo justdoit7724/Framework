@@ -5,29 +5,20 @@
 #include "RasterizerState.h"
 #include "Camera.h"
 #include "DepthStencilState.h"
-#include "InputLayoutBuilder.h"
+
 
 CubeMap::CubeMap(ID3D11ShaderResourceView* srv)
+	:Object(
+		nullptr,
+		"CMVS.cso", Std_ILayouts,ARRAYSIZE(Std_ILayouts),
+		"","","",
+		"CMPS.cso",2)
 { 
-	int* pI = TestBuilder().SetInput(1).SetInput(2).SetInput(3).Build();
-	int a0 = pI[0];
-	int a1 = pI[1];
-	int a2 = pI[2];
-
-	transform = new Transform();
-	transform->SetScale(100, 75, 100);
-	vs = new VShader("CMVS.cso", 
-		InputLayoutBuilder().
-		SetInput("POSITION", DXGI_FORMAT_R32G32B32_FLOAT, 0).
-		SetInput("NORMAL", DXGI_FORMAT_R32G32B32_FLOAT, sizeof(XMFLOAT3)).
-		SetInput("TEXCOORD", DXGI_FORMAT_R32G32_FLOAT, sizeof(XMFLOAT3)).Build(),
-		3);
+	transform->SetScale(1000, 700, 1000);
+	
 	vs->AddCB(0, 1, sizeof(XMMATRIX));
-	hs = new HShader();
-	ds = new DShader();
-	gs = new GShader();
-	ps = new PShader("CMPS.cso");
-	ps->AddSRV(0, 1, srv);
+	ps->AddSRV(0, 1);
+	ps->WriteSRV(0, srv);
 	D3D11_SAMPLER_DESC sampDesc;
 	ZeroMemory(&sampDesc, sizeof(D3D11_SAMPLER_DESC));
 	sampDesc.Filter = D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR;
@@ -45,12 +36,11 @@ CubeMap::CubeMap(ID3D11ShaderResourceView* srv)
 	rs_desc.FillMode = D3D11_FILL_SOLID;
 	rs_desc.FrontCounterClockwise = false;
 	rsState = new RasterizerState(&rs_desc);
-	dsState = new DepthStencilState();
 }
 
 void CubeMap::Update(Camera* camera, const XMMATRIX& texMat)
 {
-	transform->SetTranslation(camera->Pos());
-	XMMATRIX wvp = transform->WorldMatrix() * camera->VPMat(Z_ORDER_BACKGROUND);
+	transform->SetTranslation(camera->transform->GetPos());
+	XMMATRIX wvp = transform->WorldMatrix() * camera->ViewMat() * camera->ProjMat(2);
 	vs->WriteCB(0, &wvp);
 }

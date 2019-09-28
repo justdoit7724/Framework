@@ -10,9 +10,10 @@ class Shader : public Component
 public:
 	~Shader();
 	void AddCB(UINT slot, UINT arrayNum, UINT byteSize);
-	void AddSRV(UINT slot, UINT arrayNum, ID3D11ShaderResourceView* srv);
+	void AddSRV(UINT slot, UINT arrayNum);
 	void AddSamp(UINT slot, UINT arrayNum, D3D11_SAMPLER_DESC* desc);
 	void WriteCB(UINT slot, void* data);
+	void WriteSRV(UINT slot, ID3D11ShaderResourceView* srv);
 
 protected:
 	struct BindingCB 
@@ -51,7 +52,7 @@ protected:
 class VShader : public Shader
 {
 public:
-	VShader(std::string fileName, D3D11_INPUT_ELEMENT_DESC* layoutDesc, UINT layoutNum);
+	VShader(std::string fileName, const D3D11_INPUT_ELEMENT_DESC* layoutDesc, UINT layoutNum);
 
 	void Apply()const override;
 

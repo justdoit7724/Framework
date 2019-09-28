@@ -8,7 +8,7 @@
 #include "Transform.h"
 #include "DepthStencilState.h"
 #include "BlendState.h"
-#include "InputLayoutBuilder.h"
+
 
 UI::UI(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView * srv, UINT maxSliceIdx, UINT slicePerSec)
 	:maxSliceIdx(maxSliceIdx), secPerSlice(1.0f / slicePerSec)
@@ -23,11 +23,8 @@ UI::UI(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float
 
 
 	vs = new VShader("UIVS.cso", 
-		InputLayoutBuilder().
-		SetInput("POSITION", DXGI_FORMAT_R32G32B32_FLOAT, 0).
-		SetInput("NORMAL", DXGI_FORMAT_R32G32B32_FLOAT, sizeof(XMFLOAT3)).
-		SetInput("TEXCOORD", DXGI_FORMAT_R32G32_FLOAT, sizeof(XMFLOAT2)).Build(), 
-		3);
+		Std_ILayouts,
+		ARRAYSIZE(Std_ILayouts));
 	hs = new HShader();
 	ds = new DShader();
 	gs = new GShader();
@@ -45,7 +42,8 @@ UI::UI(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float
 	samplerDesc.MinLOD = 0;
 	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	ps->AddSamp(0, 1, &samplerDesc);
-	ps->AddSRV(0, 1, srv);
+	ps->AddSRV(0, 1);
+	ps->WriteSRV(0, srv);
 
 	D3D11_BLEND_DESC blend_desc;
 	blend_desc.AlphaToCoverageEnable = false;
@@ -60,7 +58,7 @@ UI::UI(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float
 	blend_desc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 	blendState = new BlendState(&blend_desc);
 
-	dsState = new DepthStencilState();
+	dsState = new DepthStencilState(nullptr);
 }
 
 UI::~UI()
