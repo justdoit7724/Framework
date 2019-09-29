@@ -95,9 +95,9 @@ void Debugging::PtLine(const UINT key, XMFLOAT3 p1, XMFLOAT3 p2, XMVECTORF32 col
 	}
 }
 
-void Debugging::DirLine(const UINT key, XMFLOAT3 p1, XMFLOAT3 dir, XMVECTORF32 color)
+void Debugging::DirLine(const UINT key, XMFLOAT3 p1, XMFLOAT3 dir, float dist, XMVECTORF32 color)
 {
-	XMFLOAT3 p2 = p1 + dir * 9999.0f;
+	XMFLOAT3 p2 = p1 + dir * dist;
 
 	PtLine(key, p1, p2, color);
 }

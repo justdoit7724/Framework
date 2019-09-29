@@ -10,7 +10,7 @@ class DynamicCubeMap :
 public:
 	DynamicCubeMap(IGraphic* graphic, Scene* captureScene, Shape* shape);
 
-	void Update(Camera* camera, const XMMATRIX& texMat = XMMatrixIdentity())override;
+	void Update(const Camera* camera, const XMMATRIX& texMat = XMMatrixIdentity())override;
 
 private:
 	Scene* captureScene;

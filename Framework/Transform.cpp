@@ -1,7 +1,7 @@
 #include "Transform.h"
 #include "Camera.h"
 
-XMMATRIX Transform::WorldMatrix()
+XMMATRIX Transform::WorldMatrix()const
 {
 	return
 		S()*
@@ -9,12 +9,12 @@ XMMATRIX Transform::WorldMatrix()
 		T();
 }
 
-XMMATRIX Transform::S()
+XMMATRIX Transform::S()const
 {
 	return XMMatrixScaling(scale.x, scale.y, scale.z);
 }
 
-XMMATRIX Transform::R()
+XMMATRIX Transform::R()const
 {
 	return XMMATRIX(
 		right.x, right.y, right.z, 0,
@@ -23,7 +23,7 @@ XMMATRIX Transform::R()
 		0, 0, 0, 1);;
 }
 
-XMMATRIX Transform::T()
+XMMATRIX Transform::T()const
 {
 	return XMMatrixTranslation(pos.x, pos.y, pos.z);
 }

@@ -6,7 +6,7 @@ class CubeMap : public Object
 public:
 	CubeMap(ID3D11ShaderResourceView* srv);
 
-	void Update(Camera* camera, const XMMATRIX& texMat = XMMatrixIdentity())override;
+	void Update(const Camera* camera, const XMMATRIX& texMat = XMMatrixIdentity())override;
 
 private:
 };

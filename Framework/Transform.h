@@ -4,21 +4,21 @@
 class Transform
 {
 public:
-	XMMATRIX WorldMatrix();
-	XMMATRIX S();
-	XMMATRIX R();
-	XMMATRIX T();
+	XMMATRIX WorldMatrix()const;
+	XMMATRIX S()const;
+	XMMATRIX R()const;
+	XMMATRIX T()const;
 
 	
-	XMFLOAT3 GetPos() {return pos;}
-	XMFLOAT3 GetForward() {
+	XMFLOAT3 GetPos()const {return pos;}
+	XMFLOAT3 GetForward()const {
 		return forward;
 	}
-	XMFLOAT3 GetUp()
+	XMFLOAT3 GetUp()const
 	{
 		return up;
 	}
-	XMFLOAT3 GetRight()
+	XMFLOAT3 GetRight()const
 	{
 		return right;
 	}
@@ -32,6 +32,11 @@ public:
 		forward = _forward;
 		up = _up;
 		right = Cross(up, forward);
+	}
+	void SetRot(XMFLOAT3 r, XMFLOAT3 u, XMFLOAT3 f) {
+		right = r;
+		up = u;
+		forward = f;
 	}
 	void SetScale(float x) {
 		scale = { x,x,x };

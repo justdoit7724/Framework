@@ -47,7 +47,7 @@ void TextureMgr::Load(std::string key, std::vector<std::string> fileNames, UINT 
 		ori_resources[i] = newResource;
 		ID3D11Texture2D* newTex = nullptr; 
 		r_assert(
-			newResource->QueryInterface(IID_ID3D11Texture2D, (void**)&newTex)
+			newResource->QueryInterface(__uuidof(ID3D11Texture2D), (void**)&newTex)
 		);
 		newTex->GetDesc(&ori_desc);
 		if (i!=0)
@@ -147,7 +147,7 @@ void TextureMgr::LoadCM(std::string key, std::vector<std::string> fileNames)
 		ori_resources[i] = newResource;
 		ID3D11Texture2D* newTex = nullptr;
 		r_assert(
-			newResource->QueryInterface(IID_ID3D11Texture2D, (void**)& newTex)
+			newResource->QueryInterface(__uuidof(ID3D11Texture2D), (void**)& newTex)
 		);
 		newTex->GetDesc(&ori_desc);
 		if (i != 0)
@@ -212,7 +212,7 @@ ID3D11Texture2D* TextureMgr::GetTexture(std::string fileName)
 	ID3D11Resource* resource=nullptr;
 	SRVs[fileName].srv->GetResource(&resource);
 	ID3D11Texture2D* tex=nullptr;
-	r_assert( resource->QueryInterface(IID_ID3D11Texture2D, (void**)&tex) );
+	r_assert( resource->QueryInterface(__uuidof(ID3D11Texture2D), (void**)&tex) );
 	return tex;
 }
 

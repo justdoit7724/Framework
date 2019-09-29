@@ -4,6 +4,7 @@
 #include "Transform.h"
 #include "Timer.h"
 #include "Debugging.h"
+#include "Mirror.h"
 
 DCMScene::DCMScene(IGraphic* graphic, Scene* captureScene)
 	:Scene("DCM")
@@ -13,12 +14,16 @@ DCMScene::DCMScene(IGraphic* graphic, Scene* captureScene)
 	dcmObj = new DynamicCubeMap(graphic, captureScene, new Sphere(4));
 	dcmObj->transform->SetScale(20, 20, 20);
 	dcmObj->transform->SetTranslation(60, 60, 0);
+
+	mirror = new Mirror(captureScene, 512, 512);
+	mirror->transform->SetScale(10, 10, 1);
 }
 
 DCMScene::~DCMScene()
 {
 	delete timer;
 	delete dcmObj;
+	delete mirror;
 }
 
 void DCMScene::Logic_Update(Camera* camera)
@@ -27,20 +32,21 @@ void DCMScene::Logic_Update(Camera* camera)
 	const static XMFLOAT3 firstPos = XMFLOAT3(60, 60, 0);
 	XMFLOAT3 pos = firstPos +
 		XMFLOAT3(
-		sin(elapsed * 0.3f) * 20,
-		cos(elapsed * 0.4f) * 50,
-		sin(elapsed * 0.2f) * 10
+		sin(elapsed * 0.2f) * 10,
+		cos(elapsed * 0.3f) * 50,
+		sin(elapsed * 0.1f) * 15
 	);
 	dcmObj->transform->SetTranslation(pos);
-	Debugging::Instance()->Draw("Dynamic object pos = ", dcmObj->transform->GetPos(), 10, 10);
+	mirror->Update(camera);
+	dcmObj->Update(camera);
 }
 
 void DCMScene::Render_Update(Camera* camera)
 {
-	dcmObj->Update(camera);
 }
 
 void DCMScene::Render() const
 {
 	dcmObj->Render();
+	mirror->Render();
 }

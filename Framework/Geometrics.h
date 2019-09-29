@@ -122,9 +122,22 @@ inline XMFLOAT3 Normalize(XMFLOAT3 v)
 	XMStoreFloat3(&f3, nv);
 	return f3;
 }
+// radian between dir1, dir2
+inline float Rad(XMFLOAT3 d1, XMFLOAT3 d2)
+{
+	return acos(Dot(d1, d2));
+}
 inline XMFLOAT4 operator/=(XMFLOAT4& v, float f)
 {
 	return XMFLOAT4(v.x / f, v.y / f, v.z / f, v.w/f);
+}
+inline bool operator== (XMFLOAT3 a, XMFLOAT3 b)
+{
+	return (a.x == b.x && a.y == b.y && a.z == b.z);
+}
+inline bool operator!= (XMFLOAT3 a, XMFLOAT3 b)
+{
+	return (a.x != b.x || a.y != b.y || a.z != b.z);
 }
 inline bool operator== (XMFLOAT4 a, XMFLOAT4 b)
 {

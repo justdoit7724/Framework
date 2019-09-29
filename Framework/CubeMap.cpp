@@ -12,7 +12,7 @@ CubeMap::CubeMap(ID3D11ShaderResourceView* srv)
 		nullptr,
 		"CMVS.cso", Std_ILayouts,ARRAYSIZE(Std_ILayouts),
 		"","","",
-		"CMPS.cso",2)
+		"CMPS.cso",Z_ORDER_STANDARD)
 { 
 	transform->SetScale(1000, 700, 1000);
 	
@@ -38,9 +38,9 @@ CubeMap::CubeMap(ID3D11ShaderResourceView* srv)
 	rsState = new RasterizerState(&rs_desc);
 }
 
-void CubeMap::Update(Camera* camera, const XMMATRIX& texMat)
+void CubeMap::Update(const Camera* camera, const XMMATRIX& texMat)
 {
 	transform->SetTranslation(camera->transform->GetPos());
-	XMMATRIX wvp = transform->WorldMatrix() * camera->ViewMat() * camera->ProjMat(2);
+	XMMATRIX wvp = transform->WorldMatrix() * camera->VPMat(zOrder);
 	vs->WriteCB(0, &wvp);
 }

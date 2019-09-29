@@ -4,6 +4,7 @@
 class DynamicCubeMap;
 class IGraphic;
 class Timer;
+class Mirror;
 
 class DCMScene :
 	public Scene
@@ -19,5 +20,6 @@ public:
 private:
 	Timer* timer;
 	DynamicCubeMap* dcmObj;
+	Mirror* mirror;
 };
 

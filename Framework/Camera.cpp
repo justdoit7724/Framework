@@ -1,6 +1,7 @@
 #include "Camera.h"
 #include "Transform.h"
 #include "CameraMgr.h"
+#include "Scene.h"
 
 #define Z_ORDER_MAX 5
 
@@ -71,12 +72,27 @@ void Camera::SetFrame(const FRAME_KIND fKind, UINT screenWidth, UINT screenHeigh
 	}
 	
 }
-void Camera::Update(float spf)
+
+void Camera::Capture(Scene* scene, ID3D11RenderTargetView** rtv, ID3D11DepthStencilView* dsv, D3D11_VIEWPORT vp)
 {
-	
+	ID3D11RenderTargetView* oriRTV;
+	ID3D11DepthStencilView* oriDSV;
+	D3D11_VIEWPORT oriVP;
+	DX_DContext->OMGetRenderTargets(1, &oriRTV, &oriDSV);
+	UINT numVP = 1;
+	DX_DContext->RSGetViewports(&numVP, &oriVP);
+
+	DX_DContext->OMSetRenderTargets(1, rtv, dsv);
+	DX_DContext->RSSetViewports(1, &vp);
+
+	scene->Render_Update(this);
+	scene->Render();
+
+	DX_DContext->OMSetRenderTargets(1, &oriRTV, oriDSV);
+	DX_DContext->RSSetViewports(1, &oriVP);
 }
 
-XMMATRIX Camera::ViewMat()
+XMMATRIX Camera::ViewMat()const
 {
 	XMFLOAT3 pos = transform->GetPos();
 	XMFLOAT3 forward = transform->GetForward();

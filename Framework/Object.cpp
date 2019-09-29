@@ -80,7 +80,7 @@ Object::~Object()
 	delete rsState;
 }
 
-void Object::Update(Camera* camera, const XMMATRIX& texMat)
+void Object::Update(const Camera* camera, const XMMATRIX& texMat)
 {
 	vs->WriteCB(0,&VS_Property(transform->WorldMatrix(), camera->VPMat(zOrder), texMat));
 	ps->WriteCB(0, (void*)DirectionalLight::Data());

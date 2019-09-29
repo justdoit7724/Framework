@@ -13,6 +13,7 @@ enum FRAME_KIND {
 #define Z_ORDER_BACKGROUND	4
 
 class Transform;
+class Scene;
 
 class Camera
 {
@@ -21,13 +22,13 @@ public:
 	~Camera();
 	void SetMain();
 	void SetFrame(const FRAME_KIND fKind, UINT screenWidth, UINT screenHeight, const float nearPlane, const float farPlane, const float verticalViewAngle, const float aspectRatio);
-	void Update(float spf);
+	void Capture(Scene* scene, ID3D11RenderTargetView** rtv, ID3D11DepthStencilView* dsv, D3D11_VIEWPORT vp);
 
-	XMMATRIX ViewMat();
+	XMMATRIX ViewMat()const;
 	XMMATRIX ProjMat(int zOrder) {
 		return projMats[zOrder];
 	}
-	XMMATRIX VPMat(int zOrder)
+	XMMATRIX VPMat(int zOrder)const
 	{
 		return ViewMat() * projMats[zOrder];
 	}

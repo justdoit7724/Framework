@@ -30,14 +30,14 @@ DynamicCubeMap::DynamicCubeMap(IGraphic* graphic, Scene* captureScene, Shape* sh
 	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	ps->AddSamp(0, 1, &sampDesc);
 
-	const UINT captureLength = 512;
+	const UINT captureLength = 1024;
 	
 	D3D11_TEXTURE2D_DESC capture_desc;
 	capture_desc.Width = captureLength;
 	capture_desc.Height = captureLength;
-	capture_desc.MipLevels = 1;
+	capture_desc.MipLevels = 0;
 	capture_desc.ArraySize = 6;
-	capture_desc.SampleDesc = { 1,0 };;
+	capture_desc.SampleDesc = { 1,0 };
 	capture_desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	capture_desc.Usage = D3D11_USAGE_DEFAULT;
 	capture_desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
@@ -109,30 +109,19 @@ DynamicCubeMap::DynamicCubeMap(IGraphic* graphic, Scene* captureScene, Shape* sh
 	captureCamera[5] = new Camera("capture5", FRAME_KIND_PERSPECTIVE, captureLength, captureLength, 100.0f, 1000.0f, 90.0f, 1, XMFLOAT3(0,0,0), -FORWARD, UP);
 }
 
-void DynamicCubeMap::Update( Camera* camera, const XMMATRIX& texMat)
+void DynamicCubeMap::Update(const Camera* camera, const XMMATRIX& texMat)
 {
-	DX_DContext->RSSetViewports(1, &captureViewport);
+	ID3D11ShaderResourceView* const nullSRV = nullptr;
+	DX_DContext->PSSetShaderResources(0, 1, &nullSRV);
 	for (int i = 0; i < 6; ++i)
 	{
 		captureCamera[i]->transform->SetTranslation(transform->GetPos());
 
-		vs->WriteCB(0, &(transform->WorldMatrix() * captureCamera[i]->VPMat(zOrder)));
-
 		DX_DContext->ClearRenderTargetView(captureRTV[i], Colors::Transparent);
 		DX_DContext->ClearDepthStencilView(captureDSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-		ID3D11RenderTargetView* renderTarget[1];
-		renderTarget[0] = captureRTV[i];
-		ID3D11ShaderResourceView* const nullSRV = nullptr;
-		DX_DContext->PSSetShaderResources(0, 1, &nullSRV);
-		DX_DContext->OMSetRenderTargets(1, renderTarget, captureDSV);
-
-		captureScene->Render_Update(captureCamera[i]);
-		captureScene->Render();
+		captureCamera[i]->Capture(captureScene, &(captureRTV[i]), captureDSV, captureViewport);
 	}
-
-	graphic->RestoreViewport();
-	graphic->RestoreRTV();
 
 	vs->WriteCB(0, &(transform->WorldMatrix() * camera->VPMat(zOrder)));
 	ps->WriteSRV(0, captureSRV);

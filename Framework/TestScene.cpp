@@ -67,12 +67,12 @@ TestScene::TestScene(IGraphic* graphic)
 	CubeMap* cm = new CubeMap(sampleSRV);
 	objs.push_back(cm);
 
-	ID3D11ShaderResourceView* texSRV;
+	/*ID3D11ShaderResourceView* texSRV;
 	UINT texCount;
 	TextureMgr::Instance()->Get("tex1", &texSRV, &texCount);
 	Object* obj = new Object(new Sphere(4), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), 4, XMFLOAT3(1, 1, 1), texSRV, sampleSRV, 2);
 	obj->transform->SetScale(35, 35, 35);
-	objs.push_back(obj);
+	objs.push_back(obj);*/
 }
 
 TestScene::~TestScene()

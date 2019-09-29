@@ -3,7 +3,6 @@
 
 void CameraMgr::Add(std::string key, Camera* camera)
 {
-	assert(list.find(key) == list.end());
 	list.insert(std::pair<std::string, Camera*>(key, camera));
 }
 

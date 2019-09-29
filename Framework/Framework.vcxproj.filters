@@ -72,9 +72,6 @@
     <ClCompile Include="Light.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Transform.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="UI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -138,9 +135,6 @@
     <ClCompile Include="CubeMap.cpp">
       <Filter>Object</Filter>
     </ClCompile>
-    <ClCompile Include="DynamicCubeMap.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Scene.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
@@ -161,6 +155,15 @@
     </ClCompile>
     <ClCompile Include="DCMScene.cpp">
       <Filter>Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="DynamicCubeMap.cpp">
+      <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Mirror.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Transform.cpp">
+      <Filter>Components</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -207,9 +210,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Transform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="UI.h">
@@ -278,9 +278,6 @@
     <ClInclude Include="InputLayoutBuilder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DynamicCubeMap.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Scene.h">
       <Filter>Scene</Filter>
     </ClInclude>
@@ -301,6 +298,15 @@
     </ClInclude>
     <ClInclude Include="DCMScene.h">
       <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="DynamicCubeMap.h">
+      <Filter>Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Mirror.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Transform.h">
+      <Filter>Components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -364,10 +370,10 @@
       <Filter>Tasks</Filter>
     </FxCompile>
     <FxCompile Include="CMPS.hlsl">
-      <Filter>Tasks</Filter>
+      <Filter>hlsl</Filter>
     </FxCompile>
     <FxCompile Include="CMVS.hlsl">
-      <Filter>Tasks</Filter>
+      <Filter>hlsl</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>
