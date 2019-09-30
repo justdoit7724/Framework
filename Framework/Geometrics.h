@@ -86,6 +86,10 @@ inline XMFLOAT3 operator*(XMFLOAT3 v, float f)
 {
 	return XMFLOAT3(v.x*f, v.y*f, v.z*f);
 }
+inline XMFLOAT3 operator*(XMFLOAT3 a, XMFLOAT3 b)
+{
+	return XMFLOAT3(a.x * b.x, a.y * b.y, a.z * b.z);
+}
 inline XMFLOAT3 operator*(XMFLOAT3 v, const XMMATRIX& m)
 {
 	XMVECTOR mv = XMVector3Transform(XMLoadFloat3(&v), m);

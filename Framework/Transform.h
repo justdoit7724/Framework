@@ -22,6 +22,10 @@ public:
 	{
 		return right;
 	}
+	XMFLOAT3 GetScale()const
+	{
+		return scale;
+	}
 	void SetTranslation(float x, float y, float z) {
 		pos = { x,y,z };
 	}

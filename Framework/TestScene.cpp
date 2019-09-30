@@ -15,6 +15,7 @@
 #include "Sphere.h"
 #include "Quad.h"
 #include "Cube.h"
+#include "Cylinder.h"
 #include "Shader.h"
 #include "Light.h"
 #include "Texture2D.h"
@@ -22,11 +23,14 @@
 #include "CubeMap.h"
 #include "Transform.h"
 #include "Timer.h"
+#include "CameraMgr.h"
 
+Object* obj2;
+Object* obj3;
 TestScene::TestScene(IGraphic* graphic)
 	:Scene("Test")
 {
-	Camera* camera = new Camera("TestMain", FRAME_KIND_PERSPECTIVE, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1, 1000, 70.0f, 1.0f, XMFLOAT3(0, 0, -100), FORWARD, RIGHT);
+	Camera* camera = new Camera("TestMain", FRAME_KIND_PERSPECTIVE, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1, 1000, 1.1f, 1.0f, XMFLOAT3(0, 0, -100), FORWARD, RIGHT);
 	camera->SetMain();
 	timer = new Timer();
 	canvas = new UICanvas(SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -58,21 +62,46 @@ TestScene::TestScene(IGraphic* graphic)
 	list.push_back("cm_normal_pz.png");
 	list.push_back("cm_normal_nz.png");
 	TextureMgr::Instance()->LoadCM("sky", list);
-	TextureMgr::Instance()->Load("tex1", "woodbox.jpg", 4);
+	TextureMgr::Instance()->Load("soccer", "soccerball.jpg", 4);
+	TextureMgr::Instance()->Load("white", "white.png", 4);
+	TextureMgr::Instance()->Load("wood", "woodbox.jpg", 4);
+	TextureMgr::Instance()->Load("sample", "sample2.jpg", 4);
+
 	ID3D11ShaderResourceView* sampleSRV;
 	UINT sampleCount;
 	TextureMgr::Instance()->Get("sky", &sampleSRV, &sampleCount);
 	//canvas->Add("newAnim", XMFLOAT2(0, 50), 760, 320, 0, sampleSRV, sampleCount, 2);
 
 	CubeMap* cm = new CubeMap(sampleSRV);
-	objs.push_back(cm);
+	AddObj(cm);
 
-	/*ID3D11ShaderResourceView* texSRV;
+	ID3D11ShaderResourceView* texSRV;
 	UINT texCount;
-	TextureMgr::Instance()->Get("tex1", &texSRV, &texCount);
-	Object* obj = new Object(new Sphere(4), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), 4, XMFLOAT3(1, 1, 1), texSRV, sampleSRV, 2);
-	obj->transform->SetScale(35, 35, 35);
-	objs.push_back(obj);*/
+	TextureMgr::Instance()->Get("wood", &texSRV, &texCount);
+	Object* obj = new Object(new Cube(), XMFLOAT3(1, 1, 1), XMFLOAT3(3, 3, 3), XMFLOAT3(1, 1, 1), 4, XMFLOAT3(0, 0, 0), texSRV, sampleSRV, 2);
+	obj->transform->SetScale(40, 60, 40);
+	obj->transform->SetTranslation(0, 0, 70);
+	AddObj(obj);
+
+	ID3D11ShaderResourceView* imageSRV1;
+	ID3D11ShaderResourceView* imageSRV2;
+	ID3D11ShaderResourceView* imageSRV3;
+	TextureMgr::Instance()->Get("soccer", &imageSRV1, &texCount);
+	TextureMgr::Instance()->Get("white", &imageSRV2, &texCount);
+	TextureMgr::Instance()->Get("sample", &imageSRV3, &texCount);
+	obj2 = new Object(new Sphere(3), XMFLOAT3(1, 1, 1), XMFLOAT3(3, 3, 3), XMFLOAT3(1, 1, 1), 4, XMFLOAT3(0, 0, 0), imageSRV1, sampleSRV, 2);
+	obj3 = new Object(new Cylinder(6), XMFLOAT3(1, 1, 1), XMFLOAT3(3, 3, 3), XMFLOAT3(1, 1, 1), 4, XMFLOAT3(0, 0, 0), imageSRV2, sampleSRV, 2);
+	Object* obj4 = new Object(new Quad(), XMFLOAT3(1, 1, 1), XMFLOAT3(10, 10, 10), XMFLOAT3(1, 1, 1), 4, XMFLOAT3(0, 0, 0), imageSRV3, sampleSRV, 2);
+	obj2->transform->SetScale(20, 20, 20);
+	obj2->transform->SetTranslation(30, 100, 80);
+	obj3->transform->SetScale(15, 20, 15);
+	obj3->transform->SetTranslation(-30, 100, 80);
+	obj4->transform->SetScale(200, 105, 1);
+	obj4->transform->SetTranslation(0, 90, -0.3f);
+
+	AddObj(obj2);
+	AddObj(obj3);
+	AddObj(obj4);
 }
 
 TestScene::~TestScene()
@@ -118,8 +147,10 @@ void CameraMove(Camera* camera, float spf) {
 	camera->transform->SetTranslation(newPos);
 	camera->transform->SetRot(FORWARD * rotMat, UP * rotMat);
 }
-void TestScene::Logic_Update(Camera* cam)
+void TestScene::Logic_Update()
 {
+	Camera* cam = CameraMgr::Instance()->Main();
+
 	timer->Update();
 
 	CameraMove(cam, timer->SPF());
@@ -129,7 +160,7 @@ void TestScene::Logic_Update(Camera* cam)
 	float elaped = timer->Elapsed();
 	if (pLight)
 	{
-		XMFLOAT3 pt = XMFLOAT3(
+		XMFLOAT3 pt = XMFLOAT3(0,50,100)+ XMFLOAT3(
 			cos(elaped * 0.5f) * 30,
 			25,
 			sin(elaped * 0.5f) * 50);
@@ -138,7 +169,7 @@ void TestScene::Logic_Update(Camera* cam)
 	}
 	if (pLight2)
 	{
-		XMFLOAT3 pt = XMFLOAT3(
+		XMFLOAT3 pt = XMFLOAT3(0, 50, 100) + XMFLOAT3(
 			cos(elaped * 0.45f) * 35,
 			cos(elaped) * 10,
 			sin(elaped * 0.45f) * 55);
@@ -150,20 +181,16 @@ void TestScene::Logic_Update(Camera* cam)
 	canvas->Update(timer->SPF());
 }
 
-void TestScene::Render_Update(Camera* camera)
+void TestScene::Render_Update(const Camera* camera)
 {
-	for (auto obj : objs)
-	{
-		obj->Update(camera, XMMatrixIdentity());
-	}
+	Scene::Render_Update(camera);
+
+	canvas->Update(timer->SPF());
 }
 
 void TestScene::Render()const
 {
-	for (auto obj : objs)
-	{
-		obj->Render();
-	}
+	Scene::Render();
 
 	canvas->Render();
 }

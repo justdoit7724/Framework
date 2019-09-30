@@ -164,7 +164,7 @@ void Debugging::DisableGrid()
 	gridVB = nullptr;
 }
 
-void Debugging::Update(Camera* camera)
+void Debugging::Update(const Camera* camera)
 {
 	vp_mat = camera->VPMat(Z_ORDER_STANDARD);
 }

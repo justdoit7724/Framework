@@ -7,7 +7,7 @@ struct VS_INPUT
 struct VS_OUTPUT
 {
     float4 pos : SV_POSITION;
-    float2 tex : TEXCOORD;
+    float2 tex : TEXCOORD0;
 };
 
 cbuffer CB_VS_PROPERTY : register(b0)

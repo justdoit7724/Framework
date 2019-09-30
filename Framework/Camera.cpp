@@ -5,17 +5,29 @@
 
 #define Z_ORDER_MAX 5
 
-Camera::Camera(std::string key, const FRAME_KIND	frameKind, UINT orthoScnWidth, UINT orthoScnHeight, const float n, const float f, const float verticalViewAngle, const float aspectRatio, const XMFLOAT3 firstPos, const XMFLOAT3 _forward, const XMFLOAT3 _up)
+Camera::Camera(std::string key, const Camera* camera)
+{
+	CameraMgr::Instance()->Add(key, this);
+
+	transform = new Transform();
+
+	SetFrame(camera->GetFrame(), camera->GetSize(), camera->GetN(), camera->GetF(), camera->GetVRad(), camera->GetAspectRatio());
+	transform->SetTranslation(camera->transform->GetPos());
+	transform->SetRot(camera->transform->GetRight(), camera->transform->GetUp(), camera->transform->GetForward());
+}
+
+Camera::Camera(std::string key, const FRAME_KIND frameKind, float orthoScnWidth, float orthoScnHeight, const float n, const float f, const float verticalViewAngle, const float aspectRatio, const XMFLOAT3 firstPos, const XMFLOAT3 _forward, const XMFLOAT3 _up)
 	:key(key)
 {
 	CameraMgr::Instance()->Add(key, this);
 
 	transform = new Transform();
 
-	SetFrame(frameKind, orthoScnWidth, orthoScnHeight, n, f, verticalViewAngle, aspectRatio);
+	SetFrame(frameKind, XMFLOAT2(orthoScnWidth, orthoScnHeight), n, f, verticalViewAngle, aspectRatio);
 	transform->SetTranslation(firstPos);
 	transform->SetRot(_forward, _up);
 }
+
 Camera::~Camera()
 {
 	CameraMgr::Instance()->Remove(key);
@@ -24,14 +36,16 @@ void Camera::SetMain()
 {
 	CameraMgr::Instance()->SetMain(key);
 }
-void Camera::SetFrame(const FRAME_KIND fKind, UINT screenWidth, UINT screenHeight, const float n, const float f, const float verticalViewAngle, const float aspectRatio)
+void Camera::SetFrame(const FRAME_KIND fKind, XMFLOAT2 orthoSize, const float n, const float f, const float verticalViewRad, const float aspectRatio)
 {
 	assert(n > 0.0f);
 
-
-	float verticalViewRad = verticalViewAngle * XM_PI / 180.0f;
-
 	curFrame = fKind;
+	size = orthoSize;
+	this->n = n;
+	this->f = f;
+	this->verticalRadian = verticalViewRad;
+	this->aspectRatio = aspectRatio;
 
 	projMats = new XMMATRIX[5];
 	float interval = 1.0f / Z_ORDER_MAX;
@@ -56,8 +70,8 @@ void Camera::SetFrame(const FRAME_KIND fKind, UINT screenWidth, UINT screenHeigh
 	case FRAME_KIND_ORTHOGONAL:
 		for (int i = 0; i < Z_ORDER_MAX; ++i)
 		{
-			float sX = 2.0f / (float)screenWidth;
-			float sY = 2.0f / (float)screenHeight;
+			float sX = 2.0f / size.x;
+			float sY = 2.0f / size.y;
 			float sZ = interval / (f - n);
 			float M = (-n / (f - n) + i) * interval;
 

@@ -9,12 +9,9 @@ class SceneMgr :
 	public Singleton<SceneMgr>
 {
 public:
-	void Add(std::string key, Scene* scene)
-	{
-		assert(list.find(key) == list.end());
+	friend class Scene;
 
-		list.insert(std::pair<std::string, Scene *>(key, scene));
-	}
+	void Add(Scene* scene);
 	void Remove(std::string key)
 	{
 		list.erase(key);

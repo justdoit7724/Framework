@@ -6,11 +6,11 @@ DebuggingScene::DebuggingScene()
 {
 }
 
-void DebuggingScene::Logic_Update(Camera* camera)
+void DebuggingScene::Logic_Update()
 {
 }
 
-void DebuggingScene::Render_Update(Camera* camera)
+void DebuggingScene::Render_Update(const Camera* camera)
 {
 	Debugging::Instance()->Update(camera);
 }

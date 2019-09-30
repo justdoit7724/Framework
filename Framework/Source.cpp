@@ -17,9 +17,15 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	srand(time(NULL));
 	Window window(hInstance, "Low Level");
 	Graphic* graphic = new Graphic(window.Hwnd());
+
+
 	TestScene* testScene = new TestScene(graphic);
 	DCMScene* dcmScene = new DCMScene(graphic, testScene);
 	DebuggingScene* debugScene = new DebuggingScene();
+
+	SceneMgr::Instance()->Add(testScene);
+	SceneMgr::Instance()->Add(dcmScene);
+	SceneMgr::Instance()->Add(debugScene);
 
 	Timer* worldTimer = new Timer();
 

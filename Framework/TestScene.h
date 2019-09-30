@@ -17,16 +17,14 @@ class TestScene :
 public:
 	TestScene(IGraphic* graphic);
 	~TestScene();
-	void Logic_Update(Camera* camera)override;
-	void Render_Update(Camera* camera)override;
+	void Logic_Update()override;
+	void Render_Update(const Camera* camera)override;
 	void Render()const override;
 
 private:
 	Timer* timer;
 
 	UICanvas* canvas;
-
-	std::vector<Object*> objs;
 
 	DirectionalLight* dLight = nullptr;
 	PointLight* pLight = nullptr;

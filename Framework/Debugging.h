@@ -43,7 +43,7 @@ public:
 	void DisableGrid();
 
 private:
-	void Update(Camera* camera);
+	void Update(const Camera* camera);
 	void Render();
 
 	friend class Singleton<Debugging>;

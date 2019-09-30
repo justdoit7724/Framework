@@ -18,10 +18,11 @@ class Scene;
 class Camera
 {
 public:
-	Camera(std::string key, const FRAME_KIND frameKind, UINT screenWidth, UINT screenHeight, const float nearPlane, const float farPlane, const float verticalViewAngle, const float aspectRatio, const XMFLOAT3 firstPos, const XMFLOAT3 _forward, const XMFLOAT3 _up);
+	Camera(std::string key, const Camera* camera);
+	Camera(std::string key, const FRAME_KIND frameKind, float screenWidth, float screenHeight, const float nearPlane, const float farPlane, const float verticalViewAngle, const float aspectRatio, const XMFLOAT3 firstPos, const XMFLOAT3 _forward, const XMFLOAT3 _up);
 	~Camera();
 	void SetMain();
-	void SetFrame(const FRAME_KIND fKind, UINT screenWidth, UINT screenHeight, const float nearPlane, const float farPlane, const float verticalViewAngle, const float aspectRatio);
+	void SetFrame(const FRAME_KIND fKind, XMFLOAT2 orthoSize, const float nearPlane, const float farPlane, const float verticalViewAngle, const float aspectRatio);
 	void Capture(Scene* scene, ID3D11RenderTargetView** rtv, ID3D11DepthStencilView* dsv, D3D11_VIEWPORT vp);
 
 	XMMATRIX ViewMat()const;
@@ -37,9 +38,20 @@ public:
 
 	const std::string key;
 
+	FRAME_KIND GetFrame()const { return curFrame; }
+	XMFLOAT2 GetSize()const { return size; }
+	float GetN()const { return n; }
+	float GetF()const { return f; }
+	float GetVRad()const { return verticalRadian; }
+	float GetAspectRatio()const { return aspectRatio; }
+
 private:
 	XMMATRIX* projMats;
 
 	FRAME_KIND curFrame;
+	XMFLOAT2 size;
+	float n, f;
+	float verticalRadian;
+	float aspectRatio;
 };
 

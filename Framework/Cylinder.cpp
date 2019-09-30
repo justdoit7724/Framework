@@ -1,7 +1,7 @@
 #include "Cylinder.h"
 #include "CustomFormat.h"
 
-Cylinder::Cylinder(const float height, const float rad, const int sliceCount)
+Cylinder::Cylinder(const int sliceCount)
 	:Shape()
 {
 	assert(sliceCount >= 3);
@@ -9,17 +9,17 @@ Cylinder::Cylinder(const float height, const float rad, const int sliceCount)
 #pragma region side
 
 	float dTheta = XM_2PI / sliceCount;
-	float hHeight = 0.5*height;
+	float hHeight = 1.0f;
 
 	std::vector<Vertex> vertice;
 	for (int i = 0; i < 2; ++i) {
-		float y = -hHeight + i * height;
+		float y = -hHeight + i*2;
 
 		for (int j = 0; j <= sliceCount; ++j) {
 			Vertex vertex;
 			float c = cosf(j*dTheta);
 			float s = sinf(j*dTheta);
-			vertex.pos = XMFLOAT3(rad*c, y, rad*s);
+			vertex.pos = XMFLOAT3(0.5f*c, y, 0.5f*s);
 			vertex.tex.x = float(j) / sliceCount;
 			vertex.tex.y = 1.0f - i;
 
@@ -49,10 +49,10 @@ Cylinder::Cylinder(const float height, const float rad, const int sliceCount)
 	int baseIdx = vertice.size();
 	for (int i = 0; i < sliceCount + 1; ++i)
 	{
-		float x = rad * cosf(i*dTheta);
-		float z = rad * sinf(i*dTheta);
-		float u = x / height + 0.5f;
-		float v = z / height + 0.5f;
+		float x = 0.5f * cosf(i*dTheta);
+		float z = 0.5f * sinf(i*dTheta);
+		float u = x / 2.0f + 0.5f;
+		float v = z / 2.0f + 0.5f;
 
 		Vertex vertex;
 		vertex.pos = XMFLOAT3(x, hHeight, z);
@@ -79,10 +79,10 @@ Cylinder::Cylinder(const float height, const float rad, const int sliceCount)
 	baseIdx = vertice.size();
 	for (int i = 0; i < sliceCount + 1; ++i)
 	{
-		float x = rad * cosf(i*dTheta);
-		float z = rad * sinf(i*dTheta);
-		float u = x / height + 0.5f;
-		float v = z / height + 0.5f;
+		float x = 0.5f * cosf(i*dTheta);
+		float z = 0.5f * sinf(i*dTheta);
+		float u = x / 2.0f + 0.5f;
+		float v = z / 2.0f + 0.5f;
 
 		Vertex vertex;
 		vertex.pos = XMFLOAT3(x, -hHeight, z);

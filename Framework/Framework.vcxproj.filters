@@ -375,5 +375,11 @@
     <FxCompile Include="CMVS.hlsl">
       <Filter>hlsl</Filter>
     </FxCompile>
+    <FxCompile Include="MirrorPS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="MirrorVS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

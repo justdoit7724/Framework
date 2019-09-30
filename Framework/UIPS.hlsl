@@ -4,7 +4,7 @@
 struct PS_INPUT
 {
     float4 pos : SV_POSITION;
-    float2 tex : TEXCOORD;
+    float2 tex : TEXCOORD0;
 };
 
 Texture2DArray uiTexture : register(t0);
