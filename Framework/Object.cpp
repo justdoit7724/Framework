@@ -82,7 +82,7 @@ Object::~Object()
 
 void Object::Update(const Camera* camera, const XMMATRIX& texMat)
 {
-	vs->WriteCB(0,&VS_Property(transform->WorldMatrix(), camera->VPMat(zOrder), texMat));
+	vs->WriteCB(0, &VS_Property(transform->WorldMatrix(), camera->VPMat(zOrder), texMat));
 	ps->WriteCB(0, (void*)DirectionalLight::Data());
 	ps->WriteCB(1, (void*)PointLight::Data());
 	ps->WriteCB(2, (void*)SpotLight::Data());

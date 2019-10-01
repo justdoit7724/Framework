@@ -132,9 +132,6 @@
     <ClCompile Include="HDTester.cpp">
       <Filter>Tasks</Filter>
     </ClCompile>
-    <ClCompile Include="CubeMap.cpp">
-      <Filter>Object</Filter>
-    </ClCompile>
     <ClCompile Include="Scene.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
@@ -164,6 +161,9 @@
     </ClCompile>
     <ClCompile Include="Transform.cpp">
       <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Skybox.cpp">
+      <Filter>Object</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -272,9 +272,6 @@
     <ClInclude Include="HDTester.h">
       <Filter>Tasks</Filter>
     </ClInclude>
-    <ClInclude Include="CubeMap.h">
-      <Filter>Object</Filter>
-    </ClInclude>
     <ClInclude Include="InputLayoutBuilder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -307,6 +304,9 @@
     </ClInclude>
     <ClInclude Include="Transform.h">
       <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Skybox.h">
+      <Filter>Object</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -381,5 +381,10 @@
     <FxCompile Include="MirrorVS.hlsl">
       <Filter>hlsl</Filter>
     </FxCompile>
+    <FxCompile Include="CMGS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="SkyboxPS.hlsl" />
+    <FxCompile Include="SkyboxVS.hlsl" />
   </ItemGroup>
 </Project>

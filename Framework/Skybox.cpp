@@ -1,4 +1,4 @@
-#include "CubeMap.h"
+#include "Skybox.h"
 #include "Transform.h"
 #include "Shader.h"
 #include "Sphere.h"
@@ -7,12 +7,12 @@
 #include "DepthStencilState.h"
 
 
-CubeMap::CubeMap(ID3D11ShaderResourceView* srv)
+Skybox::Skybox(ID3D11ShaderResourceView* srv)
 	:Object(
 		nullptr,
-		"CMVS.cso", Std_ILayouts,ARRAYSIZE(Std_ILayouts),
+		"SkyboxVS.cso", Std_ILayouts,ARRAYSIZE(Std_ILayouts),
 		"","","",
-		"CMPS.cso",Z_ORDER_STANDARD)
+		"SkyboxPS.cso",Z_ORDER_STANDARD)
 { 
 	transform->SetScale(1000, 700, 1000);
 	
@@ -38,7 +38,7 @@ CubeMap::CubeMap(ID3D11ShaderResourceView* srv)
 	rsState = new RasterizerState(&rs_desc);
 }
 
-void CubeMap::Update(const Camera* camera, const XMMATRIX& texMat)
+void Skybox::Update(const Camera* camera, const XMMATRIX& texMat)
 {
 	transform->SetTranslation(camera->transform->GetPos());
 	XMMATRIX wvp = transform->WorldMatrix() * camera->VPMat(zOrder);

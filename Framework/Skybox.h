@@ -1,10 +1,10 @@
 #pragma once
 #include "Object.h"
 
-class CubeMap : public Object
+class Skybox : public Object
 {
 public:
-	CubeMap(ID3D11ShaderResourceView* srv);
+	Skybox(ID3D11ShaderResourceView* srv);
 
 	void Update(const Camera* camera, const XMMATRIX& texMat = XMMatrixIdentity())override;
 

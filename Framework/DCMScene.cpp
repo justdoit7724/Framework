@@ -16,17 +16,15 @@ DCMScene::DCMScene(IGraphic* graphic, Scene* captureScene)
 	dcmObj->transform->SetTranslation(0, 210, -1);
 	AddObj(dcmObj);
 
-	mirror = new Mirror(captureScene, 1024, 512);
+	/*mirror = new Mirror(captureScene, 1024, 512);
 	mirror->transform->SetScale(190, 90, 1);
 	mirror->transform->SetTranslation(0, 90, 0);
-	AddObj(mirror);
+	AddObj(mirror);*/
 }
 
 DCMScene::~DCMScene()
 {
 	delete timer;
-	delete dcmObj;
-	delete mirror;
 }
 
 void DCMScene::Logic_Update()

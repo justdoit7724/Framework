@@ -20,7 +20,7 @@
 #include "Light.h"
 #include "Texture2D.h"
 #include "Buffer.h"
-#include "CubeMap.h"
+#include "Skybox.h"
 #include "Transform.h"
 #include "Timer.h"
 #include "CameraMgr.h"
@@ -72,8 +72,8 @@ TestScene::TestScene(IGraphic* graphic)
 	TextureMgr::Instance()->Get("sky", &sampleSRV, &sampleCount);
 	//canvas->Add("newAnim", XMFLOAT2(0, 50), 760, 320, 0, sampleSRV, sampleCount, 2);
 
-	CubeMap* cm = new CubeMap(sampleSRV);
-	AddObj(cm);
+	Skybox* skybox = new Skybox(sampleSRV);
+	AddObj(skybox);
 
 	ID3D11ShaderResourceView* texSRV;
 	UINT texCount;
@@ -176,9 +176,6 @@ void TestScene::Logic_Update()
 		pLight2->SetPos(pt);
 		Debugging::Instance()->Mark(9999, pt, 1.5f, Colors::Red);
 	}
-
-
-	canvas->Update(timer->SPF());
 }
 
 void TestScene::Render_Update(const Camera* camera)

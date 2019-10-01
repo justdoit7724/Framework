@@ -10,15 +10,16 @@
 DynamicCubeMap::DynamicCubeMap(IGraphic* graphic, Scene* captureScene, Shape* shape)
 	:Object(
 		shape,
-		"CMVS.cso", Std_ILayouts,3,
+		"CMVS.cso", Std_ILayouts,ARRAYSIZE(Std_ILayouts),
 		"","","",
 		"CMPS.cso",
 		Z_ORDER_STANDARD),
 	graphic(graphic),
 	captureScene(captureScene)
 {
-	vs->AddCB(0, 1, sizeof(XMMATRIX));
+	vs->AddCB(0, 1, sizeof(VS_Property));
 	ps->AddSRV(0, 1);
+	ps->AddCB(0, 1, sizeof(XMFLOAT3));
 	D3D11_SAMPLER_DESC sampDesc;
 	ZeroMemory(&sampDesc, sizeof(D3D11_SAMPLER_DESC));
 	sampDesc.Filter = D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR;
@@ -43,9 +44,9 @@ DynamicCubeMap::DynamicCubeMap(IGraphic* graphic, Scene* captureScene, Shape* sh
 	capture_desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 	capture_desc.CPUAccessFlags = 0;
 	capture_desc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
-
+	ComPtr<ID3D11Texture2D> captureTex;
 	r_assert(
-		DX_Device->CreateTexture2D(&capture_desc, nullptr, &captureTex)
+		DX_Device->CreateTexture2D(&capture_desc, nullptr, captureTex.GetAddressOf())
 	);
 
 	D3D11_RENDER_TARGET_VIEW_DESC crtv_desc;
@@ -57,18 +58,9 @@ DynamicCubeMap::DynamicCubeMap(IGraphic* graphic, Scene* captureScene, Shape* sh
 	{
 		crtv_desc.Texture2DArray.FirstArraySlice = i;
 		r_assert(
-			DX_Device->CreateRenderTargetView(captureTex, &crtv_desc, &captureRTV[i])
+			DX_Device->CreateRenderTargetView(captureTex.Get(), &crtv_desc, captureRTV[i].GetAddressOf())
 		);
 	}
-
-	D3D11_SHADER_RESOURCE_VIEW_DESC srv_desc;
-	srv_desc.Format = capture_desc.Format;
-	srv_desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
-	srv_desc.TextureCube.MostDetailedMip = 0;
-	srv_desc.TextureCube.MipLevels = 1;
-	r_assert(
-		DX_Device->CreateShaderResourceView(captureTex, &srv_desc, &captureSRV)
-	);
 
 	D3D11_TEXTURE2D_DESC cds_desc;
 	cds_desc.Width = captureLength;
@@ -81,7 +73,7 @@ DynamicCubeMap::DynamicCubeMap(IGraphic* graphic, Scene* captureScene, Shape* sh
 	cds_desc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 	cds_desc.CPUAccessFlags = 0;
 	cds_desc.MiscFlags = 0;
-	ID3D11Texture2D* cdsTex;
+	ComPtr<ID3D11Texture2D> cdsTex;
 	r_assert(
 		DX_Device->CreateTexture2D(&cds_desc, nullptr, &cdsTex)
 	);
@@ -89,10 +81,20 @@ DynamicCubeMap::DynamicCubeMap(IGraphic* graphic, Scene* captureScene, Shape* sh
 	cdsv_desc.Format = cds_desc.Format;
 	cdsv_desc.Flags = 0;
 	cdsv_desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-	cdsv_desc.Texture2D.MipSlice = 0;
+	cdsv_desc.Texture2D.MipSlice=0;
 	r_assert(
-		DX_Device->CreateDepthStencilView(cdsTex, &cdsv_desc, &captureDSV)
+		DX_Device->CreateDepthStencilView(cdsTex.Get(), &cdsv_desc, &captureDSV)
 	);
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC srv_desc;
+	srv_desc.Format = capture_desc.Format;
+	srv_desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
+	srv_desc.TextureCube.MostDetailedMip = 0;
+	srv_desc.TextureCube.MipLevels = 1;
+	r_assert(
+		DX_Device->CreateShaderResourceView(captureTex.Get(), &srv_desc, &captureSRV)
+	);
+
 
 	captureViewport.TopLeftX = 0.0f;
 	captureViewport.TopLeftY = 0.0f;
@@ -117,12 +119,13 @@ void DynamicCubeMap::Update(const Camera* camera, const XMMATRIX& texMat)
 	{
 		captureCamera[i]->transform->SetTranslation(transform->GetPos());
 
-		DX_DContext->ClearRenderTargetView(captureRTV[i], Colors::Transparent);
-		DX_DContext->ClearDepthStencilView(captureDSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+		DX_DContext->ClearRenderTargetView(captureRTV[i].Get(), Colors::Transparent);
+		DX_DContext->ClearDepthStencilView(captureDSV.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-		captureCamera[i]->Capture(captureScene, &(captureRTV[i]), captureDSV, captureViewport);
+		captureCamera[i]->Capture(captureScene, captureRTV[i].GetAddressOf(), captureDSV.Get(), captureViewport);
 	}
 
-	vs->WriteCB(0, &(transform->WorldMatrix() * camera->VPMat(zOrder)));
-	ps->WriteSRV(0, captureSRV);
+	vs->WriteCB(0, &VS_Property(transform->WorldMatrix(), camera->VPMat(zOrder), XMMatrixIdentity()));
+	ps->WriteSRV(0, captureSRV.Get());
+	ps->WriteCB(0, &(camera->transform->GetPos()));
 }
