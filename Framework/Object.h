@@ -18,7 +18,7 @@ class Object
 {
 public:
 	Object(Shape* shape, std::string sVS, const D3D11_INPUT_ELEMENT_DESC* iLayouts, UINT layoutCount, std::string sHS, std::string sDS, std::string sGS, std::string sPS, int zOrder);
-	Object(Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpec, float sP, XMFLOAT3 r, ID3D11ShaderResourceView* srv, ID3D11ShaderResourceView* cm, int zOrder);
+	Object(Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpec, float sP, XMFLOAT3 r, ID3D11ShaderResourceView* srv, ID3D11ShaderResourceView* normalSRV, ID3D11ShaderResourceView* cm, int zOrder);
 	~Object();
 
 	virtual void Update(const Camera* camera, const XMMATRIX& texMat = XMMatrixIdentity());

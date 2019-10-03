@@ -21,7 +21,7 @@ Window::Window(HINSTANCE _hinstance, const char* name)
 	wc.lpszClassName = className;
 	wc.cbSize = sizeof(WNDCLASSEX);
 	RegisterClassEx(&wc);
-
+	
 	/*RECT wr;
 	wr.left = 100;
 	wr.right = wr.left + _width;

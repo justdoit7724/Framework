@@ -226,6 +226,7 @@
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="LightInfo.cginc" />
     <None Include="ShaderInfo.cginc" />
   </ItemGroup>
   <ItemGroup>

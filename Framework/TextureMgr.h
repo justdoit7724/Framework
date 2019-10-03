@@ -3,6 +3,9 @@
 #include <unordered_map>
 #include "Singleton.h"
 
+#define KEY_TEXTURE_NORMAL_DEFAULT "blue"
+#define FN_TEXTURE_NORMAL_DEFAULT "blue.png"
+
 class TextureMgr : public Singleton<TextureMgr>
 {
 public:

@@ -98,10 +98,13 @@ Sphere::Sphere(int numSubDivision)
 		float phi = acosf(pos.y);
 		XMFLOAT2 tex = XMFLOAT2(theta / XM_2PI, phi / XM_PI);
 		
-		/*meshData.Vertices[i].TangentU.x = -radius * sinf(phi)*sinf(theta);
-		meshData.Vertices[i].TangentU.y = 0.0f; meshData.Vertices[i].TangentU.z = +radius * sinf(phi)*cosf(theta);*/
+		XMFLOAT3 tangent = XMFLOAT3(
+			cosf(theta),
+			0.0f,
+			-sinf(theta)
+		);
 		
-		vertice2.emplace_back(pos, n, tex);
+		vertice2.push_back(Vertex(pos, n, tex, tangent));
 	}
 
 	Init(vertice2.data(), sizeof(Vertex), vertice2.size(), indice.data(), indice.size(), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

@@ -25,7 +25,11 @@ int CalculateMaxMiplevel(int width, int height)
 
 void TextureMgr::Load(std::string key, std::vector<std::string> fileNames, UINT miplevel)
 {
-	assert(SRVs.find(key) == SRVs.end());
+	if (SRVs.find(key) != SRVs.end())
+	{
+		OutputDebugString((key + " texture multiple loading\n").c_str());
+		return;
+	}
 
 	const UINT spriteCount = fileNames.size();
 
@@ -57,7 +61,7 @@ void TextureMgr::Load(std::string key, std::vector<std::string> fileNames, UINT 
 		prev_desc = ori_desc;
 	}
 	
-	miplevel = min(CalculateMaxMiplevel(ori_desc.Width, ori_desc.Height), miplevel);
+	miplevel = max(min(CalculateMaxMiplevel(ori_desc.Width, ori_desc.Height), miplevel),1);
 
 	D3D11_TEXTURE2D_DESC arr_desc;
 	arr_desc.Format = ori_desc.Format;

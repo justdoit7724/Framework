@@ -313,6 +313,9 @@
     <None Include="ShaderInfo.cginc">
       <Filter>hlsl</Filter>
     </None>
+    <None Include="LightInfo.cginc">
+      <Filter>hlsl</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="MarkPS.hlsl">
@@ -384,7 +387,11 @@
     <FxCompile Include="CMGS.hlsl">
       <Filter>hlsl</Filter>
     </FxCompile>
-    <FxCompile Include="SkyboxPS.hlsl" />
-    <FxCompile Include="SkyboxVS.hlsl" />
+    <FxCompile Include="SkyboxVS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="SkyboxPS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

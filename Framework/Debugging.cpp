@@ -108,8 +108,8 @@ void Debugging::EnableGrid(float interval, int num)
 
 	const float LENGTH = interval * num;
 	const float HLENGTH = LENGTH * 0.5f;
-	std::vector<Vertex> originVertice;
-	std::vector<Vertex> gridVertice;
+	std::vector<XMFLOAT3> originVertice;
+	std::vector<XMFLOAT3> gridVertice;
 	// center indicators
 	originVertice.push_back(XMFLOAT3(0, 0, 0));
 	originVertice.push_back(XMFLOAT3(HLENGTH, 0, 0));
@@ -137,7 +137,7 @@ void Debugging::EnableGrid(float interval, int num)
 
 	D3D11_BUFFER_DESC originVB_desc;
 	originVB_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	originVB_desc.ByteWidth = sizeof(Vertex)*originVertice.size();
+	originVB_desc.ByteWidth = sizeof(gridVertice[0])*originVertice.size();
 	originVB_desc.CPUAccessFlags = 0;
 	originVB_desc.MiscFlags = 0;
 	originVB_desc.StructureByteStride = 0;
@@ -148,7 +148,7 @@ void Debugging::EnableGrid(float interval, int num)
 
 	D3D11_BUFFER_DESC gridVB_desc;
 	gridVB_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	gridVB_desc.ByteWidth = sizeof(Vertex)*gridVertice.size();
+	gridVB_desc.ByteWidth = sizeof(gridVertice[0])*gridVertice.size();
 	gridVB_desc.CPUAccessFlags = 0;
 	gridVB_desc.MiscFlags = 0;
 	gridVB_desc.StructureByteStride = 0;
@@ -182,7 +182,7 @@ void Debugging::Render()
 
 	for (auto& mark : marks) {
 
-		vs->WriteCB(0,&VS_Property(mark.second.transform->WorldMatrix(), vp_mat, XMMatrixIdentity()));
+		vs->WriteCB(0,&(mark.second.transform->WorldMatrix() * vp_mat));
 		ps->WriteCB(0,&(mark.second.color));
 		vs->Apply();
 		ps->Apply();
@@ -201,17 +201,17 @@ void Debugging::Render()
 		r_assert(
 			DX_DContext->Map(
 				lineVB->Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped));
-		Vertex* pVB = reinterpret_cast<Vertex*>(mapped.pData);
-		pVB[0].pos = l.second.p1;
-		pVB[1].pos = l.second.p2;
+		XMFLOAT3* pVB = reinterpret_cast<XMFLOAT3*>(mapped.pData);
+		pVB[0] = l.second.p1;
+		pVB[1] = l.second.p2;
 		DX_DContext->Unmap(lineVB->Get(), 0);
 		
-		vs->WriteCB(0,&VS_Property(vp_mat, XMMatrixIdentity()));
+		vs->WriteCB(0,&vp_mat);
 		ps->WriteCB(0,&(l.second.color));
 		vs->Apply();
 		ps->Apply();
 
-		UINT stride = sizeof(Vertex);
+		UINT stride = sizeof(XMFLOAT3);
 		UINT offset = 0;
 		DX_DContext->IASetVertexBuffers(0, 1, lineVB->GetAddress(), &stride, &offset);
 		DX_DContext->Draw(2, 0);
@@ -219,30 +219,30 @@ void Debugging::Render()
 
 	if (gridVB)
 	{
-		vs->WriteCB(0,&VS_Property(vp_mat, XMMatrixIdentity()));
+		vs->WriteCB(0,&vp_mat);
 		ps->WriteCB(0,(void*)(&(Colors::Red)));
 		vs->Apply();
 		ps->Apply();
-		UINT stride = sizeof(Vertex);
+		UINT stride = sizeof(XMFLOAT3);
 		UINT offset = 0;
 		DX_DContext->IASetVertexBuffers(0, 1, originVB->GetAddress(), &stride, &offset);
 		DX_DContext->Draw(2, 0);
 
-		vs->WriteCB(0,&VS_Property(vp_mat, XMMatrixIdentity()));
+		vs->WriteCB(0,&vp_mat);
 		ps->WriteCB(0,(void*)(&(Colors::Green)));
 		vs->Apply();
 		ps->Apply();
 		DX_DContext->IASetVertexBuffers(0, 1, originVB->GetAddress(), &stride, &offset);
 		DX_DContext->Draw(2, 2);
 
-		vs->WriteCB(0,&VS_Property(vp_mat, XMMatrixIdentity()));
+		vs->WriteCB(0,&vp_mat);
 		ps->WriteCB(0,(void*)(&(Colors::Blue)));
 		vs->Apply();
 		ps->Apply();
 		DX_DContext->IASetVertexBuffers(0, 1, originVB->GetAddress(), &stride, &offset);
 		DX_DContext->Draw(2, 4);
 
-		vs->WriteCB(0,&VS_Property(vp_mat, XMMatrixIdentity()));
+		vs->WriteCB(0,&vp_mat);
 		ps->WriteCB(0,(void*)(&(Colors::Gray)));
 		vs->Apply();
 		ps->Apply();
@@ -291,13 +291,13 @@ void Debugging::Render()
 Debugging::Debugging()
 {
 	vs = new VShader("MarkVS.cso", 
-		Std_ILayouts,
-		3);
+		simple_ILayouts,
+		ARRAYSIZE(simple_ILayouts));
 	hs = new HShader();
 	ds = new DShader();
 	gs = new GShader();
 	ps = new PShader("MarkPS.cso");
-	vs->AddCB(0, 1, sizeof(VS_Property));
+	vs->AddCB(0, 1, sizeof(XMMATRIX));
 	ps->AddCB(0, 1, sizeof(XMVECTOR));
 
 	blendState = new BlendState(nullptr);
@@ -309,7 +309,7 @@ Debugging::Debugging()
 
 	D3D11_BUFFER_DESC vb_desc;
 	vb_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vb_desc.ByteWidth = sizeof(Vertex) * 2;
+	vb_desc.ByteWidth = sizeof(XMFLOAT3) * 2;
 	vb_desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	vb_desc.MiscFlags = 0;
 	vb_desc.StructureByteStride = 0;

@@ -10,13 +10,15 @@ static const D3D11_INPUT_ELEMENT_DESC Std_ILayouts[] =
 {
 	{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, sizeof(XMFLOAT3), D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, sizeof(XMFLOAT3) * 2, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, sizeof(XMFLOAT3) * 2, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	{"TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT,0,sizeof(XMFLOAT3)*2+sizeof(XMFLOAT2), D3D11_INPUT_PER_VERTEX_DATA,0}
 };
 
 struct Vertex {
 	XMFLOAT3 pos;
 	XMFLOAT3 n;
 	XMFLOAT2 tex;
+	XMFLOAT3 tangent;
 
 	Vertex() {}
 	Vertex(const Vertex& v)
@@ -24,14 +26,16 @@ struct Vertex {
 		pos = v.pos;
 		n = v.n;
 		tex = v.tex;
+		tangent = v.tangent;
 	}
-	Vertex(XMFLOAT3 _pos)
+	/*Vertex(XMFLOAT3 _pos)
 	{
 		pos = _pos;
 		n = XMFLOAT3(0,0,0);
 		tex = XMFLOAT2(0,0);
-	}
-	Vertex(XMFLOAT3 pos, XMFLOAT3 n, XMFLOAT2 tex) :pos(pos), n(n), tex(tex) {}
+		tangent = XMFLOAT3(0, 0, 0);
+	}*/
+	Vertex(XMFLOAT3 pos, XMFLOAT3 n, XMFLOAT2 tex, XMFLOAT3 tangent) :pos(pos), n(n), tex(tex), tangent(tangent) {}
 };
 
 struct VS_Property

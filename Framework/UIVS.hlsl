@@ -1,9 +1,5 @@
-struct VS_INPUT
-{
-    float3 pos : POSITION;
-    float3 normal : NORMAL;
-    float2 tex : TEXCOORD;
-};
+#include "ShaderInfo.cginc"
+
 struct VS_OUTPUT
 {
     float4 pos : SV_POSITION;
@@ -18,7 +14,7 @@ cbuffer CB_VS_PROPERTY : register(b0)
     float4x4 texMat;
 };
 
-VS_OUTPUT main(VS_INPUT input)
+VS_OUTPUT main(STD_VS_INPUT input)
 {
     VS_OUTPUT output;
     float4 worldPos = mul(WMat, float4(input.pos, 1));

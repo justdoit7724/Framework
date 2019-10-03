@@ -25,8 +25,8 @@
 #include "Timer.h"
 #include "CameraMgr.h"
 
-Object* obj2;
-Object* obj3;
+Object* sphere;
+Object* cylinder;
 TestScene::TestScene(IGraphic* graphic)
 	:Scene("Test")
 {
@@ -37,21 +37,21 @@ TestScene::TestScene(IGraphic* graphic)
 	Debugging::Instance()->EnableGrid(10, 50);
 
 	dLight = new DirectionalLight(
+		XMFLOAT3(0.1f, 0.1f, 0.1f),
 		XMFLOAT3(0.25f, 0.25f, 0.25f),
-		XMFLOAT3(0.7f, 0.7f, 0.7f),
-		XMFLOAT3(0.8f, 0.8f, 0.8f),
+		XMFLOAT3(0.5f, 0.5f, 0.5f),
 		XMFLOAT3(0.707f, -0.707f, 0));
 	pLight = new PointLight(
-		XMFLOAT3(0, 0.25f, 0),
-		XMFLOAT3(0, 0.7f, 0),
-		XMFLOAT3(0, 0.8f, 0),
-		XMFLOAT3(0, 0, 0), 200, XMFLOAT3(0.1f, 0.005f, 0.0005f)
+		XMFLOAT3(0.1f, 0.1f, 0.1f),
+		XMFLOAT3(0.4f, 0.4f, 0.4f),
+		XMFLOAT3(0.6f, 0.6f, 0.6f),
+		XMFLOAT3(0, 0, 0), 200, XMFLOAT3(0.05f, 0.01f, 0.001f)
 	);
 	pLight2 = new PointLight(
-		XMFLOAT3(0.25f, 0, 0),
-		XMFLOAT3(0.7f, 0, 0),
-		XMFLOAT3(0.8f, 0, 0),
-		XMFLOAT3(0, 0, 0), 200, XMFLOAT3(0.1f, 0.005f, 0.0005f)
+		XMFLOAT3(0.15f, 0.15f, 0.15f),
+		XMFLOAT3(0.5f, 0.5f, 0.5f),
+		XMFLOAT3(0.7f, 0.7f, 0.7f),
+		XMFLOAT3(0, 0, 0), 200, XMFLOAT3(0.05f, 0.01f, 0.001f)
 	);
 
 	std::vector<std::string> list;
@@ -66,42 +66,43 @@ TestScene::TestScene(IGraphic* graphic)
 	TextureMgr::Instance()->Load("white", "white.png", 4);
 	TextureMgr::Instance()->Load("wood", "woodbox.jpg", 4);
 	TextureMgr::Instance()->Load("sample", "sample2.jpg", 4);
+	TextureMgr::Instance()->Load("rock", "rock.png", 4);
+	TextureMgr::Instance()->Load("rock_normal", "rock_normal.png", 4);
 
-	ID3D11ShaderResourceView* sampleSRV;
+	ID3D11ShaderResourceView* sky;
 	UINT sampleCount;
-	TextureMgr::Instance()->Get("sky", &sampleSRV, &sampleCount);
+	TextureMgr::Instance()->Get("sky", &sky, &sampleCount);
 	//canvas->Add("newAnim", XMFLOAT2(0, 50), 760, 320, 0, sampleSRV, sampleCount, 2);
 
-	Skybox* skybox = new Skybox(sampleSRV);
+	Skybox* skybox = new Skybox(sky);
 	AddObj(skybox);
 
-	ID3D11ShaderResourceView* texSRV;
+
 	UINT texCount;
-	TextureMgr::Instance()->Get("wood", &texSRV, &texCount);
-	Object* obj = new Object(new Cube(), XMFLOAT3(1, 1, 1), XMFLOAT3(3, 3, 3), XMFLOAT3(1, 1, 1), 4, XMFLOAT3(0, 0, 0), texSRV, sampleSRV, 2);
-	obj->transform->SetScale(40, 60, 40);
-	obj->transform->SetTranslation(0, 0, 70);
-	AddObj(obj);
-
-	ID3D11ShaderResourceView* imageSRV1;
-	ID3D11ShaderResourceView* imageSRV2;
+	ID3D11ShaderResourceView* woodSRV;
+	ID3D11ShaderResourceView* soccerSRV;
 	ID3D11ShaderResourceView* imageSRV3;
-	TextureMgr::Instance()->Get("soccer", &imageSRV1, &texCount);
-	TextureMgr::Instance()->Get("white", &imageSRV2, &texCount);
+	ID3D11ShaderResourceView* rockSRV;
+	ID3D11ShaderResourceView* defaultNormal;
+	ID3D11ShaderResourceView* rockNormal;
+	TextureMgr::Instance()->Get("wood", &woodSRV, &texCount);
+	TextureMgr::Instance()->Get("soccer", &soccerSRV, &texCount);
 	TextureMgr::Instance()->Get("sample", &imageSRV3, &texCount);
-	obj2 = new Object(new Sphere(3), XMFLOAT3(1, 1, 1), XMFLOAT3(3, 3, 3), XMFLOAT3(1, 1, 1), 4, XMFLOAT3(0, 0, 0), imageSRV1, sampleSRV, 2);
-	obj3 = new Object(new Cylinder(6), XMFLOAT3(1, 1, 1), XMFLOAT3(3, 3, 3), XMFLOAT3(1, 1, 1), 4, XMFLOAT3(0, 0, 0), imageSRV2, sampleSRV, 2);
-	Object* obj4 = new Object(new Quad(), XMFLOAT3(1, 1, 1), XMFLOAT3(10, 10, 10), XMFLOAT3(1, 1, 1), 4, XMFLOAT3(0, 0, 0), imageSRV3, sampleSRV, 2);
-	obj2->transform->SetScale(20, 20, 20);
-	obj2->transform->SetTranslation(30, 100, 80);
-	obj3->transform->SetScale(15, 20, 15);
-	obj3->transform->SetTranslation(-30, 100, 80);
-	obj4->transform->SetScale(200, 105, 1);
-	obj4->transform->SetTranslation(0, 90, -0.3f);
+	TextureMgr::Instance()->Get("rock_normal", &rockNormal, &texCount);
+	TextureMgr::Instance()->Get("rock", &rockSRV, &texCount);
+	Object* cube = new Object(new Cube(), XMFLOAT3(0.5f, 0.5f, 0.5f), XMFLOAT3(0.1f, 0.1f, 0.1f), XMFLOAT3(0.2f, 0.2f, 0.2f), 4, XMFLOAT3(0, 0, 0), rockSRV, rockNormal, sky, 2);
+	cube->transform->SetScale(20, 30, 20);
+	cube->transform->SetTranslation(0, 0, 0);
+	AddObj(cube);
 
-	AddObj(obj2);
-	AddObj(obj3);
-	AddObj(obj4);
+	sphere = new Object(new Sphere(1), XMFLOAT3(1, 1, 1), XMFLOAT3(0.1f, 0.1f, 0.1f), XMFLOAT3(1, 1, 1), 4, XMFLOAT3(0, 0, 0), soccerSRV, nullptr, sky, 2);
+	cylinder = new Object(new Cylinder(6), XMFLOAT3(1, 1, 1), XMFLOAT3(0.1f, 0.1f, 0.1f), XMFLOAT3(1, 1, 1), 4, XMFLOAT3(0, 0, 0), rockSRV, rockNormal, sky, 2);
+	sphere->transform->SetScale(10, 10, 10);
+	sphere->transform->SetTranslation(10, 30, 20);
+	cylinder->transform->SetScale(20, 20, 20);
+
+	//AddObj(sphere);
+	//AddObj(cylinder);
 }
 
 TestScene::~TestScene()
@@ -160,22 +161,26 @@ void TestScene::Logic_Update()
 	float elaped = timer->Elapsed();
 	if (pLight)
 	{
-		XMFLOAT3 pt = XMFLOAT3(0,50,100)+ XMFLOAT3(
-			cos(elaped * 0.5f) * 30,
-			25,
-			sin(elaped * 0.5f) * 50);
+		XMFLOAT3 pt = XMFLOAT3(
+			cos(elaped * 0.25f) * 20,
+			10,
+			sin(elaped * 0.25f) * 30);
 		pLight->SetPos(pt);
 		Debugging::Instance()->Mark(999, pt, 1.5f, Colors::Green);
 	}
 	if (pLight2)
 	{
-		XMFLOAT3 pt = XMFLOAT3(0, 50, 100) + XMFLOAT3(
-			cos(elaped * 0.45f) * 35,
-			cos(elaped) * 10,
-			sin(elaped * 0.45f) * 55);
+		XMFLOAT3 pt = XMFLOAT3(
+			cos(elaped * 0.2f) * 25,
+			cos(elaped) * 5,
+			sin(elaped * 0.2f) * 35);
 		pLight2->SetPos(pt);
 		Debugging::Instance()->Mark(9999, pt, 1.5f, Colors::Red);
 	}
+
+	/*XMMATRIX rot = XMMatrixRotationX(elaped * 0.2f) * XMMatrixRotationY(elaped*0.15f);
+	sphere->transform->SetRot(FORWARD * rot, UP * rot);
+	cylinder->transform->SetRot(FORWARD * rot, UP * rot);*/
 }
 
 void TestScene::Render_Update(const Camera* camera)

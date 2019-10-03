@@ -8,7 +8,7 @@
 #include "DepthStencilState.h"
 #include "RasterizerState.h"
 #include "Shape.h"
-
+#include "TextureMgr.h"
 
 Object::Object(Shape* shape, std::string sVS, const D3D11_INPUT_ELEMENT_DESC* iLayouts, UINT layoutCount, std::string sHS, std::string sDS, std::string sGS, std::string sPS,int zOrder)
 	:shape(shape), zOrder(zOrder)
@@ -25,7 +25,7 @@ Object::Object(Shape* shape, std::string sVS, const D3D11_INPUT_ELEMENT_DESC* iL
 	rsState = new RasterizerState(nullptr);
 }
 
-Object::Object(Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpec, float sP, XMFLOAT3 r, ID3D11ShaderResourceView* srv, ID3D11ShaderResourceView* cm, int zOrder)
+Object::Object(Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpec, float sP, XMFLOAT3 r, ID3D11ShaderResourceView* srv, ID3D11ShaderResourceView* normalSRV, ID3D11ShaderResourceView* cm, int zOrder)
 	:zOrder(zOrder), shape(shape)
 {
 	transform = new Transform();
@@ -57,8 +57,18 @@ Object::Object(Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpe
 	ps->AddSamp(1, 1, &samplerDesc);
 	ps->AddSRV(0, 1);
 	ps->AddSRV(1, 1);
-	ps->WriteSRV(0, srv);
-	ps->WriteSRV(1, cm);
+	ps->AddSRV(2, 1);
+	ps->WriteSRV(0, cm);
+	ps->WriteSRV(1, srv);
+	ID3D11ShaderResourceView* modNormalSRV= normalSRV;
+	if (normalSRV == nullptr)
+	{
+		TextureMgr::Instance()->Load(KEY_TEXTURE_NORMAL_DEFAULT, FN_TEXTURE_NORMAL_DEFAULT, 1);
+		UINT count;
+		TextureMgr::Instance()->Get(KEY_TEXTURE_NORMAL_DEFAULT, &modNormalSRV, &count);
+	}
+
+	ps->WriteSRV(2, modNormalSRV);
 
 	blendState = new BlendState(nullptr);
 	dsState = new DepthStencilState(nullptr);

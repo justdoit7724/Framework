@@ -48,8 +48,10 @@ cbuffer MATERIAL : register(b4)
     float4 mReflection;
 };
 
-Texture2DArray bodyTex : register(t0);
-TextureCube cm_tex : register(t1);
+TextureCube cm_tex : register(t0);
+Texture2DArray bodyTex : register(t1);
+Texture2DArray bodyNTex : register(t2);
+
 
 SamplerState bodySampleState : register(s0);
 SamplerState cmSampleState : register(s1);
@@ -171,37 +173,47 @@ struct PS_INPUT
     float3 wPos : TEXCOORD;
     float3 normal : TEXCOORD2;
     float2 tex : TEXCOORD3;
+    float3 tangent : TEXCOORD4;
 };
 float4 main(PS_INPUT input) : SV_Target
 {
-    float4 tex = bodyTex.Sample(bodySampleState, float3(input.tex, 0));
-    
     input.normal = normalize(input.normal);
+    input.tangent = normalize(input.tangent - dot(input.normal, input.tangent)*input.normal);
+    float3 bitangent = cross(input.normal, input.tangent);
+    float3x3 tbn = float3x3(input.tangent, bitangent, input.normal);
+    
+    
+    float3 tex = bodyTex.Sample(bodySampleState, float3(input.tex, 0)).xyz;
+    float3 tNormal = normalize(bodyNTex.Sample(bodySampleState, float3(input.tex, 0)).xyz);
+    tNormal.z *= 0.9f;
+    tNormal = normalize(tNormal);
+    float3 lNormal = mul(tbn, tNormal);
+    
     float3 toEye = normalize(eyePos - input.wPos);
     float4 ambient = 0;
     float4 diffuse = 0;
     float4 specular = 0;
     float4 reflection = 0;
     float4 A, D, S;
-    ComputeDirectionalLight(input.normal, toEye, A, D, S);
+    ComputeDirectionalLight(lNormal, toEye, A, D, S);
     ambient += A;
     diffuse += D;
     specular += S;
-    ComputePointLight(input.wPos, input.normal, toEye, A, D, S);
+    ComputePointLight(input.wPos, lNormal, toEye, A, D, S);
     ambient += A;
     diffuse += D;
     specular += S;
-    ComputeSpotLight(input.wPos, input.normal, toEye, A, D, S);
+    ComputeSpotLight(input.wPos, lNormal, toEye, A, D, S);
     ambient += A;
     diffuse += D;
     specular += S;
-    ComputeReflection(input.normal, -toEye, reflection);
+    ComputeReflection(lNormal, -toEye, reflection);
     
-    ambient *= tex;
-    diffuse *= tex;
+    ambient *= float4(tex, 1);
+    diffuse *= float4(tex, 1);
     
     float4 color = ambient + diffuse + specular;
-    color = Lerp(color, reflection, 0.9f);
+    color = Lerp(color, reflection, mReflection.w);
     color.w = mDiffuse.a;
 
     
