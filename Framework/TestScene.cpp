@@ -43,13 +43,13 @@ TestScene::TestScene(IGraphic* graphic)
 		XMFLOAT3(0.707f, -0.707f, 0));
 	pLight = new PointLight(
 		XMFLOAT3(0.1f, 0.1f, 0.1f),
-		XMFLOAT3(0.4f, 0.4f, 0.4f),
-		XMFLOAT3(0.6f, 0.6f, 0.6f),
+		XMFLOAT3(0.5f, 0.5f, 0.5f),
+		XMFLOAT3(0.7f, 0.7f, 0.7f),
 		XMFLOAT3(0, 0, 0), 200, XMFLOAT3(0.05f, 0.01f, 0.001f)
 	);
 	pLight2 = new PointLight(
 		XMFLOAT3(0.15f, 0.15f, 0.15f),
-		XMFLOAT3(0.5f, 0.5f, 0.5f),
+		XMFLOAT3(0.6f, 0.6f, 0.6f),
 		XMFLOAT3(0.7f, 0.7f, 0.7f),
 		XMFLOAT3(0, 0, 0), 200, XMFLOAT3(0.05f, 0.01f, 0.001f)
 	);
@@ -67,7 +67,7 @@ TestScene::TestScene(IGraphic* graphic)
 	TextureMgr::Instance()->Load("wood", "woodbox.jpg", 4);
 	TextureMgr::Instance()->Load("sample", "sample2.jpg", 4);
 	TextureMgr::Instance()->Load("rock", "rock.png", 4);
-	TextureMgr::Instance()->Load("rock_normal", "rock_normal.png", 4);
+	TextureMgr::Instance()->Load("test_normal", "test_normal.png", 4);
 
 	ID3D11ShaderResourceView* sky;
 	UINT sampleCount;
@@ -88,9 +88,9 @@ TestScene::TestScene(IGraphic* graphic)
 	TextureMgr::Instance()->Get("wood", &woodSRV, &texCount);
 	TextureMgr::Instance()->Get("soccer", &soccerSRV, &texCount);
 	TextureMgr::Instance()->Get("sample", &imageSRV3, &texCount);
-	TextureMgr::Instance()->Get("rock_normal", &rockNormal, &texCount);
-	TextureMgr::Instance()->Get("rock", &rockSRV, &texCount);
-	Object* cube = new Object(new Cube(), XMFLOAT3(0.5f, 0.5f, 0.5f), XMFLOAT3(0.1f, 0.1f, 0.1f), XMFLOAT3(0.2f, 0.2f, 0.2f), 4, XMFLOAT3(0, 0, 0), rockSRV, rockNormal, sky, 2);
+	TextureMgr::Instance()->Get("test_normal", &rockNormal, &texCount);
+	TextureMgr::Instance()->Get("white", &rockSRV, &texCount);
+	Object* cube = new Object(new Cube(), XMFLOAT3(0.5f, 0.5f, 0.5f), XMFLOAT3(0.1f, 0.1f, 0.1f), XMFLOAT3(0.5f, 0.5f, 0.5f), 4, XMFLOAT3(0, 0, 0), rockSRV, rockNormal, sky, 2);
 	cube->transform->SetScale(20, 30, 20);
 	cube->transform->SetTranslation(0, 0, 0);
 	AddObj(cube);
