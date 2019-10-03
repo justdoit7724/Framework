@@ -31,11 +31,11 @@ Cube::Cube()
 	OBJ_CUBE[2].tangent = RIGHT;
 	OBJ_CUBE[3].tangent = RIGHT;
 	OBJ_CUBE[0].pos = XMFLOAT3(-0.5, -0.5, -0.5);
-	OBJ_CUBE[0].tex = XMFLOAT2(1, 0);
+	OBJ_CUBE[0].tex = XMFLOAT2(0, 1);
 	OBJ_CUBE[1].pos = XMFLOAT3(-0.5,	 0.5,	-0.5);
 	OBJ_CUBE[1].tex = XMFLOAT2(0, 0);
 	OBJ_CUBE[2].pos = XMFLOAT3(0.5,	 0.5,	-0.5);
-	OBJ_CUBE[2].tex = XMFLOAT2(0, 1);
+	OBJ_CUBE[2].tex = XMFLOAT2(1, 0);
 	OBJ_CUBE[3].pos = XMFLOAT3(0.5,	-0.5,	-0.5);
 	OBJ_CUBE[3].tex = XMFLOAT2(1, 1);
 			
@@ -48,11 +48,11 @@ Cube::Cube()
 	OBJ_CUBE[6].tangent = FORWARD;
 	OBJ_CUBE[7].tangent = FORWARD;
 	OBJ_CUBE[4].pos = XMFLOAT3(0.5,	-0.5,	-0.5);
-	OBJ_CUBE[4].tex = XMFLOAT2(1, 0);
+	OBJ_CUBE[4].tex = XMFLOAT2(0, 1);
 	OBJ_CUBE[5].pos = XMFLOAT3(0.5,	 0.5,	-0.5);
 	OBJ_CUBE[5].tex = XMFLOAT2(0, 0);
 	OBJ_CUBE[6].pos = XMFLOAT3(0.5,	 0.5,	 0.5);
-	OBJ_CUBE[6].tex = XMFLOAT2(0, 1);
+	OBJ_CUBE[6].tex = XMFLOAT2(1, 0);
 	OBJ_CUBE[7].pos = XMFLOAT3(0.5,	-0.5,	 0.5);
 	OBJ_CUBE[7].tex = XMFLOAT2(1, 1);
 		
@@ -82,11 +82,11 @@ Cube::Cube()
 	OBJ_CUBE[14].tangent = -FORWARD;
 	OBJ_CUBE[15].tangent = -FORWARD;
 	OBJ_CUBE[12].pos = XMFLOAT3(-0.5,	-0.5,	 0.5);
-	OBJ_CUBE[12].tex = XMFLOAT2(1, 0);
+	OBJ_CUBE[12].tex = XMFLOAT2(0, 1);
 	OBJ_CUBE[13].pos = XMFLOAT3(-0.5,	 0.5,	 0.5);
 	OBJ_CUBE[13].tex = XMFLOAT2(0, 0);
 	OBJ_CUBE[14].pos = XMFLOAT3(-0.5, 0.5, -0.5);
-	OBJ_CUBE[14].tex = XMFLOAT2(0, 1);
+	OBJ_CUBE[14].tex = XMFLOAT2(1, 0);
 	OBJ_CUBE[15].pos = XMFLOAT3(-0.5, -0.5, -0.5);
 	OBJ_CUBE[15].tex = XMFLOAT2(1, 1);
 											  
@@ -94,16 +94,16 @@ Cube::Cube()
 	OBJ_CUBE[17].n = UP;
 	OBJ_CUBE[18].n = UP;
 	OBJ_CUBE[19].n = UP;
-	OBJ_CUBE[16].tangent = -RIGHT;
-	OBJ_CUBE[17].tangent = -RIGHT;
-	OBJ_CUBE[18].tangent = -RIGHT;
-	OBJ_CUBE[19].tangent = -RIGHT;
+	OBJ_CUBE[16].tangent = RIGHT;
+	OBJ_CUBE[17].tangent = RIGHT;
+	OBJ_CUBE[18].tangent = RIGHT;
+	OBJ_CUBE[19].tangent = RIGHT;
 	OBJ_CUBE[16].pos = XMFLOAT3(-0.5, 0.5, -0.5);
-	OBJ_CUBE[16].tex = XMFLOAT2(1, 0);
+	OBJ_CUBE[16].tex = XMFLOAT2(0, 1);
 	OBJ_CUBE[17].pos = XMFLOAT3(-0.5, 0.5, 0.5);
 	OBJ_CUBE[17].tex = XMFLOAT2(0, 0);
 	OBJ_CUBE[18].pos = XMFLOAT3(0.5, 0.5, 0.5);
-	OBJ_CUBE[18].tex = XMFLOAT2(0, 1);
+	OBJ_CUBE[18].tex = XMFLOAT2(1, 0);
 	OBJ_CUBE[19].pos = XMFLOAT3(0.5, 0.5, -0.5);
 	OBJ_CUBE[19].tex = XMFLOAT2(1, 1);
 									
@@ -111,16 +111,16 @@ Cube::Cube()
 	OBJ_CUBE[21].n = -UP;
 	OBJ_CUBE[22].n = -UP;
 	OBJ_CUBE[23].n = -UP;
-	OBJ_CUBE[20].tangent = RIGHT;
-	OBJ_CUBE[21].tangent = RIGHT;
-	OBJ_CUBE[22].tangent = RIGHT;
-	OBJ_CUBE[23].tangent = RIGHT;
+	OBJ_CUBE[20].tangent = FORWARD;
+	OBJ_CUBE[21].tangent = FORWARD;
+	OBJ_CUBE[22].tangent = FORWARD;
+	OBJ_CUBE[23].tangent = FORWARD;
 	OBJ_CUBE[20].pos = XMFLOAT3(-0.5,	-0.5,	 0.5);
-	OBJ_CUBE[20].tex = XMFLOAT2(1, 0);
+	OBJ_CUBE[20].tex = XMFLOAT2(0, 1);
 	OBJ_CUBE[21].pos = XMFLOAT3(-0.5,	-0.5,	-0.5);
 	OBJ_CUBE[21].tex = XMFLOAT2(0, 0);
 	OBJ_CUBE[22].pos = XMFLOAT3(0.5, -0.5, -0.5);
-	OBJ_CUBE[22].tex = XMFLOAT2(0, 1);
+	OBJ_CUBE[22].tex = XMFLOAT2(1, 0);
 	OBJ_CUBE[23].pos = XMFLOAT3(0.5, -0.5, 0.5);
 	OBJ_CUBE[23].tex = XMFLOAT2(1, 1);
 
