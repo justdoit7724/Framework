@@ -93,16 +93,15 @@ TestScene::TestScene(IGraphic* graphic)
 	Object* cube = new Object(new Cube(), XMFLOAT3(0.5f, 0.5f, 0.5f), XMFLOAT3(0.1f, 0.1f, 0.1f), XMFLOAT3(0.5f, 0.5f, 0.5f), 4, XMFLOAT3(0, 0, 0), rockSRV, rockNormal, sky, 2);
 	cube->transform->SetScale(20, 30, 20);
 	cube->transform->SetTranslation(0, 0, 0);
-	AddObj(cube);
 
-	sphere = new Object(new Sphere(1), XMFLOAT3(1, 1, 1), XMFLOAT3(0.1f, 0.1f, 0.1f), XMFLOAT3(1, 1, 1), 4, XMFLOAT3(0, 0, 0), soccerSRV, nullptr, sky, 2);
-	cylinder = new Object(new Cylinder(6), XMFLOAT3(1, 1, 1), XMFLOAT3(0.1f, 0.1f, 0.1f), XMFLOAT3(1, 1, 1), 4, XMFLOAT3(0, 0, 0), rockSRV, rockNormal, sky, 2);
-	sphere->transform->SetScale(10, 10, 10);
-	sphere->transform->SetTranslation(10, 30, 20);
+	sphere = new Object(new Sphere(3), XMFLOAT3(1, 1, 1), XMFLOAT3(0.1f, 0.1f, 0.1f), XMFLOAT3(1, 1, 1), 4, XMFLOAT3(0, 0, 0), rockSRV, rockNormal, sky, 2);
+	cylinder = new Object(new Cylinder(20), XMFLOAT3(1, 1, 1), XMFLOAT3(0.1f, 0.1f, 0.1f), XMFLOAT3(1, 1, 1), 4, XMFLOAT3(0, 0, 0), rockSRV, rockNormal, sky, 2);
+	sphere->transform->SetScale(20, 20, 20);
 	cylinder->transform->SetScale(20, 20, 20);
 
 	//AddObj(sphere);
-	//AddObj(cylinder);
+	//AddObj(cube);
+	AddObj(cylinder);
 }
 
 TestScene::~TestScene()

@@ -23,9 +23,9 @@ Cylinder::Cylinder(const int sliceCount)
 			vertex.tex.x = float(j) / sliceCount;
 			vertex.tex.y = 1.0f - i;
 
-			vertex.tangent = XMFLOAT3(-s, 0, c);
+			XMFLOAT3 tangent = XMFLOAT3(-s, 0, c);
 			XMFLOAT3 bitangent = -UP;
-			vertex.n = Cross(vertex.tangent, bitangent);
+			vertex.n = Cross(tangent, bitangent);
 
 			vertice.push_back(vertex);
 		}
@@ -57,7 +57,6 @@ Cylinder::Cylinder(const int sliceCount)
 		Vertex vertex;
 		vertex.pos = XMFLOAT3(x, hHeight, z);
 		vertex.n = UP;
-		vertex.tangent = RIGHT;
 		vertex.tex = XMFLOAT2(u, v);
 		vertice.push_back(vertex);
 	}
@@ -88,7 +87,6 @@ Cylinder::Cylinder(const int sliceCount)
 		Vertex vertex;
 		vertex.pos = XMFLOAT3(x, -hHeight, z);
 		vertex.n = -UP;
-		vertex.tangent = RIGHT;
 		vertex.tex = XMFLOAT2(u, v);
 		vertice.push_back(vertex);
 	}
@@ -107,7 +105,12 @@ Cylinder::Cylinder(const int sliceCount)
 	}
 #pragma endregion
 
-	Init(vertice.data(), sizeof(Vertex), vertice.size(), indice.data(), indice.size(), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	Vertex* verticeData = vertice.data();
+	UINT* indiceData = indice.data();
+	CalculateTangents(verticeData, indiceData, indice.size() / 3);
+
+
+	Init(verticeData, sizeof(Vertex), vertice.size(), indiceData, indice.size(), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 

@@ -107,7 +107,12 @@ Sphere::Sphere(int numSubDivision)
 		vertice2.push_back(Vertex(pos, n, tex, tangent));
 	}
 
-	Init(vertice2.data(), sizeof(Vertex), vertice2.size(), indice.data(), indice.size(), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	Vertex* verticeData = vertice2.data();
+	UINT* indiceData = indice.data();
+
+	CalculateTangents(verticeData, indiceData, indice.size() / 3);
+
+	Init(verticeData, sizeof(Vertex), vertice2.size(), indiceData, indice.size(), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 

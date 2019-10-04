@@ -10,6 +10,7 @@
 #include "Shape.h"
 #include "TextureMgr.h"
 
+//fundamental elements
 Object::Object(Shape* shape, std::string sVS, const D3D11_INPUT_ELEMENT_DESC* iLayouts, UINT layoutCount, std::string sHS, std::string sDS, std::string sGS, std::string sPS,int zOrder)
 	:shape(shape), zOrder(zOrder)
 {
@@ -25,6 +26,7 @@ Object::Object(Shape* shape, std::string sVS, const D3D11_INPUT_ELEMENT_DESC* iL
 	rsState = new RasterizerState(nullptr);
 }
 
+//standard elements
 Object::Object(Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpec, float sP, XMFLOAT3 r, ID3D11ShaderResourceView* srv, ID3D11ShaderResourceView* normalSRV, ID3D11ShaderResourceView* cm, int zOrder)
 	:zOrder(zOrder), shape(shape)
 {

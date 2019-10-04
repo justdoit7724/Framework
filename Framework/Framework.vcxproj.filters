@@ -165,6 +165,9 @@
     <ClCompile Include="Skybox.cpp">
       <Filter>Object</Filter>
     </ClCompile>
+    <ClCompile Include="DisplacementObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CustomFormat.h">
@@ -308,6 +311,9 @@
     <ClInclude Include="Skybox.h">
       <Filter>Object</Filter>
     </ClInclude>
+    <ClInclude Include="DisplacementObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ShaderInfo.cginc">
@@ -391,6 +397,15 @@
       <Filter>hlsl</Filter>
     </FxCompile>
     <FxCompile Include="SkyboxPS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="StdDisplacementVS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="StdDisplacementHS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="StdDisplacementDS.hlsl">
       <Filter>hlsl</Filter>
     </FxCompile>
   </ItemGroup>

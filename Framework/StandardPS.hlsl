@@ -170,10 +170,10 @@ void ComputeReflection(float3 normal, float3 look, out float4 color)
 struct PS_INPUT
 {
     float4 pos : SV_POSITION;
-    float3 wPos : TEXCOORD;
-    float3 normal : TEXCOORD2;
-    float2 tex : TEXCOORD3;
-    float3 tangent : TEXCOORD4;
+    float3 wPos : TEXCOORD0;
+    float3 normal : TEXCOORD1;
+    float2 tex : TEXCOORD2;
+    float3 tangent : TEXCOORD3;
 };
 float4 main(PS_INPUT input) : SV_Target
 {
@@ -181,7 +181,6 @@ float4 main(PS_INPUT input) : SV_Target
     input.tangent = normalize(input.tangent - dot(input.normal, input.tangent)*input.normal);
     float3 bitangent = cross(input.normal, input.tangent);
     float3x3 tbn = float3x3(input.tangent, bitangent, input.normal);
-    
     
     float3 tex = bodyTex.Sample(bodySampleState, float3(input.tex, 0)).xyz;
     float3 tNormal = normalize(bodyNTex.Sample(bodySampleState, float3(input.tex, 0)).xyz);
