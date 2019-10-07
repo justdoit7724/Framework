@@ -42,8 +42,8 @@ Object::Object(Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpe
 	ps->AddCB(1, 1, sizeof(SHADER_POINT_LIGHT));
 	ps->AddCB(2, 1, sizeof(SHADER_SPOT_LIGHT));
 	ps->AddCB(3, 1, sizeof(XMFLOAT3));
-	ps->AddCB(4, 1, sizeof(ShaderMaterial));
-	ps->WriteCB(4,&ShaderMaterial(mDiffuse, 1, mAmbient, mSpec, sP, r));
+	ps->AddCB(4, 1, sizeof(SHADER_MATERIAL));
+	ps->WriteCB(4,&SHADER_MATERIAL(mDiffuse, 1, mAmbient, mSpec, sP, r));
 	
 
 	D3D11_SAMPLER_DESC samplerDesc;

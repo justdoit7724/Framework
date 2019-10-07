@@ -24,7 +24,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	DebuggingScene* debugScene = new DebuggingScene();
 
 	SceneMgr::Instance()->Add(testScene);
-	SceneMgr::Instance()->Add(dcmScene);
+	//SceneMgr::Instance()->Add(dcmScene);
 	SceneMgr::Instance()->Add(debugScene);
 
 	Timer* worldTimer = new Timer();

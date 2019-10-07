@@ -1,8 +1,8 @@
 #include "ShaderInfo.cginc"
 
-#define TESS_FACTOR_DIST_MAX 700
-#define TESS_FACTOR_DIST_MIN 100
-#define TESS_FACTOR_MAX 10
+#define TESS_FACTOR_DIST_MAX 200
+#define TESS_FACTOR_DIST_MIN 10
+#define TESS_FACTOR_MAX 64
 #define TESS_FACTOR_MIN 1
 
 struct VS_OUTPUT
@@ -32,14 +32,13 @@ VS_OUTPUT main(STD_VS_INPUT input)
     VS_OUTPUT output;
     
     output.wPos = mul(WMat, float4(input.pos, 1)).xyz;
-    output.pos = mul(VPMat, float4(output.wPos, 1));
     output.normal = mul((float3x3) NMat, input.normal);
     output.tex = mul(texMat, float4(input.tex, 0, 1)).xy;
     output.tangent = mul((float3x3) WMat, input.tangent);
     
-    float sDist = dot(eye, output.wPos);
-    float t = saturate((TESS_FACTOR_DIST_MAX - sDist) /(TESS_FACTOR_DIST_MAX - TESS_FACTOR_DIST_MIN));
+    float dist = length(eye - output.wPos);
+    float t = saturate((TESS_FACTOR_DIST_MAX - dist) /(TESS_FACTOR_DIST_MAX - TESS_FACTOR_DIST_MIN));
     output.tessFactor = TESS_FACTOR_MIN + t * (TESS_FACTOR_MAX - TESS_FACTOR_MIN);
-
+  
     return output;
 }
