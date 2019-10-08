@@ -181,11 +181,9 @@ float4 main(PS_INPUT input) : SV_Target
     input.tangent = normalize(input.tangent - dot(input.normal, input.tangent)*input.normal);
     float3 bitangent = cross(input.normal, input.tangent);
     float3x3 tbn = float3x3(input.tangent, bitangent, input.normal);
- 
+    
     float3 tex = bodyTex.Sample(bodySampleState, float3(input.tex, 0)).xyz;
     float3 tNormal = normalize(bodyNTex.Sample(bodySampleState, float3(input.tex, 0)).xyz);
-    tNormal.z *= 0.9f;
-    tNormal = normalize(tNormal);
     float3 lNormal = mul(tbn, tNormal);
     
     float3 toEye = normalize(eyePos - input.wPos);

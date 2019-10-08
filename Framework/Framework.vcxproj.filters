@@ -408,5 +408,8 @@
     <FxCompile Include="StdDisplacementDS.hlsl">
       <Filter>hlsl</Filter>
     </FxCompile>
+    <FxCompile Include="StdDisplacementPS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

@@ -53,7 +53,7 @@ DS_OUTPUT main(Patch patch, float3 bary : SV_DomainLocation, const OutputPatch<D
         bary.y * tri[1].tex +
         bary.z * tri[2].tex;
 
-    float h = bump_tex.SampleLevel(samp, float3(output.tex, 0), 0).z;
+    float h = bump_tex.SampleLevel(samp, float3(output.tex, 0), 0).x;
     output.wPos += output.normal * (h - 1) * dp_scale;
     output.pos = mul(vp_mat, float4(output.wPos, 1));
 

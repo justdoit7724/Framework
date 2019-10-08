@@ -26,6 +26,8 @@
 #include "CameraMgr.h"
 #include "DisplacementObject.h"
 
+//delete
+Object* quad=nullptr;
 TestScene::TestScene(IGraphic* graphic)
 	:Scene("Test")
 {
@@ -68,8 +70,8 @@ TestScene::TestScene(IGraphic* graphic)
 	TextureMgr::Instance()->Load("rock", "rock.png", 4);
 	TextureMgr::Instance()->Load("test_normal", "test_normal.png",1);
 	TextureMgr::Instance()->Load("rock2", "rock2.jpg", 10);
-	TextureMgr::Instance()->Load("rock2_normal", "rock2.jpg", 10);
-	TextureMgr::Instance()->Load("rock2_dp", "rock2.jpg", 10);
+	TextureMgr::Instance()->Load("rock2_normal", "rock2_normal.jpg", 10);
+	TextureMgr::Instance()->Load("rock2_dp", "rock2_dp.jpg", 10);
 
 	ID3D11ShaderResourceView* sky;
 	UINT sampleCount;
@@ -98,10 +100,9 @@ TestScene::TestScene(IGraphic* graphic)
 	TextureMgr::Instance()->Get("rock2", &pbrSRV);
 	TextureMgr::Instance()->Get("rock2_normal", &pbrNormal);
 	TextureMgr::Instance()->Get("rock2_dp", &pbrDP);
-	Object* quad = new Object(new Quad(), XMFLOAT3(0.5f, 0.5f, 0.5f), XMFLOAT3(0.1f, 0.1f, 0.1f), XMFLOAT3(0.5f, 0.5f, 0.5f), 4, XMFLOAT3(0, 0, 0), pbrSRV, pbrNormal, sky, 2);
-	quad->transform->SetScale(20, 20, 1);
-	quad->transform->SetRot(UP, RIGHT);
-	quad->transform->SetTranslation(0, 0,0);
+	quad = new Object(new Quad(), XMFLOAT3(0.5f, 0.5f, 0.5f), XMFLOAT3(0.1f, 0.1f, 0.1f), XMFLOAT3(0.5f, 0.5f, 0.5f), 4, XMFLOAT3(0, 0, 0), pbrSRV, pbrNormal, sky, 2);
+	quad->transform->SetScale(200, 200, 1);
+	quad->transform->SetRot(UP, -FORWARD);
 
 	/*Object* sphere = new Object(new Sphere(3), XMFLOAT3(1, 1, 1), XMFLOAT3(0.1f, 0.1f, 0.1f), XMFLOAT3(1, 1, 1), 4, XMFLOAT3(0, 0, 0), rockSRV, rockNormal, sky, 2);
 	Object* cylinder = new Object(new Cylinder(20), XMFLOAT3(1, 1, 1), XMFLOAT3(0.1f, 0.1f, 0.1f), XMFLOAT3(1, 1, 1), 4, XMFLOAT3(0, 0, 0), rockSRV, rockNormal, sky, 2);
@@ -112,8 +113,8 @@ TestScene::TestScene(IGraphic* graphic)
 	Shape* dpShape = new Quad();
 	dpShape->SetPrimitiveType(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
 	DisplacementObject* dpObj = new DisplacementObject(
-		dpShape, pbrSRV, pbrNormal, pbrDP, 1.0f,
-		XMFLOAT3(1,1,1), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1),4);
+		dpShape, pbrSRV, pbrNormal, pbrDP, 5.0f,
+		XMFLOAT3(0.6,0.6,0.6), XMFLOAT3(0.2f, 0.2f, 0.2f), XMFLOAT3(0.6, 0.6, 0.6),4);
 	dpObj->transform->SetScale(20, 20, 1);
 	dpObj->transform->SetRot(UP,RIGHT);
 
@@ -181,9 +182,9 @@ void TestScene::Logic_Update()
 	if (pLight)
 	{
 		XMFLOAT3 pt = XMFLOAT3(
-			cos(elaped * 0.1f) * 10,
+			cos(elaped * 0.3f) * 10,
 			4,
-			sin(elaped * 0.1f) * 10);
+			sin(elaped * 0.3f) * 10);
 		pLight->SetPos(pt);
 		Debugging::Instance()->Mark(999, pt, 1.5f, Colors::WhiteSmoke);
 	}
@@ -196,6 +197,10 @@ void TestScene::Logic_Update()
 		pLight2->SetPos(pt);
 		Debugging::Instance()->Mark(9999, pt, 1.5f, Colors::Red);
 	}
+
+	/*XMMATRIX rotMat = XMMatrixRotationY(elaped * 0.4f);
+	quad->transform->SetRot(UP, -FORWARD*rotMat);*/
+	
 
 	/*XMMATRIX rot = XMMatrixRotationX(elaped * 0.2f) * XMMatrixRotationY(elaped*0.15f);
 	sphere->transform->SetRot(FORWARD * rot, UP * rot);
