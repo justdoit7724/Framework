@@ -9,7 +9,7 @@ class Mirror :
 public:
 	Mirror(Scene* captureScene, UINT width, UINT height);
 
-	void Update(const Camera* camera, const XMMATRIX& texMat = XMMatrixIdentity()) override;
+	void Update(const Camera* camera,float elapsed, const XMMATRIX& texMat = XMMatrixIdentity()) override;
 
 	Scene* const captureScene;
 	const XMINT2 resolution;

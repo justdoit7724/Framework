@@ -6,7 +6,7 @@ class PlaneShadow :
 public:
 	PlaneShadow(Shape* shape, XMFLOAT3 planeN, float planeD);
 
-	void Update(const Camera* camera, const XMMATRIX& texMat)override;
+	void Update(const Camera* camera, float elapsed, const XMMATRIX& texMat)override;
 	void Render() const override;
 private:
 

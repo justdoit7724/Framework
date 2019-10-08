@@ -13,10 +13,10 @@ struct HS_INPUT
 };
 struct HS_OUTPUT
 {
-    float3 wPos : POSITION;
-    float3 normal : TEXCOORD0;
-    float2 tex : TEXCOORD1;
-    float3 tangent : TEXCOORD2;
+    float3 wPos : TEXCOORD0;
+    float3 normal : TEXCOORD1;
+    float2 tex : TEXCOORD2;
+    float3 tangent : TEXCOORD3;
 };
 
 Patch ConstantHS(InputPatch<HS_INPUT,3> input, uint patchID : SV_PrimitiveID)

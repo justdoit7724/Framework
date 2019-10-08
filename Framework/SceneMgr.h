@@ -21,7 +21,7 @@ public:
 		return list[key];
 	}
 
-	void Process();
+	void Process(float wElapsed);
 
 private:
 	std::unordered_map<std::string, Scene*> list;

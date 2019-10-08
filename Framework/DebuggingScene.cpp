@@ -10,7 +10,7 @@ void DebuggingScene::Logic_Update()
 {
 }
 
-void DebuggingScene::Render_Update(const Camera* camera)
+void DebuggingScene::Render_Update(const Camera* camera,float elapsed)
 {
 	Debugging::Instance()->Update(camera);
 }

@@ -29,7 +29,7 @@ UI::UI(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float
 	ds = new DShader();
 	gs = new GShader();
 	ps = new PShader("UIPS.cso");
-	vs->AddCB(0, 1, sizeof(VS_Property));
+	vs->AddCB(0, 1, sizeof(SHADER_TRANSFORMATION));
 
 	ps->AddCB(0, 1, sizeof(float));
 	D3D11_SAMPLER_DESC samplerDesc;
@@ -84,7 +84,7 @@ void UI::Update(float spf, const XMMATRIX& vpMat, const XMMATRIX& texMat)
 		curTime = 0;
 	}
 
-	vs->WriteCB(0,&VS_Property(transform->WorldMatrix(), vpMat, texMat));
+	vs->WriteCB(0,&SHADER_TRANSFORMATION(transform->WorldMatrix(), vpMat, texMat));
 	float fIdx = curSliceIdx;
 	ps->WriteCB(0,&fIdx);
 }

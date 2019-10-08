@@ -17,7 +17,7 @@ DisplacementObject::DisplacementObject(
 	dpSRV(dpSRV),
 	dp_scale(dp_scale)
 {
-	vs->AddCB(0, 1, sizeof(VS_Property));
+	vs->AddCB(0, 1, sizeof(SHADER_TRANSFORMATION));
 	vs->AddCB(1, 1, sizeof(XMFLOAT3));
 	ds->AddCB(0, 1, sizeof(XMMATRIX));
 	ds->AddCB(1, 1, sizeof(float));
@@ -39,6 +39,7 @@ DisplacementObject::DisplacementObject(
 	ps->AddCB(2, 1, sizeof(SHADER_SPOT_LIGHT));
 	ps->AddCB(3, 1, sizeof(XMFLOAT3));
 	ps->AddCB(4, 1, sizeof(SHADER_MATERIAL));
+	ps->AddCB(5, 1, sizeof(float));
 	ps->WriteCB(4, &SHADER_MATERIAL(mDiffuse, 1, mAmbient, mSpec, sp, XMFLOAT3(0, 0, 0)));
 	ps->AddSRV(0, 1);
 	ps->AddSRV(1, 1);
@@ -59,15 +60,18 @@ DisplacementObject::DisplacementObject(
 	ps->AddSamp(1, 1, &sampDesc);
 }
 
-void DisplacementObject::Update(const Camera* camera, const XMMATRIX& texMat)
+void DisplacementObject::Update(const Camera* camera, float elapsed, const XMMATRIX& texMat)
 {
 	XMFLOAT3 eyePos = camera->transform->GetPos();
 
-	vs->WriteCB(0, &VS_Property(transform->WorldMatrix(), XMMatrixIdentity(), texMat));
+	const SHADER_TRANSFORMATION STransformation(transform->WorldMatrix(), camera->VPMat(zOrder), texMat);
+
+	vs->WriteCB(0, (void*)(&STransformation));
 	vs->WriteCB(1, &eyePos);
-	ds->WriteCB(0, &(camera->VPMat(zOrder)));
+	ds->WriteCB(0, (void*)(&STransformation.vp));
 	ps->WriteCB(0, DirectionalLight::Data());
 	ps->WriteCB(1, PointLight::Data());
 	ps->WriteCB(2, SpotLight::Data());
 	ps->WriteCB(3, &eyePos);
+	ps->WriteCB(5, &elapsed);
 }

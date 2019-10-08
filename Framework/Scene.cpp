@@ -12,11 +12,11 @@ Scene::~Scene()
 	SceneMgr::Instance()->Remove(key);
 }
 
-void Scene::Render_Update(const Camera* camera)
+void Scene::Render_Update(const Camera* camera, float elapsed)
 {
 	for (auto obj : objs)
 	{
-		obj->Update(camera, XMMatrixIdentity());
+		obj->Update(camera, elapsed, XMMatrixIdentity());
 	}
 }
 

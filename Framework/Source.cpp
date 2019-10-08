@@ -18,7 +18,6 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	Window window(hInstance, "Low Level");
 	Graphic* graphic = new Graphic(window.Hwnd());
 
-
 	TestScene* testScene = new TestScene(graphic);
 	DCMScene* dcmScene = new DCMScene(graphic, testScene);
 	DebuggingScene* debugScene = new DebuggingScene();
@@ -43,7 +42,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		{
 			worldTimer->Update();
 
-			SceneMgr::Instance()->Process();
+			SceneMgr::Instance()->Process(worldTimer->Elapsed());
 
 			graphic->Present();
 

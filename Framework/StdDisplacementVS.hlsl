@@ -1,8 +1,8 @@
 #include "ShaderInfo.cginc"
 
-#define TESS_FACTOR_DIST_MAX 200
-#define TESS_FACTOR_DIST_MIN 10
-#define TESS_FACTOR_MAX 32
+#define TESS_FACTOR_DIST_MAX 800
+#define TESS_FACTOR_DIST_MIN 50
+#define TESS_FACTOR_MAX 64
 #define TESS_FACTOR_MIN 1
 
 struct VS_OUTPUT

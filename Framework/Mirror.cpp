@@ -28,7 +28,7 @@ Mirror::Mirror(Scene* captureScene, UINT width, UINT height)
 	};
 	shape->Init(mirrorQuad, sizeof(mirrorQuad[0]), ARRAYSIZE(mirrorQuad), OBJ_QUAD_INDICE, ARRAYSIZE(OBJ_QUAD_INDICE), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	vs->AddCB(0, 1, sizeof(VS_Property));
+	vs->AddCB(0, 1, sizeof(SHADER_TRANSFORMATION));
 	ps->AddSRV(0, 1);
 	ps->AddCB(0, 1, sizeof(float));
 	float srvIdx = 0;
@@ -106,7 +106,7 @@ Mirror::Mirror(Scene* captureScene, UINT width, UINT height)
 	);
 }
 
-void Mirror::Update(const Camera* camera, const XMMATRIX& texMat)
+void Mirror::Update(const Camera* camera, float elapsed, const XMMATRIX& texMat)
 {
 	UpdatePerspective(camera);
 

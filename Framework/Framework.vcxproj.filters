@@ -156,9 +156,6 @@
     <ClCompile Include="DynamicCubeMap.cpp">
       <Filter>Object</Filter>
     </ClCompile>
-    <ClCompile Include="Mirror.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Transform.cpp">
       <Filter>Components</Filter>
     </ClCompile>
@@ -166,7 +163,10 @@
       <Filter>Object</Filter>
     </ClCompile>
     <ClCompile Include="DisplacementObject.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Mirror.cpp">
+      <Filter>Object</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -302,9 +302,6 @@
     <ClInclude Include="DynamicCubeMap.h">
       <Filter>Object</Filter>
     </ClInclude>
-    <ClInclude Include="Mirror.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Transform.h">
       <Filter>Components</Filter>
     </ClInclude>
@@ -312,7 +309,10 @@
       <Filter>Object</Filter>
     </ClInclude>
     <ClInclude Include="DisplacementObject.h">
-      <Filter>Header Files</Filter>
+      <Filter>Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Mirror.h">
+      <Filter>Object</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -406,9 +406,6 @@
       <Filter>hlsl</Filter>
     </FxCompile>
     <FxCompile Include="StdDisplacementDS.hlsl">
-      <Filter>hlsl</Filter>
-    </FxCompile>
-    <FxCompile Include="StdDisplacementPS.hlsl">
       <Filter>hlsl</Filter>
     </FxCompile>
   </ItemGroup>

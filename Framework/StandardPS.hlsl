@@ -47,15 +47,23 @@ cbuffer MATERIAL : register(b4)
     float4 mSpecular;
     float4 mReflection;
 };
+cbuffer CB_TIME : register(b5)
+{
+    float elapsed;
+}
 
 TextureCube cm_tex : register(t0);
 Texture2DArray bodyTex : register(t1);
 Texture2DArray bodyNTex : register(t2);
 
-
 SamplerState bodySampleState : register(s0);
 SamplerState cmSampleState : register(s1);
 
+float3 GetBodyNormal(float2 tex)
+{
+    float3 ori_tex = bodyNTex.Sample(bodySampleState, float3(tex, 0)).xyz;
+    return (ori_tex * 2 - 1);
+}
 void ComputeDirectionalLight(float3 normal, float3 toEye, out float4 ambient, out float4 diffuse, out float4 spec)
 {
     ambient = float4(0.0f, 0.0f, 0.0f, 0.0f);
@@ -66,12 +74,10 @@ void ComputeDirectionalLight(float3 normal, float3 toEye, out float4 ambient, ou
     {
         if (d_Enabled[i].x == LIGHT_DISABLED)
             continue;
-
+        
         ambient += mAmbient * d_Ambient[i];
         float diffuseFactor = dot(-d_Dir[i].xyz, normal);
     
-       
-        [flatten]
         if (diffuseFactor > 0.0f)
         {
             float3 v = reflect(d_Dir[i].xyz, normal);
@@ -86,13 +92,12 @@ void ComputePointLight(float3 pos, float3 normal, float3 toEye, out float4 ambie
     ambient = float4(0.0f, 0.0f, 0.0f, 0.0f); 
     diffuse = float4(0.0f, 0.0f, 0.0f, 0.0f); 
     spec = float4(0.0f, 0.0f, 0.0f, 0.0f);
-
+    
     for (int i = 0; i < LIGHT_MAX_EACH; ++i)
     {
         if (p_Enabled[i].x == LIGHT_DISABLED)
             continue;
         
-        float4 tmpA = 0;
         float4 tmpD = 0;
         float4 tmpS = 0;
 
@@ -101,7 +106,6 @@ void ComputePointLight(float3 pos, float3 normal, float3 toEye, out float4 ambie
         if (d > p_Range[i].x)
             continue;
         lightVec /= d; // normalize
-        tmpA = mAmbient * p_Ambient[i];
         float diffuseFactor = dot(lightVec, normal);
 
         //flatten for avoiding dynamic branch
@@ -115,7 +119,7 @@ void ComputePointLight(float3 pos, float3 normal, float3 toEye, out float4 ambie
             tmpS = specFactor * mSpecular * p_Specular[i] * att;
         }
 
-        ambient += tmpA;
+        ambient += mAmbient * p_Ambient[i];
         diffuse += tmpD;
         spec += tmpS;
     }
@@ -182,29 +186,30 @@ float4 main(PS_INPUT input) : SV_Target
     float3 bitangent = cross(input.normal, input.tangent);
     float3x3 tbn = float3x3(input.tangent, bitangent, input.normal);
     
-    float3 tex = bodyTex.Sample(bodySampleState, float3(input.tex, 0)).xyz;
-    float3 tNormal = normalize(bodyNTex.Sample(bodySampleState, float3(input.tex, 0)).xyz);
-    float3 lNormal = mul(tbn, tNormal);
+    float3 tNormal = GetBodyNormal(input.tex);
+    
+    float3 wNormal = normalize(mul(tNormal, tbn));
     
     float3 toEye = normalize(eyePos - input.wPos);
+    float3 tex = bodyTex.Sample(bodySampleState, float3(input.tex, 0)).xyz;
     float4 ambient = 0;
     float4 diffuse = 0;
     float4 specular = 0;
     float4 reflection = 0;
     float4 A, D, S;
-    ComputeDirectionalLight(lNormal, toEye, A, D, S);
+    ComputeDirectionalLight(wNormal, toEye, A, D, S);
     ambient += A;
     diffuse += D;
     specular += S;
-    ComputePointLight(input.wPos, lNormal, toEye, A, D, S);
+    ComputePointLight(input.wPos, wNormal, toEye, A, D, S);
     ambient += A;
     diffuse += D;
     specular += S;
-    ComputeSpotLight(input.wPos, lNormal, toEye, A, D, S);
+    ComputeSpotLight(input.wPos, wNormal, toEye, A, D, S);
     ambient += A;
     diffuse += D;
     specular += S;
-    ComputeReflection(lNormal, -toEye, reflection);
+    ComputeReflection(wNormal, -toEye, reflection);
     
     ambient *= float4(tex, 1);
     diffuse *= float4(tex, 1);

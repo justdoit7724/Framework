@@ -20,7 +20,7 @@ PlaneShadow::PlaneShadow(Shape* shape, XMFLOAT3 planeN, float planeD)
 	ps->WriteCB(0, &transparency);
 }
 
-void PlaneShadow::Update(const Camera* camera, const XMMATRIX& texMat)
+void PlaneShadow::Update(const Camera* camera, float elapsed, const XMMATRIX& texMat)
 {
 	vpMat = camera->VPMat(2);
 

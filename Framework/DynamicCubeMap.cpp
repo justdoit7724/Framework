@@ -17,7 +17,7 @@ DynamicCubeMap::DynamicCubeMap(IGraphic* graphic, Scene* captureScene, Shape* sh
 	graphic(graphic),
 	captureScene(captureScene)
 {
-	vs->AddCB(0, 1, sizeof(VS_Property));
+	vs->AddCB(0, 1, sizeof(SHADER_TRANSFORMATION));
 	ps->AddSRV(0, 1);
 	ps->AddCB(0, 1, sizeof(XMFLOAT3));
 	D3D11_SAMPLER_DESC sampDesc;
@@ -111,7 +111,7 @@ DynamicCubeMap::DynamicCubeMap(IGraphic* graphic, Scene* captureScene, Shape* sh
 	captureCamera[5] = new Camera("capture5", FRAME_KIND_PERSPECTIVE, captureLength, captureLength, 100.0f, 1000.0f, XM_PIDIV2, 1, XMFLOAT3(0,0,0), -FORWARD, UP);
 }
 
-void DynamicCubeMap::Update(const Camera* camera, const XMMATRIX& texMat)
+void DynamicCubeMap::Update(const Camera* camera, float elapsed, const XMMATRIX& texMat)
 {
 	ID3D11ShaderResourceView* const nullSRV = nullptr;
 	DX_DContext->PSSetShaderResources(0, 1, &nullSRV);
@@ -125,7 +125,7 @@ void DynamicCubeMap::Update(const Camera* camera, const XMMATRIX& texMat)
 		captureCamera[i]->Capture(captureScene, captureRTV[i].GetAddressOf(), captureDSV.Get(), captureViewport);
 	}
 
-	vs->WriteCB(0, &VS_Property(transform->WorldMatrix(), camera->VPMat(zOrder), XMMatrixIdentity()));
+	vs->WriteCB(0, &SHADER_TRANSFORMATION(transform->WorldMatrix(), camera->VPMat(zOrder), XMMatrixIdentity()));
 	ps->WriteSRV(0, captureSRV.Get());
 	ps->WriteCB(0, &(camera->transform->GetPos()));
 }

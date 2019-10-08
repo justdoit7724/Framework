@@ -37,18 +37,19 @@ Object::Object(Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpe
 	gs = new GShader();
 	ps = new PShader("StandardPS.cso");
 
-	vs->AddCB(0, 1, sizeof(VS_Property));
+	vs->AddCB(0, 1, sizeof(SHADER_TRANSFORMATION));
 	ps->AddCB(0, 1, sizeof(SHADER_DIRECTIONAL_LIGHT));
 	ps->AddCB(1, 1, sizeof(SHADER_POINT_LIGHT));
 	ps->AddCB(2, 1, sizeof(SHADER_SPOT_LIGHT));
 	ps->AddCB(3, 1, sizeof(XMFLOAT3));
 	ps->AddCB(4, 1, sizeof(SHADER_MATERIAL));
+	ps->AddCB(5, 1, sizeof(float));
 	ps->WriteCB(4,&SHADER_MATERIAL(mDiffuse, 1, mAmbient, mSpec, sP, r));
 	
 
 	D3D11_SAMPLER_DESC samplerDesc;
 	ZeroMemory(&samplerDesc, sizeof(D3D11_SAMPLER_DESC));
-	samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
+	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
 	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
 	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
 	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
@@ -92,15 +93,16 @@ Object::~Object()
 	delete rsState;
 }
 
-void Object::Update(const Camera* camera, const XMMATRIX& texMat)
+void Object::Update(const Camera* camera, float elapsed, const XMMATRIX& texMat)
 {
-	vs->WriteCB(0, &VS_Property(transform->WorldMatrix(), camera->VPMat(zOrder), texMat));
+	const SHADER_TRANSFORMATION STransformation(transform->WorldMatrix(), camera->VPMat(zOrder), texMat);
+
+	vs->WriteCB(0, (void*)(&STransformation));
 	ps->WriteCB(0, (void*)DirectionalLight::Data());
 	ps->WriteCB(1, (void*)PointLight::Data());
 	ps->WriteCB(2, (void*)SpotLight::Data());
 	ps->WriteCB(3, &camera->transform->GetPos());
-
-	
+	ps->WriteCB(5, &elapsed);
 }
 
 void Object::Render() const

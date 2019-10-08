@@ -12,7 +12,7 @@ public:
 	~Scene();
 
 	virtual void Logic_Update()=0;
-	virtual void Render_Update(const Camera* camera);
+	virtual void Render_Update(const Camera* camera, float elapsed);
 	virtual void Render()const;
 
 	const std::string key;

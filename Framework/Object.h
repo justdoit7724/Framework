@@ -21,7 +21,7 @@ public:
 	Object(Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpec, float sP, XMFLOAT3 r, ID3D11ShaderResourceView* srv, ID3D11ShaderResourceView* normalSRV, ID3D11ShaderResourceView* cm, int zOrder);
 	~Object();
 
-	virtual void Update(const Camera* camera, const XMMATRIX& texMat = XMMatrixIdentity());
+	virtual void Update(const Camera* camera, float elapsed, const XMMATRIX& texMat = XMMatrixIdentity());
 	virtual void Render() const;
 
 	//TODO

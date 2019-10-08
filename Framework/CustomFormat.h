@@ -38,16 +38,16 @@ struct Vertex {
 	Vertex(XMFLOAT3 pos, XMFLOAT3 n, XMFLOAT2 tex, XMFLOAT3 tangent) :pos(pos), n(n), tex(tex), tangent(tangent) {}
 };
 
-struct VS_Property
+struct SHADER_TRANSFORMATION
 {
 	XMMATRIX w;
 	XMMATRIX vp;
 	XMMATRIX n;
 	XMMATRIX tex;
 
-	VS_Property(const XMMATRIX& vp, const XMMATRIX& tex)
+	SHADER_TRANSFORMATION(const XMMATRIX& vp, const XMMATRIX& tex)
 		:w(XMMatrixIdentity()), vp(vp),n(XMMatrixIdentity()), tex(tex){}
-	VS_Property(const XMMATRIX& world, const XMMATRIX& vp, const XMMATRIX& tex)
+	SHADER_TRANSFORMATION(const XMMATRIX& world, const XMMATRIX& vp, const XMMATRIX& tex)
 		:w(world), vp(vp), tex(tex)
 	{
 		n = XMMatrixTranspose(XMMatrixInverse(&XMMatrixDeterminant(world), world));

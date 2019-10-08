@@ -20,7 +20,7 @@ class BlendState;
 class RasterizerState;
 class Camera;
 class DebuggingScene;
-struct VS_Property;
+struct SHADER_TRANSFORMATION;
 
 class Debugging : public Singleton<Debugging>
 {

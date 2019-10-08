@@ -26,8 +26,6 @@
 #include "CameraMgr.h"
 #include "DisplacementObject.h"
 
-//delete
-Object* quad=nullptr;
 TestScene::TestScene(IGraphic* graphic)
 	:Scene("Test")
 {
@@ -37,17 +35,17 @@ TestScene::TestScene(IGraphic* graphic)
 	canvas = new UICanvas(SCREEN_WIDTH, SCREEN_HEIGHT);
 	Debugging::Instance()->EnableGrid(10, 50);
 
-	/*dLight = new DirectionalLight(
+	dLight = new DirectionalLight(
 		XMFLOAT3(0.1f, 0.1f, 0.1f),
-		XMFLOAT3(0.25f, 0.25f, 0.25f),
-		XMFLOAT3(0.5f, 0.5f, 0.5f),
-		XMFLOAT3(0.707f, -0.707f, 0));*/
-	pLight = new PointLight(
+		XMFLOAT3(0.9f, 0.9f, 0.9f),
+		XMFLOAT3(0.9f, 0.9f, 0.9f),
+		XMFLOAT3(0.707f, -0.707f, 0));
+	/*pLight = new PointLight(
 		XMFLOAT3(0.1f, 0.1f, 0.1f),
 		XMFLOAT3(0.7f, 0.7f, 0.7f),
 		XMFLOAT3(0.8f, 0.8f, 0.8f),
 		XMFLOAT3(0, 0, 0), 200, XMFLOAT3(0.05f, 0.01f, 0.001f)
-	);
+	);*/
 	/*pLight2 = new PointLight(
 		XMFLOAT3(0.15f, 0.15f, 0.15f),
 		XMFLOAT3(0.6f, 0.6f, 0.6f),
@@ -55,74 +53,28 @@ TestScene::TestScene(IGraphic* graphic)
 		XMFLOAT3(0, 0, 0), 200, XMFLOAT3(0.05f, 0.01f, 0.001f)
 	);*/
 
-	std::vector<std::string> list;
-	list.push_back("cm_normal_px.png");
-	list.push_back("cm_normal_nx.png");
-	list.push_back("cm_normal_py.png");
-	list.push_back("cm_normal_ny.png");
-	list.push_back("cm_normal_pz.png");
-	list.push_back("cm_normal_nz.png");
-	TextureMgr::Instance()->LoadCM("sky", list);
-	TextureMgr::Instance()->Load("soccer", "soccerball.jpg", 4);
-	TextureMgr::Instance()->Load("white", "white.png", 4);
-	TextureMgr::Instance()->Load("wood", "woodbox.jpg", 4);
-	TextureMgr::Instance()->Load("sample", "sample2.jpg", 4);
-	TextureMgr::Instance()->Load("rock", "rock.png", 4);
-	TextureMgr::Instance()->Load("test_normal", "test_normal.png",1);
 	TextureMgr::Instance()->Load("rock2", "rock2.jpg", 10);
 	TextureMgr::Instance()->Load("rock2_normal", "rock2_normal.jpg", 10);
 	TextureMgr::Instance()->Load("rock2_dp", "rock2_dp.jpg", 10);
 
-	ID3D11ShaderResourceView* sky;
-	UINT sampleCount;
-	TextureMgr::Instance()->Get("sky", &sky, &sampleCount);
-	//canvas->Add("newAnim", XMFLOAT2(0, 50), 760, 320, 0, sampleSRV, sampleCount, 2);
 
-	Skybox* skybox = new Skybox(sky);
-	AddObj(skybox);
-
-
-	UINT texCount;
-	ID3D11ShaderResourceView* woodSRV;
-	ID3D11ShaderResourceView* soccerSRV;
-	ID3D11ShaderResourceView* imageSRV3;
-	ID3D11ShaderResourceView* rockSRV;
-	ID3D11ShaderResourceView* defaultNormal;
-	ID3D11ShaderResourceView* rockNormal;
 	ID3D11ShaderResourceView* pbrSRV;
 	ID3D11ShaderResourceView* pbrNormal;
 	ID3D11ShaderResourceView* pbrDP;
-	TextureMgr::Instance()->Get("wood", &woodSRV, &texCount);
-	TextureMgr::Instance()->Get("soccer", &soccerSRV, &texCount);
-	TextureMgr::Instance()->Get("sample", &imageSRV3, &texCount);
-	TextureMgr::Instance()->Get("test_normal", &defaultNormal, &texCount);
-	TextureMgr::Instance()->Get("white", &rockSRV, &texCount);
 	TextureMgr::Instance()->Get("rock2", &pbrSRV);
 	TextureMgr::Instance()->Get("rock2_normal", &pbrNormal);
 	TextureMgr::Instance()->Get("rock2_dp", &pbrDP);
-	quad = new Object(new Quad(), XMFLOAT3(0.5f, 0.5f, 0.5f), XMFLOAT3(0.1f, 0.1f, 0.1f), XMFLOAT3(0.5f, 0.5f, 0.5f), 4, XMFLOAT3(0, 0, 0), pbrSRV, pbrNormal, sky, 2);
-	quad->transform->SetScale(200, 200, 1);
-	quad->transform->SetRot(UP, -FORWARD);
-
-	/*Object* sphere = new Object(new Sphere(3), XMFLOAT3(1, 1, 1), XMFLOAT3(0.1f, 0.1f, 0.1f), XMFLOAT3(1, 1, 1), 4, XMFLOAT3(0, 0, 0), rockSRV, rockNormal, sky, 2);
-	Object* cylinder = new Object(new Cylinder(20), XMFLOAT3(1, 1, 1), XMFLOAT3(0.1f, 0.1f, 0.1f), XMFLOAT3(1, 1, 1), 4, XMFLOAT3(0, 0, 0), rockSRV, rockNormal, sky, 2);
-	sphere->transform->SetScale(20, 20, 20);
-	cylinder->transform->SetScale(20, 20, 20);*/
 
 
 	Shape* dpShape = new Quad();
 	dpShape->SetPrimitiveType(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
 	DisplacementObject* dpObj = new DisplacementObject(
-		dpShape, pbrSRV, pbrNormal, pbrDP, 5.0f,
-		XMFLOAT3(0.6,0.6,0.6), XMFLOAT3(0.2f, 0.2f, 0.2f), XMFLOAT3(0.6, 0.6, 0.6),4);
-	dpObj->transform->SetScale(20, 20, 1);
+		dpShape, pbrSRV, pbrNormal, pbrDP, 10.0f,
+		XMFLOAT3(0.7,0.7,0.7), XMFLOAT3(0.2f, 0.2f, 0.2f), XMFLOAT3(0.3, 0.3, 0.3),4);
+	dpObj->transform->SetScale(80, 80, 1);
 	dpObj->transform->SetRot(UP,RIGHT);
 
-	//AddObj(sphere);
-	//AddObj(cube);
-	//AddObj(cylinder);
-	//AddObj(dpObj);
-	AddObj(quad);
+	AddObj(dpObj);
 }
 
 TestScene::~TestScene()
@@ -179,11 +131,20 @@ void TestScene::Logic_Update()
 	Debugging::Instance()->Draw("Main camera = ", cam->transform->GetPos(), 10, 40);
 
 	float elaped = timer->Elapsed();
+	if (dLight)
+	{
+		XMFLOAT3 pt = Normalize(XMFLOAT3(
+			0.707f,
+			-0.707f,
+			0)*XMMatrixRotationY(elaped*0.75f));
+		dLight->SetDir(pt);
+		Debugging::Instance()->Draw("DLight's dir = ", dLight->GetTransform()->GetForward(), 10,10);
+	}
 	if (pLight)
 	{
 		XMFLOAT3 pt = XMFLOAT3(
 			cos(elaped * 0.3f) * 10,
-			4,
+			10,
 			sin(elaped * 0.3f) * 10);
 		pLight->SetPos(pt);
 		Debugging::Instance()->Mark(999, pt, 1.5f, Colors::WhiteSmoke);
@@ -207,9 +168,9 @@ void TestScene::Logic_Update()
 	cylinder->transform->SetRot(FORWARD * rot, UP * rot);*/
 }
 
-void TestScene::Render_Update(const Camera* camera)
+void TestScene::Render_Update(const Camera* camera, float elapsed)
 {
-	Scene::Render_Update(camera);
+	Scene::Render_Update(camera, elapsed);
 
 	canvas->Update(timer->SPF());
 }
