@@ -53,23 +53,23 @@ TestScene::TestScene(IGraphic* graphic)
 		XMFLOAT3(0, 0, 0), 200, XMFLOAT3(0.05f, 0.01f, 0.001f)
 	);*/
 
-	TextureMgr::Instance()->Load("rock2", "rock2.jpg", 10);
-	TextureMgr::Instance()->Load("rock2_normal", "rock2_normal.jpg", 10);
-	TextureMgr::Instance()->Load("rock2_dp", "rock2_dp.jpg", 10);
+	TextureMgr::Instance()->Load("rock", "rock.jpg", 10);
+	TextureMgr::Instance()->Load("rock_normal", "rock_normal.jpg", 10);
+	TextureMgr::Instance()->Load("rock_dp", "rock_dp.jpg", 10);
 
 
 	ID3D11ShaderResourceView* pbrSRV;
 	ID3D11ShaderResourceView* pbrNormal;
 	ID3D11ShaderResourceView* pbrDP;
-	TextureMgr::Instance()->Get("rock2", &pbrSRV);
-	TextureMgr::Instance()->Get("rock2_normal", &pbrNormal);
-	TextureMgr::Instance()->Get("rock2_dp", &pbrDP);
+	TextureMgr::Instance()->Get("rock", &pbrSRV);
+	TextureMgr::Instance()->Get("rock_normal", &pbrNormal);
+	TextureMgr::Instance()->Get("rock_dp", &pbrDP);
 
 
 	Shape* dpShape = new Quad();
 	dpShape->SetPrimitiveType(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
 	DisplacementObject* dpObj = new DisplacementObject(
-		dpShape, pbrSRV, pbrNormal, pbrDP, 10.0f,
+		dpShape, pbrSRV, pbrNormal, pbrDP, 7.5f,
 		XMFLOAT3(0.7,0.7,0.7), XMFLOAT3(0.2f, 0.2f, 0.2f), XMFLOAT3(0.3, 0.3, 0.3),4);
 	dpObj->transform->SetScale(80, 80, 1);
 	dpObj->transform->SetRot(UP,RIGHT);

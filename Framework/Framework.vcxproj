@@ -162,6 +162,7 @@
     <ClCompile Include="RasterizerState.cpp" />
     <ClCompile Include="Resource.cpp" />
     <ClCompile Include="SceneMgr.cpp" />
+    <ClCompile Include="ShadowMap.cpp" />
     <ClCompile Include="Shape.cpp" />
     <ClCompile Include="Quad.cpp" />
     <ClCompile Include="Scene.cpp" />
@@ -211,6 +212,7 @@
     <ClInclude Include="PlaneShadow.h" />
     <ClInclude Include="RasterizerState.h" />
     <ClInclude Include="SceneMgr.h" />
+    <ClInclude Include="ShadowMap.h" />
     <ClInclude Include="Shape.h" />
     <ClInclude Include="Quad.h" />
     <ClInclude Include="Resource.h" />

@@ -44,10 +44,10 @@ DS_OUTPUT main(Patch patch, float3 bary : SV_DomainLocation, const OutputPatch<D
         bary.x * tri[0].normal +
         bary.y * tri[1].normal +
         bary.z * tri[2].normal);
-    output.tangent =
+    output.tangent = normalize(
         bary.x * tri[0].tangent +
         bary.y * tri[1].tangent +
-        bary.z * tri[2].tangent;
+        bary.z * tri[2].tangent);
     output.tex =
         bary.x * tri[0].tex +
         bary.y * tri[1].tex +
