@@ -23,7 +23,7 @@ cbuffer CB_VS_PROPERTY : register(b0)
 };
 cbuffer CB_EYE : register(b1)
 {
-    float3 eye;
+    float4 eye;
 };
 
 
@@ -36,7 +36,7 @@ VS_OUTPUT main(STD_VS_INPUT input)
     output.tex = mul(texMat, float4(input.tex, 0, 1)).xy;
     output.tangent = mul((float3x3) WMat, input.tangent);
     
-    float dist = length(eye - output.wPos);
+    float dist = length(eye.xyz - output.wPos);
     float t = saturate((TESS_FACTOR_DIST_MAX - dist) /(TESS_FACTOR_DIST_MAX - TESS_FACTOR_DIST_MIN));
     output.tessFactor = TESS_FACTOR_MIN + t * (TESS_FACTOR_MAX - TESS_FACTOR_MIN);
   

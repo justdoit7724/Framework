@@ -17,9 +17,9 @@ DynamicCubeMap::DynamicCubeMap(IGraphic* graphic, Scene* captureScene, Shape* sh
 	graphic(graphic),
 	captureScene(captureScene)
 {
-	vs->AddCB(0, 1, sizeof(SHADER_TRANSFORMATION));
+	vs->AddCB(0, 1, sizeof(SHADER_STD_TRANSF));
 	ps->AddSRV(0, 1);
-	ps->AddCB(0, 1, sizeof(XMFLOAT3));
+	ps->AddCB(0, 1, sizeof(XMFLOAT4));
 	D3D11_SAMPLER_DESC sampDesc;
 	ZeroMemory(&sampDesc, sizeof(D3D11_SAMPLER_DESC));
 	sampDesc.Filter = D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR;
@@ -125,7 +125,8 @@ void DynamicCubeMap::Update(const Camera* camera, float elapsed, const XMMATRIX&
 		captureCamera[i]->Capture(captureScene, captureRTV[i].GetAddressOf(), captureDSV.Get(), captureViewport);
 	}
 
-	vs->WriteCB(0, &SHADER_TRANSFORMATION(transform->WorldMatrix(), camera->VPMat(zOrder), XMMatrixIdentity()));
+	vs->WriteCB(0, &SHADER_STD_TRANSF(transform->WorldMatrix(), camera->VPMat(zOrder), XMMatrixIdentity()));
 	ps->WriteSRV(0, captureSRV.Get());
-	ps->WriteCB(0, &(camera->transform->GetPos()));
+	XMFLOAT3 eye = camera->transform->GetPos();
+	ps->WriteCB(0, &XMFLOAT4(eye.x, eye.y, eye.z,0));
 }

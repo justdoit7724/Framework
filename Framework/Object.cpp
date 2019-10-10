@@ -37,11 +37,11 @@ Object::Object(Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpe
 	gs = new GShader();
 	ps = new PShader("StandardPS.cso");
 
-	vs->AddCB(0, 1, sizeof(SHADER_TRANSFORMATION));
+	vs->AddCB(0, 1, sizeof(SHADER_STD_TRANSF));
 	ps->AddCB(0, 1, sizeof(SHADER_DIRECTIONAL_LIGHT));
 	ps->AddCB(1, 1, sizeof(SHADER_POINT_LIGHT));
 	ps->AddCB(2, 1, sizeof(SHADER_SPOT_LIGHT));
-	ps->AddCB(3, 1, sizeof(XMFLOAT3));
+	ps->AddCB(3, 1, sizeof(XMFLOAT4));
 	ps->AddCB(4, 1, sizeof(SHADER_MATERIAL));
 	ps->AddCB(5, 1, sizeof(float));
 	ps->WriteCB(4,&SHADER_MATERIAL(mDiffuse, 1, mAmbient, mSpec, sP, r));
@@ -95,13 +95,15 @@ Object::~Object()
 
 void Object::Update(const Camera* camera, float elapsed, const XMMATRIX& texMat)
 {
-	const SHADER_TRANSFORMATION STransformation(transform->WorldMatrix(), camera->VPMat(zOrder), texMat);
+	const SHADER_STD_TRANSF STransformation(transform->WorldMatrix(), camera->VPMat(zOrder), texMat);
+
+	XMFLOAT3 eye = camera->transform->GetPos();
 
 	vs->WriteCB(0, (void*)(&STransformation));
 	ps->WriteCB(0, (void*)DirectionalLight::Data());
 	ps->WriteCB(1, (void*)PointLight::Data());
 	ps->WriteCB(2, (void*)SpotLight::Data());
-	ps->WriteCB(3, &camera->transform->GetPos());
+	ps->WriteCB(3, &XMFLOAT4(eye.x, eye.y, eye.z,0));
 	ps->WriteCB(5, &elapsed);
 }
 

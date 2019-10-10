@@ -13,7 +13,7 @@ class PShader;
 class DepthStencilState;
 class BlendState;
 
-struct SHADER_TRANSFORMATION;
+struct SHADER_STD_TRANSF;
 class UI
 {
 private:

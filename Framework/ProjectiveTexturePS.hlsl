@@ -55,6 +55,7 @@ cbuffer CB_TIME : register(b5)
 TextureCube cm_tex : register(t0);
 Texture2DArray bodyTex : register(t1);
 Texture2DArray bodyNTex : register(t2);
+Texture2DArray pt_tex : register(t3);
 
 SamplerState bodySampleState : register(s0);
 SamplerState cmSampleState : register(s1);
@@ -88,9 +89,9 @@ void ComputeDirectionalLight(float3 normal, float3 toEye, out float4 ambient, ou
     }
 }
 void ComputePointLight(float3 pos, float3 normal, float3 toEye, out float4 ambient, out float4 diffuse, out float4 spec)
-{ 
-    ambient = float4(0.0f, 0.0f, 0.0f, 0.0f); 
-    diffuse = float4(0.0f, 0.0f, 0.0f, 0.0f); 
+{
+    ambient = float4(0.0f, 0.0f, 0.0f, 0.0f);
+    diffuse = float4(0.0f, 0.0f, 0.0f, 0.0f);
     spec = float4(0.0f, 0.0f, 0.0f, 0.0f);
     
     for (int i = 0; i < LIGHT_MAX_EACH; ++i)
@@ -112,7 +113,7 @@ void ComputePointLight(float3 pos, float3 normal, float3 toEye, out float4 ambie
         [flatten]
         if (diffuseFactor > 0.0f)
         {
-            float3 v = reflect(-lightVec, normal); 
+            float3 v = reflect(-lightVec, normal);
             float specFactor = pow(saturate(dot(v, toEye)), mSpecular.w);
             float att = 1.0f / dot(p_Att[i].xyz, float3(1.0f, d, d * d));
             tmpD = diffuseFactor * mDiffuse * p_Diffuse[i] * att;
@@ -125,10 +126,10 @@ void ComputePointLight(float3 pos, float3 normal, float3 toEye, out float4 ambie
     }
 }
 void ComputeSpotLight(float3 pos, float3 normal, float3 toEye, out float4 ambient, out float4 diffuse, out float4 spec)
-{ 
-    ambient = float4(0.0f, 0.0f, 0.0f, 0.0f); 
-    diffuse = float4(0.0f, 0.0f, 0.0f, 0.0f); 
-    spec = float4(0.0f, 0.0f, 0.0f, 0.0f); 
+{
+    ambient = float4(0.0f, 0.0f, 0.0f, 0.0f);
+    diffuse = float4(0.0f, 0.0f, 0.0f, 0.0f);
+    spec = float4(0.0f, 0.0f, 0.0f, 0.0f);
     
     for (int i = 0; i < LIGHT_MAX_EACH; ++i)
     {
@@ -178,11 +179,12 @@ struct PS_INPUT
     float3 normal : TEXCOORD1;
     float2 tex : TEXCOORD2;
     float3 tangent : TEXCOORD3;
+    float4 pt_ndc_pos : TEXCOORD4;
 };
 float4 main(PS_INPUT input) : SV_Target
 {
     input.normal = normalize(input.normal);
-    input.tangent = normalize(input.tangent - dot(input.normal, input.tangent)*input.normal);
+    input.tangent = normalize(input.tangent - dot(input.normal, input.tangent) * input.normal);
     float3 bitangent = cross(input.normal, input.tangent);
     float3x3 tbn = float3x3(input.tangent, bitangent, input.normal);
     
@@ -217,7 +219,14 @@ float4 main(PS_INPUT input) : SV_Target
     float4 color = ambient + diffuse + specular;
     color = Lerp(color, reflection, mReflection.w);
     color.w = mDiffuse.a;
-
+    
+    float2 pt_ui = (input.pt_ndc_pos.xy / input.pt_ndc_pos.w)*0.5f +0.5f;
+    float depth = (input.pt_ndc_pos.z / input.pt_ndc_pos.w) * 0.5f + 0.5f;
+    if (pt_ui.x == saturate(pt_ui.x) && pt_ui.y == saturate(pt_ui.y))
+    {
+        //todo
+        color = Lerp(color, pt_tex.Sample(bodySampleState, float3(pt_ui, 0)), 0.8f);
+    }
     
     return color;
 }

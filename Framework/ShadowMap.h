@@ -17,8 +17,8 @@ private:
 	UINT width;
 	UINT height;
 
-	ComPtr<ID3D11ShaderResourceView*> depthSRV;
-	ComPtr<ID3D11DepthStencilView*> depthDSV;
+	ComPtr<ID3D11ShaderResourceView> depthSRV;
+	ComPtr<ID3D11DepthStencilView> depthDSV;
 	D3D11_VIEWPORT vp;
 };
 

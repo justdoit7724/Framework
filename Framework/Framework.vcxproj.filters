@@ -172,7 +172,10 @@
       <Filter>Object</Filter>
     </ClCompile>
     <ClCompile Include="ShadowMap.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Shadow</Filter>
+    </ClCompile>
+    <ClCompile Include="PT_Obj.cpp">
+      <Filter>Object</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -321,7 +324,10 @@
       <Filter>Object</Filter>
     </ClInclude>
     <ClInclude Include="ShadowMap.h">
-      <Filter>Header Files</Filter>
+      <Filter>Shadow</Filter>
+    </ClInclude>
+    <ClInclude Include="PT_Obj.h">
+      <Filter>Object</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -415,6 +421,12 @@
       <Filter>hlsl</Filter>
     </FxCompile>
     <FxCompile Include="StdDisplacementDS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="ProjectiveTextureVS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="ProjectiveTexturePS.hlsl">
       <Filter>hlsl</Filter>
     </FxCompile>
   </ItemGroup>

@@ -25,6 +25,7 @@
 #include "Timer.h"
 #include "CameraMgr.h"
 #include "DisplacementObject.h"
+#include "PT_Obj.h"
 
 TestScene::TestScene(IGraphic* graphic)
 	:Scene("Test")
@@ -56,15 +57,17 @@ TestScene::TestScene(IGraphic* graphic)
 	TextureMgr::Instance()->Load("rock", "rock.jpg", 10);
 	TextureMgr::Instance()->Load("rock_normal", "rock_normal.jpg", 10);
 	TextureMgr::Instance()->Load("rock_dp", "rock_dp.jpg", 10);
+	TextureMgr::Instance()->Load("simple", "sample.jpg", 8);
 
 
 	ID3D11ShaderResourceView* pbrSRV;
 	ID3D11ShaderResourceView* pbrNormal;
 	ID3D11ShaderResourceView* pbrDP;
+	ID3D11ShaderResourceView* simpleSRV;
 	TextureMgr::Instance()->Get("rock", &pbrSRV);
 	TextureMgr::Instance()->Get("rock_normal", &pbrNormal);
 	TextureMgr::Instance()->Get("rock_dp", &pbrDP);
-
+	TextureMgr::Instance()->Get("simple", &simpleSRV);
 
 	Shape* dpShape = new Quad();
 	dpShape->SetPrimitiveType(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
@@ -74,7 +77,14 @@ TestScene::TestScene(IGraphic* graphic)
 	dpObj->transform->SetScale(80, 80, 1);
 	dpObj->transform->SetRot(UP,RIGHT);
 
-	AddObj(dpObj);
+	Camera* pt_cam = new Camera("test", FRAME_KIND_PERSPECTIVE, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1f, 1000.0f, 90.0f, 1, XMFLOAT3(-20, 20, 0), Normalize(XMFLOAT3(0.707, -0.707, 0)), Normalize(XMFLOAT3(0.707, 0.707, 0)));
+	Debugging::Instance()->Mark(3, pt_cam->transform->GetPos());
+	PT_Obj* pt = new PT_Obj(new Quad(), pt_cam->VPMat(2), XMFLOAT3(1, 1, 1), 1, XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), 4, XMFLOAT3(0, 0, 0), pbrSRV, pbrNormal, simpleSRV, nullptr, 2);
+	pt->transform->SetScale(100, 100, 1);
+	pt->transform->SetRot(UP, -FORWARD);
+	delete pt_cam;
+
+	AddObj(pt);
 }
 
 TestScene::~TestScene()

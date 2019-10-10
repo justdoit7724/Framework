@@ -4,7 +4,7 @@ sampler samp : register(s0);
 
 cbuffer CB_EYE : register(b0)
 {
-    float3 eye;
+    float4 eye;
 }
 
 struct PS_INPUT
