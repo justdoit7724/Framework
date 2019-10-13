@@ -29,6 +29,20 @@ ShadowObj::ShadowObj(Shape* shape, ID3D11ShaderResourceView* bodySRV, ID3D11Shad
 	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	ps->AddSamp(0, 1, &samplerDesc);
 	ps->AddSamp(1, 1, &samplerDesc);
+	D3D11_SAMPLER_DESC shadowSampDesc;
+	ZeroMemory(&shadowSampDesc, sizeof(D3D11_SAMPLER_DESC));
+	shadowSampDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
+	shadowSampDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+	shadowSampDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+	shadowSampDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+	shadowSampDesc.BorderColor[0] = 0;
+	shadowSampDesc.BorderColor[1] = 0;
+	shadowSampDesc.BorderColor[2] = 0;
+	shadowSampDesc.BorderColor[3] = 0;
+	shadowSampDesc.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
+	shadowSampDesc.MinLOD = 0;
+	shadowSampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	ps->AddSamp(2, 1, &shadowSampDesc);
 
 	ps->AddSRV(0, 1);
 	ps->AddSRV(1, 1);

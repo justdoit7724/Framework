@@ -120,6 +120,7 @@ TestScene::TestScene(IGraphic* graphic)
 	shadowMap = new ShadowMap(SCREEN_WIDTH, SCREEN_HEIGHT);
 	dLightCamera = new Camera("Test", FRAME_KIND_ORTHOGONAL, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1f, 300.0f, 90.0f, 1.0f, XMFLOAT3(0, 0, -100), FORWARD, UP);
 	
+	
 }
 
 TestScene::~TestScene()
