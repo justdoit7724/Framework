@@ -115,7 +115,6 @@ void Object::Render() const
 	gs->Apply();
 	ps->Apply();
 
-	// STATE
 	dsState->Apply();
 	blendState->Apply();
 	rsState->Apply();

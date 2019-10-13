@@ -32,15 +32,16 @@ public:
 	void SetTranslation(XMFLOAT3 newPos) {
 		pos = newPos;
 	}
-	void SetRot(const XMFLOAT3 _forward = FORWARD, const XMFLOAT3 _up = UP) {
+	void SetRot(XMFLOAT3 _forward)
+	{
+		forward = _forward;
+		up = XMFLOAT3(0, 0, 0);
+		right = XMFLOAT3(0, 0, 0);
+	}
+	void SetRot(XMFLOAT3 _forward, XMFLOAT3 _up, XMFLOAT3 _right) {
 		forward = _forward;
 		up = _up;
-		right = Cross(up, forward);
-	}
-	void SetRot(XMFLOAT3 r, XMFLOAT3 u, XMFLOAT3 f) {
-		right = r;
-		up = u;
-		forward = f;
+		right = _right;
 	}
 	void SetScale(float x) {
 		scale = { x,x,x };

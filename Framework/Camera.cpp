@@ -25,7 +25,7 @@ Camera::Camera(std::string key, const FRAME_KIND frameKind, float orthoScnWidth,
 
 	SetFrame(frameKind, XMFLOAT2(orthoScnWidth, orthoScnHeight), n, f, verticalViewAngle, aspectRatio);
 	transform->SetTranslation(firstPos);
-	transform->SetRot(_forward, _up);
+	transform->SetRot(_forward, _up, Cross(_up, _forward));
 }
 
 Camera::~Camera()

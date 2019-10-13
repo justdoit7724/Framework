@@ -87,4 +87,5 @@ void Shape::Apply()const
 	DX_DContext->IASetIndexBuffer(indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 
 	DX_DContext->DrawIndexed(indexCount, 0, 0);
+
 }

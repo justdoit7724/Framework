@@ -22,6 +22,8 @@ public:
 	void Render()const override;
 
 private:
+
+	IGraphic* graphic;
 	Timer* timer;
 
 	UICanvas* canvas;

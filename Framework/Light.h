@@ -9,7 +9,6 @@ struct SHADER_SPOT_LIGHT;
 class Light
 {
 protected:
-	Transform* transform;
 	int id=-1;
 	XMFLOAT3 ambient;
 	XMFLOAT3 diffuse;
@@ -18,7 +17,7 @@ protected:
 	~Light();
 
 public:
-	Transform* GetTransform(){return transform;}
+	Transform* transform;
 	int ID() {return id;}
 	const XMFLOAT3& GetAmbient(){return ambient;}
 	const XMFLOAT3& GetDiffuse(){return diffuse;}

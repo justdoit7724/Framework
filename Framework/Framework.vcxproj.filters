@@ -177,6 +177,12 @@
     <ClCompile Include="PT_Obj.cpp">
       <Filter>Object</Filter>
     </ClCompile>
+    <ClCompile Include="ShadowObj.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BindingTestScene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CustomFormat.h">
@@ -329,6 +335,12 @@
     <ClInclude Include="PT_Obj.h">
       <Filter>Object</Filter>
     </ClInclude>
+    <ClInclude Include="ShadowObj.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BindingTestScene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ShaderInfo.cginc">
@@ -428,6 +440,33 @@
     </FxCompile>
     <FxCompile Include="ProjectiveTexturePS.hlsl">
       <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="StdShadowVS.hlsl">
+      <Filter>Tasks</Filter>
+    </FxCompile>
+    <FxCompile Include="StdShadowPS.hlsl">
+      <Filter>Tasks</Filter>
+    </FxCompile>
+    <FxCompile Include="ShadowMapVS.hlsl">
+      <Filter>Tasks</Filter>
+    </FxCompile>
+    <FxCompile Include="BindingTestVS.hlsl">
+      <Filter>Tasks</Filter>
+    </FxCompile>
+    <FxCompile Include="BindingTestPS.hlsl">
+      <Filter>Tasks</Filter>
+    </FxCompile>
+    <FxCompile Include="BindingTest2VS.hlsl">
+      <Filter>Tasks</Filter>
+    </FxCompile>
+    <FxCompile Include="BindingTestHS.hlsl">
+      <Filter>Tasks</Filter>
+    </FxCompile>
+    <FxCompile Include="BindingTestDS.hlsl">
+      <Filter>Tasks</Filter>
+    </FxCompile>
+    <FxCompile Include="BindingTestGS.hlsl">
+      <Filter>Tasks</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

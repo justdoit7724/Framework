@@ -1,0 +1,55 @@
+#include "ShadowObj.h"
+#include "Shader.h"
+#include "TextureMgr.h"
+#include "Transform.h"
+#include "Camera.h"
+#include "Light.h"
+
+ShadowObj::ShadowObj(Shape* shape, ID3D11ShaderResourceView* bodySRV, ID3D11ShaderResourceView* bodyNormal, int zOrder)
+	:Object(shape, "StdShadowVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts), "", "", "", "StdShadowPS.cso", zOrder)
+{
+	vs->AddCB(0, 1, sizeof(SHADER_PT_TRANSF));
+	ps->AddCB(0, 1, sizeof(SHADER_DIRECTIONAL_LIGHT));
+	ps->AddCB(1, 1, sizeof(SHADER_POINT_LIGHT));
+	ps->AddCB(2, 1, sizeof(SHADER_SPOT_LIGHT));
+	ps->AddCB(3, 1, sizeof(XMFLOAT4));
+	ps->AddCB(4, 1, sizeof(SHADER_MATERIAL));
+	ps->AddCB(5, 1, sizeof(float));
+	ps->WriteCB(4, &SHADER_MATERIAL(XMFLOAT3(1,1,1), 1, XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), 4, XMFLOAT3(0, 0, 0)));
+
+
+	D3D11_SAMPLER_DESC samplerDesc;
+	ZeroMemory(&samplerDesc, sizeof(D3D11_SAMPLER_DESC));
+	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	samplerDesc.MinLOD = 0;
+	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	ps->AddSamp(0, 1, &samplerDesc);
+	ps->AddSamp(1, 1, &samplerDesc);
+
+	ps->AddSRV(0, 1);
+	ps->AddSRV(1, 1);
+	ps->AddSRV(2, 1);
+	ps->AddSRV(3, 1);
+	ps->WriteSRV(0, nullptr);
+	ps->WriteSRV(1, bodySRV);
+	ps->WriteSRV(2, bodyNormal);
+
+}
+
+void ShadowObj::Update(const Camera* camera, float elapsed, const XMMATRIX& shadowVP)
+{
+	const SHADER_PT_TRANSF STransformation(transform->WorldMatrix(), camera->VPMat(zOrder), shadowVP, XMMatrixIdentity());
+
+	XMFLOAT3 eye = camera->transform->GetPos();
+
+	vs->WriteCB(0, (void*)(&STransformation));
+	ps->WriteCB(0, (void*)DirectionalLight::Data());
+	ps->WriteCB(1, (void*)PointLight::Data());
+	ps->WriteCB(2, (void*)SpotLight::Data());
+	ps->WriteCB(3, &XMFLOAT4(eye.x, eye.y, eye.z, 0));
+	ps->WriteCB(5, &elapsed);
+}

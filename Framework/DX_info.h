@@ -6,6 +6,7 @@
 #include <string>
 #include <assert.h>
 #include <DirectXMath.h>
+#include <vector>
 
 using namespace DirectX;
 using namespace Microsoft::WRL;

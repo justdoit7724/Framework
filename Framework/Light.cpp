@@ -59,12 +59,14 @@ void DirectionalLight::SetSpecular(const XMFLOAT3 & s)
 void DirectionalLight::SetDir(XMFLOAT3 d)
 {
 	XMFLOAT3 up = UP;
-	if ((d.x*d.z) == 0)
+	if (d.x == 0 && d.y == 0)
 	{
-		up = RIGHT;
+		up = transform->GetUp();
 	}
+	XMFLOAT3 right = Cross(up,d);
 
-	transform->SetRot(d,Cross(up,d));
+
+	transform->SetRot(d, Cross(d,right), right);
 	data.dir[id] = XMFLOAT4(d.x, d.y, d.z, 0);
 }
 
@@ -184,13 +186,7 @@ void SpotLight::SetPos(XMFLOAT3 p)
 
 void SpotLight::SetDir(XMFLOAT3 d)
 {
-	XMFLOAT3 up = UP;
-	if ((d.x*d.z) == 0)
-	{
-		up = RIGHT;
-	}
-
-	transform->SetRot(d, Cross(up, d));
+	transform->SetRot(d);
 	data.dir[id] = XMFLOAT4(d.x, d.y, d.z, 0);
 }
 

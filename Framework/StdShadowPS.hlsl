@@ -55,7 +55,7 @@ cbuffer CB_TIME : register(b5)
 TextureCube cm_tex : register(t0);
 Texture2DArray bodyTex : register(t1);
 Texture2DArray bodyNTex : register(t2);
-Texture2DArray pt_tex : register(t3);
+Texture2D shadowTex : register(t3);
 
 SamplerState bodySampleState : register(s0);
 SamplerState cmSampleState : register(s1);
@@ -224,12 +224,28 @@ float4 main(PS_INPUT input) : SV_Target
         0.5, 0, 0,
         0, -0.5, 0,
         0.5, 0.5, 1);
+    float oriDepth = input.pt_ndc_pos.z;
+    input.pt_ndc_pos /= input.pt_ndc_pos.w;
+    float depth = input.pt_ndc_pos.z;
     float2 pt_ui = mul(float3(input.pt_ndc_pos.xy, 1), ptUIMat).xy;
-    float depth = (input.pt_ndc_pos.z / input.pt_ndc_pos.w) * 0.5f + 0.5f;
-    if (pt_ui.x == saturate(pt_ui.x) && pt_ui.y == saturate(pt_ui.y))
+
+    //debug - remove
+    uint width=0, height=0;
+    shadowTex.GetDimensions(width, height);
+    float shadowDepth = shadowTex.Sample(bodySampleState, pt_ui).x;
+    const float bias = 0.01f;
+    const float4 SHADOW = float4(1, 0, 0, 1);
+    if (oriDepth > 0 && pt_ui.x == saturate(pt_ui.x) && pt_ui.y == saturate(pt_ui.y))
     {
-        //todo
-        color = Lerp(color, pt_tex.Sample(bodySampleState, float3(pt_ui, 0)), 0.8f);
+        if (depth > shadowDepth)
+            return SHADOW;
+        else
+            return float4(1, 1, 1, 1);
+
+    }
+    else
+    {
+        return float4(0,0,0, 1);
     }
     
     return color;

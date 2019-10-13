@@ -1,4 +1,11 @@
 #include "ShadowMap.h"
+#include "RasterizerState.h"
+#include "DepthStencilState.h"
+#include "BlendState.h"
+#include "Object.h"
+#include "Shader.h"
+#include "Shape.h"
+#include "Transform.h"
 
 ShadowMap::ShadowMap(UINT width, UINT height)
 	:width(width), height(height), depthSRV(nullptr), depthDSV(nullptr)
@@ -42,6 +49,21 @@ ShadowMap::ShadowMap(UINT width, UINT height)
 	r_assert(
 		DX_Device->CreateShaderResourceView(tex.Get(), &srv_desc, depthSRV.GetAddressOf())
 	);
+
+	D3D11_RASTERIZER_DESC rs_desc;
+	ZeroMemory(&rs_desc, sizeof(D3D11_RASTERIZER_DESC));
+	rs_desc.CullMode = D3D11_CULL_BACK;
+	rs_desc.FillMode = D3D11_FILL_SOLID;
+	rs_desc.FrontCounterClockwise = false;
+	rs_desc.DepthBias = 0x24000;
+	rs_desc.DepthBiasClamp = 1.0f;
+	rs_desc.SlopeScaledDepthBias = 0.0f;
+	
+	rsState = new RasterizerState(&rs_desc);
+	dsState = new DepthStencilState(nullptr);
+	blendState = new BlendState(nullptr);
+	mapVS = new VShader("ShadowMapVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
+	mapVS->AddCB(0, 1, sizeof(XMMATRIX));
 }
 
 ShadowMap::~ShadowMap()
@@ -51,14 +73,31 @@ ShadowMap::~ShadowMap()
 ID3D11ShaderResourceView* ShadowMap::Depth()
 {
 	return depthSRV.Get();
+
 }
 
-void ShadowMap::BindDSVAndSetNullRT()
+void ShadowMap::Mapping(std::vector<Object*>& objs, const XMMATRIX& ptVPMat)
 {
 	DX_DContext->RSSetViewports(1, &vp);
 
 	ID3D11RenderTargetView* nullRTV = nullptr;
 	DX_DContext->OMSetRenderTargets(1, &nullRTV, depthDSV.Get());
+	DX_DContext->ClearDepthStencilView(depthDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, NULL);
+
+	DX_DContext->HSSetShader(nullptr, nullptr, 0);
+	DX_DContext->DSSetShader(nullptr, nullptr, 0);
+	DX_DContext->GSSetShader(nullptr, nullptr, 0);
+	DX_DContext->PSSetShader(nullptr, nullptr, 0);
+	for (auto obj : objs)
+	{
+		rsState->Apply();
+		dsState->Apply();
+		blendState->Apply();
+
+		mapVS->WriteCB(0,&(obj->transform->WorldMatrix() * ptVPMat));
+		mapVS->Apply();
+		obj->shape->Apply();
+	}
 }
 
 //ShadowMap& ShadowMap::operator=(const ShadowMap& rhs)

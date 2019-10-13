@@ -25,11 +25,13 @@ Shader::~Shader()
 	}
 	for (auto srv : srvs)
 	{
-		srv.second.data->Release();
+		if(srv.second.data)
+			srv.second.data->Release();
 	}
 	for (auto samp : samps)
 	{
-		delete samp.second.data;
+		if(samp.second.data)
+			samp.second.data->Release();
 	}
 }
 
@@ -89,6 +91,14 @@ void Shader::WriteSRV(UINT slot, ID3D11ShaderResourceView* srv)
 	srvs[slot].data = srv;
 }
 
+void Shader::RemoveCB(UINT slot)
+{
+	//debug -- decomment
+	//assert(cbs.find(slot) != cbs.end());
+
+	cbs.erase(slot);
+}
+
 
 
 
@@ -119,23 +129,6 @@ VShader::VShader(std::string fileName, const D3D11_INPUT_ELEMENT_DESC * layoutDe
 	);
 }
 
-PShader::PShader(std::string fileName)
-{
-	std::wstring wPS(fileName.begin(), fileName.end());
-	ComPtr<ID3DBlob> psBlob;
-	r_assert(
-		D3DReadFileToBlob(
-		(ShaderPath() + wPS).c_str(),
-			psBlob.GetAddressOf())
-	);
-	r_assert(
-		DX_Device->CreatePixelShader(
-			psBlob->GetBufferPointer(),
-			psBlob->GetBufferSize(),
-			nullptr,
-			ps.GetAddressOf())
-	);
-}
 
 void VShader::Apply()const
 {
@@ -166,31 +159,30 @@ void VShader::Apply()const
 
 
 GShader::GShader(std::string fileName)
-	:enabled(fileName != "")
 {
-	if (!enabled)
-		return;
+	if (fileName != "")
+	{
+		std::wstring wGS(fileName.begin(), fileName.end());
+		ComPtr<ID3DBlob> blob;
 
-	std::wstring wGS(fileName.begin(), fileName.end());
-	ComPtr<ID3DBlob> blob;
-
-	r_assert(
-		D3DReadFileToBlob(
-		(ShaderPath() + wGS).c_str(),
-			blob.GetAddressOf())
-	);
-	r_assert(
-		DX_Device->CreateGeometryShader(
-			blob->GetBufferPointer(),
-			blob->GetBufferSize(),
-			nullptr,
-			gs.GetAddressOf())
-	);
+		r_assert(
+			D3DReadFileToBlob(
+			(ShaderPath() + wGS).c_str(),
+				blob.GetAddressOf())
+		);
+		r_assert(
+			DX_Device->CreateGeometryShader(
+				blob->GetBufferPointer(),
+				blob->GetBufferSize(),
+				nullptr,
+				gs.GetAddressOf())
+		);
+	}
 }
 
 void GShader::Apply()const
 {
-	if (enabled)
+	if (gs)
 	{
 		DX_DContext->GSSetShader(gs.Get(), nullptr, 0);
 
@@ -221,29 +213,56 @@ void GShader::Apply()const
 	}
 }
 
+PShader::PShader(std::string fileName)
+{
+	if (fileName != "")
+	{
+		std::wstring wPS(fileName.begin(), fileName.end());
+		ComPtr<ID3DBlob> psBlob;
+		r_assert(
+			D3DReadFileToBlob(
+			(ShaderPath() + wPS).c_str(),
+				psBlob.GetAddressOf())
+		);
+		r_assert(
+			DX_Device->CreatePixelShader(
+				psBlob->GetBufferPointer(),
+				psBlob->GetBufferSize(),
+				nullptr,
+				ps.GetAddressOf())
+		);
+	}
+}
 void PShader::Apply()const
 {
-	DX_DContext->PSSetShader(ps.Get(), nullptr, 0);
-
-	for (auto i = cbs.begin(); i != cbs.end(); ++i)
+	if (ps)
 	{
-		DX_DContext->PSSetConstantBuffers(i->first, i->second.arrayNum, i->second.data->GetAddress());
+		DX_DContext->PSSetShader(ps.Get(), nullptr, 0);
+
+		for (auto i = cbs.begin(); i != cbs.end(); ++i)
+		{
+			DX_DContext->PSSetConstantBuffers(i->first, i->second.arrayNum, i->second.data->GetAddress());
+		}
+		for (auto i = srvs.begin(); i != srvs.end(); ++i)
+		{
+			UINT slot = i->first;
+			UINT arrayNum = i->second.arrayNum;
+			ID3D11ShaderResourceView* srv = i->second.data;
+
+			DX_DContext->PSSetShaderResources(slot, arrayNum, &srv);
+		}
+		for (auto i = samps.begin(); i != samps.end(); ++i)
+		{
+			UINT slot = i->first;
+			UINT arrayNum = i->second.arrayNum;
+			ID3D11SamplerState* samp = i->second.data;
+
+			DX_DContext->PSSetSamplers(slot, arrayNum, &samp);
+		}
 	}
-	for (auto i = srvs.begin(); i != srvs.end(); ++i)
+	else
 	{
-		UINT slot = i->first;
-		UINT arrayNum = i->second.arrayNum;
-		ID3D11ShaderResourceView* srv = i->second.data;
-
-		DX_DContext->PSSetShaderResources(slot, arrayNum, &srv);
-	}
-	for (auto i = samps.begin(); i != samps.end(); ++i)
-	{
-		UINT slot = i->first;
-		UINT arrayNum = i->second.arrayNum;
-		ID3D11SamplerState* samp = i->second.data;
-
-		DX_DContext->PSSetSamplers(slot, arrayNum, &samp);
+		DX_DContext->PSSetShader(ps.Get(), nullptr, 0);
 	}
 }
 

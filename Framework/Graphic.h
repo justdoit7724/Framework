@@ -15,6 +15,7 @@ public:
 	ID3D11Texture2D* DepthStencilBuffer()override {return depthStencilBuffer;}
 	void RestoreViewport()override {DX_DContext->RSSetViewports(1, &viewport);}
 	void RestoreRTV()override { 
+
 		DX_DContext->OMSetRenderTargets(1, rtv.GetAddressOf(), dsView.Get()); 
 	}
 

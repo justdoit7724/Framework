@@ -18,7 +18,7 @@ UI::UI(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float
 	quad = new Quad();
 	transform = new Transform();
 	transform->SetScale(width, height, 1);
-	transform->SetRot(-FORWARD, UP);
+	transform->SetRot(-FORWARD, UP, -RIGHT);
 	transform->SetTranslation(pivot.x + width * 0.5f, (canvasHeight - height * 0.5f) - pivot.y, zDepth);
 
 

@@ -8,6 +8,7 @@
 #include "TestScene.h"
 #include "DCMScene.h"
 #include "DebuggingScene.h"
+#include "BindingTestScene.h"
 
 #pragma comment(lib, "D3DCompiler.lib")
 #pragma comment(lib, "DirectXTK.lib")
@@ -18,10 +19,12 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	Window window(hInstance, "Low Level");
 	Graphic* graphic = new Graphic(window.Hwnd());
 
-	TestScene* testScene = new TestScene(graphic);
-	DCMScene* dcmScene = new DCMScene(graphic, testScene);
-	DebuggingScene* debugScene = new DebuggingScene();
+	Scene* testScene = new TestScene(graphic);
+	Scene* dcmScene = new DCMScene(graphic, testScene);
+	Scene* debugScene = new DebuggingScene();
+	Scene* bindScene = new BindingTestScene();
 
+	//SceneMgr::Instance()->Add(bindScene);
 	SceneMgr::Instance()->Add(testScene);
 	//SceneMgr::Instance()->Add(dcmScene);
 	SceneMgr::Instance()->Add(debugScene);

@@ -14,6 +14,7 @@ public:
 	void AddSamp(UINT slot, UINT arrayNum, D3D11_SAMPLER_DESC* desc);
 	void WriteCB(UINT slot, void* data);
 	void WriteSRV(UINT slot, ID3D11ShaderResourceView* srv);
+	void RemoveCB(UINT slot);
 
 protected:
 	struct BindingCB 
@@ -67,8 +68,6 @@ public:
 	GShader(std::string fileName = "");
 
 	void Apply()const override;
-
-	const bool enabled;
 private:
 	ComPtr<ID3D11GeometryShader> gs = nullptr;
 };
@@ -96,7 +95,7 @@ private:
 class PShader : public Shader
 {
 public:
-	PShader(std::string fileName);
+	PShader(std::string fileName="");
 
 	void Apply()const override;
 
