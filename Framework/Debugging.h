@@ -36,8 +36,8 @@ public:
 	void Draw3D(float tex, const XMFLOAT3 _pos, XMVECTORF32 _color = Colors::White, float _scale = 1.5f);
 	void Draw3D(std::string title, XMFLOAT3 v,  const XMFLOAT3 _pos, XMVECTORF32 _color = Colors::White, float _scale = 1.0f);
 	void Mark(const UINT key, XMFLOAT3 pos, float radius = 1.0f, XMVECTORF32 color = Colors::Red);
-	void PtLine(const UINT key, XMFLOAT3 p1, XMFLOAT3 p2, XMVECTORF32 color = Colors::White);
-	void DirLine(const UINT key, XMFLOAT3 p1, XMFLOAT3 dir, float dist, XMVECTORF32 color = Colors::White);
+	void PtLine(XMFLOAT3 p1, XMFLOAT3 p2, XMVECTORF32 color = Colors::White);
+	void DirLine(XMFLOAT3 p1, XMFLOAT3 dir, float dist, XMVECTORF32 color = Colors::White);
 
 	void EnableGrid(float interval, int num=100);
 	void DisableGrid();
@@ -88,7 +88,7 @@ private:
 			color = _c;
 		}
 	};
-	std::unordered_map<UINT,LineInfo> lines;
+	std::vector<LineInfo> lines;
 	Buffer* lineVB=nullptr;
 	Buffer* gridVB=nullptr;
 	Buffer* originVB=nullptr;

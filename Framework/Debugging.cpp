@@ -82,24 +82,16 @@ void Debugging::Mark(const UINT key, XMFLOAT3 pos, float radius, XMVECTORF32 col
 	}
 }
 
-void Debugging::PtLine(const UINT key, XMFLOAT3 p1, XMFLOAT3 p2, XMVECTORF32 color)
+void Debugging::PtLine(XMFLOAT3 p1, XMFLOAT3 p2, XMVECTORF32 color)
 {
-	if (lines.find(key) == lines.end())
-	{
-		lines.insert(std::pair<UINT, LineInfo>(key, LineInfo(p1,p2,color)));
-	}
-	else {
-		lines[key].p1 = p1;
-		lines[key].p2 = p2;
-		lines[key].color = color;
-	}
+	lines.push_back(LineInfo(p1,p2,color));
 }
 
-void Debugging::DirLine(const UINT key, XMFLOAT3 p1, XMFLOAT3 dir, float dist, XMVECTORF32 color)
+void Debugging::DirLine(XMFLOAT3 p1, XMFLOAT3 dir, float dist, XMVECTORF32 color)
 {
 	XMFLOAT3 p2 = p1 + dir * dist;
 
-	PtLine(key, p1, p2, color);
+	PtLine(p1, p2, color);
 }
 
 void Debugging::EnableGrid(float interval, int num)
@@ -202,12 +194,12 @@ void Debugging::Render()
 			DX_DContext->Map(
 				lineVB->Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped));
 		XMFLOAT3* pVB = reinterpret_cast<XMFLOAT3*>(mapped.pData);
-		pVB[0] = l.second.p1;
-		pVB[1] = l.second.p2;
+		pVB[0] = l.p1;
+		pVB[1] = l.p2;
 		DX_DContext->Unmap(lineVB->Get(), 0);
 		
 		vs->WriteCB(0,&vp_mat);
-		ps->WriteCB(0,&(l.second.color));
+		ps->WriteCB(0,&(l.color));
 		vs->Apply();
 		ps->Apply();
 
@@ -216,6 +208,7 @@ void Debugging::Render()
 		DX_DContext->IASetVertexBuffers(0, 1, lineVB->GetAddress(), &stride, &offset);
 		DX_DContext->Draw(2, 0);
 	}
+	lines.clear();
 
 	if (gridVB)
 	{

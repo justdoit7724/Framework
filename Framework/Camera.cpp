@@ -2,6 +2,7 @@
 #include "Transform.h"
 #include "CameraMgr.h"
 #include "Scene.h"
+#include "Debugging.h"
 
 #define Z_ORDER_MAX 5
 
@@ -104,6 +105,42 @@ void Camera::Capture(Scene* scene, ID3D11RenderTargetView** rtv, ID3D11DepthSten
 
 	DX_DContext->OMSetRenderTargets(1, &oriRTV, oriDSV);
 	DX_DContext->RSSetViewports(1, &oriVP);
+}
+
+void Camera::Volume()
+{
+	XMFLOAT3 p = transform->GetPos();
+	XMFLOAT3 forward = transform->GetForward();
+	XMFLOAT3 up = transform->GetUp();
+	XMFLOAT3 right = transform->GetRight();
+	float tri = tan(verticalRadian * 0.5f);
+	float nY = tri * n;
+	float nX = nY * aspectRatio;
+	float fY = tri * f;
+	float fX = fY * aspectRatio;
+	XMFLOAT3 sTL = p + right * -nX + up * nY + forward * n;
+	XMFLOAT3 sTR = p + right *  nX + up * nY + forward * n;
+	XMFLOAT3 sBL = p + right * -nX + up * -nY + forward * n;
+	XMFLOAT3 sBR = p + right *  nX + up * -nY + forward * n;
+	XMFLOAT3 eTL = p + right * -fX + up * fY + forward * f;
+	XMFLOAT3 eTR = p + right * fX + up * fY + forward * f;
+	XMFLOAT3 eBL = p + right * -fX + up * -fY + forward * f;
+	XMFLOAT3 eBR = p + right * fX + up * -fY + forward * f;
+
+	Debugging::Instance()->PtLine(sTL, sTR);
+	Debugging::Instance()->PtLine(sTR, sBR);
+	Debugging::Instance()->PtLine(sBR, sBL);
+	Debugging::Instance()->PtLine(sBL, sTR);
+
+	Debugging::Instance()->PtLine(sTL, eTL);
+	Debugging::Instance()->PtLine(sTR, eTR);
+	Debugging::Instance()->PtLine(sBL, eBL);
+	Debugging::Instance()->PtLine(sBR, eBR);
+
+	Debugging::Instance()->PtLine(eTL, eTR);
+	Debugging::Instance()->PtLine(eTR, eBR);
+	Debugging::Instance()->PtLine(eBR, eBL);
+	Debugging::Instance()->PtLine(eBL, eTL);
 }
 
 XMMATRIX Camera::ViewMat()const
