@@ -43,7 +43,9 @@ public:
 	void DisableGrid();
 
 private:
-	void Update(const Camera* camera);
+	Camera* testCamera;
+	void CameraMove(float spf);
+	void Update(const Camera* camera, float spf);
 	void Render();
 
 	friend class Singleton<Debugging>;

@@ -100,7 +100,7 @@ void Camera::Capture(Scene* scene, ID3D11RenderTargetView** rtv, ID3D11DepthSten
 	DX_DContext->OMSetRenderTargets(1, rtv, dsv);
 	DX_DContext->RSSetViewports(1, &vp);
 
-	scene->Render_Update(this,0);
+	scene->Render_Update(this,0,0);
 	scene->Render();
 
 	DX_DContext->OMSetRenderTargets(1, &oriRTV, oriDSV);
@@ -130,7 +130,7 @@ void Camera::Volume()
 	Debugging::Instance()->PtLine(sTL, sTR);
 	Debugging::Instance()->PtLine(sTR, sBR);
 	Debugging::Instance()->PtLine(sBR, sBL);
-	Debugging::Instance()->PtLine(sBL, sTR);
+	Debugging::Instance()->PtLine(sBL, sTL);
 
 	Debugging::Instance()->PtLine(sTL, eTL);
 	Debugging::Instance()->PtLine(sTR, eTR);

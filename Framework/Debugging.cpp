@@ -9,6 +9,8 @@
 #include "RasterizerState.h"
 #include "Transform.h"
 #include "Camera.h"
+#include "Keyboard.h"
+#include "Mouse.h"
 
 #include "Cube.h"
 #include "Sphere.h"
@@ -156,9 +158,50 @@ void Debugging::DisableGrid()
 	gridVB = nullptr;
 }
 
-void Debugging::Update(const Camera* camera)
+
+void Debugging::CameraMove(float spf) {
+
+	XMFLOAT3 newPos = testCamera->transform->GetPos();
+	XMFLOAT3 right = testCamera->transform->GetRight();
+	XMFLOAT3 forward = testCamera->transform->GetForward();
+	const float speed = 50;
+	if (Keyboard::IsPressing('A')) {
+
+		newPos += -right * speed * spf;
+	}
+	else if (Keyboard::IsPressing('D')) {
+
+		newPos += right * speed * spf;
+	}
+	if (Keyboard::IsPressing('S')) {
+
+		newPos += -forward * speed * spf;
+	}
+	else if (Keyboard::IsPressing('W')) {
+
+		newPos += forward * speed * spf;
+	}
+	static float angleX = 0;
+	static float angleY = 0;
+	static XMFLOAT2 prevMousePt;
+	const float angleSpeed = 3.141592f * 0.2f;
+	if (Mouse::Instance()->IsRightDown())
+	{
+		angleY += angleSpeed * spf * (Mouse::Instance()->X() - prevMousePt.x);
+		angleX += angleSpeed * spf * (Mouse::Instance()->Y() - prevMousePt.y);
+	}
+	prevMousePt.x = Mouse::Instance()->X();
+	prevMousePt.y = Mouse::Instance()->Y();
+	const XMMATRIX rotMat = XMMatrixRotationX(angleX) * XMMatrixRotationY(angleY);
+	testCamera->transform->SetTranslation(newPos);
+	XMFLOAT3 f = FORWARD * rotMat;
+	XMFLOAT3 u = UP * rotMat;
+	testCamera->transform->SetRot(f, u, Cross(u, f));
+}
+void Debugging::Update(const Camera* camera, float spf)
 {
 	vp_mat = camera->VPMat(Z_ORDER_STANDARD);
+	CameraMove(spf);
 }
 
 void Debugging::Render()
@@ -283,6 +326,8 @@ void Debugging::Render()
 
 Debugging::Debugging()
 {
+	testCamera = new Camera("DebugCamera", FRAME_KIND_PERSPECTIVE, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1f, 1000.0f, XM_PIDIV2, 1, XMFLOAT3(0, 10, -30), FORWARD, UP);
+
 	vs = new VShader("MarkVS.cso", 
 		simple_ILayouts,
 		ARRAYSIZE(simple_ILayouts));

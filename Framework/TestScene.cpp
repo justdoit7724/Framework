@@ -38,10 +38,6 @@ TestScene::TestScene(IGraphic* graphic)
 	:Scene("Test"),
 	graphic(graphic)
 {
-	
-	Camera* camera = new Camera("TestMain", FRAME_KIND_PERSPECTIVE, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1, 1000, 1.1f, 1.0f, XMFLOAT3(0, 0, -100), FORWARD, RIGHT);
-	camera->SetMain();
-
 	timer = new Timer();
 	canvas = new UICanvas(SCREEN_WIDTH, SCREEN_HEIGHT);
 	Debugging::Instance()->EnableGrid(10, 50);
@@ -191,7 +187,7 @@ void TestScene::Logic_Update()
 		dLightCamera->transform->SetRot(dLight->transform->GetForward(), dLight->transform->GetUp(), dLight->transform->GetRight());
 
 		Debugging::Instance()->Mark(3453, pt, 4);
-		Debugging::Instance()->DirLine(523, pt, dir, 15);
+		Debugging::Instance()->DirLine( pt, dir, 15);
 	}
 	if (pLight)
 	{
@@ -222,7 +218,7 @@ void TestScene::Logic_Update()
 }
 
 
-void TestScene::Render_Update(const Camera* camera, float elapsed)
+void TestScene::Render_Update(const Camera* camera, float elapsed, float spf)
 {
 
 	const XMMATRIX shadowVP = dLightCamera->VPMat(2);
@@ -241,7 +237,7 @@ void TestScene::Render_Update(const Camera* camera, float elapsed)
 	flor->ps->WriteSRV(3, shadowMap->Depth());
 
 	//debug - decomment
-	//Scene::Render_Update(camera, elapsed);
+	//Scene::Render_Update(camera, elapsed, spf);
 
 	canvas->Update(timer->SPF());
 }

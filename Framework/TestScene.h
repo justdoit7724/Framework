@@ -18,7 +18,7 @@ public:
 	TestScene(IGraphic* graphic);
 	~TestScene();
 	void Logic_Update()override;
-	void Render_Update(const Camera* camera, float elapsed)override;
+	void Render_Update(const Camera* camera, float elapsed, float spf)override;
 	void Render()const override;
 
 private:

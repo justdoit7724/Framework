@@ -12,7 +12,7 @@ Scene::~Scene()
 	SceneMgr::Instance()->Remove(key);
 }
 
-void Scene::Render_Update(const Camera* camera, float elapsed)
+void Scene::Render_Update(const Camera* camera, float elapsed, float spf)
 {
 	for (auto obj : objs)
 	{

@@ -24,7 +24,7 @@ void BindingTestScene::Logic_Update()
 {
 }
 
-void BindingTestScene::Render_Update(const Camera* camera, float elapsed)
+void BindingTestScene::Render_Update(const Camera* camera, float elapsed, float spf)
 {
 	if (!isOnce)
 	{

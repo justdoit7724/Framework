@@ -21,7 +21,9 @@ VS_OUTPUT main(STD_VS_INPUT input)
 {
     VS_OUTPUT output;
     
-    output.wPos = mul(WMat, float4(input.pos, 1)).xyz;
+    float4 wPos = mul(WMat, float4(input.pos, 1));
+    wPos.xyz /= wPos.w;
+    output.wPos = wPos.xyz;
     output.pos = mul(VPMat, float4(output.wPos, 1));
     output.normal = mul((float3x3) NMat, input.normal);
     output.tex = mul(texMat, float4(input.tex, 0, 1)).xy;

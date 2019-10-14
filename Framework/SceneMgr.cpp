@@ -9,12 +9,12 @@ void SceneMgr::Add(Scene* scene)
 	list.insert(std::pair<std::string, Scene*>(scene->key, scene));
 }
 
-void SceneMgr::Process(float wElapsed)
+void SceneMgr::Process(float wElapsed, float wSpf)
 {
 	for (auto i = list.begin(); i != list.end(); ++i)
 	{
 		i->second->Logic_Update();
-		i->second->Render_Update(CameraMgr::Instance()->Main(), wElapsed);
+		i->second->Render_Update(CameraMgr::Instance()->Main(), wElapsed, wSpf);
 		i->second->Render();
 	}
 }
