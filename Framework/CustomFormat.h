@@ -59,10 +59,17 @@ struct SHADER_PT_TRANSF
 	XMMATRIX vp;
 	XMMATRIX n;
 	XMMATRIX ui;
-	XMMATRIX pt_vp;
+	XMMATRIX pt_vpt;
 
 	SHADER_PT_TRANSF(const XMMATRIX& world, const XMMATRIX& vp, const XMMATRIX& pt_vp, const XMMATRIX& ui)
-		:w(world), vp(vp), pt_vp(pt_vp), ui(ui)
+		:w(world), 
+		vp(vp), 
+		pt_vpt(pt_vp*XMMATRIX(
+			0.5f,0,0,0,
+			0,-0.5f,0,0,
+			0,0,1,0,
+			0.5f,0.5f,0,1)), 
+		ui(ui)
 	{
 		n = XMMatrixTranspose(XMMatrixInverse(&XMMatrixDeterminant(world), world));
 	}

@@ -33,6 +33,8 @@
 ShadowMap* shadowMap;
 Camera* dLightCamera;
 ShadowObj* cube;
+ShadowObj* cube2;
+ShadowObj* cube3;
 ShadowObj* flor;
 TestScene::TestScene(IGraphic* graphic)
 	:Scene("Test"),
@@ -111,16 +113,22 @@ TestScene::TestScene(IGraphic* graphic)
 	}
 
 	cube = new ShadowObj(new Cube(), whiteSRV, defaultNormal, Z_ORDER_STANDARD);
-	cube->transform->SetScale(20, 40, 20);
-	cube->transform->SetTranslation(0, 40, 0);
-	flor = new ShadowObj(new Quad(), whiteSRV, defaultNormal, Z_ORDER_STANDARD);
+	cube->transform->SetScale(20, 50, 20);
+	cube->transform->SetTranslation(20, 40, 30);
+	cube2 = new ShadowObj(new Cube(), whiteSRV, defaultNormal, Z_ORDER_STANDARD);
+	cube2->transform->SetScale(20, 50, 20);
+	cube2->transform->SetTranslation(-20, 40, -20);
+	cube3 = new ShadowObj(new Cube(), whiteSRV, defaultNormal, Z_ORDER_STANDARD);
+	cube3->transform->SetScale(20, 50, 20);
+	cube3->transform->SetTranslation(10, 40, 5);
+	flor = new ShadowObj(new Quad(), pbrSRV, pbrNormal, Z_ORDER_STANDARD);
 	flor->transform->SetRot(UP, -FORWARD, Cross(-FORWARD,UP));
 	flor->transform->SetScale(600, 600, 1);
 
-	shadowMap = new ShadowMap(SCREEN_WIDTH, SCREEN_HEIGHT);
+	shadowMap = new ShadowMap(SCREEN_WIDTH*3, SCREEN_HEIGHT*3);
 	dLightCamera = new Camera("Test", FRAME_KIND_ORTHOGONAL, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1f, 300.0f, 90.0f, 1.0f, XMFLOAT3(0, 0, -100), FORWARD, UP);
 	
-	
+	canvas->Add("ShadowMap", XMFLOAT2(0, 0), 400, 400, 0, shadowMap->Depth());
 }
 
 TestScene::~TestScene()
@@ -232,12 +240,18 @@ void TestScene::Render_Update(const Camera* camera, float elapsed)
 	std::vector<Object*> shadowObjs;
 	shadowObjs.push_back(flor);
 	shadowObjs.push_back(cube);
+	shadowObjs.push_back(cube2);
+	shadowObjs.push_back(cube3);
 	shadowMap->Mapping(shadowObjs, shadowVP);
 	graphic->RestoreRTV();
 	graphic->RestoreViewport();
 
 	cube->Update(camera, elapsed, shadowVP);
 	cube->ps->WriteSRV(3, shadowMap->Depth());
+	cube2->Update(camera, elapsed, shadowVP);
+	cube2->ps->WriteSRV(3, shadowMap->Depth());
+	cube3->Update(camera, elapsed, shadowVP);
+	cube3->ps->WriteSRV(3, shadowMap->Depth());
 	flor->Update(camera, elapsed, shadowVP);
 	flor->ps->WriteSRV(3, shadowMap->Depth());
 
@@ -251,6 +265,8 @@ void TestScene::Render()const
 {
 	//debug - remove
 	cube->Render();
+	cube2->Render();
+	cube3->Render();
 	flor->Render();
 
 	//debug - decomment

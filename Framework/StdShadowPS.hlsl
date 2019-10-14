@@ -1,6 +1,7 @@
 
 #include "ShaderInfo.cginc"
 #include "ShaderLight.cginc"
+#include "ShaderShadow.cginc"
 
 cbuffer EYE : register(b3)
 {
@@ -59,18 +60,20 @@ float4 main(PS_INPUT input) : SV_Target
     float4 specular = 0;
     float4 reflection = 0;
     float4 A, D, S;
+    float shadowFactor = CalcShadowFactor(shadowSamp, shadowTex, input.pt_ndc_pos, 760 * 3, 760 * 3);
+
     ComputeDirectionalLight(wNormal, toEye, A, D, S);
     ambient += A;
-    diffuse += D;
-    specular += S;
+    diffuse += D * shadowFactor;
+    specular += S * shadowFactor;
     ComputePointLight(input.wPos, wNormal, toEye, A, D, S);
     ambient += A;
-    diffuse += D;
-    specular += S;
+    diffuse += D * shadowFactor;
+    specular += S * shadowFactor;
     ComputeSpotLight(input.wPos, wNormal, toEye, A, D, S);
     ambient += A;
-    diffuse += D;
-    specular += S;
+    diffuse += D * shadowFactor;
+    specular += S * shadowFactor;
     ComputeReflection(wNormal, -toEye, reflection);
     
     ambient *= float4(tex, 1);
@@ -78,35 +81,11 @@ float4 main(PS_INPUT input) : SV_Target
     
     float4 color = ambient + diffuse + specular;
     color = Lerp(color, reflection, mReflection.w);
-    color.w = mDiffuse.a;
     
-    float3x3 ptUIMat = float3x3(
-        0.5, 0, 0,
-        0, -0.5, 0,
-        0.5, 0.5, 1);
-    float oriDepth = input.pt_ndc_pos.z;
-    input.pt_ndc_pos /= input.pt_ndc_pos.w;
-    float depth = input.pt_ndc_pos.z;
-    float2 pt_ui = mul(float3(input.pt_ndc_pos.xy, 1), ptUIMat).xy;
-
     //debug - remove
-    const float SMAP_WIDTH = 760;
-    const float SMAP_HEIGHT = 760;
-    const float2 SMAP_DX = float2(1.0f / SMAP_WIDTH, 0);
-    const float2 SMAP_DY = float2(0, 1.0f / SMAP_HEIGHT);
-    float shadowDepth = shadowTex.SampleCmpLevelZero(shadowSamp, pt_ui, depth).x;
-    if (oriDepth > 0 && pt_ui.x == saturate(pt_ui.x) && pt_ui.y == saturate(pt_ui.y))
-    {
-        return float4(shadowDepth.xxx, 1);
-        //return lerp(
-        //    lerp(r, rR, t.x),
-        //    lerp(rB, rBR, t.x),
-        //    t.y);
-    }
-    else
-    {
-        return float4(0,0,0, 1);
-    }
+    color = Lerp(color, float4(0, 0, 0, 0), 1 - shadowFactor);
+        
     
+    color.w = mDiffuse.a;
     return color;
 }
