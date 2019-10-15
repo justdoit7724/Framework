@@ -55,9 +55,9 @@ ShadowMap::ShadowMap(UINT width, UINT height)
 	rs_desc.CullMode = D3D11_CULL_BACK;
 	rs_desc.FillMode = D3D11_FILL_SOLID;
 	rs_desc.FrontCounterClockwise = false;
-	rs_desc.DepthBias = 0x20000;
+	rs_desc.DepthBias = 0x1000;
 	rs_desc.DepthBiasClamp = 1.0f;
-	rs_desc.SlopeScaledDepthBias = 6.0f;
+	rs_desc.SlopeScaledDepthBias = 2.0f;
 	
 	rsState = new RasterizerState(&rs_desc);
 	dsState = new DepthStencilState(nullptr);

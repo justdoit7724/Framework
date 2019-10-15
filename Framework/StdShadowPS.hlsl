@@ -45,6 +45,8 @@ struct PS_INPUT
 float4 main(PS_INPUT input) : SV_Target
 {
     input.normal = normalize(input.normal);
+    
+
     input.tangent = normalize(input.tangent - dot(input.normal, input.tangent) * input.normal);
     float3 bitangent = cross(input.normal, input.tangent);
     float3x3 tbn = float3x3(input.tangent, bitangent, input.normal);
@@ -60,8 +62,8 @@ float4 main(PS_INPUT input) : SV_Target
     float4 specular = 0;
     float4 reflection = 0;
     float4 A, D, S;
-    float shadowFactor = CalcShadowFactor(shadowSamp, shadowTex, input.pt_ndc_pos, 760 * 3, 760 * 3);
-
+    float shadowFactor = CalcShadowFactor(input.normal, d_Dir[0].xyz, shadowSamp, shadowTex, input.pt_ndc_pos, 760, 760);
+    
     ComputeDirectionalLight(wNormal, toEye, A, D, S);
     ambient += A;
     diffuse += D * shadowFactor;

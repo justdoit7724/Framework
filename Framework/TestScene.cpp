@@ -125,8 +125,8 @@ TestScene::TestScene(IGraphic* graphic)
 	flor->transform->SetRot(UP, -FORWARD, Cross(-FORWARD,UP));
 	flor->transform->SetScale(600, 600, 1);
 
-	shadowMap = new ShadowMap(SCREEN_WIDTH*3, SCREEN_HEIGHT*3);
-	dLightCamera = new Camera("Test", FRAME_KIND_ORTHOGONAL, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1f, 300.0f, 90.0f, 1.0f, XMFLOAT3(0, 0, -100), FORWARD, UP);
+	shadowMap = new ShadowMap(SCREEN_WIDTH, SCREEN_HEIGHT);
+	dLightCamera = new Camera("Test", FRAME_KIND_ORTHOGONAL, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1f, 2000.0f, XM_PIDIV4, 1.0f, XMFLOAT3(0, 0, -100), FORWARD, UP);
 	
 	canvas->Add("ShadowMap", XMFLOAT2(0, 0), 400, 400, 0, shadowMap->Depth());
 }
@@ -190,9 +190,9 @@ void TestScene::Logic_Update()
 	if (dLight)
 	{
 		XMFLOAT3 pt = XMFLOAT3(
-			100,
-			100,
-			0)*XMMatrixRotationY(elaped*0.4f);
+			150,
+			150,
+			0)*XMMatrixRotationY(elaped*0.35f);
 		XMFLOAT3 dir = Normalize(XMFLOAT3(-pt.x, -pt.y, -pt.z));
 		dLight->transform->SetTranslation(pt);
 		dLightCamera->transform->SetTranslation(pt);

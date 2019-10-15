@@ -17,6 +17,10 @@ cbuffer CB_SLICE_INDEX : register(b0)
 
 float4 main(PS_INPUT input) : SV_Target
 {
+    //debug - remove
+    float r = (uiTexture.Sample(sampState, float3(input.tex, sliceIdx)).r);
+    return float4(r.xxx, 1);
+
     float4 color = uiTexture.Sample(sampState, float3(input.tex, sliceIdx));
     
     if(color.x == MAGENTA.x && 
