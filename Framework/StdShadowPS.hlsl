@@ -2,6 +2,7 @@
 #include "ShaderInfo.cginc"
 #include "ShaderLight.cginc"
 #include "ShaderShadow.cginc"
+#include "ShaderTexture.cginc"
 
 cbuffer EYE : register(b3)
 {
@@ -13,15 +14,6 @@ cbuffer CB_TIME : register(b5)
 {
     float elapsed;
 }
-
-TextureCube cm_tex : register(t0);
-Texture2DArray bodyTex : register(t1);
-Texture2DArray bodyNTex : register(t2);
-Texture2D shadowTex : register(t3);
-
-SamplerState bodySampleState : register(s0);
-SamplerState cmSampleState : register(s1);
-SamplerComparisonState shadowSamp : register(s2);
 
 float3 GetBodyNormal(float2 tex)
 {

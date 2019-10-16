@@ -349,6 +349,9 @@
     <None Include="ShaderShadow.cginc">
       <Filter>hlsl</Filter>
     </None>
+    <None Include="ShaderTexture.cginc">
+      <Filter>hlsl</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="MarkPS.hlsl">

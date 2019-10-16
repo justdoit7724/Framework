@@ -238,6 +238,7 @@
     <None Include="ShaderInfo.cginc" />
     <None Include="ShaderLight.cginc" />
     <None Include="ShaderShadow.cginc" />
+    <None Include="ShaderTexture.cginc" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="BillboardGS.hlsl">
