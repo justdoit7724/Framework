@@ -31,6 +31,7 @@ class DirectionalLight : public Light
 {
 private:
 	static SHADER_DIRECTIONAL_LIGHT data;
+	static ID3D11Buffer* cb;
 
 public:
 	DirectionalLight(XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, XMFLOAT3 dir);
@@ -39,13 +40,14 @@ public:
 	void SetSpecular(const XMFLOAT3& s) override;
 	void SetDir( XMFLOAT3 d); 
 
-	static SHADER_DIRECTIONAL_LIGHT* Data(){return &data;}
+	static void Apply();
 };
 
 class PointLight : public Light
 {
 private:
 	static SHADER_POINT_LIGHT data;
+	static ID3D11Buffer* cb;
 	float range;
 	XMFLOAT3 att;
 	
@@ -59,13 +61,14 @@ public:
 	void SetRange( float r);
 	void SetAtt( XMFLOAT3 at);
 
-	static SHADER_POINT_LIGHT* Data(){return &data;}
+	static void Apply();
 };
 
 class SpotLight : public Light
 {
 private:
 	static SHADER_SPOT_LIGHT data;
+	static ID3D11Buffer* cb;
 	float range;
 	float spot;
 	XMFLOAT3 att;
@@ -80,7 +83,7 @@ public:
 	void SetSpot( float s);
 	void SetAtt( XMFLOAT3 at);
 
-	static SHADER_SPOT_LIGHT* Data(){return &data;}
+	static void Apply();
 };
 
 

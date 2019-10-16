@@ -5,6 +5,7 @@
 #include "Quad.h"
 #include "Shader.h"
 #include "CameraMgr.h"
+#include "ShaderFormat.h"
 
 Mirror::Mirror(Scene* captureScene, UINT width, UINT height)
 	:Object(

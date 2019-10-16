@@ -2,7 +2,7 @@
 #include <string>
 #include "Shader.h"
 #include "Graphic.h"
-#include "CustomFormat.h"
+#include "ShaderFormat.h"
 #include "Buffer.h"
 #include "BlendState.h"
 #include "DepthStencilState.h"

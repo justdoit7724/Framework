@@ -5,7 +5,7 @@
 #include "Mouse.h"	
 #include "TextureMgr.h"
 #include "Camera.h"
-#include "CustomFormat.h"
+#include "ShaderFormat.h"
 #include "UI.h"
 #include "Object.h"
 #include "Geometrics.h"
@@ -100,19 +100,7 @@ TestScene::TestScene(IGraphic* graphic)
 	pt->transform->SetRot(UP, -FORWARD);
 	delete pt_cam;*/
 
-	for (int i = 0; i < 10; ++i)
-	{
-		Object* newObj = new Object(new Quad(), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), 4, XMFLOAT3(1, 1, 1), whiteSRV, defaultNormal, nullptr, 2);
-		newObj->transform->SetScale(40, 60, 1);
-		float angle10 = XM_PI / 18.0;
-		XMMATRIX rot = XMMatrixRotationX((i - 5) * angle10);
-		newObj->transform->SetRot(-FORWARD* rot, UP* rot, -RIGHT);
-		newObj->transform->SetTranslation(-350+i*70,0,0);
-
-		AddObj(newObj);
-	}
-
-	cube = new ShadowObj(new Cube(), whiteSRV, defaultNormal, Z_ORDER_STANDARD);
+	/*cube = new ShadowObj(new Cube(), whiteSRV, defaultNormal, Z_ORDER_STANDARD);
 	cube->transform->SetScale(20, 50, 20);
 	cube->transform->SetTranslation(20, 40, 30);
 	cube2 = new ShadowObj(new Cube(), whiteSRV, defaultNormal, Z_ORDER_STANDARD);
@@ -123,12 +111,14 @@ TestScene::TestScene(IGraphic* graphic)
 	cube3->transform->SetTranslation(10, 40, 5);
 	flor = new ShadowObj(new Quad(), pbrSRV, pbrNormal, Z_ORDER_STANDARD);
 	flor->transform->SetRot(UP, -FORWARD, Cross(-FORWARD,UP));
-	flor->transform->SetScale(600, 600, 1);
+	flor->transform->SetScale(600, 600, 1);*/
 
-	shadowMap = new ShadowMap(SCREEN_WIDTH, SCREEN_HEIGHT);
-	dLightCamera = new Camera("Test", FRAME_KIND_ORTHOGONAL, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1f, 2000.0f, XM_PIDIV4, 1.0f, XMFLOAT3(0, 0, -100), FORWARD, UP);
-	
-	canvas->Add("ShadowMap", XMFLOAT2(0, 0), 400, 400, 0, shadowMap->Depth());
+	Object* cube = new Object(new Cube(), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), 4, XMFLOAT3(1, 1, 1), pbrSRV, nullptr, nullptr, 2);
+	cube->transform->SetScale(20, 30, 20);
+	AddObj(cube);
+
+
+
 }
 
 TestScene::~TestScene()
@@ -195,9 +185,7 @@ void TestScene::Logic_Update()
 			0)*XMMatrixRotationY(elaped*0.35f);
 		XMFLOAT3 dir = Normalize(XMFLOAT3(-pt.x, -pt.y, -pt.z));
 		dLight->transform->SetTranslation(pt);
-		dLightCamera->transform->SetTranslation(pt);
 		dLight->SetDir(dir);
-		dLightCamera->transform->SetRot(dLight->transform->GetForward(), dLight->transform->GetUp(), dLight->transform->GetRight());
 
 		Debugging::Instance()->Mark(3453, pt, 4);
 		Debugging::Instance()->DirLine(523, pt, dir, 15);
@@ -233,44 +221,18 @@ void TestScene::Logic_Update()
 
 void TestScene::Render_Update(const Camera* camera, float elapsed)
 {
+	DirectionalLight::Apply();
+	PointLight::Apply();
+	SpotLight::Apply();
 
-	const XMMATRIX shadowVP = dLightCamera->VPMat(2);
-	ID3D11ShaderResourceView* nullSRV = nullptr;
-	DX_DContext->PSSetShaderResources(3, 1, &nullSRV);
-	std::vector<Object*> shadowObjs;
-	shadowObjs.push_back(flor);
-	shadowObjs.push_back(cube);
-	shadowObjs.push_back(cube2);
-	shadowObjs.push_back(cube3);
-	shadowMap->Mapping(shadowObjs, shadowVP);
-	graphic->RestoreRTV();
-	graphic->RestoreViewport();
-
-	cube->Update(camera, elapsed, shadowVP);
-	cube->ps->WriteSRV(3, shadowMap->Depth());
-	cube2->Update(camera, elapsed, shadowVP);
-	cube2->ps->WriteSRV(3, shadowMap->Depth());
-	cube3->Update(camera, elapsed, shadowVP);
-	cube3->ps->WriteSRV(3, shadowMap->Depth());
-	flor->Update(camera, elapsed, shadowVP);
-	flor->ps->WriteSRV(3, shadowMap->Depth());
-
-	//debug - decomment
-	//Scene::Render_Update(camera, elapsed);
+	Scene::Render_Update(camera, elapsed);
 
 	canvas->Update(timer->SPF());
 }
 
 void TestScene::Render()const
 {
-	//debug - remove
-	cube->Render();
-	cube2->Render();
-	cube3->Render();
-	flor->Render();
-
-	//debug - decomment
-	//Scene::Render();
+	Scene::Render();
 
 	canvas->Render();
 }

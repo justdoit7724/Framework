@@ -1,14 +1,20 @@
 #include "Light.h"
-#include "CustomFormat.h"
+#include "ShaderFormat.h"
 #include "Transform.h"
 
 SHADER_DIRECTIONAL_LIGHT DirectionalLight::data;
 SHADER_POINT_LIGHT PointLight::data;
 SHADER_SPOT_LIGHT SpotLight::data;
+ID3D11Buffer* DirectionalLight::cb;
+ID3D11Buffer* PointLight::cb;
+ID3D11Buffer* SpotLight::cb;
+
 
 Light::Light(XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s)
 	:ambient(a), diffuse(d), specular(s)
 {
+
+
 	transform = new Transform();
 }
 
@@ -20,6 +26,17 @@ Light::~Light()
 DirectionalLight::DirectionalLight(XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, XMFLOAT3 dir)
 	:Light(a,d,s)
 {
+	D3D11_BUFFER_DESC cb_desc;
+	cb_desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	cb_desc.ByteWidth = sizeof(SHADER_DIRECTIONAL_LIGHT);
+	cb_desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	cb_desc.MiscFlags = 0;
+	cb_desc.StructureByteStride = 0;
+	cb_desc.Usage = D3D11_USAGE_DYNAMIC;
+	r_assert(
+		DX_Device->CreateBuffer(&cb_desc, nullptr, &cb)
+	);
+
 	for (int i = 0; i < LIGHT_MAX_EACH; ++i)
 	{
 		if (data.enabled[i].x == LIGHT_DISABLED.x)
@@ -68,6 +85,17 @@ void DirectionalLight::SetDir(XMFLOAT3 d)
 
 	transform->SetRot(d, Cross(d,right), right);
 	data.dir[id] = XMFLOAT4(d.x, d.y, d.z, 0);
+}
+
+void DirectionalLight::Apply()
+{
+	D3D11_MAPPED_SUBRESOURCE mappedData;
+
+	r_assert(DX_DContext->Map(cb, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData));
+	CopyMemory(mappedData.pData, &data, sizeof(SHADER_DIRECTIONAL_LIGHT));
+	DX_DContext->Unmap(cb, 0);
+
+	DX_DContext->PSSetConstantBuffers(SHADER_REG_PS_DIRECTIONAL_LIGHT, 1, &cb);
 }
 
 
@@ -130,6 +158,11 @@ void PointLight::SetAtt(XMFLOAT3 at)
 {
 	att = at;
 	data.att[id] = XMFLOAT4(at.x, at.y, at.z, 0);
+}
+
+void PointLight::Apply()
+{
+	DX_DContext->PSSetConstantBuffers(SHADER_REG_PS_POINT_LIGHT, 1, &cb);
 }
 
 SpotLight::SpotLight(XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, XMFLOAT3 pos, XMFLOAT3 dir, float r, float spot, XMFLOAT3 att)
@@ -206,4 +239,9 @@ void SpotLight::SetAtt(XMFLOAT3 at)
 {
 	att = at;
 	data.att[id] = XMFLOAT4(att.x, att.y,att.z, 0);
+}
+
+void SpotLight::Apply()
+{
+	DX_DContext->PSSetConstantBuffers(SHADER_REG_PS_SPOT_LIGHT, 1, &cb);
 }

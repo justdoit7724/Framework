@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include "CustomFormat.h"
+#include "DX_info.h"
 
 class Camera;
 class Transform;

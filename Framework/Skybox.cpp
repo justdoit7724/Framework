@@ -5,7 +5,7 @@
 #include "RasterizerState.h"
 #include "Camera.h"
 #include "DepthStencilState.h"
-
+#include "ShaderFormat.h"
 
 Skybox::Skybox(ID3D11ShaderResourceView* srv)
 	:Object(

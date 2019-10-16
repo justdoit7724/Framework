@@ -1,14 +1,13 @@
 #include "Object.h"
+#include "ShaderFormat.h"
 #include "Camera.h"
 #include "TextureMgr.h"
-#include "Light.h"
 #include "Transform.h"
 #include "Shader.h"
 #include "BlendState.h"
 #include "DepthStencilState.h"
 #include "RasterizerState.h"
 #include "Shape.h"
-#include "TextureMgr.h"
 
 //fundamental elements
 Object::Object(Shape* shape, std::string sVS, const D3D11_INPUT_ELEMENT_DESC* iLayouts, UINT layoutCount, std::string sHS, std::string sDS, std::string sGS, std::string sPS,int zOrder)
@@ -38,9 +37,6 @@ Object::Object(Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpe
 	ps = new PShader("StandardPS.cso");
 
 	vs->AddCB(0, 1, sizeof(SHADER_STD_TRANSF));
-	ps->AddCB(0, 1, sizeof(SHADER_DIRECTIONAL_LIGHT));
-	ps->AddCB(1, 1, sizeof(SHADER_POINT_LIGHT));
-	ps->AddCB(2, 1, sizeof(SHADER_SPOT_LIGHT));
 	ps->AddCB(3, 1, sizeof(XMFLOAT4));
 	ps->AddCB(4, 1, sizeof(SHADER_MATERIAL));
 	ps->AddCB(5, 1, sizeof(float));
@@ -100,13 +96,11 @@ void Object::Update(const Camera* camera, float elapsed, const XMMATRIX& texMat)
 	XMFLOAT3 eye = camera->transform->GetPos();
 
 	vs->WriteCB(0, (void*)(&STransformation));
-	ps->WriteCB(0, (void*)DirectionalLight::Data());
-	ps->WriteCB(1, (void*)PointLight::Data());
-	ps->WriteCB(2, (void*)SpotLight::Data());
 	ps->WriteCB(3, &XMFLOAT4(eye.x, eye.y, eye.z,0));
 	ps->WriteCB(5, &elapsed);
 }
 
+#include "Light.h"
 void Object::Render() const
 {
 	vs->Apply();

@@ -7,12 +7,16 @@ struct VS_OUTPUT
 
 cbuffer CB1 : register(b0)
 {
+    float4x4 wvpMat;
+}
+cbuffer CB2 : register(b1)
+{
     float4 pos;
 }
 
 VS_OUTPUT main(STD_VS_INPUT input)
 {
     VS_OUTPUT output;
-    output.pos = pos;
+    output.pos = mul(wvpMat, float4(input.pos,1));
     return output;
 }

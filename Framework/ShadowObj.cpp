@@ -3,15 +3,12 @@
 #include "TextureMgr.h"
 #include "Transform.h"
 #include "Camera.h"
-#include "Light.h"
+#include "ShaderFormat.h"
 
 ShadowObj::ShadowObj(Shape* shape, ID3D11ShaderResourceView* bodySRV, ID3D11ShaderResourceView* bodyNormal, int zOrder)
 	:Object(shape, "StdShadowVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts), "", "", "", "StdShadowPS.cso", zOrder)
 {
 	vs->AddCB(0, 1, sizeof(SHADER_PT_TRANSF));
-	ps->AddCB(0, 1, sizeof(SHADER_DIRECTIONAL_LIGHT));
-	ps->AddCB(1, 1, sizeof(SHADER_POINT_LIGHT));
-	ps->AddCB(2, 1, sizeof(SHADER_SPOT_LIGHT));
 	ps->AddCB(3, 1, sizeof(XMFLOAT4));
 	ps->AddCB(4, 1, sizeof(SHADER_MATERIAL));
 	ps->AddCB(5, 1, sizeof(float));
@@ -61,9 +58,6 @@ void ShadowObj::Update(const Camera* camera, float elapsed, const XMMATRIX& shad
 	XMFLOAT3 eye = camera->transform->GetPos();
 
 	vs->WriteCB(0, (void*)(&STransformation));
-	ps->WriteCB(0, (void*)DirectionalLight::Data());
-	ps->WriteCB(1, (void*)PointLight::Data());
-	ps->WriteCB(2, (void*)SpotLight::Data());
 	ps->WriteCB(3, &XMFLOAT4(eye.x, eye.y, eye.z, 0));
 	ps->WriteCB(5, &elapsed);
 }

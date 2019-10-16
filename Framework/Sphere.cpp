@@ -1,5 +1,5 @@
 #include "Sphere.h"
-#include "CustomFormat.h"
+#include "ShaderFormat.h"
 
 void Subdivide(std::vector<XMFLOAT3>& vertice, std::vector<UINT>& indice)
 {

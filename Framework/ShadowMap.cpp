@@ -6,6 +6,7 @@
 #include "Shader.h"
 #include "Shape.h"
 #include "Transform.h"
+#include "ShaderFormat.h"
 
 ShadowMap::ShadowMap(UINT width, UINT height)
 	:width(width), height(height), depthSRV(nullptr), depthDSV(nullptr)

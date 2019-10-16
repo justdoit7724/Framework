@@ -4,7 +4,7 @@
 #include "Shape.h"
 #include "Shader.h"
 #include "Network.h"
-#include "CustomFormat.h"
+#include "ShaderFormat.h"
 #include "Scene.h"
 
 DynamicCubeMap::DynamicCubeMap(IGraphic* graphic, Scene* captureScene, Shape* shape)

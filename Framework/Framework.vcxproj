@@ -159,7 +159,6 @@
     <ClCompile Include="Mirror.cpp" />
     <ClCompile Include="Mouse.cpp" />
     <ClCompile Include="Object.cpp" />
-    <ClCompile Include="PlaneShadow.cpp" />
     <ClCompile Include="PT_Obj.cpp" />
     <ClCompile Include="RasterizerState.cpp" />
     <ClCompile Include="Resource.cpp" />
@@ -190,7 +189,7 @@
     <ClInclude Include="CameraMgr.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="Cube.h" />
-    <ClInclude Include="CustomFormat.h" />
+    <ClInclude Include="ShaderFormat.h" />
     <ClInclude Include="Cylinder.h" />
     <ClInclude Include="DCMScene.h" />
     <ClInclude Include="Debugging.h" />
@@ -213,7 +212,6 @@
     <ClInclude Include="Mouse.h" />
     <ClInclude Include="Network.h" />
     <ClInclude Include="Object.h" />
-    <ClInclude Include="PlaneShadow.h" />
     <ClInclude Include="PT_Obj.h" />
     <ClInclude Include="RasterizerState.h" />
     <ClInclude Include="SceneMgr.h" />
@@ -271,6 +269,12 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="BindingTest2PS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="BindingTest2VS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>

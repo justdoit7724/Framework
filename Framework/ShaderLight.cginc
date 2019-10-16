@@ -27,6 +27,7 @@ cbuffer SPOT_LIGHT : register(b2)
     float4 s_Diffuse[LIGHT_MAX_EACH];
     float4 s_Specular[LIGHT_MAX_EACH];
     float4 s_Pos[LIGHT_MAX_EACH];
+   
     float4 s_Range[LIGHT_MAX_EACH];
     float4 s_Dir[LIGHT_MAX_EACH];
     float4 s_Spot[LIGHT_MAX_EACH];

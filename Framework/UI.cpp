@@ -3,7 +3,7 @@
 #include "Quad.h"
 #include "Camera.h"
 #include "Game_info.h"
-#include "CustomFormat.h"
+#include "ShaderFormat.h"
 
 #include "Transform.h"
 #include "DepthStencilState.h"

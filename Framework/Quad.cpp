@@ -1,5 +1,5 @@
 #include "Quad.h"
-#include "CustomFormat.h"
+#include "ShaderFormat.h"
 
 Quad::Quad()
 	: Shape()

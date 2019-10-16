@@ -2,7 +2,7 @@
 #include "Shader.h"
 #include "Texture2D.h"
 #include "TextureMgr.h"
-#include "CustomFormat.h"
+#include "ShaderFormat.h"
 #include "Buffer.h"
 #include "Debugging.h"
 
