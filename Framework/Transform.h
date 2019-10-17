@@ -38,6 +38,14 @@ public:
 		up = XMFLOAT3(0, 0, 0);
 		right = XMFLOAT3(0, 0, 0);
 	}
+	void SetRot(XMFLOAT3 _forward, XMFLOAT3 _up)
+	{
+#ifdef _DEBUG
+		int a = 0;
+#else
+		assert(false);
+#endif
+	}
 	void SetRot(XMFLOAT3 _forward, XMFLOAT3 _up, XMFLOAT3 _right) {
 		forward = _forward;
 		up = _up;

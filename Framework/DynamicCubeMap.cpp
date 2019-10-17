@@ -103,8 +103,10 @@ DynamicCubeMap::DynamicCubeMap(IGraphic* graphic, Scene* captureScene, Shape* sh
 	captureViewport.MinDepth = 0.0f;
 	captureViewport.MaxDepth = 1.0f;
 
-	captureCamera[0] = new Camera("capture0", FRAME_KIND_PERSPECTIVE, captureLength, captureLength, 100.0f, 1000.0f, XM_PIDIV2, 1, XMFLOAT3(0,0,0), RIGHT, UP);
+	captureCamera[0] = new Camera("capture0", FRAME_KIND_PERSPECTIVE, captureLength, captureLength, 100.0f, 1000.0f, XM_PIDIV2, 1);
+	captureCamera[0]->transform->SetRot(RIGHT, UP, Cross(UP, RIGHT));
 	captureCamera[1] = new Camera("capture1", FRAME_KIND_PERSPECTIVE, captureLength, captureLength, 100.0f, 1000.0f, XM_PIDIV2, 1, XMFLOAT3(0,0,0), -RIGHT, UP);
+	captureCamera[1]->transform->SetRot(-RIGHT,UP,Cross(UP, -RIGHT)
 	captureCamera[2] = new Camera("capture2", FRAME_KIND_PERSPECTIVE, captureLength, captureLength, 100.0f, 1000.0f, XM_PIDIV2, 1, XMFLOAT3(0,0,0), UP, -FORWARD);
 	captureCamera[3] = new Camera("capture3", FRAME_KIND_PERSPECTIVE, captureLength, captureLength, 100.0f, 1000.0f, XM_PIDIV2, 1, XMFLOAT3(0,0,0), -UP, FORWARD);
 	captureCamera[4] = new Camera("capture4", FRAME_KIND_PERSPECTIVE, captureLength, captureLength, 100.0f, 1000.0f, XM_PIDIV2, 1, XMFLOAT3(0,0,0), FORWARD, UP);

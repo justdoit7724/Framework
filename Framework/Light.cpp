@@ -1,5 +1,7 @@
 #include "Light.h"
 #include "ShaderFormat.h"
+#include "Camera.h"
+#include "Game_info.h"
 #include "Transform.h"
 
 SHADER_DIRECTIONAL_LIGHT DirectionalLight::data;
@@ -13,14 +15,10 @@ ID3D11Buffer* SpotLight::cb;
 Light::Light(XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s)
 	:ambient(a), diffuse(d), specular(s)
 {
-
-
-	transform = new Transform();
 }
 
 Light::~Light()
 {
-	delete transform;
 }
 
 DirectionalLight::DirectionalLight(XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, XMFLOAT3 dir)
@@ -45,14 +43,16 @@ DirectionalLight::DirectionalLight(XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, XMFLOAT3 
 			break;
 		}
 	}
-	transform->SetRot(dir);
+	view->transform->SetRot(dir);
 
 	data.ambient[id] = XMFLOAT4(a.x,a.y,a.z, 0);
 	data.diffuse[id] = XMFLOAT4(d.x,d.y,d.z, 0);
 	data.specular[id] = XMFLOAT4(s.x,s.y,s.z, 0);
-	XMFLOAT3 forward = transform->GetForward();
+	XMFLOAT3 forward = view->transform->GetForward();
 	data.dir[id] = XMFLOAT4(forward.x, forward.y, forward.z, 0);
 	data.enabled[id] = LIGHT_ENABLED;
+
+	view = new Camera("DirectionalLight", FRAME_KIND_ORTHOGONAL, 1024, 1024, 0.1f, 100.0f, XM_PIDIV2, 1.0f);
 }
 
 void DirectionalLight::SetAmbient(const XMFLOAT3 & a)
@@ -78,12 +78,12 @@ void DirectionalLight::SetDir(XMFLOAT3 d)
 	XMFLOAT3 up = UP;
 	if (d.x == 0 && d.y == 0)
 	{
-		up = transform->GetUp();
+		up = view->transform->GetUp();
 	}
 	XMFLOAT3 right = Cross(up,d);
 
 
-	transform->SetRot(d, Cross(d,right), right);
+	view->transform->SetRot(d, Cross(d,right), right);
 	data.dir[id] = XMFLOAT4(d.x, d.y, d.z, 0);
 }
 
@@ -100,7 +100,7 @@ void DirectionalLight::Apply()
 
 
 
-PointLight::PointLight(XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, XMFLOAT3 pos, float range, XMFLOAT3 att)
+PointLight::PointLight(XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, float range, XMFLOAT3 att)
 	:Light(a,d,s),range(range),att(att)
 {
 	for (int i = 0; i < LIGHT_MAX_EACH; ++i)
@@ -112,15 +112,18 @@ PointLight::PointLight(XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, XMFLOAT3 pos, float r
 		}
 	}
 
-	transform->SetTranslation(pos);
-
 	data.ambient[id] = XMFLOAT4(a.x, a.y, a.z, 0);
 	data.diffuse[id] = XMFLOAT4(d.x, d.y, d.z, 0);
 	data.specular[id] = XMFLOAT4(s.x, s.y, s.z, 0);
-	data.pos[id] = XMFLOAT4(pos.x, pos.y, pos.z, 0);
+	data.pos[id] = XMFLOAT4(0, 0, 0, 0);
 	data.range[id] = XMFLOAT4(range, range, range, 0);
 	data.att[id] = XMFLOAT4(att.x, att.y, att.z, 0);
 	data.enabled[id] = LIGHT_ENABLED;
+
+	for (int i = 0; i < 6; ++i)
+	{
+		view[i] = new Camera("PointLight", FRAME_KIND_PERSPECTIVE, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1f, 100.0f, XM_PIDIV2, 1.0f);
+	}
 }
 
 void PointLight::SetAmbient(const XMFLOAT3 & a)

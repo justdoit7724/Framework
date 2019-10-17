@@ -2,6 +2,7 @@
 #include "DX_info.h"
 
 class Transform;
+class Camera;
 struct SHADER_DIRECTIONAL_LIGHT;
 struct SHADER_POINT_LIGHT;
 struct SHADER_SPOT_LIGHT;
@@ -17,7 +18,6 @@ protected:
 	~Light();
 
 public:
-	Transform* transform;
 	int ID() {return id;}
 	const XMFLOAT3& GetAmbient(){return ambient;}
 	const XMFLOAT3& GetDiffuse(){return diffuse;}
@@ -32,6 +32,7 @@ class DirectionalLight : public Light
 private:
 	static SHADER_DIRECTIONAL_LIGHT data;
 	static ID3D11Buffer* cb;
+	Camera* view;
 
 public:
 	DirectionalLight(XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, XMFLOAT3 dir);
@@ -50,10 +51,10 @@ private:
 	static ID3D11Buffer* cb;
 	float range;
 	XMFLOAT3 att;
-	
+	Camera* view[6];
 
 public:
-	PointLight(XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, XMFLOAT3 pos, float range, XMFLOAT3 att);
+	PointLight(XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, float range, XMFLOAT3 att);
 	void SetAmbient(const XMFLOAT3& a) override;
 	void SetDiffuse(const XMFLOAT3& d) override;
 	void SetSpecular(const XMFLOAT3& s) override;
@@ -72,6 +73,7 @@ private:
 	float range;
 	float spot;
 	XMFLOAT3 att;
+	Camera* view;
 public:
 	SpotLight(XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s,XMFLOAT3 pos, XMFLOAT3 dir, float range, float spot, XMFLOAT3 att);
 	void SetAmbient(const XMFLOAT3& a) override;

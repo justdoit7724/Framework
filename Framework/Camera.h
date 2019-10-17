@@ -19,7 +19,7 @@ class Camera
 {
 public:
 	Camera(std::string key, const Camera* camera);
-	Camera(std::string key, const FRAME_KIND frameKind, float screenWidth, float screenHeight, const float nearPlane, const float farPlane, const float verticalViewAngle, const float aspectRatio, const XMFLOAT3 firstPos, const XMFLOAT3 _forward, const XMFLOAT3 _up);
+	Camera(std::string key, FRAME_KIND frameKind, float screenWidth, float screenHeight, float nearPlane, float farPlane, float verticalViewRad, float aspectRatio);
 	~Camera();
 	void SetMain();
 	void SetFrame(const FRAME_KIND fKind, XMFLOAT2 orthoSize, const float nearPlane, const float farPlane, const float verticalViewAngle, const float aspectRatio);

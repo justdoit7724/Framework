@@ -16,16 +16,14 @@ Camera::Camera(std::string key, const Camera* camera)
 	transform->SetRot(camera->transform->GetRight(), camera->transform->GetUp(), camera->transform->GetForward());
 }
 
-Camera::Camera(std::string key, const FRAME_KIND frameKind, float orthoScnWidth, float orthoScnHeight, const float n, const float f, const float verticalViewAngle, const float aspectRatio, const XMFLOAT3 firstPos, const XMFLOAT3 _forward, const XMFLOAT3 _up)
+Camera::Camera(std::string key, FRAME_KIND frameKind, float orthoScnWidth, float orthoScnHeight, float n, float f, float verticalViewRad, float aspectRatio)
 	:key(key)
 {
 	CameraMgr::Instance()->Add(key, this);
 
 	transform = new Transform();
 
-	SetFrame(frameKind, XMFLOAT2(orthoScnWidth, orthoScnHeight), n, f, verticalViewAngle, aspectRatio);
-	transform->SetTranslation(firstPos);
-	transform->SetRot(_forward, _up, Cross(_up, _forward));
+	SetFrame(frameKind, XMFLOAT2(orthoScnWidth, orthoScnHeight), n, f, verticalViewRad, aspectRatio);
 }
 
 Camera::~Camera()
