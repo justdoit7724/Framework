@@ -10,6 +10,8 @@
 #include "Shader.h"
 #include "Light.h"
 
+//#define CHANGE 0
+
 const float r = 1.0f;
 const float angle = 1.57f;
 const float n = 0.1f;
@@ -120,7 +122,9 @@ void LineDrawing(Camera* camera, float t)
 
 void VideoScene::Render_Update(const Camera* camera, float elapsed, float spf)
 {
+#ifdef CHANGE
 	curTime = min(curTime+spf,totalTime);
+#endif
 	float t = curTime / totalTime;
 	LineDrawing(sceneCam, t);
 	float scaleX = Lerp(t,1, 1.0f / (r * tan(angle * 0.5f)));
@@ -152,7 +156,12 @@ void VideoScene::Render_Update(const Camera* camera, float elapsed, float spf)
 		0, 0, Lerp(t,0,n * (minD - maxD * f / (f - n) - minD * n / (f - n))), hd
 	);
 
+
+#ifdef CHANGE
 	const SHADER_STD_TRANSF t1(red->transform->WorldMatrix()*redMat, camera->VPMat(Z_ORDER_STANDARD), XMMatrixIdentity());
+#else
+	const SHADER_STD_TRANSF t1(red->transform->WorldMatrix()*redMat, camera->VPMat(Z_ORDER_HIGHER), XMMatrixIdentity());
+#endif
 
 	red->vs->WriteCB(0, (void*)(&t1));
 	red->ps->WriteCB(0, (void*)DirectionalLight::Data());
@@ -162,8 +171,11 @@ void VideoScene::Render_Update(const Camera* camera, float elapsed, float spf)
 	red->ps->WriteCB(5, &elapsed);
 
 
+#ifdef CHANGE
 	const SHADER_STD_TRANSF t2(green->transform->WorldMatrix()*greenMat, camera->VPMat(Z_ORDER_STANDARD), XMMatrixIdentity());
-
+#else
+	const SHADER_STD_TRANSF t2(green->transform->WorldMatrix() * greenMat, camera->VPMat(Z_ORDER_STANDARD), XMMatrixIdentity());
+#endif
 	green->vs->WriteCB(0, (void*)(&t2));
 	green->ps->WriteCB(0, (void*)DirectionalLight::Data());
 	green->ps->WriteCB(1, (void*)PointLight::Data());
@@ -172,8 +184,11 @@ void VideoScene::Render_Update(const Camera* camera, float elapsed, float spf)
 	green->ps->WriteCB(5, &elapsed);
 
 
+#ifdef CHANGE
 	const SHADER_STD_TRANSF t3(green2->transform->WorldMatrix()* greenMat, camera->VPMat(Z_ORDER_STANDARD), XMMatrixIdentity());
-
+#else
+	const SHADER_STD_TRANSF t3(green2->transform->WorldMatrix() * greenMat, camera->VPMat(Z_ORDER_STANDARD), XMMatrixIdentity());
+#endif
 	green2->vs->WriteCB(0, (void*)(&t3));
 	green2->ps->WriteCB(0, (void*)DirectionalLight::Data());
 	green2->ps->WriteCB(1, (void*)PointLight::Data());
@@ -182,8 +197,11 @@ void VideoScene::Render_Update(const Camera* camera, float elapsed, float spf)
 	green2->ps->WriteCB(5, &elapsed);
 
 
+#ifdef CHANGE
 	const SHADER_STD_TRANSF t4(blue->transform->WorldMatrix()* blueMat, camera->VPMat(Z_ORDER_STANDARD), XMMatrixIdentity());
-
+#else
+	const SHADER_STD_TRANSF t4(blue->transform->WorldMatrix() * blueMat, camera->VPMat(Z_ORDER_LOWER), XMMatrixIdentity());
+#endif
 	blue->vs->WriteCB(0, (void*)(&t4));
 	blue->ps->WriteCB(0, (void*)DirectionalLight::Data());
 	blue->ps->WriteCB(1, (void*)PointLight::Data());
