@@ -1,6 +1,6 @@
 #pragma once
 #include "DX_info.h"
-#include <map>
+#include <unordered_map>
 #include "Singleton.h"
 
 #define KEY_TEXTURE_NORMAL_DEFAULT "blue"
@@ -14,13 +14,19 @@ public:
 	void Load(std::string key, std::string fileName, UINT miplevel);
 	void Load(std::string key, std::vector<std::string> fileNames, UINT miplevel);
 	void LoadCM(std::string key, std::vector<std::string> fileNames);
+	void Get(std::string key, ID3D11ShaderResourceView** srv);
+	void Get(std::string key, ID3D11ShaderResourceView** srv, UINT* size);
 	ID3D11Texture2D* GetTexture(std::string fileName);
 
-	void Apply();
-
 private:
-
-	std::map<UINT, std::string> stdTextures;
-	std::map<UINT, std::string> normalTextures;
+	struct TextureInfo
+	{
+		ID3D11ShaderResourceView* srv;
+		UINT size;
+		TextureInfo() {}
+		TextureInfo(ID3D11ShaderResourceView* srv, UINT size)
+			:srv(srv), size(size){}
+	};
+	std::unordered_map<std::string, TextureInfo> SRVs;
 };
 

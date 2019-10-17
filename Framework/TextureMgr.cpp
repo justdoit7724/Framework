@@ -200,6 +200,22 @@ void TextureMgr::LoadCM(std::string key, std::vector<std::string> fileNames)
 	SRVs.insert(std::pair<std::string, TextureInfo>(key, TextureInfo(integratedSRV, 0)));
 }
 
+void TextureMgr::Get(std::string key, ID3D11ShaderResourceView** srv)
+{
+	assert(SRVs.find(key) != SRVs.end());
+
+	*srv = SRVs[key].srv;
+}
+
+void TextureMgr::Get(std::string key, ID3D11ShaderResourceView** srv, UINT* size)
+{
+	assert(SRVs.find(key) != SRVs.end());
+
+	*srv = SRVs[key].srv;
+	if (size)
+		* size = SRVs[key].size;
+}
+
 ID3D11Texture2D* TextureMgr::GetTexture(std::string fileName)
 {
 	assert(SRVs.find(fileName) != SRVs.end());
@@ -209,11 +225,6 @@ ID3D11Texture2D* TextureMgr::GetTexture(std::string fileName)
 	ID3D11Texture2D* tex=nullptr;
 	r_assert( resource->QueryInterface(__uuidof(ID3D11Texture2D), (void**)&tex) );
 	return tex;
-}
-
-void TextureMgr::Apply()
-{
-
 }
 
 
