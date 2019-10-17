@@ -84,6 +84,15 @@ TestScene::TestScene(IGraphic* graphic)
 	ID3D11ShaderResourceView* simpleSRV;
 	ID3D11ShaderResourceView* whiteSRV;
 	ID3D11ShaderResourceView* defaultNormal;
+	TextureMgr::Instance()->Get("rock", &pbrSRV);
+	TextureMgr::Instance()->Get("rock_normal", &pbrNormal);
+	TextureMgr::Instance()->Get("ground", &groundSRV);
+	TextureMgr::Instance()->Get("ground_normal", &groundNormal);
+	TextureMgr::Instance()->Get("rock_dp", &pbrDP);
+	TextureMgr::Instance()->Get("simple", &simpleSRV);
+	TextureMgr::Instance()->Get("white", &whiteSRV);
+	TextureMgr::Instance()->Get("defaultNormal", &defaultNormal);
+
 	/*Camera* pt_cam = new Camera("test", FRAME_KIND_ORTHOGONAL, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1f, 1000.0f, 90.0f, 1, XMFLOAT3(-300, 300, 0), Normalize(XMFLOAT3(0.707, -0.707, 0)), Normalize(XMFLOAT3(0.707, 0.707, 0)));
 	Debugging::Instance()->Mark(3, pt_cam->transform->GetPos());
 	PT_Obj* pt = new PT_Obj(new Quad(), pt_cam->VPMat(2), XMFLOAT3(1, 1, 1), 1, XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), 4, XMFLOAT3(0, 0, 0), pbrSRV, pbrNormal, simpleSRV, nullptr, 2);
