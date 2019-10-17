@@ -11,9 +11,9 @@ class TextureMgr : public Singleton<TextureMgr>
 public:
 	
 	~TextureMgr();
-	void Load(std::string key, std::string fileName, UINT miplevel);
-	void Load(std::string key, std::vector<std::string> fileNames, UINT miplevel);
-	void LoadCM(std::string key, std::vector<std::string> fileNames);
+	void AddStd(UINT order, std::string fileName, UINT miplevel);
+	void AddNormal(UINT order, std::string fileNames, UINT miplevel);
+	void AddCM(std::vector<std::string> fileNames);
 	ID3D11Texture2D* GetTexture(std::string fileName);
 
 	void Apply();
@@ -22,5 +22,6 @@ private:
 
 	std::map<UINT, std::string> stdTextures;
 	std::map<UINT, std::string> normalTextures;
+	std::string cmTexture[6];
 };
 
