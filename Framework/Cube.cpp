@@ -1,5 +1,5 @@
 #include "Cube.h"
-#include "CustomFormat.h"
+#include "ShaderFormat.h"
 
 static const UINT OBJ_CUBE_INDICE[36] =
 {

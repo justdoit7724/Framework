@@ -2,7 +2,7 @@
 #include "Camera.h"
 #include "Shader.h"
 #include "Transform.h"
-#include "Light.h"
+#include "ShaderFormat.h"
 
 DisplacementObject::DisplacementObject(
 	Shape* shape, ID3D11ShaderResourceView* bodySRV, ID3D11ShaderResourceView* bodyNormal, ID3D11ShaderResourceView* dpSRV, float dp_scale,
@@ -34,9 +34,6 @@ DisplacementObject::DisplacementObject(
 	bumpSamp_desc.MinLOD = 0;
 	bumpSamp_desc.MaxLOD = D3D11_FLOAT32_MAX;
 	ds->AddSamp(0, 1, &bumpSamp_desc);
-	ps->AddCB(0, 1, sizeof(SHADER_DIRECTIONAL_LIGHT));
-	ps->AddCB(1, 1, sizeof(SHADER_POINT_LIGHT));
-	ps->AddCB(2, 1, sizeof(SHADER_SPOT_LIGHT));
 	ps->AddCB(3, 1, sizeof(XMFLOAT4));
 	ps->AddCB(4, 1, sizeof(SHADER_MATERIAL));
 	ps->AddCB(5, 1, sizeof(float));
@@ -62,16 +59,13 @@ DisplacementObject::DisplacementObject(
 
 void DisplacementObject::Update(const Camera* camera, float elapsed, const XMMATRIX& texMat)
 {
-	XMFLOAT3 eye = camera->transform->GetPos();
+	XMFLOAT3 eye = camera->GetPos();
 
 	const SHADER_STD_TRANSF STransformation(transform->WorldMatrix(), camera->VPMat(zOrder), texMat);
 
 	vs->WriteCB(0, (void*)(&STransformation));
 	vs->WriteCB(1, &XMFLOAT4(eye.x, eye.y, eye.z,0));
 	ds->WriteCB(0, (void*)(&STransformation.vp));
-	ps->WriteCB(0, DirectionalLight::Data());
-	ps->WriteCB(1, PointLight::Data());
-	ps->WriteCB(2, SpotLight::Data());
 	ps->WriteCB(3, &XMFLOAT4(eye.x, eye.y, eye.z, 0));
 	ps->WriteCB(5, &elapsed);
 }

@@ -5,6 +5,7 @@
 #include "Quad.h"
 #include "Shader.h"
 #include "CameraMgr.h"
+#include "ShaderFormat.h"
 
 Mirror::Mirror(Scene* captureScene, UINT width, UINT height)
 	:Object(
@@ -146,9 +147,9 @@ void Mirror::UpdatePerspective(const Camera* eye)
 		FR, UF, FF, 0,
 		Dot(m,mRight)+mC.x, Dot(m,mUp)+mC.y, Dot(m,mForward)+mC.z, 1);
 
-	perspective->transform->SetTranslation(eye->transform->GetPos() * perspectiveTranslationMat);
+	perspective->SetPos(eye->GetPos() * perspectiveTranslationMat);
 	
-	XMFLOAT3 ppos = perspective->transform->GetPos();
+	XMFLOAT3 ppos = perspective->GetPos();
 	XMFLOAT3 n = transform->GetForward();
 	XMMATRIX perspectiveRotMat = XMMATRIX(
 		-2 * n.x * n.x + 1, -2 * n.x * n.y, -2 * n.x * n.z,0,
@@ -156,9 +157,6 @@ void Mirror::UpdatePerspective(const Camera* eye)
 		-2 * n.x * n.z, -2 * n.y * n.z, -2 * n.z * n.z + 1,0,
 		0,0,0,1
 	);
-	XMFLOAT3 look = eye->transform->GetForward()*perspectiveRotMat;
-	XMFLOAT3 right = Cross(UP, look);
-	XMFLOAT3 up = Cross(look,right);
 	
-	perspective->transform->SetRot(right, up, look);
+	perspective->SetRot(eye->GetForward() * perspectiveRotMat);
 }

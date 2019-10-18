@@ -1,5 +1,5 @@
 #include "Shape.h"
-#include "CustomFormat.h"
+#include "ShaderFormat.h"
 
 Shape::Shape()
 {

@@ -16,7 +16,7 @@ cbuffer CB_TRANSFORMATION : register(b0)
     float4x4 VPMat;
     float4x4 NMat;
     float4x4 uiMat;
-    float4x4 pt_vp_mat;
+    float4x4 pt_vpt_mat;
 };
 
 VS_OUTPUT main(STD_VS_INPUT input)
@@ -29,7 +29,7 @@ VS_OUTPUT main(STD_VS_INPUT input)
     output.normal = mul((float3x3) NMat, input.normal);
     output.tex = mul(uiMat, float4(input.tex, 0, 1)).xy;
     output.tangent = mul((float3x3) WMat, input.tangent);
-    output.pt_ndc_pos = mul(pt_vp_mat, wPos);
+    output.pt_ndc_pos = mul(pt_vpt_mat, wPos);
 
     return output;
 }

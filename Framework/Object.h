@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include "CustomFormat.h"
+#include "DX_info.h"
 
 class Camera;
 class Transform;
@@ -23,6 +23,7 @@ public:
 
 	virtual void Update(const Camera* camera, float elapsed, const XMMATRIX& texMat = XMMatrixIdentity());
 	virtual void Render() const;
+	void RenderGeom() const;
 
 	//TODO
 	Transform* transform;

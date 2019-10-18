@@ -3,7 +3,7 @@
 #include "Quad.h"
 #include "Camera.h"
 #include "Game_info.h"
-#include "CustomFormat.h"
+#include "ShaderFormat.h"
 
 #include "Transform.h"
 #include "DepthStencilState.h"
@@ -34,13 +34,10 @@ UI::UI(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float
 	ps->AddCB(0, 1, sizeof(float));
 	D3D11_SAMPLER_DESC samplerDesc;
 	ZeroMemory(&samplerDesc, sizeof(D3D11_SAMPLER_DESC));
-	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR;
+	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
 	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
 	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
 	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
-	samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	samplerDesc.MinLOD = 0;
-	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	ps->AddSamp(0, 1, &samplerDesc);
 	ps->AddSRV(0, 1);
 	ps->WriteSRV(0, srv);
@@ -104,7 +101,9 @@ void UI::Render()
 UICanvas::UICanvas(float width, float height)
 	: totalWidth(width), totalHeight(height)
 {
-	camera = new Camera("UI", FRAME_KIND_ORTHOGONAL, width, height, 0.1f, 10, NULL, NULL, XMFLOAT3(width*0.5f, height*0.5f, -5), FORWARD, UP);
+	camera = new Camera("UI", FRAME_KIND_ORTHOGONAL, NULL, NULL, 0.1f, 10, NULL, NULL);
+	camera->SetPos(XMFLOAT3(width * 0.5f, height * 0.5f, -5));
+	camera->SetRot(FORWARD, UP);
 }
 
 UICanvas::~UICanvas()

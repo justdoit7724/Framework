@@ -13,6 +13,7 @@ public:
 
 private:
 	Object* obj, *obj2;
-	bool isOnce = false;
+	bool b1 = false;
+	bool bb1 = false;
 };
 

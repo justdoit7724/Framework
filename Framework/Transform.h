@@ -8,7 +8,6 @@ public:
 	XMMATRIX S()const;
 	XMMATRIX R()const;
 	XMMATRIX T()const;
-
 	
 	XMFLOAT3 GetPos()const {return pos;}
 	XMFLOAT3 GetForward()const {
@@ -35,10 +34,18 @@ public:
 	void SetRot(XMFLOAT3 _forward)
 	{
 		forward = _forward;
-		up = XMFLOAT3(0, 0, 0);
-		right = XMFLOAT3(0, 0, 0);
+		XMFLOAT3 tempUP = (forward == UP)? -FORWARD:UP;
+		right = Cross(tempUP, forward);
+		up = Cross(forward, right);
+	}
+	void SetRot(XMFLOAT3 _forward, XMFLOAT3 _up)
+	{
+		forward = _forward;
+		up = _up;
+		right = Cross(_up, _forward);
 	}
 	void SetRot(XMFLOAT3 _forward, XMFLOAT3 _up, XMFLOAT3 _right) {
+
 		forward = _forward;
 		up = _up;
 		right = _right;

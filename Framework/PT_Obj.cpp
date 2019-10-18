@@ -2,7 +2,7 @@
 #include "Shader.h"
 #include "Transform.h"
 #include "Camera.h"
-#include "Light.h"
+#include "ShaderFormat.h"
 
 PT_Obj::PT_Obj(Shape* shape, const XMMATRIX& vp_mat, XMFLOAT3 dif, float transp, XMFLOAT3 amb, XMFLOAT3 spec, float sp, XMFLOAT3 refl, ID3D11ShaderResourceView* bodySRV, ID3D11ShaderResourceView* bodyNorm, ID3D11ShaderResourceView* ptSRV, ID3D11ShaderResourceView* cmSRV, int zOrder)
 	:Object(
@@ -13,9 +13,6 @@ PT_Obj::PT_Obj(Shape* shape, const XMMATRIX& vp_mat, XMFLOAT3 dif, float transp,
 	vp_mat(vp_mat)
 {
 	vs->AddCB(0, 1, sizeof(SHADER_PT_TRANSF));
-	ps->AddCB(0, 1, sizeof(SHADER_DIRECTIONAL_LIGHT));
-	ps->AddCB(1, 1, sizeof(SHADER_POINT_LIGHT));
-	ps->AddCB(2, 1, sizeof(SHADER_SPOT_LIGHT));
 	ps->AddCB(3, 1, sizeof(XMFLOAT4));
 	ps->AddCB(4, 1, sizeof(SHADER_MATERIAL));
 	ps->AddCB(5, 1, sizeof(float));
@@ -46,9 +43,6 @@ PT_Obj::PT_Obj(Shape* shape, const XMMATRIX& vp_mat, XMFLOAT3 dif, float transp,
 void PT_Obj::Update(const Camera* camera, float elapsed, const XMMATRIX& texMat)
 {
 	vs->WriteCB(0, &SHADER_PT_TRANSF(transform->WorldMatrix(), camera->VPMat(zOrder), vp_mat, XMMatrixIdentity()));
-	ps->WriteCB(0, DirectionalLight::Data());
-	ps->WriteCB(1, PointLight::Data());
-	ps->WriteCB(2, SpotLight::Data());
-	ps->WriteCB(3, &(camera->transform->GetPos()));
+	ps->WriteCB(3, &(camera->GetPos()));
 	ps->WriteCB(5, &elapsed);
 }

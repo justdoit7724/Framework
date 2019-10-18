@@ -9,7 +9,6 @@
 #include "DCMScene.h"
 #include "DebuggingScene.h"
 #include "BindingTestScene.h"
-#include "VideoScene.h"
 
 #pragma comment(lib, "D3DCompiler.lib")
 #pragma comment(lib, "DirectXTK.lib")
@@ -27,10 +26,9 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	Scene* videoScene = new VideoScene();
 
 	//SceneMgr::Instance()->Add(bindScene);
-	//SceneMgr::Instance()->Add(testScene);
+	SceneMgr::Instance()->Add(testScene);
 	//SceneMgr::Instance()->Add(dcmScene);
-	SceneMgr::Instance()->Add(debugScene);
-	SceneMgr::Instance()->Add(videoScene);
+	//SceneMgr::Instance()->Add(debugScene);
 
 	Timer* worldTimer = new Timer();
 

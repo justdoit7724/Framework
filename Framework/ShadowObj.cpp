@@ -3,15 +3,12 @@
 #include "TextureMgr.h"
 #include "Transform.h"
 #include "Camera.h"
-#include "Light.h"
+#include "ShaderFormat.h"
 
 ShadowObj::ShadowObj(Shape* shape, ID3D11ShaderResourceView* bodySRV, ID3D11ShaderResourceView* bodyNormal, int zOrder)
 	:Object(shape, "StdShadowVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts), "", "", "", "StdShadowPS.cso", zOrder)
 {
 	vs->AddCB(0, 1, sizeof(SHADER_PT_TRANSF));
-	ps->AddCB(0, 1, sizeof(SHADER_DIRECTIONAL_LIGHT));
-	ps->AddCB(1, 1, sizeof(SHADER_POINT_LIGHT));
-	ps->AddCB(2, 1, sizeof(SHADER_SPOT_LIGHT));
 	ps->AddCB(3, 1, sizeof(XMFLOAT4));
 	ps->AddCB(4, 1, sizeof(SHADER_MATERIAL));
 	ps->AddCB(5, 1, sizeof(float));
@@ -29,6 +26,20 @@ ShadowObj::ShadowObj(Shape* shape, ID3D11ShaderResourceView* bodySRV, ID3D11Shad
 	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	ps->AddSamp(0, 1, &samplerDesc);
 	ps->AddSamp(1, 1, &samplerDesc);
+	D3D11_SAMPLER_DESC shadowSampDesc;
+	ZeroMemory(&shadowSampDesc, sizeof(D3D11_SAMPLER_DESC));
+	shadowSampDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
+	shadowSampDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+	shadowSampDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+	shadowSampDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+	shadowSampDesc.BorderColor[0] = 0;
+	shadowSampDesc.BorderColor[1] = 0;
+	shadowSampDesc.BorderColor[2] = 0;
+	shadowSampDesc.BorderColor[3] = 0;
+	shadowSampDesc.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
+	shadowSampDesc.MinLOD = 0;
+	shadowSampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	ps->AddSamp(2, 1, &shadowSampDesc);
 
 	ps->AddSRV(0, 1);
 	ps->AddSRV(1, 1);
@@ -44,12 +55,9 @@ void ShadowObj::Update(const Camera* camera, float elapsed, const XMMATRIX& shad
 {
 	const SHADER_PT_TRANSF STransformation(transform->WorldMatrix(), camera->VPMat(zOrder), shadowVP, XMMatrixIdentity());
 
-	XMFLOAT3 eye = camera->transform->GetPos();
+	XMFLOAT3 eye = camera->GetPos();
 
 	vs->WriteCB(0, (void*)(&STransformation));
-	ps->WriteCB(0, (void*)DirectionalLight::Data());
-	ps->WriteCB(1, (void*)PointLight::Data());
-	ps->WriteCB(2, (void*)SpotLight::Data());
 	ps->WriteCB(3, &XMFLOAT4(eye.x, eye.y, eye.z, 0));
 	ps->WriteCB(5, &elapsed);
 }

@@ -13,20 +13,19 @@ Camera::Camera(std::string key, const Camera* camera)
 	transform = new Transform();
 
 	SetFrame(camera->GetFrame(), camera->GetSize(), camera->GetN(), camera->GetF(), camera->GetVRad(), camera->GetAspectRatio());
-	transform->SetTranslation(camera->transform->GetPos());
-	transform->SetRot(camera->transform->GetRight(), camera->transform->GetUp(), camera->transform->GetForward());
+	SetPos(camera->transform->GetPos());
+	SetRot(camera->transform->GetForward(), camera->transform->GetUp());
 }
 
-Camera::Camera(std::string key, const FRAME_KIND frameKind, float orthoScnWidth, float orthoScnHeight, const float n, const float f, const float verticalViewAngle, const float aspectRatio, const XMFLOAT3 firstPos, const XMFLOAT3 _forward, const XMFLOAT3 _up)
+Camera::Camera(std::string key, FRAME_KIND frameKind, float orthoScnWidth, float orthoScnHeight, float n, float f, float verticalViewRad, float aspectRatio)
 	:key(key)
 {
 	CameraMgr::Instance()->Add(key, this);
 
 	transform = new Transform();
 
-	SetFrame(frameKind, XMFLOAT2(orthoScnWidth, orthoScnHeight), n, f, verticalViewAngle, aspectRatio);
-	transform->SetTranslation(firstPos);
-	transform->SetRot(_forward, _up, Cross(_up, _forward));
+	SetView();
+	SetFrame(frameKind, XMFLOAT2(orthoScnWidth, orthoScnHeight), n, f, verticalViewRad, aspectRatio);
 }
 
 Camera::~Camera()
@@ -54,6 +53,9 @@ void Camera::SetFrame(const FRAME_KIND fKind, XMFLOAT2 orthoSize, const float n,
 	switch (fKind)
 	{
 	case FRAME_KIND_PERSPECTIVE:
+	{
+		float sX = 1.0f / (aspectRatio * tan(verticalViewRad * 0.5f));
+		float sY = 1.0f / tan(verticalViewRad * 0.5f);
 		for (int i = 0; i < Z_ORDER_MAX; ++i)
 		{
 			float minD = i * interval;
@@ -62,19 +64,26 @@ void Camera::SetFrame(const FRAME_KIND fKind, XMFLOAT2 orthoSize, const float n,
 			float B = n * (minD - A);
 
 			projMats[i] = XMMATRIX(
-				1.0f / (aspectRatio*tan(verticalViewRad *0.5f)), 0, 0, 0,
-				0, 1.0f / tan(verticalViewRad *0.5f), 0, 0,
+				sX, 0, 0, 0,
+				0, sY, 0, 0,
 				0, 0, A, 1,
 				0, 0, B, 0);
 		}
+		stdProjMat = XMMATRIX(
+			sX, 0, 0, 0,
+			0, sY, 0, 0,
+			0, 0, f / (f - n), 1,
+			0, 0, -n * f / (f - n), 0);
+	}
 		break;
 	case FRAME_KIND_ORTHOGONAL:
+	{
+		float sX = 2.0f / size.x;
+		float sY = 2.0f / size.y;
 		for (int i = 0; i < Z_ORDER_MAX; ++i)
 		{
-			float sX = 2.0f / size.x;
-			float sY = 2.0f / size.y;
-			float sZ = interval / (f - n);
 			float M = (-n / (f - n) + i) * interval;
+			float sZ = interval / (f - n);
 
 			projMats[i] = XMMATRIX(
 				sX, 0, 0, 0,
@@ -83,9 +92,49 @@ void Camera::SetFrame(const FRAME_KIND fKind, XMFLOAT2 orthoSize, const float n,
 				0, 0, M, 1
 			);
 		}
+		stdProjMat = XMMATRIX(
+			sX, 0, 0, 0,
+			0, sY, 0, 0,
+			0, 0, 1.0f / (f - n), 0,
+			0, 0, -n / (f - n), 1
+		);
+	}
 		break;
 	}
 	
+}
+
+XMFLOAT3 Camera::GetForward() const
+{
+	return transform->GetForward();
+}
+
+XMFLOAT3 Camera::GetRight() const
+{
+	return transform->GetRight();
+}
+
+XMFLOAT3 Camera::GetPos() const
+{
+	return transform->GetPos();
+}
+
+void Camera::SetView()
+{
+	XMFLOAT3 pos = transform->GetPos();
+	XMFLOAT3 forward = transform->GetForward();
+	XMFLOAT3 up = transform->GetUp();
+	XMFLOAT3 right = transform->GetRight();
+
+	float x = -Dot(pos, right);
+	float y = -Dot(pos, up);
+	float z = -Dot(pos, forward);
+
+	viewMat = XMMATRIX( // inverse of cam world matrix
+		right.x, up.x, forward.x, 0,
+		right.y, up.y, forward.y, 0,
+		right.z, up.z, forward.z, 0,
+		x, y, z, 1);
 }
 
 void Camera::Capture(Scene* scene, ID3D11RenderTargetView** rtv, ID3D11DepthStencilView* dsv, D3D11_VIEWPORT vp)
@@ -107,56 +156,19 @@ void Camera::Capture(Scene* scene, ID3D11RenderTargetView** rtv, ID3D11DepthSten
 	DX_DContext->RSSetViewports(1, &oriVP);
 }
 
-void Camera::Volume()
+void Camera::SetPos(XMFLOAT3 pos)
 {
-	XMFLOAT3 p = transform->GetPos();
-	XMFLOAT3 forward = transform->GetForward();
-	XMFLOAT3 up = transform->GetUp();
-	XMFLOAT3 right = transform->GetRight();
-	float tri = tan(verticalRadian * 0.5f);
-	float nY = tri * n;
-	float nX = nY * aspectRatio;
-	float fY = tri * f;
-	float fX = fY * aspectRatio;
-	XMFLOAT3 sTL = p + right * -nX + up * nY + forward * n;
-	XMFLOAT3 sTR = p + right *  nX + up * nY + forward * n;
-	XMFLOAT3 sBL = p + right * -nX + up * -nY + forward * n;
-	XMFLOAT3 sBR = p + right *  nX + up * -nY + forward * n;
-	XMFLOAT3 eTL = p + right * -fX + up * fY + forward * f;
-	XMFLOAT3 eTR = p + right * fX + up * fY + forward * f;
-	XMFLOAT3 eBL = p + right * -fX + up * -fY + forward * f;
-	XMFLOAT3 eBR = p + right * fX + up * -fY + forward * f;
-
-	Debugging::Instance()->PtLine(sTL, sTR);
-	Debugging::Instance()->PtLine(sTR, sBR);
-	Debugging::Instance()->PtLine(sBR, sBL);
-	Debugging::Instance()->PtLine(sBL, sTL);
-
-	Debugging::Instance()->PtLine(sTL, eTL);
-	Debugging::Instance()->PtLine(sTR, eTR);
-	Debugging::Instance()->PtLine(sBL, eBL);
-	Debugging::Instance()->PtLine(sBR, eBR);
-
-	Debugging::Instance()->PtLine(eTL, eTR);
-	Debugging::Instance()->PtLine(eTR, eBR);
-	Debugging::Instance()->PtLine(eBR, eBL);
-	Debugging::Instance()->PtLine(eBL, eTL);
+	transform->SetTranslation(pos);
+	SetView();
 }
 
-XMMATRIX Camera::ViewMat()const
+void Camera::SetRot(XMFLOAT3 forward)
 {
-	XMFLOAT3 pos = transform->GetPos();
-	XMFLOAT3 forward = transform->GetForward();
-	XMFLOAT3 up = transform->GetUp();
-	XMFLOAT3 right = transform->GetRight();
-
-	float x = -Dot(pos, right);
-	float y = -Dot(pos, up);
-	float z = -Dot(pos, forward);
-
-	return XMMATRIX( // inverse of cam world matrix
-		right.x, up.x, forward.x, 0,
-		right.y, up.y, forward.y, 0,
-		right.z, up.z, forward.z, 0,
-		x, y, z, 1);
+	transform->SetRot(forward);
+	SetView();
+}
+void Camera::SetRot(XMFLOAT3 forward, XMFLOAT3 up)
+{
+	transform->SetRot(forward, up);
+	SetView();
 }

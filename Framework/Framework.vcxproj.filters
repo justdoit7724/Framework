@@ -126,9 +126,6 @@
     <ClCompile Include="Billboard.cpp">
       <Filter>Tasks</Filter>
     </ClCompile>
-    <ClCompile Include="PlaneShadow.cpp">
-      <Filter>Object</Filter>
-    </ClCompile>
     <ClCompile Include="RasterizerState.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -188,9 +185,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CustomFormat.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Debugging.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -284,9 +278,6 @@
     <ClInclude Include="Billboard.h">
       <Filter>Tasks</Filter>
     </ClInclude>
-    <ClInclude Include="PlaneShadow.h">
-      <Filter>Object</Filter>
-    </ClInclude>
     <ClInclude Include="RasterizerState.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -344,7 +335,7 @@
     <ClInclude Include="BindingTestScene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="VideoScene.h">
+    <ClInclude Include="ShaderFormat.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -353,6 +344,12 @@
       <Filter>hlsl</Filter>
     </None>
     <None Include="LightInfo.cginc">
+      <Filter>hlsl</Filter>
+    </None>
+    <None Include="ShaderLight.cginc">
+      <Filter>hlsl</Filter>
+    </None>
+    <None Include="ShaderShadow.cginc">
       <Filter>hlsl</Filter>
     </None>
   </ItemGroup>
@@ -472,6 +469,9 @@
       <Filter>Tasks</Filter>
     </FxCompile>
     <FxCompile Include="BindingTestGS.hlsl">
+      <Filter>Tasks</Filter>
+    </FxCompile>
+    <FxCompile Include="BindingTest2PS.hlsl">
       <Filter>Tasks</Filter>
     </FxCompile>
   </ItemGroup>

@@ -1,5 +1,5 @@
 #include "Cylinder.h"
-#include "CustomFormat.h"
+#include "ShaderFormat.h"
 
 Cylinder::Cylinder(const int sliceCount)
 	:Shape()

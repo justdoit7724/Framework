@@ -6,6 +6,7 @@
 #include "Shader.h"
 #include "Shape.h"
 #include "Transform.h"
+#include "ShaderFormat.h"
 
 ShadowMap::ShadowMap(UINT width, UINT height)
 	:width(width), height(height), depthSRV(nullptr), depthDSV(nullptr)
@@ -55,9 +56,9 @@ ShadowMap::ShadowMap(UINT width, UINT height)
 	rs_desc.CullMode = D3D11_CULL_BACK;
 	rs_desc.FillMode = D3D11_FILL_SOLID;
 	rs_desc.FrontCounterClockwise = false;
-	rs_desc.DepthBias = 0x24000;
+	rs_desc.DepthBias = 0x1000;
 	rs_desc.DepthBiasClamp = 1.0f;
-	rs_desc.SlopeScaledDepthBias = 0.0f;
+	rs_desc.SlopeScaledDepthBias = 2.0f;
 	
 	rsState = new RasterizerState(&rs_desc);
 	dsState = new DepthStencilState(nullptr);
