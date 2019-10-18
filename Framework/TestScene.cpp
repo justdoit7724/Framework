@@ -10,6 +10,9 @@
 #include "Object.h"
 #include "Geometrics.h"
 #include "Network.h"
+#include "DepthStencilState.h"
+#include "BlendState.h"
+#include "RasterizerState.h"
 
 #include "Hill.h"
 #include "Sphere.h"
@@ -41,7 +44,9 @@ TestScene::TestScene(IGraphic* graphic)
 	graphic(graphic)
 {
 	
-	Camera* camera = new Camera("TestMain", FRAME_KIND_PERSPECTIVE, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1, 1000, 1.1f, 1.0f, XMFLOAT3(0, 0, -100), FORWARD, RIGHT);
+	Camera* camera = new Camera("TestMain", FRAME_KIND_PERSPECTIVE, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1, 1000, 1.1f, 1.0f);
+	camera->transform->SetTranslation(0, 0, -100);
+	camera->transform->SetRot(FORWARD, UP);
 	camera->SetMain();
 
 	timer = new Timer();
@@ -115,8 +120,13 @@ TestScene::TestScene(IGraphic* graphic)
 
 	Object* cube = new Object(new Cube(), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), 4, XMFLOAT3(1, 1, 1), pbrSRV, nullptr, nullptr, 2);
 	cube->transform->SetScale(20, 30, 20);
+	cube->transform->SetTranslation(0, 50, 0);
 	AddObj(cube);
 
+	Object* flor = new Object(new Quad(), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), 4, XMFLOAT3(1, 1, 1), pbrSRV, nullptr, nullptr, 2);
+	flor->transform->SetScale(100, 100, 1);
+	flor->transform->SetRot(UP, -FORWARD);
+	AddObj(flor);
 
 
 }
@@ -164,7 +174,7 @@ void CameraMove(Camera* camera, float spf) {
 	camera->transform->SetTranslation(newPos);
 	XMFLOAT3 f = FORWARD * rotMat;
 	XMFLOAT3 u = UP * rotMat;
-	camera->transform->SetRot(f,u,Cross(u,f));
+	camera->transform->SetRot(f,u);
 }
 void TestScene::Logic_Update()
 {
@@ -184,7 +194,6 @@ void TestScene::Logic_Update()
 			150,
 			0)*XMMatrixRotationY(elaped*0.35f);
 		XMFLOAT3 dir = Normalize(XMFLOAT3(-pt.x, -pt.y, -pt.z));
-		dLight->transform->SetTranslation(pt);
 		dLight->SetDir(dir);
 
 		Debugging::Instance()->Mark(3453, pt, 4);
@@ -221,6 +230,8 @@ void TestScene::Logic_Update()
 
 void TestScene::Render_Update(const Camera* camera, float elapsed)
 {
+	dLight->ShadowCapture(this);
+
 	DirectionalLight::Apply();
 	PointLight::Apply();
 	SpotLight::Apply();
@@ -235,4 +246,20 @@ void TestScene::Render()const
 	Scene::Render();
 
 	canvas->Render();
+}
+
+void TestScene::ShadowCapture(const Camera* camera)
+{
+	XMMATRIX vpMat = camera->VPMat(0);
+
+	for (auto obj : objs)
+	{
+		shadowMapVS->WriteCB(0, &XMMATRIX(obj->transform->WorldMatrix() * vpMat));
+		shadowMapVS->Apply();
+
+		obj->dsState->Apply();
+		obj->blendState->Apply();
+		obj->rsState->Apply();
+		obj->shape->Apply();
+	}
 }

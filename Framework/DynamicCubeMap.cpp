@@ -104,13 +104,17 @@ DynamicCubeMap::DynamicCubeMap(IGraphic* graphic, Scene* captureScene, Shape* sh
 	captureViewport.MaxDepth = 1.0f;
 
 	captureCamera[0] = new Camera("capture0", FRAME_KIND_PERSPECTIVE, captureLength, captureLength, 100.0f, 1000.0f, XM_PIDIV2, 1);
-	captureCamera[0]->transform->SetRot(RIGHT, UP, Cross(UP, RIGHT));
-	captureCamera[1] = new Camera("capture1", FRAME_KIND_PERSPECTIVE, captureLength, captureLength, 100.0f, 1000.0f, XM_PIDIV2, 1, XMFLOAT3(0,0,0), -RIGHT, UP);
-	captureCamera[1]->transform->SetRot(-RIGHT,UP,Cross(UP, -RIGHT)
-	captureCamera[2] = new Camera("capture2", FRAME_KIND_PERSPECTIVE, captureLength, captureLength, 100.0f, 1000.0f, XM_PIDIV2, 1, XMFLOAT3(0,0,0), UP, -FORWARD);
-	captureCamera[3] = new Camera("capture3", FRAME_KIND_PERSPECTIVE, captureLength, captureLength, 100.0f, 1000.0f, XM_PIDIV2, 1, XMFLOAT3(0,0,0), -UP, FORWARD);
-	captureCamera[4] = new Camera("capture4", FRAME_KIND_PERSPECTIVE, captureLength, captureLength, 100.0f, 1000.0f, XM_PIDIV2, 1, XMFLOAT3(0,0,0), FORWARD, UP);
-	captureCamera[5] = new Camera("capture5", FRAME_KIND_PERSPECTIVE, captureLength, captureLength, 100.0f, 1000.0f, XM_PIDIV2, 1, XMFLOAT3(0,0,0), -FORWARD, UP);
+	captureCamera[0]->transform->SetRot(RIGHT, UP);
+	captureCamera[1] = new Camera("capture1", FRAME_KIND_PERSPECTIVE, captureLength, captureLength, 100.0f, 1000.0f, XM_PIDIV2, 1);
+	captureCamera[1]->transform->SetRot(-RIGHT, UP);
+	captureCamera[2] = new Camera("capture2", FRAME_KIND_PERSPECTIVE, captureLength, captureLength, 100.0f, 1000.0f, XM_PIDIV2, 1);
+	captureCamera[2]->transform->SetRot(UP, -FORWARD);
+	captureCamera[3] = new Camera("capture3", FRAME_KIND_PERSPECTIVE, captureLength, captureLength, 100.0f, 1000.0f, XM_PIDIV2, 1);
+	captureCamera[3]->transform->SetRot(-UP, FORWARD);
+	captureCamera[4] = new Camera("capture4", FRAME_KIND_PERSPECTIVE, captureLength, captureLength, 100.0f, 1000.0f, XM_PIDIV2, 1);
+	captureCamera[4]->transform->SetRot(FORWARD, UP);
+	captureCamera[5] = new Camera("capture5", FRAME_KIND_PERSPECTIVE, captureLength, captureLength, 100.0f, 1000.0f, XM_PIDIV2, 1);
+	captureCamera[5]->transform->SetRot(-FORWARD, UP);
 }
 
 void DynamicCubeMap::Update(const Camera* camera, float elapsed, const XMMATRIX& texMat)

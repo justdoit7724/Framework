@@ -17,9 +17,8 @@ cbuffer POINT_LIGHT : register(b1)
     float4 p_Diffuse[LIGHT_MAX_EACH];
     float4 p_Specular[LIGHT_MAX_EACH];
     float4 p_Pos[LIGHT_MAX_EACH];
-    float4 p_Range[LIGHT_MAX_EACH];
+    float4 p_Info[LIGHT_MAX_EACH]; // enabled,range
     float4 p_Att[LIGHT_MAX_EACH];
-    float4 p_Enabled[LIGHT_MAX_EACH];
 };
 cbuffer SPOT_LIGHT : register(b2)
 {
@@ -28,11 +27,9 @@ cbuffer SPOT_LIGHT : register(b2)
     float4 s_Specular[LIGHT_MAX_EACH];
     float4 s_Pos[LIGHT_MAX_EACH];
    
-    float4 s_Range[LIGHT_MAX_EACH];
+    float4 s_info[LIGHT_MAX_EACH]; // enabled, range, rad, spot
     float4 s_Dir[LIGHT_MAX_EACH];
-    float4 s_Spot[LIGHT_MAX_EACH];
     float4 s_Att[LIGHT_MAX_EACH];
-    float4 s_Enabled[LIGHT_MAX_EACH];
 };
 cbuffer MATERIAL : register(b4)
 {
@@ -72,7 +69,7 @@ void ComputePointLight(float3 pos, float3 normal, float3 toEye, out float4 ambie
     
     for (int i = 0; i < LIGHT_MAX_EACH; ++i)
     {
-        if (p_Enabled[i].x == LIGHT_DISABLED)
+        if (p_Info[i].x == LIGHT_DISABLED)
             continue;
         
         float4 tmpD = 0;
@@ -80,7 +77,7 @@ void ComputePointLight(float3 pos, float3 normal, float3 toEye, out float4 ambie
 
         float3 lightVec = p_Pos[i].xyz - pos;
         float d = length(lightVec);
-        if (d > p_Range[i].x)
+        if (d > p_Info[i].y)
             continue;
         lightVec /= d; // normalize
         float diffuseFactor = dot(lightVec, normal);
@@ -109,7 +106,7 @@ void ComputeSpotLight(float3 pos, float3 normal, float3 toEye, out float4 ambien
     
     for (int i = 0; i < LIGHT_MAX_EACH; ++i)
     {
-        if (s_Enabled[i].x == LIGHT_DISABLED)
+        if (s_info[i].x == LIGHT_DISABLED)
             continue;
         
         float4 tmpA = 0;
@@ -119,7 +116,7 @@ void ComputeSpotLight(float3 pos, float3 normal, float3 toEye, out float4 ambien
         float3 lightVec = s_Pos[i].xyz - pos;
         float d = length(lightVec);
 
-        if (d > s_Range[i].x)
+        if (d > s_info[i].y)
             continue;
     
         lightVec /= d;
@@ -131,7 +128,7 @@ void ComputeSpotLight(float3 pos, float3 normal, float3 toEye, out float4 ambien
         {
             float3 v = reflect(-lightVec, normal);
             float specFactor = pow(saturate(dot(v, toEye)), mSpecular.w);
-            spot = pow(saturate(dot(-lightVec, s_Dir[i].xyz)), s_Spot[i].x);
+            spot = pow(saturate(dot(-lightVec, s_Dir[i].xyz)), s_info[i].w);
             float att = spot / dot(s_Att[i].xyz, float3(1.0f, d, d * d));
             tmpD = diffuseFactor * mDiffuse * s_Diffuse[i] * att;
             tmpS = specFactor * mSpecular * s_Specular[i] * att;

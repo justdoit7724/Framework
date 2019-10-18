@@ -88,15 +88,15 @@ struct VS_Simple_Property
 		: worldMat(w), vpMat(vp){}
 };
 
-#define LIGHT_ENABLED DirectX::XMFLOAT4(1,1,1,1)
-#define LIGHT_DISABLED DirectX::XMFLOAT4(0,0,0,0)	
+#define LIGHT_ENABLED 1
+#define LIGHT_DISABLED 0
 #define LIGHT_MAX_EACH 10
 struct SHADER_DIRECTIONAL_LIGHT {
 
 	SHADER_DIRECTIONAL_LIGHT() {
 		for (int i = 0; i < LIGHT_MAX_EACH; ++i)
 		{
-			enabled[i] = LIGHT_DISABLED;
+			enabled[i] = XMFLOAT4(LIGHT_DISABLED, LIGHT_DISABLED, LIGHT_DISABLED, LIGHT_DISABLED);
 		}
 	}
 
@@ -111,34 +111,33 @@ struct SHADER_POINT_LIGHT {
 	SHADER_POINT_LIGHT() {
 		for (int i = 0; i < LIGHT_MAX_EACH; ++i)
 		{
-			enabled[i] = LIGHT_DISABLED;
+			info[i].x = LIGHT_DISABLED;
 		}
 	}
+
 	XMFLOAT4 ambient[LIGHT_MAX_EACH];
 	XMFLOAT4 diffuse[LIGHT_MAX_EACH];
 	XMFLOAT4 specular[LIGHT_MAX_EACH];
 	XMFLOAT4 pos[LIGHT_MAX_EACH];
-	XMFLOAT4 range[LIGHT_MAX_EACH];
+	XMFLOAT4 info[LIGHT_MAX_EACH]; // enable,range
 	XMFLOAT4 att[LIGHT_MAX_EACH];
-	XMFLOAT4 enabled[LIGHT_MAX_EACH];
 };
 struct SHADER_SPOT_LIGHT {
 
 	SHADER_SPOT_LIGHT() {
 		for (int i = 0; i < LIGHT_MAX_EACH; ++i)
 		{
-			enabled[i] = LIGHT_DISABLED;
+			info[i].x = LIGHT_DISABLED;
 		}
 	}
+
 	XMFLOAT4 ambient[LIGHT_MAX_EACH];
 	XMFLOAT4 diffuse[LIGHT_MAX_EACH];
 	XMFLOAT4 specular[LIGHT_MAX_EACH];
 	XMFLOAT4 pos[LIGHT_MAX_EACH];
-	XMFLOAT4 range[LIGHT_MAX_EACH];
+	XMFLOAT4 info[LIGHT_MAX_EACH]; // enabled,range,rad,spot
 	XMFLOAT4 dir[LIGHT_MAX_EACH];
-	XMFLOAT4 spot[LIGHT_MAX_EACH];
 	XMFLOAT4 att[LIGHT_MAX_EACH];
-	XMFLOAT4 enabled[LIGHT_MAX_EACH];
 };
 
 struct SHADER_MATERIAL

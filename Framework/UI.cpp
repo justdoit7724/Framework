@@ -101,7 +101,9 @@ void UI::Render()
 UICanvas::UICanvas(float width, float height)
 	: totalWidth(width), totalHeight(height)
 {
-	camera = new Camera("UI", FRAME_KIND_ORTHOGONAL, width, height, 0.1f, 10, NULL, NULL, XMFLOAT3(width*0.5f, height*0.5f, -5), FORWARD, UP);
+	camera = new Camera("UI", FRAME_KIND_ORTHOGONAL, NULL, NULL, 0.1f, 10, NULL, NULL);
+	camera->transform->SetTranslation(width * 0.5f, height * 0.5f, -5);
+	camera->transform->SetRot(FORWARD, UP);
 }
 
 UICanvas::~UICanvas()
