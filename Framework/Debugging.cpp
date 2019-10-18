@@ -9,6 +9,8 @@
 #include "RasterizerState.h"
 #include "Transform.h"
 #include "Camera.h"
+#include "Keyboard.h"
+#include "Mouse.h"
 
 #include "Cube.h"
 #include "Sphere.h"
@@ -82,24 +84,16 @@ void Debugging::Mark(const UINT key, XMFLOAT3 pos, float radius, XMVECTORF32 col
 	}
 }
 
-void Debugging::PtLine(const UINT key, XMFLOAT3 p1, XMFLOAT3 p2, XMVECTORF32 color)
+void Debugging::PtLine(XMFLOAT3 p1, XMFLOAT3 p2, XMVECTORF32 color)
 {
-	if (lines.find(key) == lines.end())
-	{
-		lines.insert(std::pair<UINT, LineInfo>(key, LineInfo(p1,p2,color)));
-	}
-	else {
-		lines[key].p1 = p1;
-		lines[key].p2 = p2;
-		lines[key].color = color;
-	}
+	lines.push_back(LineInfo(p1,p2,color));
 }
 
-void Debugging::DirLine(const UINT key, XMFLOAT3 p1, XMFLOAT3 dir, float dist, XMVECTORF32 color)
+void Debugging::DirLine(XMFLOAT3 p1, XMFLOAT3 dir, float dist, XMVECTORF32 color)
 {
 	XMFLOAT3 p2 = p1 + dir * dist;
 
-	PtLine(key, p1, p2, color);
+	PtLine(p1, p2, color);
 }
 
 void Debugging::EnableGrid(float interval, int num)
@@ -164,9 +158,50 @@ void Debugging::DisableGrid()
 	gridVB = nullptr;
 }
 
-void Debugging::Update(const Camera* camera)
+
+void Debugging::CameraMove(float spf) {
+
+	XMFLOAT3 newPos = testCamera->transform->GetPos();
+	XMFLOAT3 right = testCamera->transform->GetRight();
+	XMFLOAT3 forward = testCamera->transform->GetForward();
+	const float speed = 50;
+	if (Keyboard::IsPressing('A')) {
+
+		newPos += -right * speed * spf;
+	}
+	else if (Keyboard::IsPressing('D')) {
+
+		newPos += right * speed * spf;
+	}
+	if (Keyboard::IsPressing('S')) {
+
+		newPos += -forward * speed * spf;
+	}
+	else if (Keyboard::IsPressing('W')) {
+
+		newPos += forward * speed * spf;
+	}
+	static float angleX = 0;
+	static float angleY = 0;
+	static XMFLOAT2 prevMousePt;
+	const float angleSpeed = 3.141592f * 0.2f;
+	if (Mouse::Instance()->IsRightDown())
+	{
+		angleY += angleSpeed * spf * (Mouse::Instance()->X() - prevMousePt.x);
+		angleX += angleSpeed * spf * (Mouse::Instance()->Y() - prevMousePt.y);
+	}
+	prevMousePt.x = Mouse::Instance()->X();
+	prevMousePt.y = Mouse::Instance()->Y();
+	const XMMATRIX rotMat = XMMatrixRotationX(angleX) * XMMatrixRotationY(angleY);
+	testCamera->transform->SetTranslation(newPos);
+	XMFLOAT3 f = FORWARD * rotMat;
+	XMFLOAT3 u = UP * rotMat;
+	testCamera->transform->SetRot(f, u, Cross(u, f));
+}
+void Debugging::Update(const Camera* camera, float spf)
 {
 	vp_mat = camera->VPMat(Z_ORDER_STANDARD);
+	CameraMove(spf);
 }
 
 void Debugging::Render()
@@ -202,12 +237,12 @@ void Debugging::Render()
 			DX_DContext->Map(
 				lineVB->Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped));
 		XMFLOAT3* pVB = reinterpret_cast<XMFLOAT3*>(mapped.pData);
-		pVB[0] = l.second.p1;
-		pVB[1] = l.second.p2;
+		pVB[0] = l.p1;
+		pVB[1] = l.p2;
 		DX_DContext->Unmap(lineVB->Get(), 0);
 		
 		vs->WriteCB(0,&vp_mat);
-		ps->WriteCB(0,&(l.second.color));
+		ps->WriteCB(0,&(l.color));
 		vs->Apply();
 		ps->Apply();
 
@@ -216,6 +251,7 @@ void Debugging::Render()
 		DX_DContext->IASetVertexBuffers(0, 1, lineVB->GetAddress(), &stride, &offset);
 		DX_DContext->Draw(2, 0);
 	}
+	lines.clear();
 
 	if (gridVB)
 	{
@@ -290,6 +326,8 @@ void Debugging::Render()
 
 Debugging::Debugging()
 {
+	testCamera = new Camera("DebugCamera", FRAME_KIND_PERSPECTIVE, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1f, 1000.0f, XM_PIDIV2, 1, XMFLOAT3(0, 10, -30), FORWARD, UP);
+
 	vs = new VShader("MarkVS.cso", 
 		simple_ILayouts,
 		ARRAYSIZE(simple_ILayouts));

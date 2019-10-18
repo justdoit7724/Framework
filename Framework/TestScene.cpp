@@ -38,7 +38,6 @@ TestScene::TestScene(IGraphic* graphic)
 	:Scene("Test"),
 	graphic(graphic)
 {
-	
 	Camera* camera = new Camera("TestMain", FRAME_KIND_PERSPECTIVE, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1, 1000, 1.1f, 1.0f);
 	camera->SetPos(XMFLOAT3(0, 0, -100));
 	camera->SetRot(FORWARD, UP);
@@ -200,7 +199,7 @@ void TestScene::Logic_Update()
 }
 
 
-void TestScene::Render_Update(const Camera* camera, float elapsed)
+void TestScene::Render_Update(const Camera* camera, float elapsed, float spf)
 {
 	dLight->ShadowCapture(objs);
 
@@ -213,7 +212,6 @@ void TestScene::Render_Update(const Camera* camera, float elapsed)
 	PointLight::Apply();
 	SpotLight::Apply();
 
-	//Scene::Render_Update(camera, elapsed);
 
 	canvas->Update(timer->SPF());
 }

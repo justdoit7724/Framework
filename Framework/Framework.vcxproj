@@ -178,6 +178,7 @@
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="UI.cpp" />
+    <ClCompile Include="VideoScene.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -231,6 +232,7 @@
     <ClInclude Include="Timer.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="UI.h" />
+    <ClInclude Include="VideoScene.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>

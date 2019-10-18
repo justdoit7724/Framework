@@ -23,6 +23,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	Scene* dcmScene = new DCMScene(graphic, testScene);
 	Scene* debugScene = new DebuggingScene();
 	Scene* bindScene = new BindingTestScene();
+	Scene* videoScene = new VideoScene();
 
 	//SceneMgr::Instance()->Add(bindScene);
 	SceneMgr::Instance()->Add(testScene);
@@ -45,7 +46,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		{
 			worldTimer->Update();
 
-			SceneMgr::Instance()->Process(worldTimer->Elapsed());
+			SceneMgr::Instance()->Process(worldTimer->Elapsed(), worldTimer->SPF());
 
 			graphic->Present();
 

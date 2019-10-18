@@ -2,6 +2,7 @@
 #include "Transform.h"
 #include "CameraMgr.h"
 #include "Scene.h"
+#include "Debugging.h"
 
 #define Z_ORDER_MAX 5
 
@@ -148,7 +149,7 @@ void Camera::Capture(Scene* scene, ID3D11RenderTargetView** rtv, ID3D11DepthSten
 	DX_DContext->OMSetRenderTargets(1, rtv, dsv);
 	DX_DContext->RSSetViewports(1, &vp);
 
-	scene->Render_Update(this,0);
+	scene->Render_Update(this,0,0);
 	scene->Render();
 
 	DX_DContext->OMSetRenderTargets(1, &oriRTV, oriDSV);
