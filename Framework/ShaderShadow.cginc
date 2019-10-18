@@ -31,6 +31,6 @@ float CalcShadowFactor(float3 wNormal, float3 lightDir, SamplerComparisonState s
     {
         percentLit += map.SampleCmpLevelZero(samp, lightPos.xy + offsets[i], lightPos.z).r;
     }
-
+    
     return (percentLit) * 0.111f;
 }

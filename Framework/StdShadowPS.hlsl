@@ -63,9 +63,7 @@ float4 main(PS_INPUT input) : SV_Target
     float4 reflection = 0;
     float4 A, D, S;
     float shadowFactor = CalcShadowFactor(input.normal, d_Dir[0].xyz, shadowSamp, shadowTex, input.pt_ndc_pos, 1024, 1024);
-    //debug
-    return float4(shadowTex.Sample(bodySampleState, input.pt_ndc_pos.xy / input.pt_ndc_pos.w).xxx,1);
-    
+
     ComputeDirectionalLight(wNormal, toEye, A, D, S);
     ambient += A;
     diffuse += D * shadowFactor;
@@ -85,10 +83,6 @@ float4 main(PS_INPUT input) : SV_Target
     
     float4 color = ambient + diffuse + specular;
     color = Lerp(color, reflection, mReflection.w);
-    
-    //debug - remove
-    color = Lerp(color, float4(0, 0, 0, 0), 1 - shadowFactor);
-        
     
     color.w = mDiffuse.a;
     return color;

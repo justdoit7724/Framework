@@ -12,8 +12,8 @@ Camera::Camera(std::string key, const Camera* camera)
 	transform = new Transform();
 
 	SetFrame(camera->GetFrame(), camera->GetSize(), camera->GetN(), camera->GetF(), camera->GetVRad(), camera->GetAspectRatio());
-	transform->SetTranslation(camera->transform->GetPos());
-	transform->SetRot(camera->transform->GetRight(), camera->transform->GetUp(), camera->transform->GetForward());
+	SetPos(camera->transform->GetPos());
+	SetRot(camera->transform->GetForward(), camera->transform->GetUp());
 }
 
 Camera::Camera(std::string key, FRAME_KIND frameKind, float orthoScnWidth, float orthoScnHeight, float n, float f, float verticalViewRad, float aspectRatio)
@@ -23,6 +23,7 @@ Camera::Camera(std::string key, FRAME_KIND frameKind, float orthoScnWidth, float
 
 	transform = new Transform();
 
+	SetView();
 	SetFrame(frameKind, XMFLOAT2(orthoScnWidth, orthoScnHeight), n, f, verticalViewRad, aspectRatio);
 }
 

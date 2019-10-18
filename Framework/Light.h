@@ -3,7 +3,8 @@
 
 class Transform;
 class Camera;
-class Scene;
+class Object;
+class VShader;
 struct SHADER_DIRECTIONAL_LIGHT;
 struct SHADER_POINT_LIGHT;
 struct SHADER_SPOT_LIGHT;
@@ -11,6 +12,8 @@ struct SHADER_SPOT_LIGHT;
 class Light
 {
 protected:
+	Light();
+	static VShader* shadowMapVS;
 	int id=-1;
 	XMFLOAT3 ambient;
 	XMFLOAT3 diffuse;
@@ -32,7 +35,7 @@ public:
 	virtual void SetDiffuse(const XMFLOAT3& d)=0;
 	virtual void SetSpecular(const XMFLOAT3& s)=0;
 	virtual void Enable(STATE enable) = 0;
-	virtual void ShadowCapture(Scene* scene)const = 0;
+	virtual void ShadowCapture(std::vector<Object*>& objs)const = 0;
 	ID3D11ShaderResourceView* ShadowMapSRV() { return shadowMapSRV.Get(); }
 };
 
@@ -51,8 +54,8 @@ public:
 	void SetSpecular(const XMFLOAT3& s) override;
 	void SetDir( XMFLOAT3 d); 
 	void Enable(STATE enable) override;
-	void ShadowCapture(Scene* scene)const override;
-	XMMATRIX VPMat();
+	void ShadowCapture(std::vector<Object*>& objs)const override;
+	XMMATRIX ShadowVPMat();
 
 	static void Apply();
 };
@@ -77,7 +80,7 @@ public:
 	void SetRange( float r);
 	void SetAtt( XMFLOAT3 at);
 	void Enable(STATE enable) override;
-	void ShadowCapture(Scene* scene)const override;
+	void ShadowCapture(std::vector<Object*>& objs)const override;
 
 	static void Apply();
 };
@@ -107,7 +110,7 @@ public:
 	void SetSpot( float s);
 	void SetAtt( XMFLOAT3 at);
 	void Enable(STATE enable);
-	void ShadowCapture(Scene* scene)const override;
+	void ShadowCapture(std::vector<Object*>& objs)const override;
 
 	static void Apply();
 };

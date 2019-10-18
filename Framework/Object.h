@@ -23,6 +23,7 @@ public:
 
 	virtual void Update(const Camera* camera, float elapsed, const XMMATRIX& texMat = XMMatrixIdentity());
 	virtual void Render() const;
+	void RenderGeom() const;
 
 	//TODO
 	Transform* transform;

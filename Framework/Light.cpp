@@ -3,7 +3,8 @@
 #include "Camera.h"
 #include "Game_info.h"
 #include "Transform.h"
-#include "Scene.h"
+#include "Object.h"
+#include "Shader.h"
 
 SHADER_DIRECTIONAL_LIGHT DirectionalLight::data;
 SHADER_POINT_LIGHT PointLight::data;
@@ -11,6 +12,17 @@ SHADER_SPOT_LIGHT SpotLight::data;
 ID3D11Buffer* DirectionalLight::cb;
 ID3D11Buffer* PointLight::cb;
 ID3D11Buffer* SpotLight::cb;
+VShader* Light::shadowMapVS=nullptr;
+
+
+Light::Light()
+{
+	if (shadowMapVS == nullptr)
+	{
+		shadowMapVS = new VShader("ShadowMapVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
+		shadowMapVS->AddCB(0, 1, sizeof(XMMATRIX));
+	}
+}
 
 DirectionalLight::DirectionalLight(XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, XMFLOAT3 dir)
 {
@@ -77,7 +89,7 @@ DirectionalLight::DirectionalLight(XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, XMFLOAT3 
 		DX_Device->CreateBuffer(&cb_desc, nullptr, &cb)
 	);
 
-	view = new Camera("DirectionalLight",FRAME_KIND_ORTHOGONAL, 1024, 1024, 0.1f, 20000.0f, XM_PIDIV2, 1.0f);
+	view = new Camera("DirectionalLight",FRAME_KIND_ORTHOGONAL, sdTex_desc.Width, sdTex_desc.Height, 0.1f, 2000.0f, XM_PIDIV2, 1.0f);
 
 	SetAmbient(a);
 	SetDiffuse(d);
@@ -108,7 +120,7 @@ void DirectionalLight::SetSpecular(const XMFLOAT3 & s)
 void DirectionalLight::SetDir(XMFLOAT3 d)
 {
 	view->SetRot(d);
-	view->SetPos(d*-10000.0f);
+	view->SetPos(d*-1000.0f);
 	data.dir[id] = XMFLOAT4(d.x, d.y, d.z, 0);
 }
 
@@ -117,7 +129,7 @@ void DirectionalLight::Enable(STATE enable)
 	data.enabled[id] = XMFLOAT4(enable, enable, enable, enable);
 }
 
-void DirectionalLight::ShadowCapture(Scene* scene) const
+void DirectionalLight::ShadowCapture(std::vector<Object*>& objs) const
 {
 	DX_DContext->HSSetShader(nullptr, nullptr, 0);
 	DX_DContext->DSSetShader(nullptr, nullptr, 0);
@@ -131,18 +143,28 @@ void DirectionalLight::ShadowCapture(Scene* scene) const
 	ID3D11DepthStencilView* oriDSV;
 	DX_DContext->OMGetRenderTargets(1, &oriRTV, &oriDSV);
 
+	//debug - modify system
+	ID3D11ShaderResourceView* nullSRV=nullptr;
+	DX_DContext->PSSetShaderResources(3, 1, &nullSRV);
+
 	DX_DContext->RSSetViewports(1, &shadowMapVP);
 	ID3D11RenderTargetView* nullRTV = nullptr;
 	DX_DContext->OMSetRenderTargets(1, &nullRTV, shadowMapDSV.Get());
 	DX_DContext->ClearDepthStencilView(shadowMapDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-	scene->ShadowCapture(view);
+	for (auto obj : objs)
+	{
+		shadowMapVS->WriteCB(0, &XMMATRIX(obj->transform->WorldMatrix() * view->ShadowMapVPMat()));
+		shadowMapVS->Apply();
+
+		obj->RenderGeom();
+	}
 
 	DX_DContext->RSSetViewports(1, &oriVP);
 	DX_DContext->OMSetRenderTargets(1, &oriRTV, oriDSV);
 }
 
-XMMATRIX DirectionalLight::VPMat()
+XMMATRIX DirectionalLight::ShadowVPMat()
 {
 	return view->ShadowMapVPMat();
 }
@@ -287,9 +309,9 @@ void PointLight::Enable(STATE enable)
 	data.info[id].x = enable;
 }
 
-void PointLight::ShadowCapture(Scene* scene) const
+void PointLight::ShadowCapture(std::vector<Object*>& objs) const
 {
-	DX_DContext->HSSetShader(nullptr, nullptr, 0);
+	/*DX_DContext->HSSetShader(nullptr, nullptr, 0);
 	DX_DContext->DSSetShader(nullptr, nullptr, 0);
 	DX_DContext->GSSetShader(nullptr, nullptr, 0);
 	DX_DContext->PSSetShader(nullptr, nullptr, 0);
@@ -313,7 +335,7 @@ void PointLight::ShadowCapture(Scene* scene) const
 	}
 
 	DX_DContext->RSSetViewports(1, &oriVP);
-	DX_DContext->OMSetRenderTargets(1, &oriRTV, oriDSV);
+	DX_DContext->OMSetRenderTargets(1, &oriRTV, oriDSV);*/
 }
 
 void PointLight::Apply()
@@ -460,7 +482,7 @@ void SpotLight::Enable(STATE enable)
 	data.info[id].x = enable;
 }
 
-void SpotLight::ShadowCapture(Scene* scene) const
+void SpotLight::ShadowCapture(std::vector<Object*>& objs) const
 {
 }
 

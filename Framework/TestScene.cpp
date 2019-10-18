@@ -32,7 +32,6 @@
 #include "ShadowMap.h"
 #include "ShadowObj.h"
 
-//debug -- remove
 ShadowObj* cube;
 ShadowObj* flor;
 TestScene::TestScene(IGraphic* graphic)
@@ -94,13 +93,13 @@ TestScene::TestScene(IGraphic* graphic)
 	TextureMgr::Instance()->Get("white", &whiteSRV);
 	TextureMgr::Instance()->Get("defaultNormal", &defaultNormal);
 
-	cube = new ShadowObj(new Cube(), pbrSRV, nullptr, 2);
-	cube->transform->SetScale(20, 30, 20);
-	cube->transform->SetTranslation(0, 50, 0);
+	cube = new ShadowObj(new Cube(), pbrSRV, pbrNormal, 2);
+	cube->transform->SetScale(50, 80, 50);
+	cube->transform->SetTranslation(0, 100, 0);
 	AddObj(cube);
 
-	flor = new ShadowObj(new Quad(), pbrSRV, nullptr, 2);
-	flor->transform->SetScale(200, 200, 1);
+	flor = new ShadowObj(new Quad(), pbrSRV, pbrNormal, 2);
+	flor->transform->SetScale(1500, 1500, 1);
 	flor->transform->SetRot(UP, -FORWARD);
 	AddObj(flor);
 
@@ -168,12 +167,9 @@ void TestScene::Logic_Update()
 		XMFLOAT3 pt = XMFLOAT3(
 			150,
 			150,
-			0)*XMMatrixRotationY(elaped*0.35f);
+			0)*XMMatrixRotationY(elaped*0.1f);
 		XMFLOAT3 dir = Normalize(XMFLOAT3(-pt.x, -pt.y, -pt.z));
 		dLight->SetDir(dir);
-
-		Debugging::Instance()->Mark(3453, pt, 4);
-		Debugging::Instance()->DirLine(523, pt, dir, 15);
 	}
 	if (pLight)
 	{
@@ -206,11 +202,11 @@ void TestScene::Logic_Update()
 
 void TestScene::Render_Update(const Camera* camera, float elapsed)
 {
-	dLight->ShadowCapture(this);
+	dLight->ShadowCapture(objs);
 
-	cube->Update(camera, elapsed, dLight->VPMat());
+	cube->Update(camera, elapsed, dLight->ShadowVPMat());
 	cube->ps->WriteSRV(3, dLight->ShadowMapSRV());
-	flor->Update(camera, elapsed, dLight->VPMat());
+	flor->Update(camera, elapsed, dLight->ShadowVPMat());
 	flor->ps->WriteSRV(3, dLight->ShadowMapSRV());
 
 	DirectionalLight::Apply();
@@ -227,20 +223,4 @@ void TestScene::Render()const
 	Scene::Render();
 
 	canvas->Render();
-}
-
-void TestScene::ShadowCapture(const Camera* camera)
-{
-	XMMATRIX vpMat = camera->VPMat(0);
-
-	for (auto obj : objs)
-	{
-		shadowMapVS->WriteCB(0, &XMMATRIX(obj->transform->WorldMatrix() * vpMat));
-		shadowMapVS->Apply();
-
-		obj->dsState->Apply();
-		obj->blendState->Apply();
-		obj->rsState->Apply();
-		obj->shape->Apply();
-	}
 }

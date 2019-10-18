@@ -100,7 +100,6 @@ void Object::Update(const Camera* camera, float elapsed, const XMMATRIX& texMat)
 	ps->WriteCB(5, &elapsed);
 }
 
-#include "Light.h"
 void Object::Render() const
 {
 	vs->Apply();
@@ -109,6 +108,15 @@ void Object::Render() const
 	gs->Apply();
 	ps->Apply();
 
+	dsState->Apply();
+	blendState->Apply();
+	rsState->Apply();
+
+	shape->Apply();
+}
+
+void Object::RenderGeom() const
+{
 	dsState->Apply();
 	blendState->Apply();
 	rsState->Apply();

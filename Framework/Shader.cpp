@@ -93,8 +93,7 @@ void Shader::WriteSRV(UINT slot, ID3D11ShaderResourceView* srv)
 
 void Shader::RemoveCB(UINT slot)
 {
-	//debug -- decomment
-	//assert(cbs.find(slot) != cbs.end());
+	assert(cbs.find(slot) != cbs.end());
 
 	cbs.erase(slot);
 }
@@ -498,8 +497,7 @@ void Shader::WriteSRV(UINT slot, ID3D11ShaderResourceView* srv)
 
 void Shader::RemoveCB(UINT slot)
 {
-	//debug -- decomment
-	//assert(cbs.find(slot) != cbs.end());
+	assert(cbs.find(slot) != cbs.end());
 
 	cbs.erase(slot);
 }
@@ -592,9 +590,7 @@ void GShader::Apply()const
 {
 	if (gs)
 	{
-		//debug -remove&rotate
-		DX_DContext->GSSetShader(nullptr, nullptr, 0);
-
+		DX_DContext->GSSetShader(gs.Get(), nullptr, 0);
 		for (auto i = cbs.begin(); i != cbs.end(); ++i)
 		{
 			DX_DContext->GSSetConstantBuffers(i->first, i->second.arrayNum, i->second.data->GetAddress());
@@ -615,7 +611,6 @@ void GShader::Apply()const
 
 			DX_DContext->GSSetSamplers(slot, arrayNum, &samp);
 		}
-		DX_DContext->GSSetShader(gs.Get(), nullptr, 0);
 	}
 	else
 	{
@@ -647,9 +642,7 @@ void PShader::Apply()const
 {
 	if (ps)
 	{
-		//debug - remove&rotate
-		DX_DContext->PSSetShader(nullptr, nullptr, 0);
-
+		DX_DContext->PSSetShader(ps.Get(), nullptr, 0);
 		for (auto i = cbs.begin(); i != cbs.end(); ++i)
 		{
 			DX_DContext->PSSetConstantBuffers(i->first, i->second.arrayNum, i->second.data->GetAddress());
@@ -670,7 +663,6 @@ void PShader::Apply()const
 
 			DX_DContext->PSSetSamplers(slot, arrayNum, &samp);
 		}
-		DX_DContext->PSSetShader(ps.Get(), nullptr, 0);
 	}
 	else
 	{
@@ -699,9 +691,7 @@ CShader::CShader(const std::string CSfileName)
 
 void CShader::Apply()const
 {
-	//debug - remove&rotate
-	DX_DContext->CSSetShader(nullptr, nullptr, 0);
-
+	DX_DContext->CSSetShader(cs.Get(), nullptr, 0);
 	for (auto i = cbs.begin(); i != cbs.end(); ++i)
 	{
 		DX_DContext->CSSetConstantBuffers(i->first, i->second.arrayNum, i->second.data->GetAddress());
@@ -722,7 +712,6 @@ void CShader::Apply()const
 
 		DX_DContext->CSSetSamplers(slot, arrayNum, &samp);
 	}
-	DX_DContext->CSSetShader(cs.Get(), nullptr, 0);
 }
 
 HShader::HShader(std::string fileName)
@@ -750,9 +739,7 @@ HShader::HShader(std::string fileName)
 
 void HShader::Apply()const
 {
-	//debug - remove&rotate
-	DX_DContext->HSSetShader(nullptr, nullptr, 0);
-
+	DX_DContext->HSSetShader(hs.Get(), nullptr, 0);
 	for (auto i = cbs.begin(); i != cbs.end(); ++i)
 	{
 		DX_DContext->HSSetConstantBuffers(i->first, i->second.arrayNum, i->second.data->GetAddress());
@@ -773,7 +760,6 @@ void HShader::Apply()const
 
 		DX_DContext->HSSetSamplers(slot, arrayNum, &samp);
 	}
-	DX_DContext->HSSetShader(hs.Get(), nullptr, 0);
 }
 
 DShader::DShader(std::string fileName)
@@ -801,9 +787,7 @@ DShader::DShader(std::string fileName)
 
 void DShader::Apply()const
 {
-	//debug - remove&rotate
-	DX_DContext->DSSetShader(nullptr, nullptr, 0);
-
+	DX_DContext->DSSetShader(ds.Get(), nullptr, 0);
 	for (auto i = cbs.begin(); i != cbs.end(); ++i)
 	{
 		DX_DContext->DSSetConstantBuffers(i->first, i->second.arrayNum, i->second.data->GetAddress());
@@ -824,7 +808,6 @@ void DShader::Apply()const
 
 		DX_DContext->DSSetSamplers(slot, arrayNum, &samp);
 	}
-	DX_DContext->DSSetShader(ds.Get(), nullptr, 0);
 }
 
 */
