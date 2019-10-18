@@ -55,7 +55,7 @@ void ShadowObj::Update(const Camera* camera, float elapsed, const XMMATRIX& shad
 {
 	const SHADER_PT_TRANSF STransformation(transform->WorldMatrix(), camera->VPMat(zOrder), shadowVP, XMMatrixIdentity());
 
-	XMFLOAT3 eye = camera->transform->GetPos();
+	XMFLOAT3 eye = camera->GetPos();
 
 	vs->WriteCB(0, (void*)(&STransformation));
 	ps->WriteCB(3, &XMFLOAT4(eye.x, eye.y, eye.z, 0));

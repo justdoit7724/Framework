@@ -11,9 +11,6 @@ SHADER_SPOT_LIGHT SpotLight::data;
 ID3D11Buffer* DirectionalLight::cb;
 ID3D11Buffer* PointLight::cb;
 ID3D11Buffer* SpotLight::cb;
-Camera* DirectionalLight::view=nullptr;
-Camera* PointLight::view[6] = { nullptr };
-Camera* SpotLight::view=nullptr;
 
 DirectionalLight::DirectionalLight(XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, XMFLOAT3 dir)
 {
@@ -80,8 +77,7 @@ DirectionalLight::DirectionalLight(XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, XMFLOAT3 
 		DX_Device->CreateBuffer(&cb_desc, nullptr, &cb)
 	);
 
-	if(view==nullptr)
-		view= new Camera("DirectionalLight",FRAME_KIND_ORTHOGONAL, 1024, 1024, 0.1f, 100.0f, XM_PIDIV2, 1.0f);
+	view = new Camera("DirectionalLight",FRAME_KIND_ORTHOGONAL, 1024, 1024, 0.1f, 20000.0f, XM_PIDIV2, 1.0f);
 
 	SetAmbient(a);
 	SetDiffuse(d);
@@ -111,7 +107,8 @@ void DirectionalLight::SetSpecular(const XMFLOAT3 & s)
 
 void DirectionalLight::SetDir(XMFLOAT3 d)
 {
-	view->transform->SetRot(d);
+	view->SetRot(d);
+	view->SetPos(d*-10000.0f);
 	data.dir[id] = XMFLOAT4(d.x, d.y, d.z, 0);
 }
 
@@ -143,6 +140,11 @@ void DirectionalLight::ShadowCapture(Scene* scene) const
 
 	DX_DContext->RSSetViewports(1, &oriVP);
 	DX_DContext->OMSetRenderTargets(1, &oriRTV, oriDSV);
+}
+
+XMMATRIX DirectionalLight::VPMat()
+{
+	return view->ShadowMapVPMat();
 }
 
 void DirectionalLight::Apply()
@@ -227,11 +229,10 @@ PointLight::PointLight(XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, float range, XMFLOAT3
 		DX_Device->CreateBuffer(&cb_desc, nullptr, &cb)
 	);
 
-	if(view[0]==nullptr)
-		for (int i = 0; i < 6; ++i)
-		{
-			view[i] = new Camera("PointLight", FRAME_KIND_PERSPECTIVE, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1f, 100.0f, XM_PIDIV2, 1.0f);
-		}
+	for (int i = 0; i < 6; ++i)
+	{
+		view[i] = new Camera("PointLight", FRAME_KIND_PERSPECTIVE, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1f, 100.0f, XM_PIDIV2, 1.0f);
+	}
 
 	SetAmbient(a);
 	SetDiffuse(d);
@@ -264,7 +265,7 @@ void PointLight::SetPos(XMFLOAT3 p)
 {
 	for (int i = 0; i < 6; ++i)
 	{
-		view[i]->transform->SetTranslation(p);
+		view[i]->SetPos(p);
 	}
 	data.pos[id] = XMFLOAT4(p.x, p.y, p.z, 0);
 }
@@ -419,13 +420,13 @@ void SpotLight::SetSpecular(const XMFLOAT3 & s)
 
 void SpotLight::SetPos(XMFLOAT3 p)
 {
-	view->transform->SetTranslation(p);
+	view->SetPos(p);
 	data.pos[id] = XMFLOAT4(p.x, p.y, p.z, 0);
 }
 
 void SpotLight::SetDir(XMFLOAT3 d)
 {
-	view->transform->SetRot(d);
+	view->SetRot(d);
 	data.dir[id] = XMFLOAT4(d.x, d.y, d.z, 0);
 }
 

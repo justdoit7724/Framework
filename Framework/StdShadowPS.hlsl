@@ -62,7 +62,9 @@ float4 main(PS_INPUT input) : SV_Target
     float4 specular = 0;
     float4 reflection = 0;
     float4 A, D, S;
-    float shadowFactor = CalcShadowFactor(input.normal, d_Dir[0].xyz, shadowSamp, shadowTex, input.pt_ndc_pos, 760, 760);
+    float shadowFactor = CalcShadowFactor(input.normal, d_Dir[0].xyz, shadowSamp, shadowTex, input.pt_ndc_pos, 1024, 1024);
+    //debug
+    return float4(shadowTex.Sample(bodySampleState, input.pt_ndc_pos.xy / input.pt_ndc_pos.w).xxx,1);
     
     ComputeDirectionalLight(wNormal, toEye, A, D, S);
     ambient += A;

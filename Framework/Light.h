@@ -41,7 +41,7 @@ class DirectionalLight : public Light
 private:
 	static SHADER_DIRECTIONAL_LIGHT data;
 	static ID3D11Buffer* cb;
-	static Camera* view;
+	Camera* view;
 	ComPtr<ID3D11DepthStencilView> shadowMapDSV;
 
 public:
@@ -52,6 +52,7 @@ public:
 	void SetDir( XMFLOAT3 d); 
 	void Enable(STATE enable) override;
 	void ShadowCapture(Scene* scene)const override;
+	XMMATRIX VPMat();
 
 	static void Apply();
 };
@@ -64,7 +65,7 @@ private:
 
 	static SHADER_POINT_LIGHT data;
 	static ID3D11Buffer* cb;
-	static Camera* view[6];
+	Camera* view[6];
 	ComPtr<ID3D11DepthStencilView> shadowMapDSV[6];
 
 public:
@@ -86,7 +87,7 @@ class SpotLight : public Light
 private:
 	static SHADER_SPOT_LIGHT data;
 	static ID3D11Buffer* cb;
-	static Camera* view;
+	Camera* view;
 	ComPtr<ID3D11DepthStencilView> shadowMapDSV;
 
 	float range;

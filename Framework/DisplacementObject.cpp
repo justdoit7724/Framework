@@ -59,7 +59,7 @@ DisplacementObject::DisplacementObject(
 
 void DisplacementObject::Update(const Camera* camera, float elapsed, const XMMATRIX& texMat)
 {
-	XMFLOAT3 eye = camera->transform->GetPos();
+	XMFLOAT3 eye = camera->GetPos();
 
 	const SHADER_STD_TRANSF STransformation(transform->WorldMatrix(), camera->VPMat(zOrder), texMat);
 

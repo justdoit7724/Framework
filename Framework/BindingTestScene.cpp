@@ -9,8 +9,8 @@ BindingTestScene::BindingTestScene()
 	:Scene("BindingTest")
 {
 	Camera* camera = new Camera("Binding", FRAME_KIND_PERSPECTIVE, NULL, NULL, 0.1, 1000, 1.1f, 1.0f);
-	camera->transform->SetTranslation(0, 0, -100);
-	camera->transform->SetRot(FORWARD, UP);
+	camera->SetPos(XMFLOAT3(0, 0, -100));
+	camera->SetRot(FORWARD, UP);
 	camera->SetMain();
 
 	obj = new Object(
