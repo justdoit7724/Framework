@@ -61,7 +61,7 @@ void DisplacementObject::Update(const Camera* camera, float elapsed, const XMMAT
 {
 	XMFLOAT3 eye = camera->GetPos();
 
-	const SHADER_STD_TRANSF STransformation(transform->WorldMatrix(), camera->VPMat(zOrder), texMat);
+	const SHADER_STD_TRANSF STransformation(transform->WorldMatrix(), camera->VMat() * camera->ProjMat(zOrder), texMat);
 
 	vs->WriteCB(0, (void*)(&STransformation));
 	vs->WriteCB(1, &XMFLOAT4(eye.x, eye.y, eye.z,0));

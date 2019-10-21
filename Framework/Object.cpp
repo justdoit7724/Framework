@@ -91,7 +91,7 @@ Object::~Object()
 
 void Object::Update(const Camera* camera, float elapsed, const XMMATRIX& texMat)
 {
-	const SHADER_STD_TRANSF STransformation(transform->WorldMatrix(), camera->VPMat(zOrder), texMat);
+	const SHADER_STD_TRANSF STransformation(transform->WorldMatrix(), camera->VMat() * camera->ProjMat(zOrder), texMat);
 
 	XMFLOAT3 eye = camera->GetPos();
 

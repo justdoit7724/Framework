@@ -52,9 +52,10 @@ ShadowObj::ShadowObj(Shape* shape, ID3D11ShaderResourceView* bodySRV, ID3D11Shad
 
 }
 
-void ShadowObj::Update(const Camera* camera, float elapsed, const XMMATRIX& shadowVP)
+void ShadowObj::Update(const Camera* camera, float elapsed, const XMMATRIX& dShadowVP, const XMMATRIX& pShadowV)
 {
-	const SHADER_PT_TRANSF STransformation(transform->WorldMatrix(), camera->VPMat(zOrder), shadowVP, XMMatrixIdentity());
+	XMMATRIX vp = camera->VMat() * camera->ProjMat(zOrder);
+	const SHADER_PT_TRANSF STransformation(transform->WorldMatrix(), vp, XMMatrixIdentity(), dShadowVP, pShadowV);
 
 	XMFLOAT3 eye = camera->GetPos();
 

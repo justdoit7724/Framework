@@ -131,7 +131,7 @@ void DynamicCubeMap::Update(const Camera* camera, float elapsed, const XMMATRIX&
 		captureCamera[i]->Capture(captureScene, captureRTV[i].GetAddressOf(), captureDSV.Get(), captureViewport);
 	}
 
-	vs->WriteCB(0, &SHADER_STD_TRANSF(transform->WorldMatrix(), camera->VPMat(zOrder), XMMatrixIdentity()));
+	vs->WriteCB(0, &SHADER_STD_TRANSF(transform->WorldMatrix(), camera->VMat() * camera->ProjMat(zOrder), XMMatrixIdentity()));
 	ps->WriteSRV(0, captureSRV.Get());
 	XMFLOAT3 eye = camera->GetPos();
 	ps->WriteCB(0, &XMFLOAT4(eye.x, eye.y, eye.z,0));

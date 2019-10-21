@@ -88,8 +88,8 @@ TestScene::TestScene(IGraphic* graphic)
 	TextureMgr::Instance()->Get("defaultNormal", &defaultNormal);
 
 	cube = new ShadowObj(new Cube(), pbrSRV, pbrNormal, 2);
-	cube->transform->SetScale(20, 40, 20);
-	cube->transform->SetTranslation(40, 20, 0);
+	cube->transform->SetScale(15, 65, 15);
+	cube->transform->SetTranslation(40, 40, 0);
 	AddObj(cube);
 
 	flor = new ShadowObj(new Quad(), pbrSRV, pbrNormal, 2);
@@ -125,9 +125,9 @@ void TestScene::Logic_Update()
 	if (pLight)
 	{
 		XMFLOAT3 pt = XMFLOAT3(
-			cos(elaped * 0.3f) * 20,
-			30,
-			sin(elaped * 0.3f) * 20);
+			cos(elaped * 0.6f) * 20,
+			25,
+			sin(elaped * 0.6f) * 20);
 		pLight->SetPos(pt);
 		Debugging::Instance()->Mark(999, pt, 1.5f, Colors::WhiteSmoke);
 	}
@@ -146,9 +146,9 @@ void TestScene::Render_Update(const Camera* camera, float elapsed, float spf)
 {
 	pLight->ShadowCapture(objs);
 
-	cube->Update(camera, elapsed, XMMatrixIdentity());
+	cube->Update(camera, elapsed, XMMatrixIdentity(), pLight->GetShadowPMat());
 	cube->ps->WriteSRV(4, pLight->ShadowMapSRV());
-	flor->Update(camera, elapsed, XMMatrixIdentity());
+	flor->Update(camera, elapsed, XMMatrixIdentity(), pLight->GetShadowPMat());
 	flor->ps->WriteSRV(4, pLight->ShadowMapSRV());
 
 	DirectionalLight::Apply();

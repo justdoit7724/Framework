@@ -61,7 +61,6 @@ public:
 	void SetDir( XMFLOAT3 d); 
 	void Enable(STATE enable) override;
 	void ShadowCapture(std::vector<Object*>& objs)const override;
-	XMMATRIX ShadowVPMat();
 	void Volume();
 
 	static void Apply();
@@ -89,6 +88,7 @@ public:
 	void Enable(STATE enable) override;
 	void ShadowCapture(std::vector<Object*>& objs)const override;
 	void Volume();
+	const XMMATRIX& GetShadowPMat();
 
 	static void Apply();
 };
@@ -118,8 +118,7 @@ public:
 	void SetSpot( float s);
 	void SetAtt( XMFLOAT3 at);
 	void Enable(STATE enable);
-	void ShadowCapture(std::vector<Object*>& objs)const override;	
-	XMMATRIX ShadowVPMat();
+	void ShadowCapture(std::vector<Object*>& objs)const override;
 
 	static void Apply();
 };

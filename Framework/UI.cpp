@@ -145,7 +145,7 @@ void UICanvas::Update(float spf)
 {
 	for (auto& ui : UIs)
 	{
-		ui.second->Update(spf, camera->VPMat(Z_ORDER_UI),XMMatrixIdentity());
+		ui.second->Update(spf, camera->VMat() * camera->ProjMat(Z_ORDER_UI),XMMatrixIdentity());
 	}
 }
 

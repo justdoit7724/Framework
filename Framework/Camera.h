@@ -26,17 +26,9 @@ public:
 	void Capture(Scene* scene, ID3D11RenderTargetView** rtv, ID3D11DepthStencilView* dsv, D3D11_VIEWPORT vp);
 	void Volume();
 
-	XMMATRIX ProjMat(int zOrder) {
-		return projMats[zOrder];
-	}
-	XMMATRIX ShadowMapVPMat() const
-	{
-		return viewMat * stdProjMat;
-	}
-	XMMATRIX VPMat(int zOrder)const
-	{
-		return viewMat * projMats[zOrder];
-	}
+	const XMMATRIX& VMat()const { return viewMat; }
+	const XMMATRIX& ProjMat(int zOrder)const {return projMats[zOrder];}
+	const XMMATRIX& ShadowPMat()const { return stdProjMat; }
 
 	void SetPos(XMFLOAT3 pos);
 	void SetRot(XMFLOAT3 forward);

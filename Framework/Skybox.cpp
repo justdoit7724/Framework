@@ -41,6 +41,6 @@ Skybox::Skybox(ID3D11ShaderResourceView* srv)
 void Skybox::Update(const Camera* camera, float elapsed, const XMMATRIX& texMat)
 {
 	transform->SetTranslation(camera->GetPos());
-	XMMATRIX wvp = transform->WorldMatrix() * camera->VPMat(zOrder);
+	XMMATRIX wvp = transform->WorldMatrix() * camera->VMat() * camera->ProjMat(zOrder);
 	vs->WriteCB(0, &wvp);
 }

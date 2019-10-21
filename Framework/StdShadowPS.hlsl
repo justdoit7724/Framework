@@ -43,6 +43,7 @@ struct PS_INPUT
     float2 tex : TEXCOORD2;
     float3 tangent : TEXCOORD3;
     float4 pt_ndc_pos : TEXCOORD4;
+    float2 pMatZElem : TEXCOORD5;
 };
 float4 main(PS_INPUT input) : SV_Target
 {
@@ -64,11 +65,10 @@ float4 main(PS_INPUT input) : SV_Target
     float4 specular = 0;
     float4 reflection = 0;
     float4 A, D, S;
-    float shadowFactor = 1/*PointLightShadowFactor(input.normal, d_Dir[0].xyz, input.wPos, p_Pos[0].xyz, pointLightShadowTex, cmSampleState)*/;
     
-    //debug - delete
-    return float4(shadowFactor.xxx, 1);
 
+    float shadowFactor = PointLightShadowFactor(input.normal, input.wPos, p_Pos[0].xyz, pointLightShadowTex, cmSampleState, input.pMatZElem);
+    
     ComputeDirectionalLight(wNormal, toEye, A, D, S);
     ambient += A;
     diffuse += D * shadowFactor;

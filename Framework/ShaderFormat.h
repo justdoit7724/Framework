@@ -64,17 +64,19 @@ struct SHADER_PT_TRANSF
 	XMMATRIX vp;
 	XMMATRIX n;
 	XMMATRIX ui;
-	XMMATRIX pt_vpt;
+	XMMATRIX dLightVPT;
+	XMMATRIX pLightP;
 
-	SHADER_PT_TRANSF(const XMMATRIX& world, const XMMATRIX& vp, const XMMATRIX& pt_vp, const XMMATRIX& ui)
+	SHADER_PT_TRANSF(const XMMATRIX& world, const XMMATRIX& vp, const XMMATRIX& ui, const XMMATRIX& dLightVP, const XMMATRIX& pLightP)
 		:w(world), 
 		vp(vp), 
-		pt_vpt(pt_vp*XMMATRIX(
+		ui(ui),
+		dLightVPT(dLightVP*XMMATRIX(
 			0.5f,0,0,0,
 			0,-0.5f,0,0,
 			0,0,1,0,
 			0.5f,0.5f,0,1)), 
-		ui(ui)
+		pLightP(pLightP)
 	{
 		n = XMMatrixTranspose(XMMatrixInverse(&XMMatrixDeterminant(world), world));
 	}

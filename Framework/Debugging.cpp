@@ -200,7 +200,7 @@ void Debugging::CameraMove(float spf) {
 }
 void Debugging::Update(const Camera* camera, float spf)
 {
-	vp_mat = camera->VPMat(Z_ORDER_STANDARD);
+	vp_mat = camera->VMat() * camera->ProjMat(Z_ORDER_STANDARD);
 	CameraMove(spf);
 }
 

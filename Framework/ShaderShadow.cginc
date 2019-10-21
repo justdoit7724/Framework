@@ -35,13 +35,13 @@ float DirectionalLightShadowFactor(float3 wNormal, float3 lightDir, SamplerCompa
     
     return (percentLit) * 0.111f;
 }
-float PointLightShadowFactor(float3 wNormal, float3 lightDir, float3 wPos, float3 lightPos, TextureCube map, SamplerState samp, float4x4 pMat)
+float PointLightShadowFactor(float3 wNormal, float3 wPos, float3 lightPos, TextureCube map, SamplerState samp, float2 shadowPMatElem)
 {
-    if (dot(wNormal, lightDir) > 0)
-        return 1;
-
     float3 lPos = wPos - lightPos;
-
+    
+    if (dot(wNormal, lPos) > 0)
+        return 1;
+    
     float3 viewForward[6] =
     {
         float3(1, 0, 0),
@@ -51,19 +51,20 @@ float PointLightShadowFactor(float3 wNormal, float3 lightDir, float3 wPos, float
         float3(0, 0, 1),
         float3(0, 0, -1)
     };
-    float curValue = 0;
+    float curDepth = 0;
     float3 curForward = 0;
     for (int i = 0; i < 6; ++i)
     {
-        float newValue = dot(viewForward[i], lPos);
-        if(curValue < newValue)
+        float newDepth = dot(viewForward[i], lPos);
+        if (curDepth < newDepth)
         {
-            curValue = newValue;
+            curDepth = newDepth;
             curForward = viewForward[i];
         }
     }
-    float vZ = dot(wPos, curForward) - lightPos.z;
-    float pZ = pMat._33 + pMat._34 / vZ;
 
+    float vZ = curDepth;
+    float pZ = shadowPMatElem.x + shadowPMatElem.y / vZ;
+    
     return (map.Sample(samp, lPos).r>=pZ)?1:0;
 }

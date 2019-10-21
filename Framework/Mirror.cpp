@@ -119,7 +119,7 @@ void Mirror::Update(const Camera* camera, float elapsed, const XMMATRIX& texMat)
 	UINT vpNum = 1;
 	perspective->Capture(captureScene, rtv.GetAddressOf(), dsv.Get(), vp);
 
-	vs->WriteCB(0, &(transform->WorldMatrix()*camera->VPMat(zOrder)));
+	vs->WriteCB(0, &(transform->WorldMatrix()*camera->VMat() * camera->ProjMat(zOrder)));
 	ps->WriteSRV(0, srv.Get());
 }
 

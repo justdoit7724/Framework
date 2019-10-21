@@ -32,9 +32,9 @@ Light::Light()
 		rs_desc.CullMode = D3D11_CULL_BACK;
 		rs_desc.FillMode = D3D11_FILL_SOLID;
 		rs_desc.FrontCounterClockwise = false;
-		rs_desc.DepthBias = 0x0;
+		rs_desc.DepthBias = 0xff;
 		rs_desc.DepthBiasClamp = 1.0f;
-		rs_desc.SlopeScaledDepthBias = 0.0f;
+		rs_desc.SlopeScaledDepthBias = 1.0f;
 		rsState = new RasterizerState(&rs_desc);
 		blendState = new BlendState(nullptr);
 		dsState = new DepthStencilState(nullptr);
@@ -163,7 +163,7 @@ void DirectionalLight::ShadowCapture(std::vector<Object*>& objs) const
 		blendState->Apply();
 		dsState->Apply();
 
-		shadowMapVS->WriteCB(0, &(obj->transform->WorldMatrix() * view->ShadowMapVPMat()));
+		shadowMapVS->WriteCB(0, &(obj->transform->WorldMatrix() * view->VMat() * view->ShadowPMat()));
 		shadowMapVS->Apply();
 
 		obj->RenderGeom();
@@ -173,10 +173,6 @@ void DirectionalLight::ShadowCapture(std::vector<Object*>& objs) const
 	DX_DContext->OMSetRenderTargets(1, &oriRTV, oriDSV);
 }
 
-XMMATRIX DirectionalLight::ShadowVPMat()
-{
-	return view->ShadowMapVPMat();
-}
 
 void DirectionalLight::Volume()
 {
@@ -363,7 +359,7 @@ void PointLight::ShadowCapture(std::vector<Object*>& objs) const
 
 		for (auto obj : objs)
 		{
-			XMMATRIX smWVP = obj->transform->WorldMatrix() * view[i]->ShadowMapVPMat();
+			XMMATRIX smWVP = obj->transform->WorldMatrix() * view[i]->VMat() * view[i]->ShadowPMat();
 			shadowMapVS->WriteCB(0, &smWVP);
 			shadowMapVS->Apply();
 
@@ -387,6 +383,11 @@ void PointLight::Volume()
 	view[3]->Volume();
 	view[4]->Volume();
 	view[5]->Volume();
+}
+
+const XMMATRIX& PointLight::GetShadowPMat()
+{
+	return view[0]->ShadowPMat();
 }
 
 void PointLight::Apply()
@@ -548,10 +549,6 @@ void SpotLight::ShadowCapture(std::vector<Object*>& objs) const
 {
 }
 
-XMMATRIX SpotLight::ShadowVPMat()
-{
-	return view->ShadowMapVPMat();
-}
 
 void SpotLight::Apply()
 {
