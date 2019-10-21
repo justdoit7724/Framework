@@ -24,11 +24,12 @@ public:
 	void SetMain();
 	void SetFrame(const FRAME_KIND fKind, XMFLOAT2 orthoSize, const float nearPlane, const float farPlane, const float verticalViewAngle, const float aspectRatio);
 	void Capture(Scene* scene, ID3D11RenderTargetView** rtv, ID3D11DepthStencilView* dsv, D3D11_VIEWPORT vp);
+	void Volume();
 
 	XMMATRIX ProjMat(int zOrder) {
 		return projMats[zOrder];
 	}
-	const XMMATRIX& ShadowMapVPMat() const
+	XMMATRIX ShadowMapVPMat() const
 	{
 		return viewMat * stdProjMat;
 	}

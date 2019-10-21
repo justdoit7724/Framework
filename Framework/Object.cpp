@@ -117,9 +117,5 @@ void Object::Render() const
 
 void Object::RenderGeom() const
 {
-	dsState->Apply();
-	blendState->Apply();
-	rsState->Apply();
-
 	shape->Apply();
 }

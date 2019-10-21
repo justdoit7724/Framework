@@ -14,10 +14,12 @@ cbuffer CB_TIME : register(b5)
     float elapsed;
 }
 
+//debug - modify texture system
 TextureCube cm_tex : register(t0);
 Texture2DArray bodyTex : register(t1);
 Texture2DArray bodyNTex : register(t2);
 Texture2D shadowTex : register(t3);
+TextureCube pointLightShadowTex : register(t4);
 
 SamplerState bodySampleState : register(s0);
 SamplerState cmSampleState : register(s1);
@@ -62,7 +64,10 @@ float4 main(PS_INPUT input) : SV_Target
     float4 specular = 0;
     float4 reflection = 0;
     float4 A, D, S;
-    float shadowFactor = CalcShadowFactor(input.normal, d_Dir[0].xyz, shadowSamp, shadowTex, input.pt_ndc_pos, 1024, 1024);
+    float shadowFactor = 1/*PointLightShadowFactor(input.normal, d_Dir[0].xyz, input.wPos, p_Pos[0].xyz, pointLightShadowTex, cmSampleState)*/;
+    
+    //debug - delete
+    return float4(shadowFactor.xxx, 1);
 
     ComputeDirectionalLight(wNormal, toEye, A, D, S);
     ambient += A;

@@ -44,7 +44,8 @@ ShadowObj::ShadowObj(Shape* shape, ID3D11ShaderResourceView* bodySRV, ID3D11Shad
 	ps->AddSRV(0, 1);
 	ps->AddSRV(1, 1);
 	ps->AddSRV(2, 1);
-	ps->AddSRV(3, 1);
+	//debug - modify
+	ps->AddSRV(4, 1);
 	ps->WriteSRV(0, nullptr);
 	ps->WriteSRV(1, bodySRV);
 	ps->WriteSRV(2, bodyNormal);

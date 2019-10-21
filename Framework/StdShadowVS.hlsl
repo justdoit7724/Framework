@@ -8,6 +8,7 @@ struct VS_OUTPUT
     float2 tex : TEXCOORD2;
     float3 tangent : TEXCOORD3;
     float4 pt_ndc_pos : TEXCOORD4;
+    //float2 pMatZElem : TEXCOORD5;
 };
 
 cbuffer CB_TRANSFORMATION : register(b0)
@@ -30,6 +31,7 @@ VS_OUTPUT main(STD_VS_INPUT input)
     output.tex = mul(uiMat, float4(input.tex, 0, 1)).xy;
     output.tangent = mul((float3x3) WMat, input.tangent);
     output.pt_ndc_pos = mul(pt_vpt_mat, wPos);
+    //output.pMatZElem = float2()
 
     return output;
 }

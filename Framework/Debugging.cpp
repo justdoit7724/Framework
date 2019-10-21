@@ -161,9 +161,9 @@ void Debugging::DisableGrid()
 
 void Debugging::CameraMove(float spf) {
 
-	XMFLOAT3 newPos = testCamera->transform->GetPos();
-	XMFLOAT3 right = testCamera->transform->GetRight();
-	XMFLOAT3 forward = testCamera->transform->GetForward();
+	XMFLOAT3 newPos = testCamera->GetPos();
+	XMFLOAT3 right = testCamera->GetRight();
+	XMFLOAT3 forward = testCamera->GetForward();
 	const float speed = 50;
 	if (Keyboard::IsPressing('A')) {
 
@@ -193,10 +193,10 @@ void Debugging::CameraMove(float spf) {
 	prevMousePt.x = Mouse::Instance()->X();
 	prevMousePt.y = Mouse::Instance()->Y();
 	const XMMATRIX rotMat = XMMatrixRotationX(angleX) * XMMatrixRotationY(angleY);
-	testCamera->transform->SetTranslation(newPos);
+	testCamera->SetPos(newPos);
 	XMFLOAT3 f = FORWARD * rotMat;
 	XMFLOAT3 u = UP * rotMat;
-	testCamera->transform->SetRot(f, u, Cross(u, f));
+	testCamera->SetRot(f, u);
 }
 void Debugging::Update(const Camera* camera, float spf)
 {
@@ -326,7 +326,10 @@ void Debugging::Render()
 
 Debugging::Debugging()
 {
-	testCamera = new Camera("DebugCamera", FRAME_KIND_PERSPECTIVE, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1f, 1000.0f, XM_PIDIV2, 1, XMFLOAT3(0, 10, -30), FORWARD, UP);
+	testCamera = new Camera("DebugCamera", FRAME_KIND_PERSPECTIVE, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1f, 1000.0f, XM_PIDIV2, 1);
+	testCamera->SetPos(XMFLOAT3(0, 10, -30));
+	testCamera->SetRot(FORWARD, UP);
+	testCamera->SetMain();
 
 	vs = new VShader("MarkVS.cso", 
 		simple_ILayouts,

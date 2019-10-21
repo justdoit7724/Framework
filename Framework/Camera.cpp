@@ -82,8 +82,8 @@ void Camera::SetFrame(const FRAME_KIND fKind, XMFLOAT2 orthoSize, const float n,
 		float sY = 2.0f / size.y;
 		for (int i = 0; i < Z_ORDER_MAX; ++i)
 		{
-			float M = (-n / (f - n) + i) * interval;
 			float sZ = interval / (f - n);
+			float M = (-n / (f - n) + i) * interval;
 
 			projMats[i] = XMMATRIX(
 				sX, 0, 0, 0,
@@ -155,7 +155,70 @@ void Camera::Capture(Scene* scene, ID3D11RenderTargetView** rtv, ID3D11DepthSten
 	DX_DContext->OMSetRenderTargets(1, &oriRTV, oriDSV);
 	DX_DContext->RSSetViewports(1, &oriVP);
 }
+void Camera::Volume()
+{
+	XMFLOAT3 p = transform->GetPos();
+	XMFLOAT3 forward = transform->GetForward();
+	XMFLOAT3 up = transform->GetUp();
+	XMFLOAT3 right = transform->GetRight();
+	XMFLOAT3 sTL=XMFLOAT3(0,0,0);
+	XMFLOAT3 sTR=XMFLOAT3(0,0,0);
+	XMFLOAT3 sBL=XMFLOAT3(0,0,0);
+	XMFLOAT3 sBR=XMFLOAT3(0,0,0);
+	XMFLOAT3 eTL=XMFLOAT3(0,0,0);
+	XMFLOAT3 eTR=XMFLOAT3(0,0,0);
+	XMFLOAT3 eBL=XMFLOAT3(0,0,0);
+	XMFLOAT3 eBR=XMFLOAT3(0,0,0);
+	switch (curFrame)
+	{
+	case FRAME_KIND_PERSPECTIVE:
+	{
+		float tri = tan(verticalRadian * 0.5f);
+		float nY = tri * n;
+		float nX = nY * aspectRatio;
+		float fY = tri * f;
+		float fX = fY * aspectRatio;
+		sTL = p + right * -nX + up * nY + forward * n;
+		sTR = p + right * nX + up * nY + forward * n;
+		sBL = p + right * -nX + up * -nY + forward * n;
+		sBR = p + right * nX + up * -nY + forward * n;
+		eTL = p + right * -fX + up * fY + forward * f;
+		eTR = p + right * fX + up * fY + forward * f;
+		eBL = p + right * -fX + up * -fY + forward * f;
+		eBR = p + right * fX + up * -fY + forward * f;
+	}
+		break;
+	case FRAME_KIND_ORTHOGONAL:
+	{
+		float x = size.x * 0.5f;
+		float y = size.y * 0.5f;
+		sTL = p + right * -x + up * y + forward * n;
+		sTR = p + right * x + up * y + forward * n;
+		sBL = p + right * -x + up * -y + forward * n;
+		sBR = p + right * x + up * -y + forward * n;
+		eTL = p + right * -x + up * y + forward * f;
+		eTR = p + right * x + up * y + forward * f;
+		eBL = p + right * -x + up * -y + forward * f;
+		eBR = p + right * x + up * -y + forward * f;
+	}
+	break;
+	}
+	
+	Debugging::Instance()->PtLine(sTL, sTR);
+	Debugging::Instance()->PtLine(sTR, sBR);
+	Debugging::Instance()->PtLine(sBR, sBL);
+	Debugging::Instance()->PtLine(sBL, sTL);
 
+	Debugging::Instance()->PtLine(sTL, eTL);
+	Debugging::Instance()->PtLine(sTR, eTR);
+	Debugging::Instance()->PtLine(sBL, eBL);
+	Debugging::Instance()->PtLine(sBR, eBR);
+
+	Debugging::Instance()->PtLine(eTL, eTR);
+	Debugging::Instance()->PtLine(eTR, eBR);
+	Debugging::Instance()->PtLine(eBR, eBL);
+	Debugging::Instance()->PtLine(eBL, eTL);
+}
 void Camera::SetPos(XMFLOAT3 pos)
 {
 	transform->SetTranslation(pos);

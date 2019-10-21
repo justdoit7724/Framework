@@ -38,26 +38,21 @@ TestScene::TestScene(IGraphic* graphic)
 	:Scene("Test"),
 	graphic(graphic)
 {
-	Camera* camera = new Camera("TestMain", FRAME_KIND_PERSPECTIVE, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1, 1000, 1.1f, 1.0f);
-	camera->SetPos(XMFLOAT3(0, 0, -100));
-	camera->SetRot(FORWARD, UP);
-	camera->SetMain();
-
 	timer = new Timer();
 	canvas = new UICanvas(SCREEN_WIDTH, SCREEN_HEIGHT);
 	Debugging::Instance()->EnableGrid(10, 50);
 
-	dLight = new DirectionalLight(
+	/*dLight = new DirectionalLight(
 		XMFLOAT3(0.1f, 0.1f, 0.1f),
 		XMFLOAT3(0.9f, 0.9f, 0.9f),
 		XMFLOAT3(0.9f, 0.9f, 0.9f),
-		XMFLOAT3(0.707f, -0.707f, 0));
-	/*pLight = new PointLight(
+		XMFLOAT3(0.707f, -0.707f, 0));*/
+	pLight = new PointLight(
 		XMFLOAT3(0.1f, 0.1f, 0.1f),
 		XMFLOAT3(0.7f, 0.7f, 0.7f),
 		XMFLOAT3(0.8f, 0.8f, 0.8f),
-		XMFLOAT3(0, 0, 0), 200, XMFLOAT3(0.05f, 0.01f, 0.001f)
-	);*/
+		200, XMFLOAT3(0.05f, 0.01f, 0.001f), XMFLOAT3(0,0,0)
+	);
 	/*pLight2 = new PointLight(
 		XMFLOAT3(0.15f, 0.15f, 0.15f),
 		XMFLOAT3(0.6f, 0.6f, 0.6f),
@@ -93,12 +88,13 @@ TestScene::TestScene(IGraphic* graphic)
 	TextureMgr::Instance()->Get("defaultNormal", &defaultNormal);
 
 	cube = new ShadowObj(new Cube(), pbrSRV, pbrNormal, 2);
-	cube->transform->SetScale(50, 80, 50);
-	cube->transform->SetTranslation(0, 100, 0);
+	cube->transform->SetScale(20, 40, 20);
+	cube->transform->SetTranslation(40, 20, 0);
 	AddObj(cube);
 
 	flor = new ShadowObj(new Quad(), pbrSRV, pbrNormal, 2);
-	flor->transform->SetScale(1500, 1500, 1);
+	flor->transform->SetScale(300, 300, 1);
+	flor->transform->SetTranslation(0, 1, 0);
 	flor->transform->SetRot(UP, -FORWARD);
 	AddObj(flor);
 
@@ -111,54 +107,10 @@ TestScene::~TestScene()
 	delete dLight;
 }
 
-void CameraMove(Camera* camera, float spf) {
-
-	XMFLOAT3 newPos = camera->GetPos();
-	XMFLOAT3 right = camera->GetRight();
-	XMFLOAT3 forward = camera->GetForward();
-	const float speed = 100;
-	if (Keyboard::IsPressing('A')) {
-
-		newPos += -right * speed * spf;
-	}
-	else if (Keyboard::IsPressing('D')) {
-
-		newPos += right * speed * spf;
-	}
-	if (Keyboard::IsPressing('S')) {
-
-		newPos += -forward * speed * spf;
-	}
-	else if (Keyboard::IsPressing('W')) {
-
-		newPos += forward * speed * spf;
-	}
-	static float angleX = 0;
-	static float angleY = 0;
-	static XMFLOAT2 prevMousePt;
-	const float angleSpeed = 3.141592f * 0.2f;
-	if (Mouse::Instance()->IsRightDown())
-	{
-		angleY += angleSpeed * spf * (Mouse::Instance()->X() - prevMousePt.x);
-		angleX += angleSpeed * spf * (Mouse::Instance()->Y() - prevMousePt.y);
-	}
-	prevMousePt.x = Mouse::Instance()->X();
-	prevMousePt.y = Mouse::Instance()->Y();
-	const XMMATRIX rotMat = XMMatrixRotationX(angleX) * XMMatrixRotationY(angleY);
-	camera->SetPos(newPos);
-	XMFLOAT3 f = FORWARD * rotMat;
-	XMFLOAT3 u = UP * rotMat;
-	camera->SetRot(f,u);
-}
 void TestScene::Logic_Update()
 {
-	Camera* cam = CameraMgr::Instance()->Main();
-
+	pLight->Volume();
 	timer->Update();
-
-	CameraMove(cam, timer->SPF());
-
-	Debugging::Instance()->Draw("Main camera = ", cam->GetPos(), 10, 40);
 
 	float elaped = timer->Elapsed();
 	if (dLight)
@@ -173,9 +125,9 @@ void TestScene::Logic_Update()
 	if (pLight)
 	{
 		XMFLOAT3 pt = XMFLOAT3(
-			cos(elaped * 0.3f) * 10,
-			10,
-			sin(elaped * 0.3f) * 10);
+			cos(elaped * 0.3f) * 20,
+			30,
+			sin(elaped * 0.3f) * 20);
 		pLight->SetPos(pt);
 		Debugging::Instance()->Mark(999, pt, 1.5f, Colors::WhiteSmoke);
 	}
@@ -188,30 +140,20 @@ void TestScene::Logic_Update()
 		pLight2->SetPos(pt);
 		Debugging::Instance()->Mark(9999, pt, 1.5f, Colors::Red);
 	}
-
-	/*XMMATRIX rotMat = XMMatrixRotationY(elaped * 0.4f);
-	quad->transform->SetRot(UP, -FORWARD*rotMat);*/
-	
-
-	/*XMMATRIX rot = XMMatrixRotationX(elaped * 0.2f) * XMMatrixRotationY(elaped*0.15f);
-	sphere->transform->SetRot(FORWARD * rot, UP * rot);
-	cylinder->transform->SetRot(FORWARD * rot, UP * rot);*/
 }
-
 
 void TestScene::Render_Update(const Camera* camera, float elapsed, float spf)
 {
-	dLight->ShadowCapture(objs);
+	pLight->ShadowCapture(objs);
 
-	cube->Update(camera, elapsed, dLight->ShadowVPMat());
-	cube->ps->WriteSRV(3, dLight->ShadowMapSRV());
-	flor->Update(camera, elapsed, dLight->ShadowVPMat());
-	flor->ps->WriteSRV(3, dLight->ShadowMapSRV());
+	cube->Update(camera, elapsed, XMMatrixIdentity());
+	cube->ps->WriteSRV(4, pLight->ShadowMapSRV());
+	flor->Update(camera, elapsed, XMMatrixIdentity());
+	flor->ps->WriteSRV(4, pLight->ShadowMapSRV());
 
 	DirectionalLight::Apply();
 	PointLight::Apply();
 	SpotLight::Apply();
-
 
 	canvas->Update(timer->SPF());
 }

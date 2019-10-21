@@ -5,15 +5,20 @@
 #include "Transform.h"
 #include "Object.h"
 #include "Shader.h"
+#include "BlendState.h"
+#include "RasterizerState.h"
+#include "DepthStencilState.h"
 
 SHADER_DIRECTIONAL_LIGHT DirectionalLight::data;
 SHADER_POINT_LIGHT PointLight::data;
 SHADER_SPOT_LIGHT SpotLight::data;
-ID3D11Buffer* DirectionalLight::cb;
-ID3D11Buffer* PointLight::cb;
-ID3D11Buffer* SpotLight::cb;
+ID3D11Buffer* DirectionalLight::cb=nullptr;
+ID3D11Buffer* PointLight::cb = nullptr;
+ID3D11Buffer* SpotLight::cb = nullptr;
 VShader* Light::shadowMapVS=nullptr;
-
+BlendState* Light::blendState = nullptr;
+RasterizerState* Light::rsState = nullptr;
+DepthStencilState* Light::dsState = nullptr;
 
 Light::Light()
 {
@@ -21,6 +26,18 @@ Light::Light()
 	{
 		shadowMapVS = new VShader("ShadowMapVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
 		shadowMapVS->AddCB(0, 1, sizeof(XMMATRIX));
+
+		D3D11_RASTERIZER_DESC rs_desc;
+		ZeroMemory(&rs_desc, sizeof(D3D11_RASTERIZER_DESC));
+		rs_desc.CullMode = D3D11_CULL_BACK;
+		rs_desc.FillMode = D3D11_FILL_SOLID;
+		rs_desc.FrontCounterClockwise = false;
+		rs_desc.DepthBias = 0x0;
+		rs_desc.DepthBiasClamp = 1.0f;
+		rs_desc.SlopeScaledDepthBias = 0.0f;
+		rsState = new RasterizerState(&rs_desc);
+		blendState = new BlendState(nullptr);
+		dsState = new DepthStencilState(nullptr);
 	}
 }
 
@@ -76,18 +93,6 @@ DirectionalLight::DirectionalLight(XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, XMFLOAT3 
 	shadowMapVP.MinDepth = 0;
 	shadowMapVP.MaxDepth = 1;
 #pragma endregion
-
-
-	D3D11_BUFFER_DESC cb_desc;
-	cb_desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	cb_desc.ByteWidth = sizeof(SHADER_DIRECTIONAL_LIGHT);
-	cb_desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	cb_desc.MiscFlags = 0;
-	cb_desc.StructureByteStride = 0;
-	cb_desc.Usage = D3D11_USAGE_DYNAMIC;
-	r_assert(
-		DX_Device->CreateBuffer(&cb_desc, nullptr, &cb)
-	);
 
 	view = new Camera("DirectionalLight",FRAME_KIND_ORTHOGONAL, sdTex_desc.Width, sdTex_desc.Height, 0.1f, 2000.0f, XM_PIDIV2, 1.0f);
 
@@ -154,7 +159,11 @@ void DirectionalLight::ShadowCapture(std::vector<Object*>& objs) const
 
 	for (auto obj : objs)
 	{
-		shadowMapVS->WriteCB(0, &XMMATRIX(obj->transform->WorldMatrix() * view->ShadowMapVPMat()));
+		rsState->Apply();
+		blendState->Apply();
+		dsState->Apply();
+
+		shadowMapVS->WriteCB(0, &(obj->transform->WorldMatrix() * view->ShadowMapVPMat()));
 		shadowMapVS->Apply();
 
 		obj->RenderGeom();
@@ -169,8 +178,27 @@ XMMATRIX DirectionalLight::ShadowVPMat()
 	return view->ShadowMapVPMat();
 }
 
+void DirectionalLight::Volume()
+{
+	view->Volume();
+}
+
 void DirectionalLight::Apply()
 {
+	if (cb == nullptr)
+	{
+		D3D11_BUFFER_DESC cb_desc;
+		cb_desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		cb_desc.ByteWidth = sizeof(SHADER_DIRECTIONAL_LIGHT);
+		cb_desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		cb_desc.MiscFlags = 0;
+		cb_desc.StructureByteStride = 0;
+		cb_desc.Usage = D3D11_USAGE_DYNAMIC;
+		r_assert(
+			DX_Device->CreateBuffer(&cb_desc, nullptr, &cb)
+		);
+	}
+
 	D3D11_MAPPED_SUBRESOURCE mappedData;
 
 	r_assert(DX_DContext->Map(cb, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData));
@@ -240,21 +268,18 @@ PointLight::PointLight(XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, float range, XMFLOAT3
 #pragma endregion
 
 
-	D3D11_BUFFER_DESC cb_desc;
-	cb_desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	cb_desc.ByteWidth = sizeof(SHADER_POINT_LIGHT);
-	cb_desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	cb_desc.MiscFlags = 0;
-	cb_desc.StructureByteStride = 0;
-	cb_desc.Usage = D3D11_USAGE_DYNAMIC;
-	r_assert(
-		DX_Device->CreateBuffer(&cb_desc, nullptr, &cb)
-	);
+	
 
 	for (int i = 0; i < 6; ++i)
 	{
 		view[i] = new Camera("PointLight", FRAME_KIND_PERSPECTIVE, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1f, 100.0f, XM_PIDIV2, 1.0f);
 	}
+	view[0]->SetRot(RIGHT, UP);
+	view[1]->SetRot(-RIGHT, UP);
+	view[2]->SetRot(UP, -FORWARD);
+	view[3]->SetRot(-UP, FORWARD);
+	view[4]->SetRot(FORWARD, UP);
+	view[5]->SetRot(-FORWARD, UP);
 
 	SetAmbient(a);
 	SetDiffuse(d);
@@ -311,7 +336,7 @@ void PointLight::Enable(STATE enable)
 
 void PointLight::ShadowCapture(std::vector<Object*>& objs) const
 {
-	/*DX_DContext->HSSetShader(nullptr, nullptr, 0);
+	DX_DContext->HSSetShader(nullptr, nullptr, 0);
 	DX_DContext->DSSetShader(nullptr, nullptr, 0);
 	DX_DContext->GSSetShader(nullptr, nullptr, 0);
 	DX_DContext->PSSetShader(nullptr, nullptr, 0);
@@ -323,23 +348,69 @@ void PointLight::ShadowCapture(std::vector<Object*>& objs) const
 	ID3D11DepthStencilView* oriDSV;
 	DX_DContext->OMGetRenderTargets(1, &oriRTV, &oriDSV);
 
+	//debug modify system
+	ID3D11ShaderResourceView* nullSRV = nullptr;
+	DX_DContext->PSSetShaderResources(4, 1, &nullSRV);
+
 	DX_DContext->RSSetViewports(1, &shadowMapVP);
+
 
 	for (int i = 0; i < 6; ++i)
 	{
 		ID3D11RenderTargetView* nullRTV = nullptr;
-		DX_DContext->OMSetRenderTargets(1, &nullRTV, shadowMapDSV[i].Get());
 		DX_DContext->ClearDepthStencilView(shadowMapDSV[i].Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+		DX_DContext->OMSetRenderTargets(1, &nullRTV, shadowMapDSV[i].Get());
 
-		scene->ShadowCapture(view[i]);
+		for (auto obj : objs)
+		{
+			XMMATRIX smWVP = obj->transform->WorldMatrix() * view[i]->ShadowMapVPMat();
+			shadowMapVS->WriteCB(0, &smWVP);
+			shadowMapVS->Apply();
+
+			blendState->Apply();
+			rsState->Apply();
+			dsState->Apply();
+
+			obj->RenderGeom();
+		}
 	}
 
 	DX_DContext->RSSetViewports(1, &oriVP);
-	DX_DContext->OMSetRenderTargets(1, &oriRTV, oriDSV);*/
+	DX_DContext->OMSetRenderTargets(1, &oriRTV, oriDSV);
+}
+
+void PointLight::Volume()
+{
+	view[0]->Volume();
+	view[1]->Volume();
+	view[2]->Volume();
+	view[3]->Volume();
+	view[4]->Volume();
+	view[5]->Volume();
 }
 
 void PointLight::Apply()
 {
+	if (cb == nullptr)
+	{
+		D3D11_BUFFER_DESC cb_desc;
+		cb_desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		cb_desc.ByteWidth = sizeof(SHADER_POINT_LIGHT);
+		cb_desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		cb_desc.MiscFlags = 0;
+		cb_desc.StructureByteStride = 0;
+		cb_desc.Usage = D3D11_USAGE_DYNAMIC;
+		r_assert(
+			DX_Device->CreateBuffer(&cb_desc, nullptr, &cb)
+		);
+	}
+
+	D3D11_MAPPED_SUBRESOURCE mappedData;
+
+	r_assert(DX_DContext->Map(cb, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData));
+	CopyMemory(mappedData.pData, &data, sizeof(SHADER_POINT_LIGHT));
+	DX_DContext->Unmap(cb, 0);
+
 	DX_DContext->PSSetConstantBuffers(SHADER_REG_PS_POINT_LIGHT, 1, &cb);
 }
 
@@ -396,16 +467,7 @@ SpotLight::SpotLight(XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, float r, float spot, fl
 #pragma endregion
 
 
-	D3D11_BUFFER_DESC cb_desc;
-	cb_desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	cb_desc.ByteWidth = sizeof(SHADER_SPOT_LIGHT);
-	cb_desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	cb_desc.MiscFlags = 0;
-	cb_desc.StructureByteStride = 0;
-	cb_desc.Usage = D3D11_USAGE_DYNAMIC;
-	r_assert(
-		DX_Device->CreateBuffer(&cb_desc, nullptr, &cb)
-	);
+	
 
 	if(view==nullptr)
 		view = new Camera("SpotLight", FRAME_KIND_PERSPECTIVE, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1f, 100.0f, XM_PIDIV2, 1.0f);
@@ -486,8 +548,34 @@ void SpotLight::ShadowCapture(std::vector<Object*>& objs) const
 {
 }
 
+XMMATRIX SpotLight::ShadowVPMat()
+{
+	return view->ShadowMapVPMat();
+}
+
 void SpotLight::Apply()
 {
+
+	if (cb == nullptr)
+	{
+		D3D11_BUFFER_DESC cb_desc;
+		cb_desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		cb_desc.ByteWidth = sizeof(SHADER_SPOT_LIGHT);
+		cb_desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		cb_desc.MiscFlags = 0;
+		cb_desc.StructureByteStride = 0;
+		cb_desc.Usage = D3D11_USAGE_DYNAMIC;
+		r_assert(
+			DX_Device->CreateBuffer(&cb_desc, nullptr, &cb)
+		);
+	}
+
+	D3D11_MAPPED_SUBRESOURCE mappedData;
+
+	r_assert(DX_DContext->Map(cb, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData));
+	CopyMemory(mappedData.pData, &data, sizeof(SHADER_SPOT_LIGHT));
+	DX_DContext->Unmap(cb, 0);
+
 	DX_DContext->PSSetConstantBuffers(SHADER_REG_PS_SPOT_LIGHT, 1, &cb);
 }
 
