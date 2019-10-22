@@ -1,8 +1,10 @@
 #pragma once
 #include <string>
 #include "DX_info.h"
+#include "Network.h"
 
 class Camera;
+struct Frustum;
 class Transform;
 class Shape;
 class VShader;
@@ -14,7 +16,7 @@ class BlendState;
 class DepthStencilState;
 class RasterizerState;
 
-class Object
+class Object : public IDebug
 {
 public:
 	Object(Shape* shape, std::string sVS, const D3D11_INPUT_ELEMENT_DESC* iLayouts, UINT layoutCount, std::string sHS, std::string sDS, std::string sGS, std::string sPS, int zOrder);
@@ -24,6 +26,8 @@ public:
 	virtual void Update(const Camera* camera, float elapsed, const XMMATRIX& texMat = XMMatrixIdentity());
 	virtual void Render() const;
 	void RenderGeom() const;
+	virtual bool IsInsideFrustum(const Frustum* frustum) const;
+	void Visualize() override;
 
 	//TODO
 	Transform* transform;
@@ -42,5 +46,9 @@ protected:
 	XMMATRIX worldMat;
 	XMMATRIX nMat;
 	int zOrder;
+
+	float boundRad;
+	XMFLOAT3 boundlMinPt;
+	XMFLOAT3 boundlMaxPt;
 };
 

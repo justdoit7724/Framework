@@ -31,7 +31,7 @@ BindingTestScene::BindingTestScene()
 	obj->ps->AddCB(1, 1, sizeof(XMFLOAT4));*/
 }
 
-void BindingTestScene::Logic_Update()
+void BindingTestScene::Update_Logic()
 {
 	
 }

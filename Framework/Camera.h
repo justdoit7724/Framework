@@ -1,5 +1,6 @@
 #pragma once
 #include "DX_info.h"
+#include "Network.h"
 
 enum FRAME_KIND {
 	FRAME_KIND_PERSPECTIVE,
@@ -15,24 +16,30 @@ enum FRAME_KIND {
 class Transform;
 class Scene;
 
-class Camera
+struct Frustum
+{
+	XMFLOAT3 sidePt, nPt, fPt;
+	XMFLOAT3 nN, fN;
+	XMFLOAT3 rN, lN;
+	XMFLOAT3 tN, bN;
+};
+
+class Camera : public IDebug
 {
 public:
 	Camera(std::string key, const Camera* camera);
 	Camera(std::string key, FRAME_KIND frameKind, float screenWidth, float screenHeight, float nearPlane, float farPlane, float verticalViewRad, float aspectRatio);
+	Camera(FRAME_KIND frameKind, float screenWidth, float screenHeight, float nearPlane, float farPlane, float verticalViewRad, float aspectRatio);
 	~Camera();
 	void SetMain();
 	void SetFrame(const FRAME_KIND fKind, XMFLOAT2 orthoSize, const float nearPlane, const float farPlane, const float verticalViewAngle, const float aspectRatio);
 	void Capture(Scene* scene, ID3D11RenderTargetView** rtv, ID3D11DepthStencilView* dsv, D3D11_VIEWPORT vp);
-	void Volume();
+	void Update();
+	void Visualize() override;
 
 	const XMMATRIX& VMat()const { return viewMat; }
 	const XMMATRIX& ProjMat(int zOrder)const {return projMats[zOrder];}
 	const XMMATRIX& ShadowPMat()const { return stdProjMat; }
-
-	void SetPos(XMFLOAT3 pos);
-	void SetRot(XMFLOAT3 forward);
-	void SetRot(XMFLOAT3 forward, XMFLOAT3 up);
 
 	const std::string key;
 
@@ -42,13 +49,13 @@ public:
 	float GetF()const { return f; }
 	float GetVRad()const { return verticalRadian; }
 	float GetAspectRatio()const { return aspectRatio; }
-	XMFLOAT3 GetForward()const;
-	XMFLOAT3 GetRight()const;
-	XMFLOAT3 GetPos()const;
+
+	const Frustum* GetFrustum()const { return &frustum; }
+
+	Transform* transform;
 
 private:
 	void SetView();
-	Transform* transform;
 	XMMATRIX stdProjMat;
 	XMMATRIX* projMats;
 	XMMATRIX viewMat;
@@ -58,5 +65,7 @@ private:
 	float n, f;
 	float verticalRadian;
 	float aspectRatio;
+
+	Frustum frustum;
 };
 

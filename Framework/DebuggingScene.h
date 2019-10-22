@@ -6,7 +6,7 @@ class DebuggingScene :
 public:
 	DebuggingScene();
 
-	void Logic_Update()override;
+	void Update_Logic()override;
 	void Render_Update(const Camera* camera, float elapsed, float spf)override;
 	void Render()const override;
 };

@@ -27,7 +27,7 @@ DCMScene::~DCMScene()
 	delete timer;
 }
 
-void DCMScene::Logic_Update()
+void DCMScene::Update_Logic()
 {
 	float elapsed = timer->Elapsed();
 	

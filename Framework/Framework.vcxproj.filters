@@ -335,6 +335,9 @@
     <ClInclude Include="ShaderFormat.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ObjectPooling.h">
+      <Filter>DesignPattern</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ShaderInfo.cginc">

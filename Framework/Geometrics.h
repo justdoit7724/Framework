@@ -126,6 +126,14 @@ inline XMFLOAT3 Normalize(XMFLOAT3 v)
 	XMStoreFloat3(&f3, nv);
 	return f3;
 }
+inline XMFLOAT3 Abs(XMFLOAT3 v)
+{
+	return XMFLOAT3(abs(v.x), abs(v.y), abs(v.z));
+}
+inline float Max(XMFLOAT3 v)
+{
+	return XMMax(v.x, XMMax(v.y, v.z));
+}
 // radian between dir1, dir2
 inline float Rad(XMFLOAT3 d1, XMFLOAT3 d2)
 {
@@ -157,6 +165,13 @@ inline XMFLOAT4 operator*(XMFLOAT4 v, const XMMATRIX& m)
 	XMFLOAT4 f4;
 	XMStoreFloat4(&f4, mv);
 	return f4;
+}
+
+inline bool IntersectInPlaneSphere(XMFLOAT3 pC, XMFLOAT3 pN, XMFLOAT3 sC, float sRad)
+{
+	float proj = Dot(sC - pC, pN);
+
+	return ((proj + sRad) > 0);
 }
 
 namespace Geometrics

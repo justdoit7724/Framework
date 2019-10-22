@@ -13,7 +13,7 @@ void SceneMgr::Process(float wElapsed, float wSpf)
 {
 	for (auto i = list.begin(); i != list.end(); ++i)
 	{
-		i->second->Logic_Update();
+		i->second->Update_Logic();
 		i->second->Render_Update(CameraMgr::Instance()->Main(), wElapsed, wSpf);
 		i->second->Render();
 	}

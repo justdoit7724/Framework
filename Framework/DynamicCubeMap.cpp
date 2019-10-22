@@ -31,11 +31,12 @@ DynamicCubeMap::DynamicCubeMap(IGraphic* graphic, Scene* captureScene, Shape* sh
 	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	ps->AddSamp(0, 1, &sampDesc);
 
-	const UINT captureLength = 1024;
+	const UINT captureWidth = 1024;
+	const UINT captureHeight = 1024;
 	
 	D3D11_TEXTURE2D_DESC capture_desc;
-	capture_desc.Width = captureLength;
-	capture_desc.Height = captureLength;
+	capture_desc.Width = captureWidth;
+	capture_desc.Height = captureHeight;
 	capture_desc.MipLevels = 0;
 	capture_desc.ArraySize = 6;
 	capture_desc.SampleDesc = { 1,0 };
@@ -63,8 +64,8 @@ DynamicCubeMap::DynamicCubeMap(IGraphic* graphic, Scene* captureScene, Shape* sh
 	}
 
 	D3D11_TEXTURE2D_DESC cds_desc;
-	cds_desc.Width = captureLength;
-	cds_desc.Height = captureLength;
+	cds_desc.Width = captureWidth;
+	cds_desc.Height = captureHeight;
 	cds_desc.MipLevels = 1;
 	cds_desc.ArraySize = 1;
 	cds_desc.SampleDesc = { 1,0 };
@@ -98,23 +99,29 @@ DynamicCubeMap::DynamicCubeMap(IGraphic* graphic, Scene* captureScene, Shape* sh
 
 	captureViewport.TopLeftX = 0.0f;
 	captureViewport.TopLeftY = 0.0f;
-	captureViewport.Width = captureLength;
-	captureViewport.Height = captureLength;
+	captureViewport.Width = captureWidth;
+	captureViewport.Height = captureHeight;
 	captureViewport.MinDepth = 0.0f;
 	captureViewport.MaxDepth = 1.0f;
 
-	captureCamera[0] = new Camera("capture0", FRAME_KIND_PERSPECTIVE, captureLength, captureLength, 100.0f, 1000.0f, XM_PIDIV2, 1);
-	captureCamera[0]->SetRot(RIGHT, UP);
-	captureCamera[1] = new Camera("capture1", FRAME_KIND_PERSPECTIVE, captureLength, captureLength, 100.0f, 1000.0f, XM_PIDIV2, 1);
-	captureCamera[1]->SetRot(-RIGHT, UP);
-	captureCamera[2] = new Camera("capture2", FRAME_KIND_PERSPECTIVE, captureLength, captureLength, 100.0f, 1000.0f, XM_PIDIV2, 1);
-	captureCamera[2]->SetRot(UP, -FORWARD);
-	captureCamera[3] = new Camera("capture3", FRAME_KIND_PERSPECTIVE, captureLength, captureLength, 100.0f, 1000.0f, XM_PIDIV2, 1);
-	captureCamera[3]->SetRot(-UP, FORWARD);
-	captureCamera[4] = new Camera("capture4", FRAME_KIND_PERSPECTIVE, captureLength, captureLength, 100.0f, 1000.0f, XM_PIDIV2, 1);
-	captureCamera[4]->SetRot(FORWARD, UP);
-	captureCamera[5] = new Camera("capture5", FRAME_KIND_PERSPECTIVE, captureLength, captureLength, 100.0f, 1000.0f, XM_PIDIV2, 1);
-	captureCamera[5]->SetRot(-FORWARD, UP);
+	captureCamera[0] = new Camera(FRAME_KIND_PERSPECTIVE, NULL, NULL, 1.0f, 100.0f, XM_PIDIV2, 1);
+	captureCamera[0]->transform->SetRot(RIGHT, UP);
+	captureCamera[1] = new Camera(FRAME_KIND_PERSPECTIVE, NULL, NULL, 1.0f, 100.0f, XM_PIDIV2, 1);
+	captureCamera[1]->transform->SetRot(-RIGHT, UP);
+	captureCamera[2] = new Camera(FRAME_KIND_PERSPECTIVE, NULL, NULL, 1.0f, 100.0f, XM_PIDIV2, 1);
+	captureCamera[2]->transform->SetRot(UP, -FORWARD);
+	captureCamera[3] = new Camera(FRAME_KIND_PERSPECTIVE, NULL, NULL, 1.0f, 100.0f, XM_PIDIV2, 1);
+	captureCamera[3]->transform->SetRot(-UP, FORWARD);
+	captureCamera[4] = new Camera(FRAME_KIND_PERSPECTIVE, NULL, NULL, 1.0f, 100.0f, XM_PIDIV2, 1);
+	captureCamera[4]->transform->SetRot(FORWARD, UP);
+	captureCamera[5] = new Camera(FRAME_KIND_PERSPECTIVE, NULL, NULL, 1.0f, 100.0f, XM_PIDIV2, 1);
+	captureCamera[5]->transform->SetRot(-FORWARD, UP);
+}
+
+DynamicCubeMap::~DynamicCubeMap()
+{
+	for (int i = 0; i < 6; ++i)
+		delete captureCamera[i];
 }
 
 void DynamicCubeMap::Update(const Camera* camera, float elapsed, const XMMATRIX& texMat)
@@ -123,7 +130,7 @@ void DynamicCubeMap::Update(const Camera* camera, float elapsed, const XMMATRIX&
 	DX_DContext->PSSetShaderResources(0, 1, &nullSRV);
 	for (int i = 0; i < 6; ++i)
 	{
-		captureCamera[i]->SetPos(transform->GetPos());
+		captureCamera[i]->transform->SetTranslation(transform->GetPos());
 
 		DX_DContext->ClearRenderTargetView(captureRTV[i].Get(), Colors::Transparent);
 		DX_DContext->ClearDepthStencilView(captureDSV.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
@@ -133,6 +140,6 @@ void DynamicCubeMap::Update(const Camera* camera, float elapsed, const XMMATRIX&
 
 	vs->WriteCB(0, &SHADER_STD_TRANSF(transform->WorldMatrix(), camera->VMat() * camera->ProjMat(zOrder), XMMatrixIdentity()));
 	ps->WriteSRV(0, captureSRV.Get());
-	XMFLOAT3 eye = camera->GetPos();
+	XMFLOAT3 eye = camera->transform->GetPos();
 	ps->WriteCB(0, &XMFLOAT4(eye.x, eye.y, eye.z,0));
 }

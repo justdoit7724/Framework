@@ -11,6 +11,7 @@
 #include "Camera.h"
 #include "Keyboard.h"
 #include "Mouse.h"
+#include "Network.h"
 
 #include "Cube.h"
 #include "Sphere.h"
@@ -39,9 +40,13 @@ void Debugging::Draw(float tex, const float x, const float y, XMVECTORF32 _color
 {
 	Draw(std::to_string(tex), x,y, _color, _scale);
 }
+void Debugging::Draw(std::string title, float v, const float x, const float y, XMVECTORF32 _color, float _scale)
+{
+	Draw(title + std::to_string(v), x, y, _color, _scale);
+}
 void Debugging::Draw(std::string title, XMFLOAT3 v, const float x, const float y, XMVECTORF32 _color, float _scale)
 {
-	Draw(title + "(" + std::to_string(v.x) + ", " + std::to_string(v.y) + ", " + std::to_string(v.z) + ")", x,y, _color, _scale);
+	Draw(title + "(" + std::to_string(v.x) + ", " + std::to_string(v.y) + ", " + std::to_string(v.z) + ")", x, y, _color, _scale);
 }
 void Debugging::Draw3D(const std::string tex, const XMFLOAT3 _pos, const XMVECTORF32 _color, const float _scale)
 {
@@ -66,21 +71,25 @@ void Debugging::Draw3D(std::string title, XMFLOAT3 v, XMFLOAT3 _pos, XMVECTORF32
 {
 	Draw3D(title + "(" + std::to_string(v.x) + ", " + std::to_string(v.y) + ", " + std::to_string(v.z) + ")", _pos, _color, _scale);
 }
-void Debugging::Mark(const UINT key, XMFLOAT3 pos, float radius, XMVECTORF32 color)
+void Debugging::Mark(XMFLOAT3 pos, float radius, XMVECTORF32 color)
 {
-	if (marks.find(key) == marks.end())
+	for (int i = 0; i < MARK_MAX; ++i)
 	{
-		Transform* transform = new Transform();
-		Sphere* newGeom = new Sphere(2);
-		transform->SetTranslation(pos);
-		transform->SetScale(radius, radius, radius);
-		
-		marks.insert(std::pair<UINT, MarkInfo>(key, MarkInfo(transform,newGeom, color)));
-	}
-	else {
-		marks[key].transform->SetTranslation(pos);
-		marks[key].transform->SetScale(radius, radius, radius);
-		marks[key].color = color;
+		if (curMarkIdx >= MARK_MAX)
+			curMarkIdx = 0;
+
+		if (marks[curMarkIdx].isDraw==false)
+		{
+			marks[curMarkIdx].isDraw = true;
+			marks[curMarkIdx].pos = pos;
+			marks[curMarkIdx].rad = radius;
+			marks[curMarkIdx].color = color;
+			curMarkIdx++;
+			return;
+		}
+		else {
+			curMarkIdx++;
+		}
 	}
 }
 
@@ -158,12 +167,18 @@ void Debugging::DisableGrid()
 	gridVB = nullptr;
 }
 
+void Debugging::Visualize(IDebug* obj)
+{
+	assert(debugObjs.find(obj) == debugObjs.end());
+	
+	debugObjs.insert(obj);
+}
 
 void Debugging::CameraMove(float spf) {
 
-	XMFLOAT3 newPos = testCamera->GetPos();
-	XMFLOAT3 right = testCamera->GetRight();
-	XMFLOAT3 forward = testCamera->GetForward();
+	XMFLOAT3 newPos = debugCam->transform->GetPos();
+	XMFLOAT3 right = debugCam->transform->GetRight();
+	XMFLOAT3 forward = debugCam->transform->GetForward();
 	const float speed = 50;
 	if (Keyboard::IsPressing('A')) {
 
@@ -193,35 +208,47 @@ void Debugging::CameraMove(float spf) {
 	prevMousePt.x = Mouse::Instance()->X();
 	prevMousePt.y = Mouse::Instance()->Y();
 	const XMMATRIX rotMat = XMMatrixRotationX(angleX) * XMMatrixRotationY(angleY);
-	testCamera->SetPos(newPos);
+	debugCam->transform->SetTranslation(newPos);
 	XMFLOAT3 f = FORWARD * rotMat;
 	XMFLOAT3 u = UP * rotMat;
-	testCamera->SetRot(f, u);
+	debugCam->transform->SetRot(f, u);
 }
-void Debugging::Update(const Camera* camera, float spf)
+void Debugging::Update(float spf)
 {
-	vp_mat = camera->VMat() * camera->ProjMat(Z_ORDER_STANDARD);
+	vp_mat = debugCam->VMat() * debugCam->ProjMat(Z_ORDER_STANDARD);
 	CameraMove(spf);
+
+	for (IDebug* obj : debugObjs)
+	{
+		obj->Visualize();
+	}
 }
 
 void Debugging::Render()
 {
-	hs->Apply();
-	ds->Apply();
-	gs->Apply();
+	DX_DContext->HSSetShader(nullptr, nullptr, 0);
+	DX_DContext->DSSetShader(nullptr, nullptr, 0);
+	DX_DContext->GSSetShader(nullptr, nullptr, 0);
 	blendState->Apply();
 	dsState->Apply();
 	rsState->Apply();
 
 	#pragma region Marks
 
-	for (auto& mark : marks) {
+	for (int i = 0; i < MARK_MAX; ++i) {
 
-		vs->WriteCB(0,&(mark.second.transform->WorldMatrix() * vp_mat));
-		ps->WriteCB(0,&(mark.second.color));
-		vs->Apply();
-		ps->Apply();
-		mark.second.geom->Apply();
+		MarkInfo& mark = marks[i];
+
+		if (!mark.isDraw)
+			continue;
+		markTransform->SetTranslation(mark.pos);
+		markTransform->SetScale(mark.rad);
+		markVS->WriteCB(0,&(markTransform->WorldMatrix() * vp_mat));
+		markPS->WriteCB(0,&(mark.color));
+		markVS->Apply();
+		markPS->Apply();
+		markShape->Apply();
+		mark.isDraw = false;
 	}
 #pragma endregion
 
@@ -241,10 +268,10 @@ void Debugging::Render()
 		pVB[1] = l.p2;
 		DX_DContext->Unmap(lineVB->Get(), 0);
 		
-		vs->WriteCB(0,&vp_mat);
-		ps->WriteCB(0,&(l.color));
-		vs->Apply();
-		ps->Apply();
+		markVS->WriteCB(0,&vp_mat);
+		markPS->WriteCB(0,&(l.color));
+		markVS->Apply();
+		markPS->Apply();
 
 		UINT stride = sizeof(XMFLOAT3);
 		UINT offset = 0;
@@ -255,33 +282,33 @@ void Debugging::Render()
 
 	if (gridVB)
 	{
-		vs->WriteCB(0,&vp_mat);
-		ps->WriteCB(0,(void*)(&(Colors::Red)));
-		vs->Apply();
-		ps->Apply();
+		markVS->WriteCB(0,&vp_mat);
+		markPS->WriteCB(0,(void*)(&(Colors::Red)));
+		markVS->Apply();
+		markPS->Apply();
 		UINT stride = sizeof(XMFLOAT3);
 		UINT offset = 0;
 		DX_DContext->IASetVertexBuffers(0, 1, originVB->GetAddress(), &stride, &offset);
 		DX_DContext->Draw(2, 0);
 
-		vs->WriteCB(0,&vp_mat);
-		ps->WriteCB(0,(void*)(&(Colors::Green)));
-		vs->Apply();
-		ps->Apply();
+		markVS->WriteCB(0,&vp_mat);
+		markPS->WriteCB(0,(void*)(&(Colors::Green)));
+		markVS->Apply();
+		markPS->Apply();
 		DX_DContext->IASetVertexBuffers(0, 1, originVB->GetAddress(), &stride, &offset);
 		DX_DContext->Draw(2, 2);
 
-		vs->WriteCB(0,&vp_mat);
-		ps->WriteCB(0,(void*)(&(Colors::Blue)));
-		vs->Apply();
-		ps->Apply();
+		markVS->WriteCB(0,&vp_mat);
+		markPS->WriteCB(0,(void*)(&(Colors::Blue)));
+		markVS->Apply();
+		markPS->Apply();
 		DX_DContext->IASetVertexBuffers(0, 1, originVB->GetAddress(), &stride, &offset);
 		DX_DContext->Draw(2, 4);
 
-		vs->WriteCB(0,&vp_mat);
-		ps->WriteCB(0,(void*)(&(Colors::Gray)));
-		vs->Apply();
-		ps->Apply();
+		markVS->WriteCB(0,&vp_mat);
+		markPS->WriteCB(0,(void*)(&(Colors::Gray)));
+		markVS->Apply();
+		markPS->Apply();
 		DX_DContext->IASetVertexBuffers(0, 1, gridVB->GetAddress(), &stride, &offset);
 		DX_DContext->Draw(gridVerticeCount, 0);
 	}
@@ -326,24 +353,25 @@ void Debugging::Render()
 
 Debugging::Debugging()
 {
-	testCamera = new Camera("DebugCamera", FRAME_KIND_PERSPECTIVE, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1f, 1000.0f, XM_PIDIV2, 1);
-	testCamera->SetPos(XMFLOAT3(0, 10, -30));
-	testCamera->SetRot(FORWARD, UP);
-	testCamera->SetMain();
+	debugCam = new Camera("DebugCamera", FRAME_KIND_PERSPECTIVE, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1f, 1000.0f, XM_PIDIV2, 1);
+	debugCam->transform->SetTranslation(XMFLOAT3(0, 10, -30));
+	debugCam->transform->SetRot(FORWARD, UP);
+	debugCam->SetMain();
 
-	vs = new VShader("MarkVS.cso", 
+	markVS = new VShader("MarkVS.cso", 
 		simple_ILayouts,
 		ARRAYSIZE(simple_ILayouts));
-	hs = new HShader();
-	ds = new DShader();
-	gs = new GShader();
-	ps = new PShader("MarkPS.cso");
-	vs->AddCB(0, 1, sizeof(XMMATRIX));
-	ps->AddCB(0, 1, sizeof(XMVECTOR));
+	markPS = new PShader("MarkPS.cso");
+	markVS->AddCB(0, 1, sizeof(XMMATRIX));
+	markPS->AddCB(0, 1, sizeof(XMVECTOR));
 
 	blendState = new BlendState(nullptr);
 	dsState = new DepthStencilState(nullptr);
-	rsState = new RasterizerState(nullptr);
+	D3D11_RASTERIZER_DESC wrs_desc;
+	ZeroMemory(&wrs_desc, sizeof(D3D11_RASTERIZER_DESC));
+	wrs_desc.FillMode = D3D11_FILL_WIREFRAME;
+	wrs_desc.CullMode = D3D11_CULL_BACK;
+	rsState = new RasterizerState(&wrs_desc);
 
 	spriteBatch = std::make_unique<DirectX::SpriteBatch>(DX_DContext);
 	spriteFont = std::make_unique<DirectX::SpriteFont>(DX_Device, L"Data\\Font\\Font.spritefont");
@@ -357,14 +385,14 @@ Debugging::Debugging()
 	vb_desc.Usage = D3D11_USAGE_DYNAMIC;
 	lineVB = new Buffer(&vb_desc, nullptr);
 
-	
+	markShape = new Sphere(2);
+	markTransform = new Transform();
 }
 
 Debugging::~Debugging()
 {
-	delete vs;
-	delete gs;
-	delete ps;
+	delete markVS;
+	delete markPS;
 	delete blendState;
 	delete dsState;
 	delete rsState;

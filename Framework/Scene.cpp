@@ -3,24 +3,25 @@
 #include "Object.h"
 #include "Shader.h"
 #include "ShaderFormat.h"
+#include "Camera.h"
+#include "Debugging.h"
 
 Scene::Scene(std::string key)
 	:key(key)
 {
-	shadowMapVS = new VShader("ShadowMapVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
-	shadowMapVS->AddCB(0, 1, sizeof(XMMATRIX));
+	SceneMgr::Instance()->Add(this);
 }
 
 Scene::~Scene()
 {
-	delete shadowMapVS;
-
 	SceneMgr::Instance()->Remove(key);
 }
 
 void Scene::Render_Update(const Camera* camera, float elapsed, float spf)
 {
-	for (auto obj : objs)
+	FrustumCulling(camera);
+
+	for (auto obj : drawObjs)
 	{
 		obj->Update(camera, elapsed, XMMatrixIdentity());
 	}
@@ -28,8 +29,21 @@ void Scene::Render_Update(const Camera* camera, float elapsed, float spf)
 
 void Scene::Render() const
 {
-	for (auto obj : objs)
+	for (auto obj : drawObjs)
 	{
 		obj->Render();
 	}
+}
+
+void Scene::FrustumCulling(const Camera* camera)
+{
+	drawObjs.clear();
+
+	for (auto obj : objs)
+	{
+		if(obj->IsInsideFrustum(camera->GetFrustum()))
+			drawObjs.push_back(obj);
+	}
+
+	Debugging::Instance()->Draw("drawing Obj count = ", drawObjs.size(), 10, 10);
 }

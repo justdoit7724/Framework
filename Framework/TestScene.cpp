@@ -32,8 +32,6 @@
 #include "ShadowMap.h"
 #include "ShadowObj.h"
 
-ShadowObj* cube;
-ShadowObj* flor;
 TestScene::TestScene(IGraphic* graphic)
 	:Scene("Test"),
 	graphic(graphic)
@@ -87,18 +85,25 @@ TestScene::TestScene(IGraphic* graphic)
 	TextureMgr::Instance()->Get("white", &whiteSRV);
 	TextureMgr::Instance()->Get("defaultNormal", &defaultNormal);
 
-	cube = new ShadowObj(new Cube(), pbrSRV, pbrNormal, 2);
-	cube->transform->SetScale(15, 65, 15);
-	cube->transform->SetTranslation(40, 40, 0);
-	AddObj(cube);
+	int n = 8;
+	for (int z = 0; z < n; ++z) {
+		for (int y = 0; y < n; ++y) {
+			for (int x = 0; x < n; ++x) {
 
-	flor = new ShadowObj(new Quad(), pbrSRV, pbrNormal, 2);
-	flor->transform->SetScale(300, 300, 1);
-	flor->transform->SetTranslation(0, 1, 0);
-	flor->transform->SetRot(UP, -FORWARD);
-	AddObj(flor);
+				float interval = 15;
+
+				Object* newObj = new Object(new Cube(), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), 4, XMFLOAT3(0, 0, 0), pbrSRV, nullptr, nullptr, Z_ORDER_STANDARD);
+				newObj->transform->SetScale(10, 10, 10);
+				newObj->transform->SetTranslation(x * interval, y * interval, z * interval);
+				AddObj(newObj);
+			}
+		}
+	}
 
 
+	//testCam = new Camera("CullingCamera", FRAME_KIND_PERSPECTIVE, NULL, NULL, 5, 50, XM_PIDIV2, 1.6f);
+	//Debugging::Instance()->Visualize(testCam);
+	//testCam->SetPos(XMFLOAT3(0, 15, 0));
 }
 
 TestScene::~TestScene()
@@ -107,9 +112,11 @@ TestScene::~TestScene()
 	delete dLight;
 }
 
-void TestScene::Logic_Update()
+void TestScene::Update_Logic()
 {
-	pLight->Volume();
+	CameraMgr::Instance()->Main()->Update();
+
+	pLight->Update();
 	timer->Update();
 
 	float elaped = timer->Elapsed();
@@ -129,7 +136,7 @@ void TestScene::Logic_Update()
 			25,
 			sin(elaped * 0.6f) * 20);
 		pLight->SetPos(pt);
-		Debugging::Instance()->Mark(999, pt, 1.5f, Colors::WhiteSmoke);
+		Debugging::Instance()->Mark(pt, 1.5f, Colors::WhiteSmoke);
 	}
 	if (pLight2)
 	{
@@ -138,22 +145,34 @@ void TestScene::Logic_Update()
 			cos(elaped) * 3,
 			sin(elaped * 0.15f) * 25);
 		pLight2->SetPos(pt);
-		Debugging::Instance()->Mark(9999, pt, 1.5f, Colors::Red);
+		Debugging::Instance()->Mark(pt, 1.5f, Colors::Red);
+	}
+
+	XMFLOAT3 moveScalar = XMFLOAT3(0, 0, 0);
+	if (Keyboard::IsPressing("F")){
+		moveScalar += -RIGHT * 0.1f;
+	}
+	else if (Keyboard::IsPressing("H")) {
+
+		moveScalar += RIGHT * 0.1f;
+	}
+	if (Keyboard::IsPressing("T")) {
+
+		moveScalar += FORWARD * 0.1f;
+	}
+	else if (Keyboard::IsPressing("G")) {
+
+		moveScalar += -FORWARD * 0.1f;
 	}
 }
 
 void TestScene::Render_Update(const Camera* camera, float elapsed, float spf)
 {
-	pLight->ShadowCapture(objs);
-
-	cube->Update(camera, elapsed, XMMatrixIdentity(), pLight->GetShadowPMat());
-	cube->ps->WriteSRV(4, pLight->ShadowMapSRV());
-	flor->Update(camera, elapsed, XMMatrixIdentity(), pLight->GetShadowPMat());
-	flor->ps->WriteSRV(4, pLight->ShadowMapSRV());
-
 	DirectionalLight::Apply();
 	PointLight::Apply();
 	SpotLight::Apply();
+
+	Scene::Render_Update(camera, elapsed, spf);
 
 	canvas->Update(timer->SPF());
 }

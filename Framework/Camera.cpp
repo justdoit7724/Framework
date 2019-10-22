@@ -13,15 +13,21 @@ Camera::Camera(std::string key, const Camera* camera)
 	transform = new Transform();
 
 	SetFrame(camera->GetFrame(), camera->GetSize(), camera->GetN(), camera->GetF(), camera->GetVRad(), camera->GetAspectRatio());
-	SetPos(camera->transform->GetPos());
-	SetRot(camera->transform->GetForward(), camera->transform->GetUp());
+	SetView();
 }
-
 Camera::Camera(std::string key, FRAME_KIND frameKind, float orthoScnWidth, float orthoScnHeight, float n, float f, float verticalViewRad, float aspectRatio)
 	:key(key)
 {
 	CameraMgr::Instance()->Add(key, this);
 
+	transform = new Transform();
+
+	SetView();
+	SetFrame(frameKind, XMFLOAT2(orthoScnWidth, orthoScnHeight), n, f, verticalViewRad, aspectRatio);
+}
+Camera::Camera(FRAME_KIND frameKind, float orthoScnWidth, float orthoScnHeight, float n, float f, float verticalViewRad, float aspectRatio)
+	:key(key)
+{
 	transform = new Transform();
 
 	SetView();
@@ -104,21 +110,6 @@ void Camera::SetFrame(const FRAME_KIND fKind, XMFLOAT2 orthoSize, const float n,
 	
 }
 
-XMFLOAT3 Camera::GetForward() const
-{
-	return transform->GetForward();
-}
-
-XMFLOAT3 Camera::GetRight() const
-{
-	return transform->GetRight();
-}
-
-XMFLOAT3 Camera::GetPos() const
-{
-	return transform->GetPos();
-}
-
 void Camera::SetView()
 {
 	XMFLOAT3 pos = transform->GetPos();
@@ -155,25 +146,55 @@ void Camera::Capture(Scene* scene, ID3D11RenderTargetView** rtv, ID3D11DepthSten
 	DX_DContext->OMSetRenderTargets(1, &oriRTV, oriDSV);
 	DX_DContext->RSSetViewports(1, &oriVP);
 }
-void Camera::Volume()
+void Camera::Update()
 {
 	XMFLOAT3 p = transform->GetPos();
 	XMFLOAT3 forward = transform->GetForward();
 	XMFLOAT3 up = transform->GetUp();
 	XMFLOAT3 right = transform->GetRight();
-	XMFLOAT3 sTL=XMFLOAT3(0,0,0);
-	XMFLOAT3 sTR=XMFLOAT3(0,0,0);
-	XMFLOAT3 sBL=XMFLOAT3(0,0,0);
-	XMFLOAT3 sBR=XMFLOAT3(0,0,0);
-	XMFLOAT3 eTL=XMFLOAT3(0,0,0);
-	XMFLOAT3 eTR=XMFLOAT3(0,0,0);
-	XMFLOAT3 eBL=XMFLOAT3(0,0,0);
-	XMFLOAT3 eBR=XMFLOAT3(0,0,0);
+
+	float tri = tan(verticalRadian * 0.5f);
+	XMFLOAT3 trDir =Normalize(
+		right * tri * f * aspectRatio +
+		up * tri * f +
+		forward * f);
+	XMFLOAT3 blDir =Normalize(
+		-right * tri * f * aspectRatio +
+		-up * tri * f +
+		forward * f);
+
+	frustum.nPt = p + forward * n;
+	frustum.fPt = p + forward * f;
+	frustum.sidePt = p;
+	frustum.nN = forward;
+	frustum.fN = -forward;
+	frustum.tN = Cross(right, trDir);
+	frustum.bN = Cross(blDir, right);
+	frustum.rN = Cross(-up, trDir);
+	frustum.lN = Cross(up, blDir);
+
+	SetView();
+}
+void Camera::Visualize()
+{
+	XMFLOAT3 p = transform->GetPos();
+	XMFLOAT3 forward = transform->GetForward();
+	XMFLOAT3 up = transform->GetUp();
+	XMFLOAT3 right = transform->GetRight();
+
+	float tri = tan(verticalRadian * 0.5f);
+	XMFLOAT3 sTL = XMFLOAT3(0, 0, 0);
+	XMFLOAT3 sTR = XMFLOAT3(0, 0, 0);
+	XMFLOAT3 sBL = XMFLOAT3(0, 0, 0);
+	XMFLOAT3 sBR = XMFLOAT3(0, 0, 0);
+	XMFLOAT3 eTL = XMFLOAT3(0, 0, 0);
+	XMFLOAT3 eTR = XMFLOAT3(0, 0, 0);
+	XMFLOAT3 eBL = XMFLOAT3(0, 0, 0);
+	XMFLOAT3 eBR = XMFLOAT3(0, 0, 0);
 	switch (curFrame)
 	{
 	case FRAME_KIND_PERSPECTIVE:
 	{
-		float tri = tan(verticalRadian * 0.5f);
 		float nY = tri * n;
 		float nX = nY * aspectRatio;
 		float fY = tri * f;
@@ -187,7 +208,7 @@ void Camera::Volume()
 		eBL = p + right * -fX + up * -fY + forward * f;
 		eBR = p + right * fX + up * -fY + forward * f;
 	}
-		break;
+	break;
 	case FRAME_KIND_ORTHOGONAL:
 	{
 		float x = size.x * 0.5f;
@@ -203,7 +224,7 @@ void Camera::Volume()
 	}
 	break;
 	}
-	
+
 	Debugging::Instance()->PtLine(sTL, sTR);
 	Debugging::Instance()->PtLine(sTR, sBR);
 	Debugging::Instance()->PtLine(sBR, sBL);
@@ -218,20 +239,5 @@ void Camera::Volume()
 	Debugging::Instance()->PtLine(eTR, eBR);
 	Debugging::Instance()->PtLine(eBR, eBL);
 	Debugging::Instance()->PtLine(eBL, eTL);
-}
-void Camera::SetPos(XMFLOAT3 pos)
-{
-	transform->SetTranslation(pos);
-	SetView();
-}
-
-void Camera::SetRot(XMFLOAT3 forward)
-{
-	transform->SetRot(forward);
-	SetView();
-}
-void Camera::SetRot(XMFLOAT3 forward, XMFLOAT3 up)
-{
-	transform->SetRot(forward, up);
-	SetView();
+	
 }

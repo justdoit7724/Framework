@@ -27,7 +27,20 @@ Mirror::Mirror(Scene* captureScene, UINT width, UINT height)
 		3,2,1,
 		3,1,0
 	};
-	shape->Init(mirrorQuad, sizeof(mirrorQuad[0]), ARRAYSIZE(mirrorQuad), OBJ_QUAD_INDICE, ARRAYSIZE(OBJ_QUAD_INDICE), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	XMFLOAT3 minPt = XMFLOAT3(FLT_MAX, FLT_MAX, FLT_MAX);
+	XMFLOAT3 maxPt = XMFLOAT3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+	for (auto vertex : mirrorQuad)
+	{
+		minPt.x = min(minPt.x, vertex.x);
+		minPt.y = min(minPt.y, vertex.y);
+		minPt.z = min(minPt.z, vertex.z);
+		maxPt.x = max(maxPt.x, vertex.x);
+		maxPt.y = max(maxPt.y, vertex.y);
+		maxPt.z = max(maxPt.z, vertex.z);
+	}
+
+	shape->Init(mirrorQuad, sizeof(mirrorQuad[0]), ARRAYSIZE(mirrorQuad), OBJ_QUAD_INDICE, ARRAYSIZE(OBJ_QUAD_INDICE), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, minPt, maxPt);
 
 	vs->AddCB(0, 1, sizeof(SHADER_STD_TRANSF));
 	ps->AddSRV(0, 1);
@@ -147,9 +160,9 @@ void Mirror::UpdatePerspective(const Camera* eye)
 		FR, UF, FF, 0,
 		Dot(m,mRight)+mC.x, Dot(m,mUp)+mC.y, Dot(m,mForward)+mC.z, 1);
 
-	perspective->SetPos(eye->GetPos() * perspectiveTranslationMat);
+	perspective->transform->SetTranslation(eye->transform->GetPos() * perspectiveTranslationMat);
 	
-	XMFLOAT3 ppos = perspective->GetPos();
+	XMFLOAT3 ppos = perspective->transform->GetPos();
 	XMFLOAT3 n = transform->GetForward();
 	XMMATRIX perspectiveRotMat = XMMATRIX(
 		-2 * n.x * n.x + 1, -2 * n.x * n.y, -2 * n.x * n.z,0,
@@ -158,5 +171,5 @@ void Mirror::UpdatePerspective(const Camera* eye)
 		0,0,0,1
 	);
 	
-	perspective->SetRot(eye->GetForward() * perspectiveRotMat);
+	perspective->transform->SetRot(eye->transform->GetForward() * perspectiveRotMat);
 }

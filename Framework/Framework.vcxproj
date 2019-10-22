@@ -189,6 +189,7 @@
     <ClInclude Include="CameraMgr.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="Cube.h" />
+    <ClInclude Include="ObjectPooling.h" />
     <ClInclude Include="ShaderFormat.h" />
     <ClInclude Include="Cylinder.h" />
     <ClInclude Include="DCMScene.h" />

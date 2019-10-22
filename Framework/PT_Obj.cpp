@@ -43,6 +43,6 @@ PT_Obj::PT_Obj(Shape* shape, const XMMATRIX& vp_mat, XMFLOAT3 dif, float transp,
 void PT_Obj::Update(const Camera* camera, float elapsed, const XMMATRIX& texMat)
 {
 	vs->WriteCB(0, &SHADER_PT_TRANSF(transform->WorldMatrix(), camera->VMat() * camera->ProjMat(zOrder), XMMatrixIdentity(), vp_mat,XMMatrixIdentity()));
-	ps->WriteCB(3, &(camera->GetPos()));
+	ps->WriteCB(3, &(camera->transform->GetPos()));
 	ps->WriteCB(5, &elapsed);
 }

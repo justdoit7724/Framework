@@ -9,3 +9,9 @@ public:
 	virtual void RestoreViewport() = 0;
 	virtual void RestoreRTV() = 0;
 };
+
+class IDebug
+{
+public:
+	virtual void Visualize() = 0;
+};
