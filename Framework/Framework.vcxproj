@@ -71,18 +71,18 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>$(SolutionDir)Framework\DirectXTK\Includes;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)Framework\DirectXTK\Libs\_x64\_Debug;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)Framework\DirectXTK\Libs\x64\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(SolutionDir)Framework\DirectXTK\Includes;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)Framework\DirectXTK\Libs\_x64\_Release;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)Framework\DirectXTK\Libs\x64\Release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LibraryPath>$(SolutionDir)Framework\DirectXTK\Libs\_x86\_Debug;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)Framework\DirectXTK\Libs\x86\Debug;$(LibraryPath)</LibraryPath>
     <IncludePath>$(SolutionDir)Framework\DirectXTK\Includes;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LibraryPath>$(SolutionDir)Framework\DirectXTK\Libs\_x86\_Release;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)Framework\DirectXTK\Libs\x86\Release;$(LibraryPath)</LibraryPath>
     <IncludePath>$(SolutionDir)Framework\DirectXTK\Includes;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
