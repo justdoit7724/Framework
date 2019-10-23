@@ -14,16 +14,16 @@
 
 # Build results
 x64/
-!Framework/DirectXTK/Libs/x64
+!Framework/DirectXTK/lib/x64
 x86/
-!Framework/DirectXTK/Libs/x86
+!Framework/DirectXTK/lib/x86
 [Dd]ebug/
-!Framework/DirectXTK/Libs/x64/[Dd]ebug
-!Framework/DirectXTK/Libs/x86/[Dd]ebug
+!Framework/DirectXTK/lib/x64/[Dd]ebug
+!Framework/DirectXTK/lib/x86/[Dd]ebug
 [Dd]ebugPublic/
 [Rr]elease/
-!Framework/DirectXTK/Libs/x64/[Rr]elease
-!Framework/DirectXTK/Libs/x86/[Rr]elease
+!Framework/DirectXTK/lib/x64/[Rr]elease
+!Framework/DirectXTK/lib/x86/[Rr]elease
 [Rr]eleases/
 bld/
 [Bb]in/
@@ -70,6 +70,7 @@ StyleCopReport.xml
 *.ilk
 *.meta
 *.obj
+!Framework/Data/Model/*.obj
 *.iobj
 *.pch
 *.pdb
