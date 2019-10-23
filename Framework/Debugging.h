@@ -20,7 +20,7 @@ class DebuggingScene;
 class IDebug;
 struct SHADER_STD_TRANSF;
 
-#define MARK_MAX 10
+#define MARK_MAX 220
 
 class Debugging : public Singleton<Debugging>
 {
@@ -70,10 +70,10 @@ private:
 	std::vector<ScreenTextInfo> texts;
 
 	struct MarkInfo {
+		bool isDraw;
 		XMFLOAT3 pos;
 		float rad;
 		XMVECTOR color;
-		bool isDraw;
 
 		MarkInfo():isDraw(false){}
 	};
@@ -105,8 +105,6 @@ private:
 	RasterizerState* rsState;
 
 	float gridInterval;
-
-	XMMATRIX vp_mat;
 
 	std::unordered_set<IDebug*> debugObjs;
 };

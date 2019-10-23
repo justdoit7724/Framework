@@ -7,9 +7,8 @@ class BindingTestScene :
 public:
 	BindingTestScene();
 
-	void Update_Logic() override;
-	void Render_Update(const Camera* camera, float elapsed, float spf) override;
-	void Render()const override;
+	void Update(float elapsed, float spf) override;
+	void Render(const Camera* camera, UINT sceneDepth)const override;
 
 private:
 	Object* obj, *obj2;

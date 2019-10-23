@@ -1,11 +1,11 @@
 #include "Mirror.h"
 #include "Camera.h"
 #include "Transform.h"
-#include "Debugging.h"
 #include "Quad.h"
 #include "Shader.h"
 #include "CameraMgr.h"
 #include "ShaderFormat.h"
+#include "Scene.h"
 
 Mirror::Mirror(Scene* captureScene, UINT width, UINT height)
 	:Object(
@@ -58,7 +58,7 @@ Mirror::Mirror(Scene* captureScene, UINT width, UINT height)
 	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	ps->AddSamp(0, 1, &sampDesc);
 
-	perspective = new Camera("Mirror", CameraMgr::Instance()->Main());
+	perspective = new Camera(CameraMgr::Instance()->Main());
 
 	D3D11_TEXTURE2D_DESC capture_desc;
 	capture_desc.ArraySize = 1;
@@ -120,20 +120,41 @@ Mirror::Mirror(Scene* captureScene, UINT width, UINT height)
 	);
 }
 
-void Mirror::Update(const Camera* camera, float elapsed, const XMMATRIX& texMat)
+void Mirror::Update()
 {
-	UpdatePerspective(camera);
+	UpdatePerspective(CameraMgr::Instance()->Main());
+}
 
+void Mirror::Render(const Camera* camera, UINT sceneDepth)const
+{
+	D3D11_VIEWPORT vp = CD3D11_VIEWPORT(0.0f, 0.0f, resolution.x, resolution.y, 0.0f, 1.0f);
+	ID3D11RenderTargetView* oriRTV;
+	ID3D11DepthStencilView* oriDSV;
+	D3D11_VIEWPORT oriVP;
+	DX_DContext->OMGetRenderTargets(1, &oriRTV, &oriDSV);
+	UINT numVP = 1;
+	DX_DContext->RSGetViewports(&numVP, &oriVP);
+
+	//debug modify system
 	ID3D11ShaderResourceView* nullSRV = nullptr;
 	DX_DContext->PSSetShaderResources(0, 1, &nullSRV);
 	DX_DContext->ClearRenderTargetView(rtv.Get(), Colors::Transparent);
 	DX_DContext->ClearDepthStencilView(dsv.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	D3D11_VIEWPORT vp = CD3D11_VIEWPORT(0.0f,0.0f,resolution.x, resolution.y,0.0f,1.0f);
-	UINT vpNum = 1;
-	perspective->Capture(captureScene, rtv.GetAddressOf(), dsv.Get(), vp);
+
+	DX_DContext->OMSetRenderTargets(1, rtv.GetAddressOf(), dsv.Get());
+	DX_DContext->RSSetViewports(1, &vp);
+
+	captureScene->Render(perspective, sceneDepth + 1);
+
+	DX_DContext->OMSetRenderTargets(1, &oriRTV, oriDSV);
+	DX_DContext->RSSetViewports(1, &oriVP);
+
+
 
 	vs->WriteCB(0, &(transform->WorldMatrix()*camera->VMat() * camera->ProjMat(zOrder)));
 	ps->WriteSRV(0, srv.Get());
+
+	Object::Render();
 }
 
 void Mirror::UpdatePerspective(const Camera* eye)

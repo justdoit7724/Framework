@@ -19,13 +19,13 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	Window window(hInstance, "Low Level");
 	Graphic* graphic = new Graphic(window.Hwnd());
 
+#ifdef _DEBUG
+	Scene* debugScene = new DebuggingScene();
+#endif // !_DEBUG
 	Scene* testScene = new TestScene(graphic);
 	//Scene* dcmScene = new DCMScene(graphic, testScene);
 	//Scene* bindScene = new BindingTestScene();
 
-#ifdef _DEBUG
-	Scene* debugScene = new DebuggingScene();
-#endif // !_DEBUG
 
 
 	Timer* worldTimer = new Timer();

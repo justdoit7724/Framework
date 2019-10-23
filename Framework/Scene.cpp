@@ -4,7 +4,6 @@
 #include "Shader.h"
 #include "ShaderFormat.h"
 #include "Camera.h"
-#include "Debugging.h"
 
 Scene::Scene(std::string key)
 	:key(key)
@@ -17,21 +16,22 @@ Scene::~Scene()
 	SceneMgr::Instance()->Remove(key);
 }
 
-void Scene::Render_Update(const Camera* camera, float elapsed, float spf)
+void Scene::Update(float elapsed, float spf)
 {
-	FrustumCulling(camera);
-
 	for (auto obj : drawObjs)
 	{
-		obj->Update(camera, elapsed, XMMatrixIdentity());
+		obj->Update();
 	}
 }
 
-void Scene::Render() const
+void Scene::Render(const Camera* camera, UINT sceneDepth) const
 {
-	for (auto obj : drawObjs)
+	//use temp container because drawObjs is being changed in loop
+	std::vector<Object*>tempMemObjs(drawObjs);
+
+	for (auto obj : tempMemObjs)
 	{
-		obj->Render();
+		obj->Render(camera, sceneDepth);
 	}
 }
 
@@ -44,6 +44,4 @@ void Scene::FrustumCulling(const Camera* camera)
 		if(obj->IsInsideFrustum(camera->GetFrustum()))
 			drawObjs.push_back(obj);
 	}
-
-	Debugging::Instance()->Draw("drawing Obj count = ", drawObjs.size(), 10, 10);
 }

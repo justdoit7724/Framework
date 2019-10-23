@@ -3,18 +3,16 @@
 #include "Transform.h"
 #include "Shape.h"
 #include "Shader.h"
-#include "Network.h"
 #include "ShaderFormat.h"
 #include "Scene.h"
 
-DynamicCubeMap::DynamicCubeMap(IGraphic* graphic, Scene* captureScene, Shape* shape)
+DynamicCubeMap::DynamicCubeMap(Scene* captureScene, Shape* shape)
 	:Object(
 		shape,
 		"CMVS.cso", Std_ILayouts,ARRAYSIZE(Std_ILayouts),
 		"","","",
 		"CMPS.cso",
 		Z_ORDER_STANDARD),
-	graphic(graphic),
 	captureScene(captureScene)
 {
 	vs->AddCB(0, 1, sizeof(SHADER_STD_TRANSF));
@@ -121,25 +119,49 @@ DynamicCubeMap::DynamicCubeMap(IGraphic* graphic, Scene* captureScene, Shape* sh
 DynamicCubeMap::~DynamicCubeMap()
 {
 	for (int i = 0; i < 6; ++i)
+	{
 		delete captureCamera[i];
+	}
 }
 
-void DynamicCubeMap::Update(const Camera* camera, float elapsed, const XMMATRIX& texMat)
+void DynamicCubeMap::Render(const Camera* camera, UINT sceneDepth) const
 {
+	//debug for now, do not render
+	if (sceneDepth > 0)
+		return;
+
+	//debug modify binding system
 	ID3D11ShaderResourceView* const nullSRV = nullptr;
 	DX_DContext->PSSetShaderResources(0, 1, &nullSRV);
+
+	ID3D11RenderTargetView* oriRTV;
+	ID3D11DepthStencilView* oriDSV;
+	D3D11_VIEWPORT oriVP;
+	DX_DContext->OMGetRenderTargets(1, &oriRTV, &oriDSV);
+	UINT numVP = 1;
+	DX_DContext->RSGetViewports(&numVP, &oriVP);
+
 	for (int i = 0; i < 6; ++i)
 	{
 		captureCamera[i]->transform->SetTranslation(transform->GetPos());
+		captureCamera[i]->Update();
 
 		DX_DContext->ClearRenderTargetView(captureRTV[i].Get(), Colors::Transparent);
 		DX_DContext->ClearDepthStencilView(captureDSV.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-		captureCamera[i]->Capture(captureScene, captureRTV[i].GetAddressOf(), captureDSV.Get(), captureViewport);
+		DX_DContext->OMSetRenderTargets(1, captureRTV->GetAddressOf(), captureDSV.Get());
+		DX_DContext->RSSetViewports(1, &captureViewport);
+
+		captureScene->FrustumCulling(captureCamera[i]);
+		captureScene->Render(captureCamera[i], sceneDepth+1);
 	}
+	DX_DContext->OMSetRenderTargets(1, &oriRTV, oriDSV);
+	DX_DContext->RSSetViewports(1, &oriVP);
 
 	vs->WriteCB(0, &SHADER_STD_TRANSF(transform->WorldMatrix(), camera->VMat() * camera->ProjMat(zOrder), XMMatrixIdentity()));
 	ps->WriteSRV(0, captureSRV.Get());
 	XMFLOAT3 eye = camera->transform->GetPos();
-	ps->WriteCB(0, &XMFLOAT4(eye.x, eye.y, eye.z,0));
+	ps->WriteCB(0, &XMFLOAT4(eye.x, eye.y, eye.z, 0));
+
+	Object::Render();
 }

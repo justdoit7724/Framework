@@ -16,10 +16,8 @@ struct PS_INPUT
 
 float4 main(PS_INPUT input) : SV_Target
 {
-    float3 wDir = normalize(input.wPos - eye);
+    float3 wDir = normalize(input.wPos - eye.xyz);
     wDir = reflect(wDir, normalize(input.normal));
     
-    //float3 mDir = refract(dir, input.normal, 1.0f);
-
     return cubeMap.Sample(samp, wDir);
 }

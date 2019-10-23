@@ -13,7 +13,7 @@ public:
 	DCMScene(IGraphic* graphic, Scene* captureScene);
 	~DCMScene();
 
-	void Update_Logic() override;
+	void Update(float elapsed, float spf) override;
 
 private:
 	Timer* timer;

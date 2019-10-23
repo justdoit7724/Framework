@@ -72,7 +72,7 @@ UI::~UI()
 	texSampState->Release();
 }
 
-void UI::Update(float spf, const XMMATRIX& vpMat, const XMMATRIX& texMat)
+void UI::Update(float spf)
 {
 	curTime += spf;
 	if (curTime >= secPerSlice)
@@ -81,13 +81,17 @@ void UI::Update(float spf, const XMMATRIX& vpMat, const XMMATRIX& texMat)
 		curTime = 0;
 	}
 
-	vs->WriteCB(0,&SHADER_STD_TRANSF(transform->WorldMatrix(), vpMat, texMat));
-	float fIdx = curSliceIdx;
-	ps->WriteCB(0,&fIdx);
+	
 }
 
-void UI::Render()
+void UI::Render(const Camera* camera)const
 {
+	XMMATRIX vp = camera->VMat() * camera->ProjMat(Z_ORDER_UI);
+
+	vs->WriteCB(0, &SHADER_STD_TRANSF(transform->WorldMatrix(), vp, XMMatrixIdentity()));
+	float fIdx = curSliceIdx;
+	ps->WriteCB(0, &fIdx);
+
 	vs->Apply();
 	hs->Apply();
 	ds->Apply();
@@ -145,7 +149,7 @@ void UICanvas::Update(float spf)
 {
 	for (auto& ui : UIs)
 	{
-		ui.second->Update(spf, camera->VMat() * camera->ProjMat(Z_ORDER_UI),XMMatrixIdentity());
+		ui.second->Update(spf);
 	}
 }
 
@@ -153,7 +157,7 @@ void UICanvas::Render()
 {
 	for (auto& ui : UIs)
 	{
-		ui.second->Render();
+		ui.second->Render(camera);
 	}
 }
 

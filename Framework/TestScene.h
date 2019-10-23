@@ -17,9 +17,8 @@ class TestScene :
 public:
 	TestScene(IGraphic* graphic);
 	~TestScene();
-	void Update_Logic()override;
-	void Render_Update(const Camera* camera, float elapsed, float spf)override;
-	void Render()const override;
+	void Update(float elapsed, float spf)override;
+	void Render(const Camera* camera, UINT sceneDepth)const override;
 
 private:
 

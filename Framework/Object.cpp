@@ -8,6 +8,7 @@
 #include "DepthStencilState.h"
 #include "RasterizerState.h"
 #include "Shape.h"
+#include "CameraMgr.h"
 
 #include "Debugging.h"
 
@@ -91,23 +92,15 @@ Object::~Object()
 	delete rsState;
 }
 
-void Object::Update(const Camera* camera, float elapsed, const XMMATRIX& texMat)
+void Object::Update()
 {
 	shape->GetLBound(&boundlMinPt, &boundlMaxPt);
 	XMFLOAT3 wMinPt = boundlMinPt * transform->GetScale();
 	XMFLOAT3 wMaxPt = boundlMaxPt * transform->GetScale();
-	boundRad = max(Max(Abs(wMinPt)), Max(Abs(wMaxPt)));
-
-	const SHADER_STD_TRANSF STransformation(transform->WorldMatrix(), camera->VMat() * camera->ProjMat(zOrder), texMat);
-
-	XMFLOAT3 eye = camera->transform->GetPos();
-
-	vs->WriteCB(0, (void*)(&STransformation));
-	ps->WriteCB(3, &XMFLOAT4(eye.x, eye.y, eye.z,0));
-	ps->WriteCB(5, &elapsed);
+	boundRad = Length(wMinPt - wMaxPt)*0.5f;
 }
 
-void Object::Render() const
+void Object::Render()const
 {
 	vs->Apply();
 	hs->Apply();
@@ -120,6 +113,17 @@ void Object::Render() const
 	rsState->Apply();
 
 	shape->Apply();
+}
+void Object::Render(const Camera* camera, UINT sceneDepth) const
+{
+	const SHADER_STD_TRANSF STransformation(transform->WorldMatrix(), camera->VMat() * camera->ProjMat(zOrder), XMMatrixIdentity());
+
+	XMFLOAT3 eye = camera->transform->GetPos();
+
+	vs->WriteCB(0, (void*)(&STransformation));
+	ps->WriteCB(3, &XMFLOAT4(eye.x, eye.y, eye.z, 0));
+
+	Render();
 }
 
 void Object::RenderGeom() const
@@ -141,5 +145,7 @@ bool Object::IsInsideFrustum(const Frustum* frustum) const
 
 void Object::Visualize()
 {
-	Debugging::Instance()->Mark(transform->GetPos(), boundRad, Colors::LightGreen);
+	if(IsInsideFrustum(CameraMgr::Instance()->Main()->GetFrustum()))
+		Debugging::Instance()->Mark(transform->GetPos(), boundRad, Colors::LightGreen);
 }
+

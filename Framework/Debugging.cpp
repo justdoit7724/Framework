@@ -16,6 +16,56 @@
 #include "Cube.h"
 #include "Sphere.h"
 
+Debugging::Debugging()
+{
+	debugCam = new Camera("DebugCamera", FRAME_KIND_PERSPECTIVE, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1f, 1000.0f, XM_PIDIV2, 1);
+	debugCam->transform->SetTranslation(XMFLOAT3(0, 10, -30));
+	debugCam->transform->SetRot(FORWARD, UP);
+	debugCam->SetMain();
+
+	markVS = new VShader("MarkVS.cso",
+		simple_ILayouts,
+		ARRAYSIZE(simple_ILayouts));
+	markPS = new PShader("MarkPS.cso");
+	markVS->AddCB(0, 1, sizeof(XMMATRIX));
+	markPS->AddCB(0, 1, sizeof(XMVECTOR));
+
+	blendState = new BlendState(nullptr);
+	dsState = new DepthStencilState(nullptr);
+	D3D11_RASTERIZER_DESC wrs_desc;
+	ZeroMemory(&wrs_desc, sizeof(D3D11_RASTERIZER_DESC));
+	wrs_desc.FillMode = D3D11_FILL_WIREFRAME;
+	wrs_desc.CullMode = D3D11_CULL_BACK;
+	rsState = new RasterizerState(&wrs_desc);
+
+	spriteBatch = std::make_unique<DirectX::SpriteBatch>(DX_DContext);
+	spriteFont = std::make_unique<DirectX::SpriteFont>(DX_Device, L"Data\\Font\\Font.spritefont");
+
+	D3D11_BUFFER_DESC vb_desc;
+	vb_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vb_desc.ByteWidth = sizeof(XMFLOAT3) * 2;
+	vb_desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	vb_desc.MiscFlags = 0;
+	vb_desc.StructureByteStride = 0;
+	vb_desc.Usage = D3D11_USAGE_DYNAMIC;
+	lineVB = new Buffer(&vb_desc, nullptr);
+
+	markShape = new Sphere(1);
+	markTransform = new Transform();
+}
+
+Debugging::~Debugging()
+{
+	delete markVS;
+	delete markPS;
+	delete blendState;
+	delete dsState;
+	delete rsState;
+
+	delete lineVB;
+	delete gridVB;
+}
+
 const XMMATRIX textMat = XMMATRIX(
 	SCREEN_WIDTH/2.0f, 0, 0, 0,
 	0, -SCREEN_HEIGHT/2.0f, 0, 0,
@@ -23,6 +73,7 @@ const XMMATRIX textMat = XMMATRIX(
 	SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f, 0, 1);
 void Debugging::Draw(const std::string tex, const float x, const float y, const XMVECTORF32 _color, const float _scale)
 {
+#ifdef _DEBUG
 	ScreenTextInfo newText;
 	newText.tex = tex;
 	newText.pos = XMFLOAT3(x,y,1);
@@ -31,6 +82,7 @@ void Debugging::Draw(const std::string tex, const float x, const float y, const 
 	newText.is3D = false;
 
 	texts.push_back(newText);
+#endif
 }
 void Debugging::Draw(const int tex, const float x, const float y, const XMVECTORF32 _color, const float _scale)
 {
@@ -50,6 +102,7 @@ void Debugging::Draw(std::string title, XMFLOAT3 v, const float x, const float y
 }
 void Debugging::Draw3D(const std::string tex, const XMFLOAT3 _pos, const XMVECTORF32 _color, const float _scale)
 {
+#ifdef _DEBUG
 	ScreenTextInfo newText;
 	newText.tex = tex;
 	newText.pos = _pos;
@@ -58,6 +111,7 @@ void Debugging::Draw3D(const std::string tex, const XMFLOAT3 _pos, const XMVECTO
 	newText.is3D = true;
 
 	texts.push_back(newText);
+#endif
 }
 void Debugging::Draw3D(const int tex, XMFLOAT3 _pos, const XMVECTORF32 _color, const float _scale)
 {
@@ -73,6 +127,7 @@ void Debugging::Draw3D(std::string title, XMFLOAT3 v, XMFLOAT3 _pos, XMVECTORF32
 }
 void Debugging::Mark(XMFLOAT3 pos, float radius, XMVECTORF32 color)
 {
+#ifdef _DEBUG
 	for (int i = 0; i < MARK_MAX; ++i)
 	{
 		if (curMarkIdx >= MARK_MAX)
@@ -91,6 +146,9 @@ void Debugging::Mark(XMFLOAT3 pos, float radius, XMVECTORF32 color)
 			curMarkIdx++;
 		}
 	}
+
+	MB("debug mark capacity overflow");
+#endif
 }
 
 void Debugging::PtLine(XMFLOAT3 p1, XMFLOAT3 p2, XMVECTORF32 color)
@@ -169,9 +227,11 @@ void Debugging::DisableGrid()
 
 void Debugging::Visualize(IDebug* obj)
 {
+#ifdef _DEBUG
 	assert(debugObjs.find(obj) == debugObjs.end());
 	
 	debugObjs.insert(obj);
+#endif
 }
 
 void Debugging::CameraMove(float spf) {
@@ -212,10 +272,10 @@ void Debugging::CameraMove(float spf) {
 	XMFLOAT3 f = FORWARD * rotMat;
 	XMFLOAT3 u = UP * rotMat;
 	debugCam->transform->SetRot(f, u);
+	debugCam->Update();
 }
 void Debugging::Update(float spf)
 {
-	vp_mat = debugCam->VMat() * debugCam->ProjMat(Z_ORDER_STANDARD);
 	CameraMove(spf);
 
 	for (IDebug* obj : debugObjs)
@@ -226,6 +286,8 @@ void Debugging::Update(float spf)
 
 void Debugging::Render()
 {
+	XMMATRIX vp_mat = debugCam->VMat() * debugCam->ProjMat(Z_ORDER_STANDARD);
+
 	DX_DContext->HSSetShader(nullptr, nullptr, 0);
 	DX_DContext->DSSetShader(nullptr, nullptr, 0);
 	DX_DContext->GSSetShader(nullptr, nullptr, 0);
@@ -237,18 +299,16 @@ void Debugging::Render()
 
 	for (int i = 0; i < MARK_MAX; ++i) {
 
-		MarkInfo& mark = marks[i];
-
-		if (!mark.isDraw)
+		if (!marks[i].isDraw)
 			continue;
-		markTransform->SetTranslation(mark.pos);
-		markTransform->SetScale(mark.rad);
+		markTransform->SetTranslation(marks[i].pos);
+		markTransform->SetScale(marks[i].rad);
 		markVS->WriteCB(0,&(markTransform->WorldMatrix() * vp_mat));
-		markPS->WriteCB(0,&(mark.color));
+		markPS->WriteCB(0,&(marks[i].color));
 		markVS->Apply();
 		markPS->Apply();
 		markShape->Apply();
-		mark.isDraw = false;
+		marks[i].isDraw = false;
 	}
 #pragma endregion
 
@@ -348,55 +408,4 @@ void Debugging::Render()
 	texts.clear();
 	spriteBatch->End();
 #pragma endregion
-}
-
-
-Debugging::Debugging()
-{
-	debugCam = new Camera("DebugCamera", FRAME_KIND_PERSPECTIVE, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1f, 1000.0f, XM_PIDIV2, 1);
-	debugCam->transform->SetTranslation(XMFLOAT3(0, 10, -30));
-	debugCam->transform->SetRot(FORWARD, UP);
-	debugCam->SetMain();
-
-	markVS = new VShader("MarkVS.cso", 
-		simple_ILayouts,
-		ARRAYSIZE(simple_ILayouts));
-	markPS = new PShader("MarkPS.cso");
-	markVS->AddCB(0, 1, sizeof(XMMATRIX));
-	markPS->AddCB(0, 1, sizeof(XMVECTOR));
-
-	blendState = new BlendState(nullptr);
-	dsState = new DepthStencilState(nullptr);
-	D3D11_RASTERIZER_DESC wrs_desc;
-	ZeroMemory(&wrs_desc, sizeof(D3D11_RASTERIZER_DESC));
-	wrs_desc.FillMode = D3D11_FILL_WIREFRAME;
-	wrs_desc.CullMode = D3D11_CULL_BACK;
-	rsState = new RasterizerState(&wrs_desc);
-
-	spriteBatch = std::make_unique<DirectX::SpriteBatch>(DX_DContext);
-	spriteFont = std::make_unique<DirectX::SpriteFont>(DX_Device, L"Data\\Font\\Font.spritefont");
-
-	D3D11_BUFFER_DESC vb_desc;
-	vb_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vb_desc.ByteWidth = sizeof(XMFLOAT3) * 2;
-	vb_desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	vb_desc.MiscFlags = 0;
-	vb_desc.StructureByteStride = 0;
-	vb_desc.Usage = D3D11_USAGE_DYNAMIC;
-	lineVB = new Buffer(&vb_desc, nullptr);
-
-	markShape = new Sphere(2);
-	markTransform = new Transform();
-}
-
-Debugging::~Debugging()
-{
-	delete markVS;
-	delete markPS;
-	delete blendState;
-	delete dsState;
-	delete rsState;
-
-	delete lineVB;
-	delete gridVB;
 }

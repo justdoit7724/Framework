@@ -6,16 +6,12 @@ DebuggingScene::DebuggingScene()
 {
 }
 
-void DebuggingScene::Update_Logic()
-{
-}
-
-void DebuggingScene::Render_Update(const Camera* camera,float elapsed,float spf)
+void DebuggingScene::Update(float elapsed,float spf)
 {
 	Debugging::Instance()->Update(spf);
 }
 
-void DebuggingScene::Render() const
+void DebuggingScene::Render(const Camera* camera, UINT sceneDepth) const
 {
 	Debugging::Instance()->Render();
 }

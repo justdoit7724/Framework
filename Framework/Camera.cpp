@@ -15,6 +15,13 @@ Camera::Camera(std::string key, const Camera* camera)
 	SetFrame(camera->GetFrame(), camera->GetSize(), camera->GetN(), camera->GetF(), camera->GetVRad(), camera->GetAspectRatio());
 	SetView();
 }
+Camera::Camera(const Camera* camera)
+{
+	transform = new Transform();
+
+	SetFrame(camera->GetFrame(), camera->GetSize(), camera->GetN(), camera->GetF(), camera->GetVRad(), camera->GetAspectRatio());
+	SetView();
+}
 Camera::Camera(std::string key, FRAME_KIND frameKind, float orthoScnWidth, float orthoScnHeight, float n, float f, float verticalViewRad, float aspectRatio)
 	:key(key)
 {
@@ -128,24 +135,6 @@ void Camera::SetView()
 		x, y, z, 1);
 }
 
-void Camera::Capture(Scene* scene, ID3D11RenderTargetView** rtv, ID3D11DepthStencilView* dsv, D3D11_VIEWPORT vp)
-{
-	ID3D11RenderTargetView* oriRTV;
-	ID3D11DepthStencilView* oriDSV;
-	D3D11_VIEWPORT oriVP;
-	DX_DContext->OMGetRenderTargets(1, &oriRTV, &oriDSV);
-	UINT numVP = 1;
-	DX_DContext->RSGetViewports(&numVP, &oriVP);
-
-	DX_DContext->OMSetRenderTargets(1, rtv, dsv);
-	DX_DContext->RSSetViewports(1, &vp);
-
-	scene->Render_Update(this,0,0);
-	scene->Render();
-
-	DX_DContext->OMSetRenderTargets(1, &oriRTV, oriDSV);
-	DX_DContext->RSSetViewports(1, &oriVP);
-}
 void Camera::Update()
 {
 	XMFLOAT3 p = transform->GetPos();
