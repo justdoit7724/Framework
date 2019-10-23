@@ -38,6 +38,8 @@ TestScene::TestScene(IGraphic* graphic)
 	:Scene("Test"),
 	graphic(graphic)
 {
+
+
 	timer = new Timer();
 	canvas = new UICanvas(SCREEN_WIDTH, SCREEN_HEIGHT);
 	Debugging::Instance()->EnableGrid(10, 50);
