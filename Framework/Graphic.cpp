@@ -1,8 +1,6 @@
 #include "Graphic.h"
 #include "Game_info.h"
 
-#pragma comment(lib, "d3d11.lib")
-
 ID3D11Device* DX_Device=nullptr;
 ID3D11DeviceContext* DX_DContext=nullptr;
 
