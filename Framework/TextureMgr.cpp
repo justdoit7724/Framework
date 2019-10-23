@@ -1,6 +1,5 @@
 #include "TextureMgr.h"
-#include <WICTextureLoader.h>
-
+#include <DirectXTK/inc/WICTextureLoader.h>
 
 TextureMgr::~TextureMgr()
 {

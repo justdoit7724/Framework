@@ -1,8 +1,8 @@
 #pragma once
 #include "DX_info.h"
 #include "Game_info.h"
-#include <SpriteBatch.h>
-#include <SpriteFont.h>
+#include <DirectXTK/inc/SpriteBatch.h>
+#include <DirectXTK/inc/SpriteFont.h>
 #include <unordered_set>
 #include <unordered_map>
 #include "Singleton.h"
