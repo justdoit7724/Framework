@@ -3,7 +3,6 @@
 #include "Sphere.h"
 #include "Transform.h"
 #include "Timer.h"
-#include "Debugging.h"
 #include "Mirror.h"
 
 DCMScene::DCMScene(IGraphic* graphic, Scene* captureScene)
@@ -11,9 +10,9 @@ DCMScene::DCMScene(IGraphic* graphic, Scene* captureScene)
 {
 	timer = new Timer();
 
-	dcmObj = new DynamicCubeMap(graphic, captureScene, new Sphere(4));
+	dcmObj = new DynamicCubeMap(captureScene, new Sphere(4));
 	dcmObj->transform->SetScale(40, 40, 40);
-	dcmObj->transform->SetTranslation(0, 210, -1);
+	dcmObj->transform->SetTranslation(0, 30, 0);
 	AddObj(dcmObj);
 
 	/*mirror = new Mirror(captureScene, 1024, 512);
@@ -27,8 +26,6 @@ DCMScene::~DCMScene()
 	delete timer;
 }
 
-void DCMScene::Logic_Update()
+void DCMScene::Update(float elapsed, float spf)
 {
-	float elapsed = timer->Elapsed();
-	
 }

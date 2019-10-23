@@ -31,12 +31,8 @@ BindingTestScene::BindingTestScene()
 	obj->ps->AddCB(1, 1, sizeof(XMFLOAT4));*/
 }
 
-void BindingTestScene::Logic_Update()
-{
-	
-}
 
-void BindingTestScene::Render_Update(const Camera* camera, float elapsed, float spf)
+void BindingTestScene::Update(float elapsed, float spf)
 {
 	//if (bb1)
 	//{
@@ -63,7 +59,7 @@ void BindingTestScene::Render_Update(const Camera* camera, float elapsed, float 
 
 }
 
-void BindingTestScene::Render() const
+void BindingTestScene::Render(const Camera* camera, UINT sceneDepth) const
 {
 	//obj->Render();
 	//obj2->Render();

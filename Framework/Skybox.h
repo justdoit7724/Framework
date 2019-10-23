@@ -6,7 +6,7 @@ class Skybox : public Object
 public:
 	Skybox(ID3D11ShaderResourceView* srv);
 
-	void Update(const Camera* camera, float elapsed, const XMMATRIX& texMat = XMMatrixIdentity())override;
+	void Render(const Camera* camera, UINT sceneDepth)const override;
 
 private:
 };

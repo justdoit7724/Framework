@@ -5,11 +5,13 @@ Shape::Shape()
 {
 }
 
-void Shape::Init(void* vertice, UINT _vertexByteSize, UINT vertexCount, void* indice, UINT _idxCount, D3D_PRIMITIVE_TOPOLOGY _primitiveType)
+void Shape::Init(void* vertice, UINT _vertexByteSize, UINT vertexCount, void* indice, UINT _idxCount, D3D_PRIMITIVE_TOPOLOGY _primitiveType, XMFLOAT3 minPt, XMFLOAT3 maxPt)
 {
 	indexCount = _idxCount;
 	vertByteSize = _vertexByteSize;
 	primitiveType = _primitiveType;
+	lMinPt = minPt;
+	lMaxPt = maxPt;
 
 	if (vertexBuffer)
 	{
@@ -59,6 +61,12 @@ void Shape::CalculateTangent(XMFLOAT3 v0, XMFLOAT3 v1, XMFLOAT3 v2, XMFLOAT2 t0,
 	XMFLOAT3 dv1 = v2 - v0;
 	float determinant = dt0.x * dt1.y - dt0.y * dt1.x;
 	*tangent = dv0*(dt1.y / determinant) - dv1*(dt0.y / determinant);
+}
+
+void Shape::GetLBound(OUT XMFLOAT3* minPt, OUT XMFLOAT3* maxPt)
+{
+	*minPt = lMinPt;
+	*maxPt = lMaxPt;
 }
 
 void Shape::CalculateTangents(Vertex* vertice, const UINT* indice, UINT polyCount)

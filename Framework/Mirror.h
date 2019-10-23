@@ -9,7 +9,8 @@ class Mirror :
 public:
 	Mirror(Scene* captureScene, UINT width, UINT height);
 
-	void Update(const Camera* camera,float elapsed, const XMMATRIX& texMat = XMMatrixIdentity()) override;
+	void Update()override;
+	void Render(const Camera* camera, UINT sceneDepth)const override;
 
 	Scene* const captureScene;
 	const XMINT2 resolution;
@@ -23,6 +24,6 @@ private:
 	ComPtr<ID3D11DepthStencilView> dsv;
 	ComPtr<ID3D11ShaderResourceView> srv;
 	XMFLOAT3 mirrorQuad[4];
-
+	D3D11_VIEWPORT vp;
 };
 

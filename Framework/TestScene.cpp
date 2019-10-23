@@ -31,9 +31,9 @@
 #include "PT_Obj.h"
 #include "ShadowMap.h"
 #include "ShadowObj.h"
+#include "DynamicCubeMap.h"
+#include "Debugging.h"
 
-ShadowObj* cube;
-ShadowObj* flor;
 TestScene::TestScene(IGraphic* graphic)
 	:Scene("Test"),
 	graphic(graphic)
@@ -49,9 +49,9 @@ TestScene::TestScene(IGraphic* graphic)
 		XMFLOAT3(0.707f, -0.707f, 0));*/
 	pLight = new PointLight(
 		XMFLOAT3(0.1f, 0.1f, 0.1f),
-		XMFLOAT3(0.7f, 0.7f, 0.7f),
+		XMFLOAT3(0.9f, 0.9f, 0.9f),
 		XMFLOAT3(0.8f, 0.8f, 0.8f),
-		200, XMFLOAT3(0.05f, 0.01f, 0.001f), XMFLOAT3(0,0,0)
+		200, XMFLOAT3(0.03f, 0.005f, 0.001f), XMFLOAT3(0,0,0)
 	);
 	/*pLight2 = new PointLight(
 		XMFLOAT3(0.15f, 0.15f, 0.15f),
@@ -86,19 +86,26 @@ TestScene::TestScene(IGraphic* graphic)
 	TextureMgr::Instance()->Get("simple", &simpleSRV);
 	TextureMgr::Instance()->Get("white", &whiteSRV);
 	TextureMgr::Instance()->Get("defaultNormal", &defaultNormal);
+	
+	Object* dcmObj = new DynamicCubeMap(this, new Sphere(3));
+	dcmObj->transform->SetScale(30, 30, 30);
+	dcmObj->transform->SetTranslation(-60, 40, 20);
+	AddObj(dcmObj);
+	Debugging::Instance()->Visualize(dcmObj);
 
-	cube = new ShadowObj(new Cube(), pbrSRV, pbrNormal, 2);
-	cube->transform->SetScale(15, 65, 15);
-	cube->transform->SetTranslation(40, 40, 0);
-	AddObj(cube);
-
-	flor = new ShadowObj(new Quad(), pbrSRV, pbrNormal, 2);
-	flor->transform->SetScale(300, 300, 1);
-	flor->transform->SetTranslation(0, 1, 0);
-	flor->transform->SetRot(UP, -FORWARD);
-	AddObj(flor);
-
-
+	const int N = 6;
+	for (int z = 0; z < N; ++z) {
+		for (int y = 0; y < N; ++y) {
+			for (int x = 0; x < N; ++x) {
+				float interval = 20;
+				Object* cube = new Object(new Cube(), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), 4, XMFLOAT3(0, 0, 0), pbrSRV, pbrNormal, nullptr, Z_ORDER_STANDARD);
+				cube->transform->SetScale(10, 10, 10);
+				cube->transform->SetTranslation(x* interval, y* interval, z* interval);
+				AddObj(cube);
+				Debugging::Instance()->Visualize(cube);
+			}
+		}
+	}
 }
 
 TestScene::~TestScene()
@@ -107,9 +114,9 @@ TestScene::~TestScene()
 	delete dLight;
 }
 
-void TestScene::Logic_Update()
+void TestScene::Update(float elapsed, float spf)
 {
-	pLight->Volume();
+	pLight->Update();
 	timer->Update();
 
 	float elaped = timer->Elapsed();
@@ -118,7 +125,7 @@ void TestScene::Logic_Update()
 		XMFLOAT3 pt = XMFLOAT3(
 			150,
 			150,
-			0)*XMMatrixRotationY(elaped*0.1f);
+			0) * XMMatrixRotationY(elaped * 0.1f);
 		XMFLOAT3 dir = Normalize(XMFLOAT3(-pt.x, -pt.y, -pt.z));
 		dLight->SetDir(dir);
 	}
@@ -129,7 +136,7 @@ void TestScene::Logic_Update()
 			25,
 			sin(elaped * 0.6f) * 20);
 		pLight->SetPos(pt);
-		Debugging::Instance()->Mark(999, pt, 1.5f, Colors::WhiteSmoke);
+		Debugging::Instance()->Mark(pt, 1.5f, Colors::WhiteSmoke);
 	}
 	if (pLight2)
 	{
@@ -138,29 +145,39 @@ void TestScene::Logic_Update()
 			cos(elaped) * 3,
 			sin(elaped * 0.15f) * 25);
 		pLight2->SetPos(pt);
-		Debugging::Instance()->Mark(9999, pt, 1.5f, Colors::Red);
+		Debugging::Instance()->Mark(pt, 1.5f, Colors::Red);
 	}
-}
 
-void TestScene::Render_Update(const Camera* camera, float elapsed, float spf)
-{
-	pLight->ShadowCapture(objs);
+	/*XMFLOAT3 moveScalar = XMFLOAT3(0, 0, 0);
+	if (Keyboard::IsPressing("F")) {
+		moveScalar += -RIGHT * 0.1f;
+	}
+	else if (Keyboard::IsPressing("H")) {
 
-	cube->Update(camera, elapsed, XMMatrixIdentity(), pLight->GetShadowPMat());
-	cube->ps->WriteSRV(4, pLight->ShadowMapSRV());
-	flor->Update(camera, elapsed, XMMatrixIdentity(), pLight->GetShadowPMat());
-	flor->ps->WriteSRV(4, pLight->ShadowMapSRV());
+		moveScalar += RIGHT * 0.1f;
+	}
+	if (Keyboard::IsPressing("T")) {
 
-	DirectionalLight::Apply();
-	PointLight::Apply();
-	SpotLight::Apply();
+		moveScalar += FORWARD * 0.1f;
+	}
+	else if (Keyboard::IsPressing("G")) {
+
+		moveScalar += -FORWARD * 0.1f;
+	}*/
+
+	FrustumCulling(CameraMgr::Instance()->Main());
+	Scene::Update(elapsed, spf);
 
 	canvas->Update(timer->SPF());
 }
 
-void TestScene::Render()const
+void TestScene::Render(const Camera* camera, UINT sceneDepth)const
 {
-	Scene::Render();
+	DirectionalLight::Apply();
+	PointLight::Apply();
+	SpotLight::Apply();
+
+	Scene::Render(camera, sceneDepth);
 
 	canvas->Render();
 }

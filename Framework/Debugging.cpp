@@ -11,9 +11,60 @@
 #include "Camera.h"
 #include "Keyboard.h"
 #include "Mouse.h"
+#include "Network.h"
 
 #include "Cube.h"
 #include "Sphere.h"
+
+Debugging::Debugging()
+{
+	debugCam = new Camera("DebugCamera", FRAME_KIND_PERSPECTIVE, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1f, 1000.0f, XM_PIDIV2, 1);
+	debugCam->transform->SetTranslation(XMFLOAT3(0, 10, -30));
+	debugCam->transform->SetRot(FORWARD, UP);
+	debugCam->SetMain();
+
+	markVS = new VShader("MarkVS.cso",
+		simple_ILayouts,
+		ARRAYSIZE(simple_ILayouts));
+	markPS = new PShader("MarkPS.cso");
+	markVS->AddCB(0, 1, sizeof(XMMATRIX));
+	markPS->AddCB(0, 1, sizeof(XMVECTOR));
+
+	blendState = new BlendState(nullptr);
+	dsState = new DepthStencilState(nullptr);
+	D3D11_RASTERIZER_DESC wrs_desc;
+	ZeroMemory(&wrs_desc, sizeof(D3D11_RASTERIZER_DESC));
+	wrs_desc.FillMode = D3D11_FILL_WIREFRAME;
+	wrs_desc.CullMode = D3D11_CULL_BACK;
+	rsState = new RasterizerState(&wrs_desc);
+
+	spriteBatch = std::make_unique<DirectX::SpriteBatch>(DX_DContext);
+	spriteFont = std::make_unique<DirectX::SpriteFont>(DX_Device, L"Data\\Font\\Font.spritefont");
+
+	D3D11_BUFFER_DESC vb_desc;
+	vb_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vb_desc.ByteWidth = sizeof(XMFLOAT3) * 2;
+	vb_desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	vb_desc.MiscFlags = 0;
+	vb_desc.StructureByteStride = 0;
+	vb_desc.Usage = D3D11_USAGE_DYNAMIC;
+	lineVB = new Buffer(&vb_desc, nullptr);
+
+	markShape = new Sphere(1);
+	markTransform = new Transform();
+}
+
+Debugging::~Debugging()
+{
+	delete markVS;
+	delete markPS;
+	delete blendState;
+	delete dsState;
+	delete rsState;
+
+	delete lineVB;
+	delete gridVB;
+}
 
 const XMMATRIX textMat = XMMATRIX(
 	SCREEN_WIDTH/2.0f, 0, 0, 0,
@@ -22,6 +73,7 @@ const XMMATRIX textMat = XMMATRIX(
 	SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f, 0, 1);
 void Debugging::Draw(const std::string tex, const float x, const float y, const XMVECTORF32 _color, const float _scale)
 {
+#ifdef _DEBUG
 	ScreenTextInfo newText;
 	newText.tex = tex;
 	newText.pos = XMFLOAT3(x,y,1);
@@ -30,6 +82,7 @@ void Debugging::Draw(const std::string tex, const float x, const float y, const 
 	newText.is3D = false;
 
 	texts.push_back(newText);
+#endif
 }
 void Debugging::Draw(const int tex, const float x, const float y, const XMVECTORF32 _color, const float _scale)
 {
@@ -39,12 +92,17 @@ void Debugging::Draw(float tex, const float x, const float y, XMVECTORF32 _color
 {
 	Draw(std::to_string(tex), x,y, _color, _scale);
 }
+void Debugging::Draw(std::string title, float v, const float x, const float y, XMVECTORF32 _color, float _scale)
+{
+	Draw(title + std::to_string(v), x, y, _color, _scale);
+}
 void Debugging::Draw(std::string title, XMFLOAT3 v, const float x, const float y, XMVECTORF32 _color, float _scale)
 {
-	Draw(title + "(" + std::to_string(v.x) + ", " + std::to_string(v.y) + ", " + std::to_string(v.z) + ")", x,y, _color, _scale);
+	Draw(title + "(" + std::to_string(v.x) + ", " + std::to_string(v.y) + ", " + std::to_string(v.z) + ")", x, y, _color, _scale);
 }
 void Debugging::Draw3D(const std::string tex, const XMFLOAT3 _pos, const XMVECTORF32 _color, const float _scale)
 {
+#ifdef _DEBUG
 	ScreenTextInfo newText;
 	newText.tex = tex;
 	newText.pos = _pos;
@@ -53,6 +111,7 @@ void Debugging::Draw3D(const std::string tex, const XMFLOAT3 _pos, const XMVECTO
 	newText.is3D = true;
 
 	texts.push_back(newText);
+#endif
 }
 void Debugging::Draw3D(const int tex, XMFLOAT3 _pos, const XMVECTORF32 _color, const float _scale)
 {
@@ -66,22 +125,30 @@ void Debugging::Draw3D(std::string title, XMFLOAT3 v, XMFLOAT3 _pos, XMVECTORF32
 {
 	Draw3D(title + "(" + std::to_string(v.x) + ", " + std::to_string(v.y) + ", " + std::to_string(v.z) + ")", _pos, _color, _scale);
 }
-void Debugging::Mark(const UINT key, XMFLOAT3 pos, float radius, XMVECTORF32 color)
+void Debugging::Mark(XMFLOAT3 pos, float radius, XMVECTORF32 color)
 {
-	if (marks.find(key) == marks.end())
+#ifdef _DEBUG
+	for (int i = 0; i < MARK_MAX; ++i)
 	{
-		Transform* transform = new Transform();
-		Sphere* newGeom = new Sphere(2);
-		transform->SetTranslation(pos);
-		transform->SetScale(radius, radius, radius);
-		
-		marks.insert(std::pair<UINT, MarkInfo>(key, MarkInfo(transform,newGeom, color)));
+		if (curMarkIdx >= MARK_MAX)
+			curMarkIdx = 0;
+
+		if (marks[curMarkIdx].isDraw==false)
+		{
+			marks[curMarkIdx].isDraw = true;
+			marks[curMarkIdx].pos = pos;
+			marks[curMarkIdx].rad = radius;
+			marks[curMarkIdx].color = color;
+			curMarkIdx++;
+			return;
+		}
+		else {
+			curMarkIdx++;
+		}
 	}
-	else {
-		marks[key].transform->SetTranslation(pos);
-		marks[key].transform->SetScale(radius, radius, radius);
-		marks[key].color = color;
-	}
+
+	MB("debug mark capacity overflow");
+#endif
 }
 
 void Debugging::PtLine(XMFLOAT3 p1, XMFLOAT3 p2, XMVECTORF32 color)
@@ -158,12 +225,20 @@ void Debugging::DisableGrid()
 	gridVB = nullptr;
 }
 
+void Debugging::Visualize(IDebug* obj)
+{
+#ifdef _DEBUG
+	assert(debugObjs.find(obj) == debugObjs.end());
+	
+	debugObjs.insert(obj);
+#endif
+}
 
 void Debugging::CameraMove(float spf) {
 
-	XMFLOAT3 newPos = testCamera->GetPos();
-	XMFLOAT3 right = testCamera->GetRight();
-	XMFLOAT3 forward = testCamera->GetForward();
+	XMFLOAT3 newPos = debugCam->transform->GetPos();
+	XMFLOAT3 right = debugCam->transform->GetRight();
+	XMFLOAT3 forward = debugCam->transform->GetForward();
 	const float speed = 50;
 	if (Keyboard::IsPressing('A')) {
 
@@ -193,35 +268,47 @@ void Debugging::CameraMove(float spf) {
 	prevMousePt.x = Mouse::Instance()->X();
 	prevMousePt.y = Mouse::Instance()->Y();
 	const XMMATRIX rotMat = XMMatrixRotationX(angleX) * XMMatrixRotationY(angleY);
-	testCamera->SetPos(newPos);
+	debugCam->transform->SetTranslation(newPos);
 	XMFLOAT3 f = FORWARD * rotMat;
 	XMFLOAT3 u = UP * rotMat;
-	testCamera->SetRot(f, u);
+	debugCam->transform->SetRot(f, u);
+	debugCam->Update();
 }
-void Debugging::Update(const Camera* camera, float spf)
+void Debugging::Update(float spf)
 {
-	vp_mat = camera->VMat() * camera->ProjMat(Z_ORDER_STANDARD);
 	CameraMove(spf);
+
+	for (IDebug* obj : debugObjs)
+	{
+		obj->Visualize();
+	}
 }
 
 void Debugging::Render()
 {
-	hs->Apply();
-	ds->Apply();
-	gs->Apply();
+	XMMATRIX vp_mat = debugCam->VMat() * debugCam->ProjMat(Z_ORDER_STANDARD);
+
+	DX_DContext->HSSetShader(nullptr, nullptr, 0);
+	DX_DContext->DSSetShader(nullptr, nullptr, 0);
+	DX_DContext->GSSetShader(nullptr, nullptr, 0);
 	blendState->Apply();
 	dsState->Apply();
 	rsState->Apply();
 
 	#pragma region Marks
 
-	for (auto& mark : marks) {
+	for (int i = 0; i < MARK_MAX; ++i) {
 
-		vs->WriteCB(0,&(mark.second.transform->WorldMatrix() * vp_mat));
-		ps->WriteCB(0,&(mark.second.color));
-		vs->Apply();
-		ps->Apply();
-		mark.second.geom->Apply();
+		if (!marks[i].isDraw)
+			continue;
+		markTransform->SetTranslation(marks[i].pos);
+		markTransform->SetScale(marks[i].rad);
+		markVS->WriteCB(0,&(markTransform->WorldMatrix() * vp_mat));
+		markPS->WriteCB(0,&(marks[i].color));
+		markVS->Apply();
+		markPS->Apply();
+		markShape->Apply();
+		marks[i].isDraw = false;
 	}
 #pragma endregion
 
@@ -241,10 +328,10 @@ void Debugging::Render()
 		pVB[1] = l.p2;
 		DX_DContext->Unmap(lineVB->Get(), 0);
 		
-		vs->WriteCB(0,&vp_mat);
-		ps->WriteCB(0,&(l.color));
-		vs->Apply();
-		ps->Apply();
+		markVS->WriteCB(0,&vp_mat);
+		markPS->WriteCB(0,&(l.color));
+		markVS->Apply();
+		markPS->Apply();
 
 		UINT stride = sizeof(XMFLOAT3);
 		UINT offset = 0;
@@ -255,33 +342,33 @@ void Debugging::Render()
 
 	if (gridVB)
 	{
-		vs->WriteCB(0,&vp_mat);
-		ps->WriteCB(0,(void*)(&(Colors::Red)));
-		vs->Apply();
-		ps->Apply();
+		markVS->WriteCB(0,&vp_mat);
+		markPS->WriteCB(0,(void*)(&(Colors::Red)));
+		markVS->Apply();
+		markPS->Apply();
 		UINT stride = sizeof(XMFLOAT3);
 		UINT offset = 0;
 		DX_DContext->IASetVertexBuffers(0, 1, originVB->GetAddress(), &stride, &offset);
 		DX_DContext->Draw(2, 0);
 
-		vs->WriteCB(0,&vp_mat);
-		ps->WriteCB(0,(void*)(&(Colors::Green)));
-		vs->Apply();
-		ps->Apply();
+		markVS->WriteCB(0,&vp_mat);
+		markPS->WriteCB(0,(void*)(&(Colors::Green)));
+		markVS->Apply();
+		markPS->Apply();
 		DX_DContext->IASetVertexBuffers(0, 1, originVB->GetAddress(), &stride, &offset);
 		DX_DContext->Draw(2, 2);
 
-		vs->WriteCB(0,&vp_mat);
-		ps->WriteCB(0,(void*)(&(Colors::Blue)));
-		vs->Apply();
-		ps->Apply();
+		markVS->WriteCB(0,&vp_mat);
+		markPS->WriteCB(0,(void*)(&(Colors::Blue)));
+		markVS->Apply();
+		markPS->Apply();
 		DX_DContext->IASetVertexBuffers(0, 1, originVB->GetAddress(), &stride, &offset);
 		DX_DContext->Draw(2, 4);
 
-		vs->WriteCB(0,&vp_mat);
-		ps->WriteCB(0,(void*)(&(Colors::Gray)));
-		vs->Apply();
-		ps->Apply();
+		markVS->WriteCB(0,&vp_mat);
+		markPS->WriteCB(0,(void*)(&(Colors::Gray)));
+		markVS->Apply();
+		markPS->Apply();
 		DX_DContext->IASetVertexBuffers(0, 1, gridVB->GetAddress(), &stride, &offset);
 		DX_DContext->Draw(gridVerticeCount, 0);
 	}
@@ -321,54 +408,4 @@ void Debugging::Render()
 	texts.clear();
 	spriteBatch->End();
 #pragma endregion
-}
-
-
-Debugging::Debugging()
-{
-	testCamera = new Camera("DebugCamera", FRAME_KIND_PERSPECTIVE, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1f, 1000.0f, XM_PIDIV2, 1);
-	testCamera->SetPos(XMFLOAT3(0, 10, -30));
-	testCamera->SetRot(FORWARD, UP);
-	testCamera->SetMain();
-
-	vs = new VShader("MarkVS.cso", 
-		simple_ILayouts,
-		ARRAYSIZE(simple_ILayouts));
-	hs = new HShader();
-	ds = new DShader();
-	gs = new GShader();
-	ps = new PShader("MarkPS.cso");
-	vs->AddCB(0, 1, sizeof(XMMATRIX));
-	ps->AddCB(0, 1, sizeof(XMVECTOR));
-
-	blendState = new BlendState(nullptr);
-	dsState = new DepthStencilState(nullptr);
-	rsState = new RasterizerState(nullptr);
-
-	spriteBatch = std::make_unique<DirectX::SpriteBatch>(DX_DContext);
-	spriteFont = std::make_unique<DirectX::SpriteFont>(DX_Device, L"Data\\Font\\Font.spritefont");
-
-	D3D11_BUFFER_DESC vb_desc;
-	vb_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vb_desc.ByteWidth = sizeof(XMFLOAT3) * 2;
-	vb_desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	vb_desc.MiscFlags = 0;
-	vb_desc.StructureByteStride = 0;
-	vb_desc.Usage = D3D11_USAGE_DYNAMIC;
-	lineVB = new Buffer(&vb_desc, nullptr);
-
-	
-}
-
-Debugging::~Debugging()
-{
-	delete vs;
-	delete gs;
-	delete ps;
-	delete blendState;
-	delete dsState;
-	delete rsState;
-
-	delete lineVB;
-	delete gridVB;
 }

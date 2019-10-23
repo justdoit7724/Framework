@@ -3,33 +3,45 @@
 #include "Object.h"
 #include "Shader.h"
 #include "ShaderFormat.h"
+#include "Camera.h"
 
 Scene::Scene(std::string key)
 	:key(key)
 {
-	shadowMapVS = new VShader("ShadowMapVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
-	shadowMapVS->AddCB(0, 1, sizeof(XMMATRIX));
+	SceneMgr::Instance()->Add(this);
 }
 
 Scene::~Scene()
 {
-	delete shadowMapVS;
-
 	SceneMgr::Instance()->Remove(key);
 }
 
-void Scene::Render_Update(const Camera* camera, float elapsed, float spf)
+void Scene::Update(float elapsed, float spf)
 {
-	for (auto obj : objs)
+	for (auto obj : drawObjs)
 	{
-		obj->Update(camera, elapsed, XMMatrixIdentity());
+		obj->Update();
 	}
 }
 
-void Scene::Render() const
+void Scene::Render(const Camera* camera, UINT sceneDepth) const
 {
+	//use temp container because drawObjs is being changed in loop
+	std::vector<Object*>tempMemObjs(drawObjs);
+
+	for (auto obj : tempMemObjs)
+	{
+		obj->Render(camera, sceneDepth);
+	}
+}
+
+void Scene::FrustumCulling(const Camera* camera)
+{
+	drawObjs.clear();
+
 	for (auto obj : objs)
 	{
-		obj->Render();
+		if(obj->IsInsideFrustum(camera->GetFrustum()))
+			drawObjs.push_back(obj);
 	}
 }

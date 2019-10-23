@@ -10,9 +10,6 @@
 class Transform;
 class Shape;
 class VShader;
-class HShader;
-class DShader;
-class GShader;
 class PShader;
 class Buffer;
 class DepthStencilState;
@@ -20,7 +17,10 @@ class BlendState;
 class RasterizerState;
 class Camera;
 class DebuggingScene;
+class IDebug;
 struct SHADER_STD_TRANSF;
+
+#define MARK_MAX 220
 
 class Debugging : public Singleton<Debugging>
 {
@@ -30,22 +30,25 @@ public:
 	void Draw(const std::string tex, const float x, const float y,  const XMVECTORF32 _color = Colors::White,  const float _scale = 1.5f);
 	void Draw(const int tex, const float x, const float y, const XMVECTORF32 _color = Colors::White, const float _scale = 1.5f);
 	void Draw(float tex, const float x, const float y, XMVECTORF32 _color = Colors::White, float _scale = 1.5f);
+	void Draw(std::string title, float v, const float x, const float y, XMVECTORF32 _color = Colors::White, float _scale = 1.0f);
 	void Draw(std::string title, XMFLOAT3 v, const float x, const float y, XMVECTORF32 _color = Colors::White, float _scale = 1.0f);
 	void Draw3D(const std::string tex, const XMFLOAT3 _pos, const XMVECTORF32 _color = Colors::White, const float _scale = 1.5f);
 	void Draw3D(const int tex, const XMFLOAT3 _pos, const XMVECTORF32 _color = Colors::White, const float _scale = 1.5f);
 	void Draw3D(float tex, const XMFLOAT3 _pos, XMVECTORF32 _color = Colors::White, float _scale = 1.5f);
 	void Draw3D(std::string title, XMFLOAT3 v,  const XMFLOAT3 _pos, XMVECTORF32 _color = Colors::White, float _scale = 1.0f);
-	void Mark(const UINT key, XMFLOAT3 pos, float radius = 1.0f, XMVECTORF32 color = Colors::Red);
+	void Mark(XMFLOAT3 pos, float radius = 1.0f, XMVECTORF32 color = Colors::Red);
 	void PtLine(XMFLOAT3 p1, XMFLOAT3 p2, XMVECTORF32 color = Colors::White);
 	void DirLine(XMFLOAT3 p1, XMFLOAT3 dir, float dist, XMVECTORF32 color = Colors::White);
 
 	void EnableGrid(float interval, int num=100);
 	void DisableGrid();
 
+	void Visualize(IDebug* obj);
+
 private:
-	Camera* testCamera;
+	Camera* debugCam;
 	void CameraMove(float spf);
-	void Update(const Camera* camera, float spf);
+	void Update(float spf);
 	void Render();
 
 	friend class Singleton<Debugging>;
@@ -67,17 +70,17 @@ private:
 	std::vector<ScreenTextInfo> texts;
 
 	struct MarkInfo {
-		Transform* transform;
-		Shape* geom;
+		bool isDraw;
+		XMFLOAT3 pos;
+		float rad;
 		XMVECTOR color;
 
-		MarkInfo() {}
-		MarkInfo(Transform* transform, Shape* geom, XMVECTOR color) 
-			:transform(transform), geom(geom), color(color)
-		{
-		}
+		MarkInfo():isDraw(false){}
 	};
-	std::unordered_map<UINT, MarkInfo> marks;
+	UINT curMarkIdx = 0;
+	Transform* markTransform;
+	Shape* markShape;
+	MarkInfo marks[MARK_MAX];
 
 	struct LineInfo {
 		XMFLOAT3 p1, p2;
@@ -95,18 +98,14 @@ private:
 	Buffer* gridVB=nullptr;
 	Buffer* originVB=nullptr;
 	UINT gridVerticeCount;
-	VShader* vs;
-	HShader* hs;
-	DShader* ds;
-	GShader* gs;
-	PShader* ps;
+	VShader* markVS;
+	PShader* markPS;
 	DepthStencilState* dsState;
 	BlendState* blendState;
 	RasterizerState* rsState;
 
 	float gridInterval;
 
-	XMMATRIX vp_mat;
-
+	std::unordered_set<IDebug*> debugObjs;
 };
 

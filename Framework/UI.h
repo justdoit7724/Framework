@@ -4,6 +4,7 @@
 #include "DX_info.h"
 
 class Transform;
+class Camera;
 class Quad;
 class VShader;
 class HShader;
@@ -24,9 +25,9 @@ private:
 	UI(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView * srv, UINT maxSliceIdx, UINT slicePerSec);
 	// depth complexity
 	~UI();
-	void Update(float spf, const XMMATRIX& vpMat, const XMMATRIX& texMat);
+	void Update(float spf);
 
-	void Render();
+	void Render(const Camera* camera)const;
 
 	float curTime=0;
 	const int maxSliceIdx;
@@ -46,7 +47,6 @@ public:
 	BlendState* blendState;
 };
 
-class Camera;
 class UICanvas
 {
 public:

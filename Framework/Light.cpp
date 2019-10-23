@@ -124,8 +124,8 @@ void DirectionalLight::SetSpecular(const XMFLOAT3 & s)
 
 void DirectionalLight::SetDir(XMFLOAT3 d)
 {
-	view->SetRot(d);
-	view->SetPos(d*-1000.0f);
+	view->transform->SetRot(d);
+	view->transform->SetTranslation(d*-1000.0f);
 	data.dir[id] = XMFLOAT4(d.x, d.y, d.z, 0);
 }
 
@@ -174,9 +174,9 @@ void DirectionalLight::ShadowCapture(std::vector<Object*>& objs) const
 }
 
 
-void DirectionalLight::Volume()
+void DirectionalLight::Update()
 {
-	view->Volume();
+	view->Update();
 }
 
 void DirectionalLight::Apply()
@@ -268,14 +268,14 @@ PointLight::PointLight(XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, float range, XMFLOAT3
 
 	for (int i = 0; i < 6; ++i)
 	{
-		view[i] = new Camera("PointLight", FRAME_KIND_PERSPECTIVE, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1f, 100.0f, XM_PIDIV2, 1.0f);
+		view[i] = new Camera(FRAME_KIND_PERSPECTIVE, NULL, NULL, 0.1f, 100.0f, XM_PIDIV2, 1.0f);
 	}
-	view[0]->SetRot(RIGHT, UP);
-	view[1]->SetRot(-RIGHT, UP);
-	view[2]->SetRot(UP, -FORWARD);
-	view[3]->SetRot(-UP, FORWARD);
-	view[4]->SetRot(FORWARD, UP);
-	view[5]->SetRot(-FORWARD, UP);
+	view[0]->transform->SetRot(RIGHT, UP);
+	view[1]->transform->SetRot(-RIGHT, UP);
+	view[2]->transform->SetRot(UP, -FORWARD);
+	view[3]->transform->SetRot(-UP, FORWARD);
+	view[4]->transform->SetRot(FORWARD, UP);
+	view[5]->transform->SetRot(-FORWARD, UP);
 
 	SetAmbient(a);
 	SetDiffuse(d);
@@ -308,7 +308,7 @@ void PointLight::SetPos(XMFLOAT3 p)
 {
 	for (int i = 0; i < 6; ++i)
 	{
-		view[i]->SetPos(p);
+		view[i]->transform->SetTranslation(p);
 	}
 	data.pos[id] = XMFLOAT4(p.x, p.y, p.z, 0);
 }
@@ -375,14 +375,14 @@ void PointLight::ShadowCapture(std::vector<Object*>& objs) const
 	DX_DContext->OMSetRenderTargets(1, &oriRTV, oriDSV);
 }
 
-void PointLight::Volume()
+void PointLight::Update()
 {
-	view[0]->Volume();
-	view[1]->Volume();
-	view[2]->Volume();
-	view[3]->Volume();
-	view[4]->Volume();
-	view[5]->Volume();
+	view[0]->Update();
+	view[1]->Update();
+	view[2]->Update();
+	view[3]->Update();
+	view[4]->Update();
+	view[5]->Update();
 }
 
 const XMMATRIX& PointLight::GetShadowPMat()
@@ -505,13 +505,13 @@ void SpotLight::SetSpecular(const XMFLOAT3 & s)
 
 void SpotLight::SetPos(XMFLOAT3 p)
 {
-	view->SetPos(p);
+	view->transform->SetTranslation(p);
 	data.pos[id] = XMFLOAT4(p.x, p.y, p.z, 0);
 }
 
 void SpotLight::SetDir(XMFLOAT3 d)
 {
-	view->SetRot(d);
+	view->transform->SetRot(d);
 	data.dir[id] = XMFLOAT4(d.x, d.y, d.z, 0);
 }
 

@@ -8,6 +8,9 @@
 #include "DepthStencilState.h"
 #include "RasterizerState.h"
 #include "Shape.h"
+#include "CameraMgr.h"
+
+#include "Debugging.h"
 
 //fundamental elements
 Object::Object(Shape* shape, std::string sVS, const D3D11_INPUT_ELEMENT_DESC* iLayouts, UINT layoutCount, std::string sHS, std::string sDS, std::string sGS, std::string sPS,int zOrder)
@@ -89,18 +92,15 @@ Object::~Object()
 	delete rsState;
 }
 
-void Object::Update(const Camera* camera, float elapsed, const XMMATRIX& texMat)
+void Object::Update()
 {
-	const SHADER_STD_TRANSF STransformation(transform->WorldMatrix(), camera->VMat() * camera->ProjMat(zOrder), texMat);
-
-	XMFLOAT3 eye = camera->GetPos();
-
-	vs->WriteCB(0, (void*)(&STransformation));
-	ps->WriteCB(3, &XMFLOAT4(eye.x, eye.y, eye.z,0));
-	ps->WriteCB(5, &elapsed);
+	shape->GetLBound(&boundlMinPt, &boundlMaxPt);
+	XMFLOAT3 wMinPt = boundlMinPt * transform->GetScale();
+	XMFLOAT3 wMaxPt = boundlMaxPt * transform->GetScale();
+	boundRad = Length(wMinPt - wMaxPt)*0.5f;
 }
 
-void Object::Render() const
+void Object::Render()const
 {
 	vs->Apply();
 	hs->Apply();
@@ -114,8 +114,38 @@ void Object::Render() const
 
 	shape->Apply();
 }
+void Object::Render(const Camera* camera, UINT sceneDepth) const
+{
+	const SHADER_STD_TRANSF STransformation(transform->WorldMatrix(), camera->VMat() * camera->ProjMat(zOrder), XMMatrixIdentity());
+
+	XMFLOAT3 eye = camera->transform->GetPos();
+
+	vs->WriteCB(0, (void*)(&STransformation));
+	ps->WriteCB(3, &XMFLOAT4(eye.x, eye.y, eye.z, 0));
+
+	Render();
+}
 
 void Object::RenderGeom() const
 {
 	shape->Apply();
 }
+
+bool Object::IsInsideFrustum(const Frustum* frustum) const
+{
+	XMFLOAT3 center = transform->GetPos();
+	return (
+		IntersectInPlaneSphere(frustum->sidePt, frustum->rN, center, boundRad) &&
+		IntersectInPlaneSphere(frustum->sidePt, frustum->lN, center, boundRad) &&
+		IntersectInPlaneSphere(frustum->sidePt, frustum->tN, center, boundRad) &&
+		IntersectInPlaneSphere(frustum->sidePt, frustum->bN, center, boundRad) &&
+		IntersectInPlaneSphere(frustum->fPt, frustum->fN, center, boundRad) &&
+		IntersectInPlaneSphere(frustum->nPt, frustum->nN, center, boundRad));
+}
+
+void Object::Visualize()
+{
+	if(IsInsideFrustum(CameraMgr::Instance()->Main()->GetFrustum()))
+		Debugging::Instance()->Mark(transform->GetPos(), boundRad, Colors::LightGreen);
+}
+
