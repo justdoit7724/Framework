@@ -19,9 +19,11 @@ x86/
 !Framework/DirectXTK/Libs/x86
 [Dd]ebug/
 !Framework/DirectXTK/Libs/x64/[Dd]ebug
+!Framework/DirectXTK/Libs/x86/[Dd]ebug
 [Dd]ebugPublic/
 [Rr]elease/
 !Framework/DirectXTK/Libs/x64/[Rr]elease
+!Framework/DirectXTK/Libs/x86/[Rr]elease
 [Rr]eleases/
 bld/
 [Bb]in/
