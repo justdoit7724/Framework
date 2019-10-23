@@ -10,6 +10,9 @@
 #include "DebuggingScene.h"
 #include "BindingTestScene.h"
 
+#pragma comment(lib, "D3DCompiler.lib")
+#pragma comment(lib, "DirectXTK.lib")
+
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 
 	srand(time(NULL));
