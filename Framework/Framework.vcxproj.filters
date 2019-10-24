@@ -180,9 +180,6 @@
     <ClCompile Include="BindingTestScene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MeshMgr.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Debugging.h">
@@ -340,9 +337,6 @@
     </ClInclude>
     <ClInclude Include="ObjectPooling.h">
       <Filter>DesignPattern</Filter>
-    </ClInclude>
-    <ClInclude Include="MeshMgr.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
