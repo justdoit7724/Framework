@@ -13,6 +13,10 @@ using namespace DirectX;
 inline float Lerp(float t, float v1, float v2) {
 	return v1 + (v2 - v1)*t;
 }
+inline float Clamp(float a, float b, float v)
+{
+	return fmaxf(a, fminf(v, b));
+}
 
 inline XMFLOAT2 operator+(XMFLOAT2 a, XMFLOAT2 b)
 {

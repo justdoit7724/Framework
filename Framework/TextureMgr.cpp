@@ -5,30 +5,97 @@ TextureMgr::~TextureMgr()
 {
 	for (auto& e : SRVs) {
 
-		e.second.srv->Release();
+		e.second->Release();
 	}
-}
-
-void TextureMgr::Load(std::string key, std::string fileName, UINT miplevel)
-{
-	std::vector<std::string> list;
-	list.push_back(fileName);
-
-	Load(key, list, miplevel);
 }
 
 int CalculateMaxMiplevel(int width, int height)
 {
 	return log2(fmaxf(width, height));
 }
-
-void TextureMgr::Load(std::string key, std::vector<std::string> fileNames, UINT miplevel)
+void TextureMgr::Load(std::string key, std::string fileName, UINT miplevel)
 {
-	if (SRVs.find(key) != SRVs.end())
-	{
-		OutputDebugString((key + " texture multiple loading\n").c_str());
-		return;
-	}
+	assert(SRVs.find(key) == SRVs.end());
+
+	ID3D11Resource* ori_resources;
+	D3D11_TEXTURE2D_DESC ori_desc;
+	r_assert(
+		DirectX::CreateWICTextureFromFile(
+			DX_Device,
+			(L"Data\\Texture\\" + std::wstring(fileName.begin(), fileName.end())).c_str(),
+			&ori_resources,
+			nullptr)
+	);
+
+	ComPtr<ID3D11Texture2D> ori_tex = nullptr;
+	r_assert(
+		ori_resources->QueryInterface(__uuidof(ID3D11Texture2D), (void**)ori_tex.GetAddressOf())
+	);
+	ori_tex->GetDesc(&ori_desc);
+
+	miplevel = fmaxf(fminf(CalculateMaxMiplevel(ori_desc.Width, ori_desc.Height), miplevel), 1);
+
+	D3D11_TEXTURE2D_DESC newTex_desc;
+	newTex_desc.Format = ori_desc.Format;
+	newTex_desc.ArraySize = 1;
+	newTex_desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+	newTex_desc.CPUAccessFlags = 0;
+	newTex_desc.Width = ori_desc.Width;
+	newTex_desc.Height = ori_desc.Height;
+	newTex_desc.MipLevels = miplevel;
+	newTex_desc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
+	newTex_desc.SampleDesc.Count = 1;
+	newTex_desc.SampleDesc.Quality = 0;
+	newTex_desc.Usage = D3D11_USAGE_DEFAULT;
+
+	ComPtr<ID3D11Texture2D> newTex;
+	r_assert(
+		DX_Device->CreateTexture2D(
+			&newTex_desc, nullptr, newTex.GetAddressOf())
+	);
+
+	ComPtr<ID3D11Texture2D> stagTex;
+	D3D11_TEXTURE2D_DESC stagDesc = ori_desc;
+	stagDesc.BindFlags = 0;
+	stagDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+	stagDesc.Usage = D3D11_USAGE_STAGING;
+	r_assert(DX_Device->CreateTexture2D(&stagDesc, nullptr, &stagTex));
+
+	DX_DContext->CopyResource(stagTex.Get(), ori_tex.Get());
+
+	D3D11_MAPPED_SUBRESOURCE mapped;
+	r_assert(DX_DContext->Map(stagTex.Get(), 0, D3D11_MAP_READ, 0, &mapped));
+	// use 'UINT' because format of images from file is one of 8888
+	UINT* arr = new UINT[(mapped.RowPitch / sizeof(UINT)) * ori_desc.Height];
+	ZeroMemory(arr, mapped.RowPitch * ori_desc.Height);
+	CopyMemory(arr, mapped.pData, mapped.RowPitch * ori_desc.Height);
+	DX_DContext->Unmap(stagTex.Get(), 0);
+
+	DX_DContext->UpdateSubresource(
+		newTex.Get(), 0,
+		nullptr,
+		arr,
+		mapped.RowPitch, mapped.DepthPitch);
+	delete[] arr;
+	
+
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	srvDesc.Format = ori_desc.Format;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels = miplevel;
+	srvDesc.Texture2D.MostDetailedMip = 0;
+	ID3D11ShaderResourceView* newSRV = nullptr;
+	r_assert(DX_Device->CreateShaderResourceView(newTex.Get(), &srvDesc, &newSRV));
+	DX_DContext->GenerateMips(newSRV);
+
+	SRVs.insert(std::pair<std::string, ID3D11ShaderResourceView*>(key, newSRV));
+}
+
+
+void TextureMgr::LoadArray(std::string key, std::vector<std::string> fileNames, UINT miplevel)
+{
+	assert(SRVs.find(key) == SRVs.end());
 
 	const UINT spriteCount = fileNames.size();
 
@@ -123,9 +190,8 @@ void TextureMgr::Load(std::string key, std::vector<std::string> fileNames, UINT 
 	DX_DContext->GenerateMips(integratedSRV);
 	
 
-	SRVs.insert(std::pair<std::string, TextureInfo>(key, TextureInfo(integratedSRV, spriteCount)));
-	/*
-	*/
+	SRVs.insert(std::pair<std::string, ID3D11ShaderResourceView*>(key, integratedSRV));
+
 }
 
 void TextureMgr::LoadCM(std::string key, std::vector<std::string> fileNames)
@@ -196,34 +262,25 @@ void TextureMgr::LoadCM(std::string key, std::vector<std::string> fileNames)
 	ID3D11ShaderResourceView* integratedSRV = nullptr;
 	r_assert(DX_Device->CreateShaderResourceView(cmTex.Get(), &srvDesc, &integratedSRV));
 
-	SRVs.insert(std::pair<std::string, TextureInfo>(key, TextureInfo(integratedSRV, 0)));
+	SRVs.insert(std::pair<std::string, ID3D11ShaderResourceView*>(key, integratedSRV));
 }
 
-void TextureMgr::Get(std::string key, ID3D11ShaderResourceView** srv)
+ID3D11ShaderResourceView* TextureMgr::Get(std::string key)
 {
 	assert(SRVs.find(key) != SRVs.end());
 
-	*srv = SRVs[key].srv;
+	return SRVs[key];
 }
-
-void TextureMgr::Get(std::string key, ID3D11ShaderResourceView** srv, UINT* size)
-{
-	assert(SRVs.find(key) != SRVs.end());
-
-	*srv = SRVs[key].srv;
-	if (size)
-		* size = SRVs[key].size;
-}
-
-ID3D11Texture2D* TextureMgr::GetTexture(std::string fileName)
-{
-	assert(SRVs.find(fileName) != SRVs.end());
-
-	ID3D11Resource* resource=nullptr;
-	SRVs[fileName].srv->GetResource(&resource);
-	ID3D11Texture2D* tex=nullptr;
-	r_assert( resource->QueryInterface(__uuidof(ID3D11Texture2D), (void**)&tex) );
-	return tex;
-}
+//
+//ID3D11Texture2D* TextureMgr::GetTexture(std::string fileName)
+//{
+//	assert(SRVs.find(fileName) != SRVs.end());
+//
+//	ID3D11Resource* resource=nullptr;
+//	SRVs[fileName].srv->GetResource(&resource);
+//	ID3D11Texture2D* tex=nullptr;
+//	r_assert( resource->QueryInterface(__uuidof(ID3D11Texture2D), (void**)&tex) );
+//	return tex;
+//}
 
 

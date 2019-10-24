@@ -65,38 +65,24 @@ TestScene::TestScene(IGraphic* graphic)
 
 	TextureMgr::Instance()->Load("rock", "rock.jpg", 10);
 	TextureMgr::Instance()->Load("rock_normal", "rock_normal.jpg", 10);
-	TextureMgr::Instance()->Load("ground", "ground.jpg", 10);
-	TextureMgr::Instance()->Load("ground_normal", "ground_normal.jpg", 10);
-	TextureMgr::Instance()->Load("rock_dp", "rock_dp.jpg", 10);
 	TextureMgr::Instance()->Load("simple", "sample.jpg", 8);
-	TextureMgr::Instance()->Load("white", "white.png", 8);
-	TextureMgr::Instance()->Load("defaultNormal", "default_normal.png", 8);
 
 
-	ID3D11ShaderResourceView* pbrSRV;
-	ID3D11ShaderResourceView* pbrNormal;
-	ID3D11ShaderResourceView* groundSRV;
-	ID3D11ShaderResourceView* groundNormal;
-	ID3D11ShaderResourceView* pbrDP;
-	ID3D11ShaderResourceView* simpleSRV;
-	ID3D11ShaderResourceView* whiteSRV;
-	ID3D11ShaderResourceView* defaultNormal;
-	TextureMgr::Instance()->Get("rock", &pbrSRV);
-	TextureMgr::Instance()->Get("rock_normal", &pbrNormal);
-	TextureMgr::Instance()->Get("ground", &groundSRV);
-	TextureMgr::Instance()->Get("ground_normal", &groundNormal);
-	TextureMgr::Instance()->Get("rock_dp", &pbrDP);
-	TextureMgr::Instance()->Get("simple", &simpleSRV);
-	TextureMgr::Instance()->Get("white", &whiteSRV);
-	TextureMgr::Instance()->Get("defaultNormal", &defaultNormal);
+	ID3D11ShaderResourceView* pbrSRV= TextureMgr::Instance()->Get("rock");
+	ID3D11ShaderResourceView* pbrNormal= TextureMgr::Instance()->Get("rock_normal");;
+	ID3D11ShaderResourceView* simpleSRV= TextureMgr::Instance()->Get("simple");;
+	
+	
 	
 	MeshMgr::Instance()->Add("nanosuit","nanosuit\\nanosuit.obj");
 	std::vector<MeshInfo> meshes = MeshMgr::Instance()->Get("nanosuit");
 	for (int i = 0; i < meshes.size(); ++i)
 	{
+
+
 		Shape* nanosuit = new Shape();
 		nanosuit->Init(meshes[i].vertice, sizeof(Vertex), meshes[i].vCount, meshes[i].indice, meshes[i].iCount, D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST, XMFLOAT3(-1, -10, -1), XMFLOAT3(1, 10, 1));
-		Object* obj = new Object(nanosuit, XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), 4, XMFLOAT3(0, 0, 0), groundSRV, nullptr, nullptr, 2);
+		Object* obj = new Object(nanosuit, XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), 4, XMFLOAT3(0, 0, 0), pbrSRV, nullptr, nullptr, 2);
 		obj->transform->SetScale(2, 2, 2);
 		AddObj(obj);
 	}

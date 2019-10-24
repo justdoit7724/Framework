@@ -65,9 +65,8 @@ Object::Object(Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpe
 	ID3D11ShaderResourceView* modNormalSRV= normalSRV;
 	if (normalSRV == nullptr)
 	{
-		TextureMgr::Instance()->Load(KEY_TEXTURE_NORMAL_DEFAULT, FN_TEXTURE_NORMAL_DEFAULT, 1);
 		UINT count;
-		TextureMgr::Instance()->Get(KEY_TEXTURE_NORMAL_DEFAULT, &modNormalSRV, &count);
+		modNormalSRV = TextureMgr::Instance()->Get(KEY_TEXTURE_NORMAL_DEFAULT);
 	}
 
 	ps->WriteSRV(2, modNormalSRV);

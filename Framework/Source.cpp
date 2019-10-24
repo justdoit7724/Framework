@@ -6,6 +6,7 @@
 #include "Graphic.h"
 #include "SceneMgr.h"
 #include "Timer.h"
+#include "TextureMgr.h"
 
 #include "TestScene.h"
 #include "DCMScene.h"
@@ -17,6 +18,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	srand(time(NULL));
 	Window window(hInstance, "Low Level");
 	Graphic* graphic = new Graphic(window.Hwnd());
+
+	TextureMgr::Instance()->Load(KEY_TEXTURE_NORMAL_DEFAULT, FN_TEXTURE_NORMAL_DEFAULT, 1);
 
 #ifdef _DEBUG
 	Scene* debugScene = new DebuggingScene();
