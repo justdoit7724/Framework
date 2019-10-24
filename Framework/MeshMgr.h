@@ -14,24 +14,24 @@ struct MeshInfo
 	UINT* indice;
 	UINT vCount;
 	UINT iCount;
-	aiString diffKey;
-	aiString specKey;
-	aiString normalKey;
+	std::string* diffMtl= nullptr;
+	std::string* normalMtl= nullptr;
+	std::string* specMtl= nullptr;
 
-	MeshInfo() {}
+	MeshInfo() {
+	}
 };
 
 class MeshMgr : public Singleton<MeshMgr>
 {
 public:
-	void Add(std::string key, std::string filepath);
+	void Add(std::string key, std::string filename);
 	const std::vector<MeshInfo>& Get(std::string key);
 	
 private:
 	std::unordered_map<std::string, std::vector<MeshInfo>> meshes;
 
 	void ProcessNode(std::string key, aiNode* node, const aiScene* scene);
-	MeshInfo ProcessMesh(aiMesh* mesh, const aiMaterial* const* materials);
 
 };
 

@@ -11,18 +11,16 @@ TextureMgr::~TextureMgr()
 
 int CalculateMaxMiplevel(int width, int height)
 {
-	return log2(fmaxf(width, height));
+	return fmaxf(log2(fmaxf(width, height)),1);
 }
-void TextureMgr::Load(std::string key, std::string fileName, UINT miplevel)
+void TextureMgr::Load(std::string key, std::string fileName)
 {
-	assert(SRVs.find(key) == SRVs.end());
-
 	ID3D11Resource* ori_resources;
 	D3D11_TEXTURE2D_DESC ori_desc;
 	r_assert(
 		DirectX::CreateWICTextureFromFile(
 			DX_Device,
-			(L"Data\\Texture\\" + std::wstring(fileName.begin(), fileName.end())).c_str(),
+			std::wstring(fileName.begin(), fileName.end()).c_str(),
 			&ori_resources,
 			nullptr)
 	);
@@ -33,7 +31,7 @@ void TextureMgr::Load(std::string key, std::string fileName, UINT miplevel)
 	);
 	ori_tex->GetDesc(&ori_desc);
 
-	miplevel = fmaxf(fminf(CalculateMaxMiplevel(ori_desc.Width, ori_desc.Height), miplevel), 1);
+	UINT miplevel = CalculateMaxMiplevel(ori_desc.Width, ori_desc.Height);
 
 	D3D11_TEXTURE2D_DESC newTex_desc;
 	newTex_desc.Format = ori_desc.Format;
@@ -93,10 +91,8 @@ void TextureMgr::Load(std::string key, std::string fileName, UINT miplevel)
 }
 
 
-void TextureMgr::LoadArray(std::string key, std::vector<std::string> fileNames, UINT miplevel)
+void TextureMgr::LoadArray(std::string key,std::wstring folderName, std::vector<std::string> fileNames)
 {
-	assert(SRVs.find(key) == SRVs.end());
-
 	const UINT spriteCount = fileNames.size();
 
 	std::vector<ID3D11Resource*> ori_resources(spriteCount);
@@ -105,11 +101,10 @@ void TextureMgr::LoadArray(std::string key, std::vector<std::string> fileNames, 
 	for (int i = 0; i < spriteCount; ++i)
 	{
 		ID3D11Resource* newResource = nullptr;
-		std::wstring wFileName = std::wstring(fileNames[i].begin(), fileNames[i].end());
 		r_assert(
 			DirectX::CreateWICTextureFromFile(
 				DX_Device,
-				(L"Data\\Texture\\" + wFileName).c_str(),
+				(folderName+std::wstring(fileNames[i].begin(), fileNames[i].end())).c_str(),
 				&newResource,
 				nullptr)
 		);
@@ -127,7 +122,7 @@ void TextureMgr::LoadArray(std::string key, std::vector<std::string> fileNames, 
 		prev_desc = ori_desc;
 	}
 	
-	miplevel = fmaxf(fminf(CalculateMaxMiplevel(ori_desc.Width, ori_desc.Height), miplevel),1);
+	UINT miplevel = CalculateMaxMiplevel(ori_desc.Width, ori_desc.Height);
 
 	D3D11_TEXTURE2D_DESC arr_desc;
 	arr_desc.Format = ori_desc.Format;
@@ -196,19 +191,16 @@ void TextureMgr::LoadArray(std::string key, std::vector<std::string> fileNames, 
 
 void TextureMgr::LoadCM(std::string key, std::vector<std::string> fileNames)
 {
-	assert(SRVs.find(key) == SRVs.end());
-
 	ID3D11Resource* ori_resources[6];
 	D3D11_TEXTURE2D_DESC ori_desc;
 	D3D11_TEXTURE2D_DESC prev_desc;
 	for (int i = 0; i < 6; ++i)
 	{
 		ID3D11Resource* newResource = nullptr;
-		std::wstring wFileName = std::wstring(fileNames[i].begin(), fileNames[i].end());
 		r_assert(
 			DirectX::CreateWICTextureFromFile(
 				DX_Device,
-				(L"Data\\Texture\\" + wFileName).c_str(),
+				std::wstring(fileNames[i].begin(), fileNames[i].end()).c_str(),
 				&newResource,
 				nullptr)
 		);
