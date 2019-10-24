@@ -33,11 +33,14 @@
 #include "ShadowObj.h"
 #include "DynamicCubeMap.h"
 #include "Debugging.h"
+#include "MeshMgr.h"
 
 TestScene::TestScene(IGraphic* graphic)
 	:Scene("Test"),
 	graphic(graphic)
 {
+
+
 	timer = new Timer();
 	canvas = new UICanvas(SCREEN_WIDTH, SCREEN_HEIGHT);
 	Debugging::Instance()->EnableGrid(10, 50);
@@ -87,6 +90,17 @@ TestScene::TestScene(IGraphic* graphic)
 	TextureMgr::Instance()->Get("white", &whiteSRV);
 	TextureMgr::Instance()->Get("defaultNormal", &defaultNormal);
 	
+	MeshMgr::Instance()->Add("nanosuit","nanosuit\\nanosuit.obj");
+	std::vector<MeshInfo> meshes = MeshMgr::Instance()->Get("nanosuit");
+	for (int i = 0; i < meshes.size(); ++i)
+	{
+		Shape* nanosuit = new Shape();
+		nanosuit->Init(meshes[i].vertice, sizeof(Vertex), meshes[i].vCount, meshes[i].indice, meshes[i].iCount, D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST, XMFLOAT3(-1, -10, -1), XMFLOAT3(1, 10, 1));
+		Object* obj = new Object(nanosuit, XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), 4, XMFLOAT3(0, 0, 0), groundSRV, nullptr, nullptr, 2);
+		obj->transform->SetScale(2, 2, 2);
+		AddObj(obj);
+	}
+	/*
 	Object* dcmObj = new DynamicCubeMap(this, new Sphere(3));
 	dcmObj->transform->SetScale(30, 30, 30);
 	dcmObj->transform->SetTranslation(-60, 40, 20);
@@ -106,6 +120,7 @@ TestScene::TestScene(IGraphic* graphic)
 			}
 		}
 	}
+	*/
 }
 
 TestScene::~TestScene()

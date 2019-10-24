@@ -32,12 +32,12 @@ Mirror::Mirror(Scene* captureScene, UINT width, UINT height)
 	XMFLOAT3 maxPt = XMFLOAT3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 	for (auto vertex : mirrorQuad)
 	{
-		minPt.x = min(minPt.x, vertex.x);
-		minPt.y = min(minPt.y, vertex.y);
-		minPt.z = min(minPt.z, vertex.z);
-		maxPt.x = max(maxPt.x, vertex.x);
-		maxPt.y = max(maxPt.y, vertex.y);
-		maxPt.z = max(maxPt.z, vertex.z);
+		minPt.x = fminf(minPt.x, vertex.x);
+		minPt.y = fminf(minPt.y, vertex.y);
+		minPt.z = fminf(minPt.z, vertex.z);
+		maxPt.x = fmaxf(maxPt.x, vertex.x);
+		maxPt.y = fmaxf(maxPt.y, vertex.y);
+		maxPt.z = fmaxf(maxPt.z, vertex.z);
 	}
 
 	shape->Init(mirrorQuad, sizeof(mirrorQuad[0]), ARRAYSIZE(mirrorQuad), OBJ_QUAD_INDICE, ARRAYSIZE(OBJ_QUAD_INDICE), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, minPt, maxPt);

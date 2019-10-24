@@ -106,12 +106,12 @@ Cube::Cube()
 	XMFLOAT3 maxPt = XMFLOAT3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 	for (int i = 0; i < ARRAYSIZE(OBJ_CUBE); ++i)
 	{
-		minPt.x = min(minPt.x, OBJ_CUBE[i].pos.x);
-		minPt.y = min(minPt.y, OBJ_CUBE[i].pos.y);
-		minPt.z = min(minPt.z, OBJ_CUBE[i].pos.z);
-		maxPt.x = max(maxPt.x, OBJ_CUBE[i].pos.x);
-		maxPt.y = max(maxPt.y, OBJ_CUBE[i].pos.y);
-		maxPt.z = max(maxPt.z, OBJ_CUBE[i].pos.z);
+		minPt.x = fminf(minPt.x, OBJ_CUBE[i].pos.x);
+		minPt.y = fminf(minPt.y, OBJ_CUBE[i].pos.y);
+		minPt.z = fminf(minPt.z, OBJ_CUBE[i].pos.z);
+		maxPt.x = fmaxf(maxPt.x, OBJ_CUBE[i].pos.x);
+		maxPt.y = fmaxf(maxPt.y, OBJ_CUBE[i].pos.y);
+		maxPt.z = fmaxf(maxPt.z, OBJ_CUBE[i].pos.z);
 	}
 
 	Init(&OBJ_CUBE[0], sizeof(Vertex), ARRAYSIZE(OBJ_CUBE), (void*)&OBJ_CUBE_INDICE[0], ARRAYSIZE(OBJ_CUBE_INDICE), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, minPt, maxPt);

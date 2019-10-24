@@ -18,6 +18,9 @@ public:
 	void Get(std::string key, ID3D11ShaderResourceView** srv, UINT* size);
 	ID3D11Texture2D* GetTexture(std::string fileName);
 
+	//debug modify
+
+
 private:
 	struct TextureInfo
 	{

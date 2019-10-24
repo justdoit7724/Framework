@@ -39,7 +39,11 @@ struct PS_INPUT
 };
 float4 main(PS_INPUT input) : SV_Target
 {
+
     input.normal = normalize(input.normal);
+    //debug
+    return float4(input.normal, 1);
+
     input.tangent = normalize(input.tangent - dot(input.normal, input.tangent)*input.normal);
     float3 bitangent = cross(input.normal, input.tangent);
     float3x3 tbn = float3x3(input.tangent, bitangent, input.normal);

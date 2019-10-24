@@ -31,12 +31,12 @@ Quad::Quad()
 	XMFLOAT3 maxPt = XMFLOAT3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 	for (auto vertex : OBJ_QUAD)
 	{
-		minPt.x = min(minPt.x, vertex.pos.x);
-		minPt.y = min(minPt.y, vertex.pos.y);
-		minPt.z = min(minPt.z, vertex.pos.z);
-		maxPt.x = max(maxPt.x, vertex.pos.x);
-		maxPt.y = max(maxPt.y, vertex.pos.y);
-		maxPt.z = max(maxPt.z, vertex.pos.z);
+		minPt.x = fminf(minPt.x, vertex.pos.x);
+		minPt.y = fminf(minPt.y, vertex.pos.y);
+		minPt.z = fminf(minPt.z, vertex.pos.z);
+		maxPt.x = fmaxf(maxPt.x, vertex.pos.x);
+		maxPt.y = fmaxf(maxPt.y, vertex.pos.y);
+		maxPt.z = fmaxf(maxPt.z, vertex.pos.z);
 	}
 
 	Init(&OBJ_QUAD[0], sizeof(Vertex), ARRAYSIZE(OBJ_QUAD), OBJ_QUAD_INDICE, ARRAYSIZE(OBJ_QUAD_INDICE), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, minPt, maxPt);

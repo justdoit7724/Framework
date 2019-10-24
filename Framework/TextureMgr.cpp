@@ -19,7 +19,7 @@ void TextureMgr::Load(std::string key, std::string fileName, UINT miplevel)
 
 int CalculateMaxMiplevel(int width, int height)
 {
-	return log2(max(width, height));
+	return log2(fmaxf(width, height));
 }
 
 void TextureMgr::Load(std::string key, std::vector<std::string> fileNames, UINT miplevel)
@@ -60,7 +60,7 @@ void TextureMgr::Load(std::string key, std::vector<std::string> fileNames, UINT 
 		prev_desc = ori_desc;
 	}
 	
-	miplevel = max(min(CalculateMaxMiplevel(ori_desc.Width, ori_desc.Height), miplevel),1);
+	miplevel = fmaxf(fminf(CalculateMaxMiplevel(ori_desc.Width, ori_desc.Height), miplevel),1);
 
 	D3D11_TEXTURE2D_DESC arr_desc;
 	arr_desc.Format = ori_desc.Format;
