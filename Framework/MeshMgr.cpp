@@ -82,7 +82,7 @@ MeshInfo MeshMgr::ProcessMesh(aiMesh* mesh, const aiMaterial*const* materials)
 		for (int j = 0; j < face.mNumIndices; ++j)
 		{
 			assert(face.mNumIndices == 3);
-			meshInfo.indice[i] = face.mIndices[j];
+			meshInfo.indice[i*3+j] = face.mIndices[j];
 		}
 	}
 
