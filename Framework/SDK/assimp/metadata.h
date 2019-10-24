@@ -3,7 +3,7 @@
 Open Asset Import Library (assimp)
 ---------------------------------------------------------------------------
 
-Copyright (c) 2006-2019, assimp team
+Copyright (c) 2006-2018, assimp team
 
 
 
@@ -129,7 +129,7 @@ struct aiMetadata {
     /** 
      *  @brief  The default constructor, set all members to zero by default.
      */
-    aiMetadata() AI_NO_EXCEPT
+    aiMetadata()
     : mNumProperties(0)
     , mKeys(nullptr)
     , mValues(nullptr) {
@@ -141,16 +141,15 @@ struct aiMetadata {
     , mKeys( nullptr )
     , mValues( nullptr ) {
         mKeys = new aiString[ mNumProperties ];
-        for ( size_t i = 0; i < static_cast<size_t>( mNumProperties ); ++i ) {
+        for ( unsigned int i = 0; i < mNumProperties; ++i ) {
             mKeys[ i ] = rhs.mKeys[ i ];
         }
         mValues = new aiMetadataEntry[ mNumProperties ];
-        for ( size_t i = 0; i < static_cast<size_t>(mNumProperties); ++i ) {
+        for ( unsigned int i = 0; i < mNumProperties; ++i ) {
             mValues[ i ].mType = rhs.mValues[ i ].mType;
             switch ( rhs.mValues[ i ].mType ) {
             case AI_BOOL:
-                mValues[ i ].mData = new bool;
-                ::memcpy( mValues[ i ].mData, rhs.mValues[ i ].mData, sizeof(bool) );
+                mValues[ i ].mData = new bool( rhs.mValues[i].mData );
                 break;
             case AI_INT32: {
                 int32_t v;

@@ -3,7 +3,7 @@
 Open Asset Import Library (assimp)
 ---------------------------------------------------------------------------
 
-Copyright (c) 2006-2019, assimp team
+Copyright (c) 2006-2018, assimp team
 
 
 
@@ -98,10 +98,8 @@ AI_FORCE_INLINE bool is_qnan(float in)
     //   compare <register-with-different-width> against <in>
 
     // FIXME: Use <float> stuff instead? I think fpclassify needs C99
-    _IEEESingle temp;
-    memcpy(&temp, &in, sizeof(float));
-    return (temp.IEEE.Exp == (1u << 8)-1 &&
-        temp.IEEE.Frac);
+    return (reinterpret_cast<_IEEESingle*>(&in)->IEEE.Exp == (1u << 8)-1 &&
+        reinterpret_cast<_IEEESingle*>(&in)->IEEE.Frac);
 }
 
 // ---------------------------------------------------------------------------
@@ -116,10 +114,8 @@ AI_FORCE_INLINE bool is_qnan(double in)
     //   compare <register-with-different-width> against <in>
 
     // FIXME: Use <float> stuff instead? I think fpclassify needs C99
-    _IEEEDouble temp;
-    memcpy(&temp, &in, sizeof(in));
-    return (temp.IEEE.Exp == (1u << 11)-1 &&
-        temp.IEEE.Frac);
+    return (reinterpret_cast<_IEEEDouble*>(&in)->IEEE.Exp == (1u << 11)-1 &&
+        reinterpret_cast<_IEEEDouble*>(&in)->IEEE.Frac);
 }
 
 // ---------------------------------------------------------------------------
@@ -129,9 +125,7 @@ AI_FORCE_INLINE bool is_qnan(double in)
  *  @param in Input value */
 AI_FORCE_INLINE bool is_special_float(float in)
 {
-    _IEEESingle temp;
-    memcpy(&temp, &in, sizeof(float));
-    return (temp.IEEE.Exp == (1u << 8)-1);
+    return (reinterpret_cast<_IEEESingle*>(&in)->IEEE.Exp == (1u << 8)-1);
 }
 
 // ---------------------------------------------------------------------------
@@ -141,9 +135,7 @@ AI_FORCE_INLINE bool is_special_float(float in)
  *  @param in Input value */
 AI_FORCE_INLINE bool is_special_float(double in)
 {
-   _IEEESingle temp;
-    memcpy(&temp, &in, sizeof(float));
-    return (temp.IEEE.Exp == (1u << 11)-1);
+    return (reinterpret_cast<_IEEEDouble*>(&in)->IEEE.Exp == (1u << 11)-1);
 }
 
 // ---------------------------------------------------------------------------
