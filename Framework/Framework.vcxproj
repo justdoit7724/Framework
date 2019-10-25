@@ -167,9 +167,10 @@
     <ClCompile Include="Keyboard.cpp" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="Medium.cpp" />
-    <ClCompile Include="MeshMgr.cpp" />
+    <ClCompile Include="MeshLoader.cpp" />
     <ClCompile Include="Mirror.cpp" />
     <ClCompile Include="Mouse.cpp" />
+    <ClCompile Include="nanosuit.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="PT_Obj.cpp" />
     <ClCompile Include="RasterizerState.cpp" />
@@ -202,7 +203,8 @@
     <ClInclude Include="CameraMgr.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="Cube.h" />
-    <ClInclude Include="MeshMgr.h" />
+    <ClInclude Include="MeshLoader.h" />
+    <ClInclude Include="nanosuit.h" />
     <ClInclude Include="ObjectPooling.h" />
     <ClInclude Include="ShaderFormat.h" />
     <ClInclude Include="Cylinder.h" />

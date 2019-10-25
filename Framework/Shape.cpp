@@ -1,32 +1,36 @@
 #include "Shape.h"
 #include "ShaderFormat.h"
 
-Shape::Shape()
+Shape::Shape(const Vertex* vertice, UINT vertByteSize, UINT vertCount, const UINT* indice, UINT idxCount, D3D_PRIMITIVE_TOPOLOGY primitiveType)
 {
+	Init(vertice, vertByteSize, vertCount, indice, idxCount, primitiveType);
 }
 
-void Shape::Init(void* vertice, UINT _vertexByteSize, UINT vertexCount, void* indice, UINT _idxCount, D3D_PRIMITIVE_TOPOLOGY _primitiveType, XMFLOAT3 minPt, XMFLOAT3 maxPt)
+void Shape::Init(const Vertex* vertice, UINT vertByteSize, UINT vertCount, const UINT* indice, UINT idxCount, D3D_PRIMITIVE_TOPOLOGY primitiveType)
 {
-	indexCount = _idxCount;
-	vertByteSize = _vertexByteSize;
-	primitiveType = _primitiveType;
-	lMinPt = minPt;
-	lMaxPt = maxPt;
+	assert(vertexBuffer == nullptr);
 
-	if (vertexBuffer)
+	this->idxCount = idxCount;
+	this->vertByteSize = vertByteSize;
+	this->primitiveType = primitiveType;
+
+	lMinPt = XMFLOAT3(FLT_MAX, FLT_MAX, FLT_MAX);
+	lMaxPt = XMFLOAT3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+	for (int i = 0; i < vertCount; ++i)
 	{
-		vertexBuffer->Release();
-	}
-	if (indexBuffer)
-	{
-		indexBuffer->Release();
+		lMinPt.x = fminf(lMinPt.x, vertice[i].pos.x);
+		lMinPt.y = fminf(lMinPt.y, vertice[i].pos.y);
+		lMinPt.z = fminf(lMinPt.z, vertice[i].pos.z);
+		lMaxPt.x = fmaxf(lMaxPt.x, vertice[i].pos.x);
+		lMaxPt.y = fmaxf(lMaxPt.y, vertice[i].pos.y);
+		lMaxPt.z = fmaxf(lMaxPt.z, vertice[i].pos.z);
 	}
 
 	D3D11_BUFFER_DESC vb_desc;
 	ZeroMemory(&vb_desc, sizeof(D3D11_BUFFER_DESC));
 	vb_desc.Usage = D3D11_USAGE_IMMUTABLE;
 	vb_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vb_desc.ByteWidth = vertByteSize * vertexCount;
+	vb_desc.ByteWidth = vertByteSize * vertCount;
 	vb_desc.CPUAccessFlags = 0;
 	vb_desc.MiscFlags = 0;
 	vb_desc.StructureByteStride = 0;
@@ -41,7 +45,7 @@ void Shape::Init(void* vertice, UINT _vertexByteSize, UINT vertexCount, void* in
 
 	D3D11_BUFFER_DESC ibd;
 	ibd.Usage = D3D11_USAGE_IMMUTABLE;
-	ibd.ByteWidth = sizeof(UINT) * indexCount;
+	ibd.ByteWidth = sizeof(UINT) * idxCount;
 	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	ibd.CPUAccessFlags = 0;
 	ibd.MiscFlags = 0;
@@ -94,6 +98,6 @@ void Shape::Apply()const
 	DX_DContext->IASetVertexBuffers(0, 1, vertexBuffer.GetAddressOf(), &vertByteSize, &offset);
 	DX_DContext->IASetIndexBuffer(indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 
-	DX_DContext->DrawIndexed(indexCount, 0, 0);
+	DX_DContext->DrawIndexed(idxCount, 0, 0);
 
 }

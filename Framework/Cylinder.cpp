@@ -109,19 +109,7 @@ Cylinder::Cylinder(const int sliceCount)
 	UINT* indiceData = indice.data();
 	CalculateTangents(verticeData, indiceData, indice.size() / 3);
 
-	XMFLOAT3 minPt = XMFLOAT3(FLT_MAX, FLT_MAX, FLT_MAX);
-	XMFLOAT3 maxPt = XMFLOAT3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
-	for (auto vertex : vertice)
-	{
-		minPt.x = fminf(minPt.x, vertex.pos.x);
-		minPt.y = fminf(minPt.y, vertex.pos.y);
-		minPt.z = fminf(minPt.z, vertex.pos.z);
-		maxPt.x = fmaxf(maxPt.x, vertex.pos.x);
-		maxPt.y = fmaxf(maxPt.y, vertex.pos.y);
-		maxPt.z = fmaxf(maxPt.z, vertex.pos.z);
-	}
-
-	Init(verticeData, sizeof(Vertex), vertice.size(), indiceData, indice.size(), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, minPt, maxPt);
+	Init(verticeData, sizeof(Vertex), vertice.size(), indiceData, indice.size(), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 

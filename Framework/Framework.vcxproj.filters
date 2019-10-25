@@ -180,11 +180,14 @@
     <ClCompile Include="BindingTestScene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MeshMgr.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Texture.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="nanosuit.cpp">
+      <Filter>Tasks</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -344,11 +347,14 @@
     <ClInclude Include="ObjectPooling.h">
       <Filter>DesignPattern</Filter>
     </ClInclude>
-    <ClInclude Include="MeshMgr.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Texture.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="nanosuit.h">
+      <Filter>Tasks</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

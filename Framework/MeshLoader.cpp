@@ -4,24 +4,12 @@
 #include "Object.h"
 #include "TextureMgr.h"
 #include "Shader.h"
-#include "DX_info.h"
+#include <mutex>
 
+#include <assimp/postprocess.h>
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
 
-std::vector<Object*> MeshLoader::Load(std::string filepath, std::string filename)
-{
-	Assimp::Importer importer;
-
-	const aiScene* pScene = importer.ReadFile("Data\\Model\\" + filename,
-		aiProcess_ConvertToLeftHanded);
-
-	assert(
-		pScene != nullptr &&
-		pScene->HasMaterials() &&
-		pScene->HasMeshes());
-
-	std::vector<Object*> storage;
-	ProcessNode(storage, filepath, pScene->mRootNode, pScene);
-}
 void ProcessNode(std::vector<Object*>& storage, std::string filepath, aiNode* node, const aiScene* scene)
 {
 	for (UINT i = 0; i < node->mNumMeshes; i++)
@@ -33,7 +21,7 @@ void ProcessNode(std::vector<Object*>& storage, std::string filepath, aiNode* no
 		assert(mesh->mMaterialIndex >= 0);
 		
 		std::vector<Vertex> vertice(mesh->mNumVertices);
-		std::vector<UINT> indice(mesh->mNumFaces);
+		std::vector<UINT> indice(mesh->mNumFaces*3);
 		std::string diffMtl = "";
 		std::string normalMtl = "";
 
@@ -64,23 +52,39 @@ void ProcessNode(std::vector<Object*>& storage, std::string filepath, aiNode* no
 			for (int j = 0; j < face.mNumIndices; ++j)
 			{
 				assert(face.mNumIndices == 3);
-				indice[i * 3 + j] = face.mIndices[j];
+				indice[(i * 3) + j] = face.mIndices[j];
 			}
 		}
 
 		Vertex* vData = vertice.data();
 		UINT* iData = indice.data();
-		TextureMgr::Instance()->Load(diffMtl, "Data\\Mesh\\" + filepath + "\\" + diffMtl);
-		TextureMgr::Instance()->Load(normalMtl, "Data\\Mesh\\" + filepath + "\\" + normalMtl);
-		storage.emplace_back(
+		TextureMgr::Instance()->Load(diffMtl, "Data\\Model\\" + filepath + "\\" + diffMtl);
+		TextureMgr::Instance()->Load(normalMtl, "Data\\Model\\" + filepath + "\\" + normalMtl);
+		
+		storage.push_back(new Object(
 			new Shape(vData, sizeof(Vertex), vertice.size(), iData, indice.size(), D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST),
 			TextureMgr::Instance()->Get(diffMtl),
-			TextureMgr::Instance()->Get(normalMtl));
+			TextureMgr::Instance()->Get(normalMtl)));
 	}
 
 	for (UINT i = 0; i < node->mNumChildren; i++)
 	{
 		ProcessNode(storage,filepath, node->mChildren[i], scene);
 	}
+}
+
+void MeshLoader::Load(std::vector<Object*>& storage, std::string filepath, std::string filename)
+{
+	Assimp::Importer importer;
+
+	const aiScene* pScene = importer.ReadFile("Data\\Model\\" + filepath+"\\"+filename,
+		aiProcess_ConvertToLeftHanded);
+
+	assert(
+		pScene != nullptr &&
+		pScene->HasMaterials() &&
+		pScene->HasMeshes());
+
+	ProcessNode(storage, filepath, pScene->mRootNode, pScene);
 }
 

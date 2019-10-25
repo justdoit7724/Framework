@@ -23,7 +23,6 @@ private:
 	ComPtr<ID3D11RenderTargetView> rtv;
 	ComPtr<ID3D11DepthStencilView> dsv;
 	ComPtr<ID3D11ShaderResourceView> srv;
-	XMFLOAT3 mirrorQuad[4];
 	D3D11_VIEWPORT vp;
 };
 

@@ -29,8 +29,8 @@ Object::Object(Shape* shape, std::string sVS, const D3D11_INPUT_ELEMENT_DESC* iL
 }
 
 //standard elements
-Object::Object(Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpec, float sP, XMFLOAT3 r, ID3D11ShaderResourceView* srv, ID3D11ShaderResourceView* normalSRV, ID3D11ShaderResourceView* cm, int zOrder)
-	:zOrder(zOrder), shape(shape)
+Object::Object(Shape* shape, ID3D11ShaderResourceView* diffSRV, ID3D11ShaderResourceView* normalSRV)
+	:zOrder(Z_ORDER_STANDARD), shape(shape)
 {
 	transform = new Transform();
 	vs = new VShader("StandardVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
@@ -43,7 +43,7 @@ Object::Object(Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpe
 	ps->AddCB(3, 1, sizeof(XMFLOAT4));
 	ps->AddCB(4, 1, sizeof(SHADER_MATERIAL));
 	ps->AddCB(5, 1, sizeof(float));
-	ps->WriteCB(4,&SHADER_MATERIAL(mDiffuse, 1, mAmbient, mSpec, sP, r));
+	ps->WriteCB(4,&SHADER_MATERIAL(XMFLOAT3(1,1,1), 1, XMFLOAT3(0.2, 0.2, 0.2), XMFLOAT3(1, 1, 1), 4, XMFLOAT3(0,0,0)));
 	
 
 	D3D11_SAMPLER_DESC cmSamp_desc;
@@ -74,15 +74,9 @@ Object::Object(Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpe
 	ps->AddSRV(0, 1);
 	ps->AddSRV(1, 1);
 	ps->AddSRV(2, 1);
-	ps->WriteSRV(0, cm);
-	ps->WriteSRV(1, srv);
-	ID3D11ShaderResourceView* modNormalSRV= normalSRV;
-	if (normalSRV == nullptr)
-	{
-		UINT count;
-		modNormalSRV = TextureMgr::Instance()->Get(KEY_TEXTURE_NORMAL_DEFAULT);
-	}
-	ps->WriteSRV(2, modNormalSRV);
+	ps->WriteSRV(0, nullptr);
+	ps->WriteSRV(1, diffSRV);
+	ps->WriteSRV(2, normalSRV);
 
 	blendState = new BlendState(nullptr);
 	dsState = new DepthStencilState(nullptr);

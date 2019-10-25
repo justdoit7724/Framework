@@ -17,30 +17,19 @@ Mirror::Mirror(Scene* captureScene, UINT width, UINT height)
 	captureScene(captureScene),
 	resolution(XMINT2(width, height))
 {
-	shape = new Quad();
-	mirrorQuad[0] = XMFLOAT3(-0.5, -0.5, 0);
-	mirrorQuad[1] = XMFLOAT3(-0.5, 0.5, 0);
-	mirrorQuad[2] = XMFLOAT3(0.5, 0.5, 0);
-	mirrorQuad[3] = XMFLOAT3(0.5, -0.5, 0);
-	UINT OBJ_QUAD_INDICE[6] =
+	static const Vertex mirrorQuad[4] =
+	{
+		Vertex(XMFLOAT3(-0.5, -0.5, 0)),
+		Vertex(XMFLOAT3(-0.5, 0.5, 0)),
+		Vertex(XMFLOAT3(0.5, 0.5, 0)),
+		Vertex(XMFLOAT3(0.5, -0.5, 0))
+	};
+	static const UINT OBJ_QUAD_INDICE[6] =
 	{
 		3,2,1,
 		3,1,0
 	};
-
-	XMFLOAT3 minPt = XMFLOAT3(FLT_MAX, FLT_MAX, FLT_MAX);
-	XMFLOAT3 maxPt = XMFLOAT3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
-	for (auto vertex : mirrorQuad)
-	{
-		minPt.x = fminf(minPt.x, vertex.x);
-		minPt.y = fminf(minPt.y, vertex.y);
-		minPt.z = fminf(minPt.z, vertex.z);
-		maxPt.x = fmaxf(maxPt.x, vertex.x);
-		maxPt.y = fmaxf(maxPt.y, vertex.y);
-		maxPt.z = fmaxf(maxPt.z, vertex.z);
-	}
-
-	shape->Init(mirrorQuad, sizeof(mirrorQuad[0]), ARRAYSIZE(mirrorQuad), OBJ_QUAD_INDICE, ARRAYSIZE(OBJ_QUAD_INDICE), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, minPt, maxPt);
+	shape = new Shape(&mirrorQuad[0], sizeof(mirrorQuad[0]), ARRAYSIZE(mirrorQuad), OBJ_QUAD_INDICE, ARRAYSIZE(OBJ_QUAD_INDICE), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	vs->AddCB(0, 1, sizeof(SHADER_STD_TRANSF));
 	ps->AddSRV(0, 1);

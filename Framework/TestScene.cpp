@@ -33,7 +33,7 @@
 #include "ShadowObj.h"
 #include "DynamicCubeMap.h"
 #include "Debugging.h"
-#include "MeshMgr.h"
+#include "nanosuit.h"
 
 TestScene::TestScene(IGraphic* graphic)
 	:Scene("Test"),
@@ -70,10 +70,9 @@ TestScene::TestScene(IGraphic* graphic)
 	ID3D11ShaderResourceView* pbrNormal= TextureMgr::Instance()->Get("rock_normal");;
 	ID3D11ShaderResourceView* simpleSRV= TextureMgr::Instance()->Get("simple");;
 	
-	Object* obj = new Object(new Cube(), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), 4, XMFLOAT3(0, 0, 0), pbrSRV, pbrNormal, nullptr, Z_ORDER_STANDARD);
-	obj->transform->SetScale(20, 20, 20);
-	obj->transform->SetTranslation(0, 25, 0);
-	AddObj(obj);
+	nanosuit* badass = new nanosuit();
+	badass->SetScale(XMFLOAT3(2, 2, 2));
+	AddObj(badass);
 }
 
 TestScene::~TestScene()

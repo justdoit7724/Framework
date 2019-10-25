@@ -19,7 +19,6 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	Window window(hInstance, "Low Level");
 	Graphic* graphic = new Graphic(window.Hwnd());
 
-	TextureMgr::Instance()->Load(KEY_TEXTURE_NORMAL_DEFAULT, FN_TEXTURE_NORMAL_DEFAULT);
 
 #ifdef _DEBUG
 	Scene* debugScene = new DebuggingScene();

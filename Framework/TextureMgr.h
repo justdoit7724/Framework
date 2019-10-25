@@ -3,8 +3,10 @@
 #include <unordered_map>
 #include "Singleton.h"
 
-#define KEY_TEXTURE_NORMAL_DEFAULT "blue"
-#define FN_TEXTURE_NORMAL_DEFAULT "Data\\Texture\\blue.png"
+#define KEY_TEXTURE_NORMAL_DEFAULT "default_normal"
+#define KEY_TEXTURE_DIFFUSE_DEFAULT "green_light"
+#define FN_TEXTURE_NORMAL_DEFAULT "Data\\Texture\\default_normal.png"
+#define FN_TEXTURE_DIFFUSE_DEFAULT "Data\\Texture\\green_light.png"
 
 class TextureMgr : public Singleton<TextureMgr>
 {
