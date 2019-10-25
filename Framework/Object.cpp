@@ -46,22 +46,31 @@ Object::Object(Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpe
 	ps->WriteCB(4,&SHADER_MATERIAL(mDiffuse, 1, mAmbient, mSpec, sP, r));
 	
 
-	D3D11_SAMPLER_DESC samplerDesc;
-	ZeroMemory(&samplerDesc, sizeof(D3D11_SAMPLER_DESC));
-	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
-	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	D3D11_SAMPLER_DESC cmSamp_desc;
+	ZeroMemory(&cmSamp_desc, sizeof(D3D11_SAMPLER_DESC));
+	cmSamp_desc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+	cmSamp_desc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+	cmSamp_desc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+	cmSamp_desc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+	cmSamp_desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
 	float borderC[4] = { 0,0,1,1 };
-	samplerDesc.BorderColor[0] = 0;
-	samplerDesc.BorderColor[1] = 1;
-	samplerDesc.BorderColor[2] = 0;
-	samplerDesc.BorderColor[3] = 1;
-	samplerDesc.MinLOD = 0;
-	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
-	ps->AddSamp(0, 1, &samplerDesc);
-	ps->AddSamp(1, 1, &samplerDesc);
+	cmSamp_desc.BorderColor[0] = 0;
+	cmSamp_desc.BorderColor[1] = 1;
+	cmSamp_desc.BorderColor[2] = 0;
+	cmSamp_desc.BorderColor[3] = 1;
+	cmSamp_desc.MinLOD = 0;
+	cmSamp_desc.MaxLOD = D3D11_FLOAT32_MAX;
+	ps->AddSamp(0, 1, &cmSamp_desc);
+	D3D11_SAMPLER_DESC body_desc;
+	ZeroMemory(&body_desc, sizeof(D3D11_SAMPLER_DESC));
+	body_desc.Filter = D3D11_FILTER_ANISOTROPIC;
+	body_desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	body_desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	body_desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	body_desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	body_desc.MinLOD = 0;
+	body_desc.MaxLOD = D3D11_FLOAT32_MAX;
+	ps->AddSamp(1, 1, &body_desc);
 	ps->AddSRV(0, 1);
 	ps->AddSRV(1, 1);
 	ps->AddSRV(2, 1);
@@ -73,7 +82,6 @@ Object::Object(Shape* shape, XMFLOAT3 mDiffuse, XMFLOAT3 mAmbient, XMFLOAT3 mSpe
 		UINT count;
 		modNormalSRV = TextureMgr::Instance()->Get(KEY_TEXTURE_NORMAL_DEFAULT);
 	}
-
 	ps->WriteSRV(2, modNormalSRV);
 
 	blendState = new BlendState(nullptr);

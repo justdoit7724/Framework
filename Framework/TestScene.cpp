@@ -70,48 +70,10 @@ TestScene::TestScene(IGraphic* graphic)
 	ID3D11ShaderResourceView* pbrNormal= TextureMgr::Instance()->Get("rock_normal");;
 	ID3D11ShaderResourceView* simpleSRV= TextureMgr::Instance()->Get("simple");;
 	
-	
-	MeshMgr::Instance()->Add("nanosuit", "nanosuit\\nanosuit.obj");
-	std::vector<MeshInfo> meshes = MeshMgr::Instance()->Get("nanosuit");
-
-	std::vector<std::string> mTexs;
-	std::vector<Object*> objs;
-	for (int i = 0; i < meshes.size(); ++i)
-	{
-		if (*meshes[i].diffMtl=="glass_dif.png")
-		{
-			mTexs.push_back("leg_dif.png");
-		}
-		else
-		{
-			mTexs.push_back(*meshes[i].diffMtl);
-		}
-
-		Shape* nanosuit = new Shape();
-		nanosuit->Init(meshes[i].vertice, sizeof(Vertex), meshes[i].vCount, meshes[i].indice, meshes[i].iCount, D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST, XMFLOAT3(-1, -10, -1), XMFLOAT3(1, 10, 1));
-		Object* obj = new Object(nanosuit, XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), 4, XMFLOAT3(0, 0, 0), nullptr, nullptr, nullptr, 2);
-		obj->transform->SetScale(2, 2, 2);
-		obj->ps->AddCB(6, 1, sizeof(XMFLOAT4));
-		int texID = i;
-		obj->ps->WriteCB(6, &XMFLOAT4(texID,texID,texID, texID));
-		objs.push_back(obj);
-	}
-
-	TextureMgr::Instance()->LoadArray("nanosuit", L"Data\\Model\\nanosuit\\", mTexs);
-	ID3D11ShaderResourceView* mtl = TextureMgr::Instance()->Get("nanosuit");
-	ID3D11ShaderResourceView* dm = TextureMgr::Instance()->Get("simple");
-	for (int i=0; i< meshes.size(); ++i)
-	{
-		if (i == 0 || i == 3)
-		{
-			objs[i]->ps->WriteSRV(1, dm);
-		}
-		else
-		{
-			objs[i]->ps->WriteSRV(1, mtl);
-		}
-		AddObj(objs[i]);
-	}
+	Object* obj = new Object(new Cube(), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), 4, XMFLOAT3(0, 0, 0), pbrSRV, pbrNormal, nullptr, Z_ORDER_STANDARD);
+	obj->transform->SetScale(20, 20, 20);
+	obj->transform->SetTranslation(0, 25, 0);
+	AddObj(obj);
 }
 
 TestScene::~TestScene()
