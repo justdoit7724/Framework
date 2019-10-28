@@ -44,16 +44,25 @@ DisplacementObject::DisplacementObject(
 	ps->WriteSRV(0, nullptr);
 	ps->WriteSRV(1, bodySRV);
 	ps->WriteSRV(2, bodyNormal);
+	D3D11_SAMPLER_DESC cmSamp_desc;
+	ZeroMemory(&cmSamp_desc, sizeof(D3D11_SAMPLER_DESC));
+	cmSamp_desc.Filter = D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR;
+	cmSamp_desc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+	cmSamp_desc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+	cmSamp_desc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+	cmSamp_desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	cmSamp_desc.MinLOD = 0;
+	cmSamp_desc.MaxLOD = D3D11_FLOAT32_MAX;
 	D3D11_SAMPLER_DESC sampDesc;
 	ZeroMemory(&sampDesc, sizeof(D3D11_SAMPLER_DESC));
 	sampDesc.Filter = D3D11_FILTER_ANISOTROPIC;
-	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
-	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
 	sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
 	sampDesc.MinLOD = 0;
 	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
-	ps->AddSamp(0, 1, &sampDesc);
+	ps->AddSamp(0, 1, &cmSamp_desc);
 	ps->AddSamp(1, 1, &sampDesc);
 }
 

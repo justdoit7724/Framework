@@ -33,13 +33,13 @@ struct Vertex {
 		tex = v.tex;
 		tangent = v.tangent;
 	}
-	/*Vertex(XMFLOAT3 _pos)
+	Vertex(XMFLOAT3 _pos)
 	{
 		pos = _pos;
 		n = XMFLOAT3(0,0,0);
 		tex = XMFLOAT2(0,0);
 		tangent = XMFLOAT3(0, 0, 0);
-	}*/
+	}
 	Vertex(XMFLOAT3 pos, XMFLOAT3 n, XMFLOAT2 tex, XMFLOAT3 tangent) :pos(pos), n(n), tex(tex), tangent(tangent) {}
 };
 

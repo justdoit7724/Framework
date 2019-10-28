@@ -46,7 +46,7 @@ Sphere::Sphere(int numSubDivision)
 	:Shape()
 {
 	// Put a cap on the number of subdivisions. 
-	numSubDivision = min(numSubDivision, 6u);
+	numSubDivision = fminf(numSubDivision, 6u);
 
 	// Approximate a sphere by tessellating an icosahedron. 
 	const float X = 0.525731f;
@@ -110,21 +110,8 @@ Sphere::Sphere(int numSubDivision)
 	Vertex* verticeData = vertice2.data();
 	UINT* indiceData = indice.data();
 
-	CalculateTangents(verticeData, indiceData, indice.size() / 3);
 
-	XMFLOAT3 minPt = XMFLOAT3(FLT_MAX, FLT_MAX, FLT_MAX);
-	XMFLOAT3 maxPt = XMFLOAT3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
-	for (auto vertex : vertice2)
-	{
-		minPt.x = min(minPt.x, vertex.pos.x);
-		minPt.y = min(minPt.y, vertex.pos.y);
-		minPt.z = min(minPt.z, vertex.pos.z);
-		maxPt.x = max(maxPt.x, vertex.pos.x);
-		maxPt.y = max(maxPt.y, vertex.pos.y);
-		maxPt.z = max(maxPt.z, vertex.pos.z);
-	}
-
-	Init(verticeData, sizeof(Vertex), vertice2.size(), indiceData, indice.size(), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, minPt, maxPt);
+	Init(verticeData, sizeof(Vertex), vertice2.size(), indiceData, indice.size(), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 

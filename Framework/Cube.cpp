@@ -18,7 +18,6 @@ static const UINT OBJ_CUBE_INDICE[36] =
 };
 
 Cube::Cube()
-	:Shape()
 {
 	static Vertex OBJ_CUBE[24];
 
@@ -100,19 +99,5 @@ Cube::Cube()
 	OBJ_CUBE[23].pos = XMFLOAT3(0.5, -0.5, 0.5);
 	OBJ_CUBE[23].tex = XMFLOAT2(1, 1);
 
-	CalculateTangents(OBJ_CUBE, OBJ_CUBE_INDICE, ARRAYSIZE(OBJ_CUBE_INDICE) / 3);
-
-	XMFLOAT3 minPt = XMFLOAT3(FLT_MAX, FLT_MAX, FLT_MAX);
-	XMFLOAT3 maxPt = XMFLOAT3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
-	for (int i = 0; i < ARRAYSIZE(OBJ_CUBE); ++i)
-	{
-		minPt.x = min(minPt.x, OBJ_CUBE[i].pos.x);
-		minPt.y = min(minPt.y, OBJ_CUBE[i].pos.y);
-		minPt.z = min(minPt.z, OBJ_CUBE[i].pos.z);
-		maxPt.x = max(maxPt.x, OBJ_CUBE[i].pos.x);
-		maxPt.y = max(maxPt.y, OBJ_CUBE[i].pos.y);
-		maxPt.z = max(maxPt.z, OBJ_CUBE[i].pos.z);
-	}
-
-	Init(&OBJ_CUBE[0], sizeof(Vertex), ARRAYSIZE(OBJ_CUBE), (void*)&OBJ_CUBE_INDICE[0], ARRAYSIZE(OBJ_CUBE_INDICE), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, minPt, maxPt);
+	Init(&OBJ_CUBE[0], sizeof(Vertex), ARRAYSIZE(OBJ_CUBE), &OBJ_CUBE_INDICE[0], ARRAYSIZE(OBJ_CUBE_INDICE), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }

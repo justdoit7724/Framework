@@ -13,6 +13,10 @@ using namespace DirectX;
 inline float Lerp(float t, float v1, float v2) {
 	return v1 + (v2 - v1)*t;
 }
+inline float Clamp(float a, float b, float v)
+{
+	return fmaxf(a, fminf(v, b));
+}
 
 inline XMFLOAT2 operator+(XMFLOAT2 a, XMFLOAT2 b)
 {
@@ -139,9 +143,12 @@ inline float Rad(XMFLOAT3 d1, XMFLOAT3 d2)
 {
 	return acos(Dot(d1, d2));
 }
-inline XMFLOAT4 operator/=(XMFLOAT4& v, float f)
+inline void operator/=(XMFLOAT4& v, float f)
 {
-	return XMFLOAT4(v.x / f, v.y / f, v.z / f, v.w/f);
+	v.x /= f;
+	v.y /= f;
+	v.z /= f;
+	v.w /= f;
 }
 inline bool operator== (XMFLOAT3 a, XMFLOAT3 b)
 {

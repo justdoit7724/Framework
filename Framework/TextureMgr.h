@@ -3,30 +3,26 @@
 #include <unordered_map>
 #include "Singleton.h"
 
-#define KEY_TEXTURE_NORMAL_DEFAULT "blue"
-#define FN_TEXTURE_NORMAL_DEFAULT "blue.png"
+#define KEY_TEXTURE_NORMAL_DEFAULT "default_normal"
+#define KEY_TEXTURE_DIFFUSE_DEFAULT "green_light"
+#define FN_TEXTURE_NORMAL_DEFAULT "Data\\Texture\\default_normal.png"
+#define FN_TEXTURE_DIFFUSE_DEFAULT "Data\\Texture\\green_light.png"
 
 class TextureMgr : public Singleton<TextureMgr>
 {
 public:
 	
 	~TextureMgr();
-	void Load(std::string key, std::string fileName, UINT miplevel);
-	void Load(std::string key, std::vector<std::string> fileNames, UINT miplevel);
+	void Load(std::string key, std::string fileName);
+
+	void LoadArray(std::string key, std::wstring folderName, std::vector<std::string> fileNames);
 	void LoadCM(std::string key, std::vector<std::string> fileNames);
-	void Get(std::string key, ID3D11ShaderResourceView** srv);
-	void Get(std::string key, ID3D11ShaderResourceView** srv, UINT* size);
-	ID3D11Texture2D* GetTexture(std::string fileName);
+	ID3D11ShaderResourceView* Get(std::string key);
+	//ID3D11Texture2D* GetTexture(std::string fileName);
+
 
 private:
-	struct TextureInfo
-	{
-		ID3D11ShaderResourceView* srv;
-		UINT size;
-		TextureInfo() {}
-		TextureInfo(ID3D11ShaderResourceView* srv, UINT size)
-			:srv(srv), size(size){}
-	};
-	std::unordered_map<std::string, TextureInfo> SRVs;
+
+	std::unordered_map<std::string, ID3D11ShaderResourceView*> SRVs;
 };
 
