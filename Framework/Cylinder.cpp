@@ -105,11 +105,7 @@ Cylinder::Cylinder(const int sliceCount)
 	}
 #pragma endregion
 
-	Vertex* verticeData = vertice.data();
-	UINT* indiceData = indice.data();
-	CalculateTangents(verticeData, indiceData, indice.size() / 3);
-
-	Init(verticeData, sizeof(Vertex), vertice.size(), indiceData, indice.size(), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	Init(vertice.data(), sizeof(Vertex), vertice.size(), indice.data(), indice.size(), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 

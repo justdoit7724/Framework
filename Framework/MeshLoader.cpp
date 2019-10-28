@@ -19,6 +19,7 @@ void ProcessNode(std::vector<Object*>& storage, std::string filepath, aiNode* no
 
 		assert(mesh->HasNormals());
 		assert(mesh->mMaterialIndex >= 0);
+		assert(mesh->HasTangentsAndBitangents());
 		
 		std::vector<Vertex> vertice(mesh->mNumVertices);
 		std::vector<UINT> indice(mesh->mNumFaces*3);
@@ -41,6 +42,10 @@ void ProcessNode(std::vector<Object*>& storage, std::string filepath, aiNode* no
 				mesh->mNormals[i].x,
 				mesh->mNormals[i].y,
 				mesh->mNormals[i].z);
+			vertice[i].tangent = XMFLOAT3(
+				mesh->mTangents[i].x,
+				mesh->mTangents[i].y,
+				mesh->mTangents[i].z);
 			vertice[i].tex = XMFLOAT2(
 				mesh->mTextureCoords[0][i].x,
 				mesh->mTextureCoords[0][i].y);
@@ -78,7 +83,10 @@ void MeshLoader::Load(std::vector<Object*>& storage, std::string filepath, std::
 	Assimp::Importer importer;
 
 	const aiScene* pScene = importer.ReadFile("Data\\Model\\" + filepath+"\\"+filename,
-		aiProcess_ConvertToLeftHanded);
+		aiProcess_MakeLeftHanded|
+		aiProcess_FlipUVs|
+		aiProcess_FlipWindingOrder|
+		aiProcess_CalcTangentSpace);
 
 	assert(
 		pScene != nullptr &&

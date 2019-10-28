@@ -4,6 +4,7 @@
 
 nanosuit::nanosuit()
 {
+	//debug
 	MeshLoader::Load(objs, "nanosuit", "nanosuit.obj");
 }
 

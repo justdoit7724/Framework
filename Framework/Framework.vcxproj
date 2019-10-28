@@ -258,6 +258,10 @@
     <None Include="ShaderShadow.cginc" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="AO2PS.hlsl" />
+    <FxCompile Include="AO2VS.hlsl" />
+    <FxCompile Include="AOPS.hlsl" />
+    <FxCompile Include="AOVS.hlsl" />
     <FxCompile Include="BillboardGS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Geometry</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>

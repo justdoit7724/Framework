@@ -17,7 +17,7 @@ Mirror::Mirror(Scene* captureScene, UINT width, UINT height)
 	captureScene(captureScene),
 	resolution(XMINT2(width, height))
 {
-	static const Vertex mirrorQuad[4] =
+	static Vertex mirrorQuad[4] =
 	{
 		Vertex(XMFLOAT3(-0.5, -0.5, 0)),
 		Vertex(XMFLOAT3(-0.5, 0.5, 0)),

@@ -40,21 +40,20 @@ TestScene::TestScene(IGraphic* graphic)
 	graphic(graphic)
 {
 
-
 	timer = new Timer();
 	canvas = new UICanvas(SCREEN_WIDTH, SCREEN_HEIGHT);
 	Debugging::Instance()->EnableGrid(10, 50);
 
-	dLight = new DirectionalLight(
+	/*dLight = new DirectionalLight(
 		XMFLOAT3(0.1f, 0.1f, 0.1f),
 		XMFLOAT3(0.9f, 0.9f, 0.9f),
 		XMFLOAT3(0.9f, 0.9f, 0.9f),
-		XMFLOAT3(0.707f, -0.707f, 0));
+		XMFLOAT3(0.707f, -0.707f, 0));*/
 	pLight = new PointLight(
 		XMFLOAT3(0.1f, 0.1f, 0.1f),
 		XMFLOAT3(0.9f, 0.9f, 0.9f),
 		XMFLOAT3(0.8f, 0.8f, 0.8f),
-		200, XMFLOAT3(0.03f, 0.005f, 0.001f), XMFLOAT3(0,0,0)
+		200, XMFLOAT3(0.01f, 0.001f, 0.0005f), XMFLOAT3(0,0,0)
 	);
 	/*pLight2 = new PointLight(
 		XMFLOAT3(0.15f, 0.15f, 0.15f),
@@ -80,6 +79,7 @@ TestScene::~TestScene()
 	delete canvas;
 	delete dLight;
 }
+
 
 void TestScene::Update(float elapsed, float spf)
 {
@@ -115,22 +115,6 @@ void TestScene::Update(float elapsed, float spf)
 		Debugging::Instance()->Mark(pt, 1.5f, Colors::Red);
 	}
 
-	/*XMFLOAT3 moveScalar = XMFLOAT3(0, 0, 0);
-	if (Keyboard::IsPressing("F")) {
-		moveScalar += -RIGHT * 0.1f;
-	}
-	else if (Keyboard::IsPressing("H")) {
-
-		moveScalar += RIGHT * 0.1f;
-	}
-	if (Keyboard::IsPressing("T")) {
-
-		moveScalar += FORWARD * 0.1f;
-	}
-	else if (Keyboard::IsPressing("G")) {
-
-		moveScalar += -FORWARD * 0.1f;
-	}*/
 
 	FrustumCulling(CameraMgr::Instance()->Main());
 	Scene::Update(elapsed, spf);

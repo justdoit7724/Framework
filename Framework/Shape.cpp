@@ -1,12 +1,12 @@
 #include "Shape.h"
 #include "ShaderFormat.h"
 
-Shape::Shape(const Vertex* vertice, UINT vertByteSize, UINT vertCount, const UINT* indice, UINT idxCount, D3D_PRIMITIVE_TOPOLOGY primitiveType)
+Shape::Shape(Vertex* vertice, UINT vertByteSize, UINT vertCount, const UINT* indice, UINT idxCount, D3D_PRIMITIVE_TOPOLOGY primitiveType)
 {
 	Init(vertice, vertByteSize, vertCount, indice, idxCount, primitiveType);
 }
 
-void Shape::Init(const Vertex* vertice, UINT vertByteSize, UINT vertCount, const UINT* indice, UINT idxCount, D3D_PRIMITIVE_TOPOLOGY primitiveType)
+void Shape::Init(Vertex* vertice, UINT vertByteSize, UINT vertCount, const UINT* indice, UINT idxCount, D3D_PRIMITIVE_TOPOLOGY primitiveType)
 {
 	assert(vertexBuffer == nullptr);
 
@@ -25,6 +25,23 @@ void Shape::Init(const Vertex* vertice, UINT vertByteSize, UINT vertCount, const
 		lMaxPt.y = fmaxf(lMaxPt.y, vertice[i].pos.y);
 		lMaxPt.z = fmaxf(lMaxPt.z, vertice[i].pos.z);
 	}
+
+	// assimp calculates instead
+	/*const int polyCount = idxCount / 3;
+	for (int i = 0; i < polyCount; ++i)
+	{
+		XMFLOAT3 v0 = vertice[indice[i * 3]].pos;
+		XMFLOAT3 v1 = vertice[indice[i * 3 + 1]].pos;
+		XMFLOAT3 v2 = vertice[indice[i * 3 + 2]].pos;
+		XMFLOAT2 t0 = vertice[indice[i * 3]].tex;
+		XMFLOAT2 t1 = vertice[indice[i * 3 + 1]].tex;
+		XMFLOAT2 t2 = vertice[indice[i * 3 + 2]].tex;
+		XMFLOAT3 tangent = XMFLOAT3(0, 0, 0);
+		CalculateTangent(v0, v1, v2, t0, t1, t2, &tangent);
+		vertice[indice[i * 3]].tangent = tangent;
+		vertice[indice[i * 3 + 1]].tangent = tangent;
+		vertice[indice[i * 3 + 2]].tangent = tangent;
+	}*/
 
 	D3D11_BUFFER_DESC vb_desc;
 	ZeroMemory(&vb_desc, sizeof(D3D11_BUFFER_DESC));
@@ -71,24 +88,6 @@ void Shape::GetLBound(OUT XMFLOAT3* minPt, OUT XMFLOAT3* maxPt)
 {
 	*minPt = lMinPt;
 	*maxPt = lMaxPt;
-}
-
-void Shape::CalculateTangents(Vertex* vertice, const UINT* indice, UINT polyCount)
-{
-	for (int i = 0; i < polyCount; ++i)
-	{
-		XMFLOAT3 v0 = vertice[indice[i * 3]].pos;
-		XMFLOAT3 v1 = vertice[indice[i * 3 + 1]].pos;
-		XMFLOAT3 v2 = vertice[indice[i * 3 + 2]].pos;
-		XMFLOAT2 t0 = vertice[indice[i * 3]].tex;
-		XMFLOAT2 t1 = vertice[indice[i * 3 + 1]].tex;
-		XMFLOAT2 t2 = vertice[indice[i * 3 + 2]].tex;
-		XMFLOAT3 tangent = XMFLOAT3(0, 0, 0);
-		CalculateTangent(v0, v1, v2, t0, t1, t2, &tangent);
-		vertice[indice[i * 3]].tangent = tangent;
-		vertice[indice[i * 3 + 1]].tangent = tangent;
-		vertice[indice[i * 3 + 2]].tangent = tangent;
-	}
 }
 
 void Shape::Apply()const

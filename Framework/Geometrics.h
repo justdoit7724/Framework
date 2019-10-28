@@ -143,9 +143,12 @@ inline float Rad(XMFLOAT3 d1, XMFLOAT3 d2)
 {
 	return acos(Dot(d1, d2));
 }
-inline XMFLOAT4 operator/=(XMFLOAT4& v, float f)
+inline void operator/=(XMFLOAT4& v, float f)
 {
-	return XMFLOAT4(v.x / f, v.y / f, v.z / f, v.w/f);
+	v.x /= f;
+	v.y /= f;
+	v.z /= f;
+	v.w /= f;
 }
 inline bool operator== (XMFLOAT3 a, XMFLOAT3 b)
 {

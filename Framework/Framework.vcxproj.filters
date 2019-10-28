@@ -492,5 +492,17 @@
     <FxCompile Include="BindingTest2PS.hlsl">
       <Filter>Tasks</Filter>
     </FxCompile>
+    <FxCompile Include="AOVS.hlsl">
+      <Filter>Tasks</Filter>
+    </FxCompile>
+    <FxCompile Include="AOPS.hlsl">
+      <Filter>Tasks</Filter>
+    </FxCompile>
+    <FxCompile Include="AO2VS.hlsl">
+      <Filter>Tasks</Filter>
+    </FxCompile>
+    <FxCompile Include="AO2PS.hlsl">
+      <Filter>Tasks</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

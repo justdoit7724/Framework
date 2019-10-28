@@ -40,15 +40,11 @@ struct PS_INPUT
 };
 float4 main(PS_INPUT input) : SV_Target
 {
-
     input.normal = normalize(input.normal);
-
     input.tangent = normalize(input.tangent - dot(input.normal, input.tangent)*input.normal);
     float3 bitangent = cross(input.normal, input.tangent);
     float3x3 tbn = float3x3(input.tangent, bitangent, input.normal);
-    
     float3 tNormal = GetBodyNormal(input.tex);
-    
     float3 wNormal = normalize(mul(tNormal, tbn));
     
     float3 toEye = normalize(eyePos.xyz - input.wPos);
