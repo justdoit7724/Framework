@@ -358,9 +358,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ShaderInfo.cginc">
-      <Filter>hlsl</Filter>
-    </None>
     <None Include="LightInfo.cginc">
       <Filter>hlsl</Filter>
     </None>
@@ -368,6 +365,12 @@
       <Filter>hlsl</Filter>
     </None>
     <None Include="ShaderShadow.cginc">
+      <Filter>hlsl</Filter>
+    </None>
+    <None Include="ShaderVertex.cginc">
+      <Filter>hlsl</Filter>
+    </None>
+    <None Include="ShaderInfo.cginc">
       <Filter>hlsl</Filter>
     </None>
   </ItemGroup>

@@ -5,7 +5,7 @@ struct PS_INPUT
     float3 vPos : TEXCOORD1;
 };
 
-float4 main(PS_INPUT input)
+float4 main(PS_INPUT input) : SV_Target
 {
     return float4(input.vNormal, input.vPos.z);
 }

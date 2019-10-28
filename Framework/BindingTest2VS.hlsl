@@ -1,4 +1,4 @@
-#include "ShaderInfo.cginc"
+#include "ShaderVertex.cginc"
 struct VS_OUTPUT
 {
     float4 pos : SV_POSITION;

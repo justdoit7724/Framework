@@ -1,4 +1,4 @@
-#include "ShaderInfo.cginc"
+#include "ShaderVertex.cginc"
 
 #define TESS_FACTOR_DIST_MAX 800
 #define TESS_FACTOR_DIST_MIN 50
