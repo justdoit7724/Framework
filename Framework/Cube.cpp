@@ -99,5 +99,18 @@ Cube::Cube()
 	OBJ_CUBE[23].pos = XMFLOAT3(0.5, -0.5, 0.5);
 	OBJ_CUBE[23].tex = XMFLOAT2(1, 1);
 
+	int polyCount = ARRAYSIZE(OBJ_CUBE_INDICE)/3;
+	for (int i = 0; i < polyCount; ++i)
+	{
+		Vertex v0 = OBJ_CUBE[OBJ_CUBE_INDICE[i * 3]];
+		Vertex v1 = OBJ_CUBE[OBJ_CUBE_INDICE[i * 3 + 1]];
+		Vertex v2 = OBJ_CUBE[OBJ_CUBE_INDICE[i * 3 + 2]];
+		XMFLOAT3 tangent=XMFLOAT3(0,0,0);
+		CalculateTangent(v0.pos, v1.pos, v2.pos, v0.tex, v1.tex, v2.tex, &tangent);
+		OBJ_CUBE[OBJ_CUBE_INDICE[i * 3]].tangent = tangent;
+		OBJ_CUBE[OBJ_CUBE_INDICE[i * 3+1]].tangent = tangent;
+		OBJ_CUBE[OBJ_CUBE_INDICE[i * 3+2]].tangent = tangent;
+	}
+
 	Init(&OBJ_CUBE[0], sizeof(Vertex), ARRAYSIZE(OBJ_CUBE), &OBJ_CUBE_INDICE[0], ARRAYSIZE(OBJ_CUBE_INDICE), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }

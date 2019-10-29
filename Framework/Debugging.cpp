@@ -340,11 +340,10 @@ void Debugging::Render()
 	}
 	lines.clear();
 
-	//debug backup color
 	if (gridVB)
 	{
 		markVS->WriteCB(0,&vp_mat);
-		markPS->WriteCB(0,(void*)(&(Colors::/*Red*/Gray)));
+		markPS->WriteCB(0,(void*)(&(Colors::Red)));
 		markVS->Apply();
 		markPS->Apply();
 		UINT stride = sizeof(XMFLOAT3);
@@ -353,14 +352,14 @@ void Debugging::Render()
 		DX_DContext->Draw(2, 0);
 
 		markVS->WriteCB(0,&vp_mat);
-		markPS->WriteCB(0,(void*)(&(Colors::/*Green*/Gray)));
+		markPS->WriteCB(0,(void*)(&(Colors::Green)));
 		markVS->Apply();
 		markPS->Apply();
 		DX_DContext->IASetVertexBuffers(0, 1, originVB->GetAddress(), &stride, &offset);
 		DX_DContext->Draw(2, 2);
 
 		markVS->WriteCB(0,&vp_mat);
-		markPS->WriteCB(0,(void*)(&(Colors::/*Blue*/Gray)));
+		markPS->WriteCB(0,(void*)(&(Colors::Blue)));
 		markVS->Apply();
 		markPS->Apply();
 		DX_DContext->IASetVertexBuffers(0, 1, originVB->GetAddress(), &stride, &offset);

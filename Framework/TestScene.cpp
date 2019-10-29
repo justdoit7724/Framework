@@ -35,6 +35,44 @@
 #include "Debugging.h"
 #include "nanosuit.h"
 
+ID3D11Texture2D* aoMap;
+ID3D11ShaderResourceView* aoSRV;
+ID3D11RenderTargetView* aoRTV;
+ID3D11DepthStencilView* aoDSV;
+VShader* aoMapVS;
+PShader* aoMapPS;
+VShader* aoVS;
+PShader* aoPS;
+DepthStencilState* dsState;
+DepthStencilState* dsState2;
+BlendState* blendState;
+ID3D11Buffer* farPlaneVB;
+ID3D11Buffer* farPlaneIB;
+nanosuit* mesh;
+struct AO_VERTEX
+{
+	XMFLOAT3 pPos;
+	float farPlaneIdx;
+	XMFLOAT2 tex;
+
+	AO_VERTEX(XMFLOAT3 p, float idx, XMFLOAT2 t) :pPos(p), farPlaneIdx(idx), tex(t) {}
+};
+static AO_VERTEX farPlane[4] = {
+	AO_VERTEX(XMFLOAT3(-1,-1, 1), 0,XMFLOAT2(0,1)),
+	AO_VERTEX(XMFLOAT3(-1, 1, 1), 1,XMFLOAT2(0,0)),
+	AO_VERTEX(XMFLOAT3(1, 1, 1), 2,XMFLOAT2(1,0)),
+	AO_VERTEX(XMFLOAT3(1,-1, 1), 3,XMFLOAT2(1,1)) };
+static XMFLOAT4 farPlaneCorner[4] = {
+	XMFLOAT4(-1,-1, 1,1),
+	XMFLOAT4(-1, 1, 1,1),
+	XMFLOAT4(1, 1, 1,1),
+	XMFLOAT4(1,-1, 1,1)
+};
+D3D11_INPUT_ELEMENT_DESC iLayouts[] = {
+	{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	{ "FAR_PLANE_CORNER", 0, DXGI_FORMAT_R32_FLOAT, 0, sizeof(XMFLOAT3), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, sizeof(XMFLOAT4), D3D11_INPUT_PER_VERTEX_DATA, 0 }
+};
 TestScene::TestScene(IGraphic* graphic)
 	:Scene("Test"),
 	graphic(graphic)
@@ -42,7 +80,7 @@ TestScene::TestScene(IGraphic* graphic)
 
 	timer = new Timer();
 	canvas = new UICanvas(SCREEN_WIDTH, SCREEN_HEIGHT);
-	Debugging::Instance()->EnableGrid(10, 50);
+	//Debugging::Instance()->EnableGrid(10, 50);
 
 	/*dLight = new DirectionalLight(
 		XMFLOAT3(0.1f, 0.1f, 0.1f),
@@ -68,10 +106,123 @@ TestScene::TestScene(IGraphic* graphic)
 	ID3D11ShaderResourceView* pbrSRV= TextureMgr::Instance()->Get("rock");
 	ID3D11ShaderResourceView* pbrNormal= TextureMgr::Instance()->Get("rock_normal");;
 	ID3D11ShaderResourceView* simpleSRV= TextureMgr::Instance()->Get("simple");;
-	
-	nanosuit* badass = new nanosuit();
-	badass->SetScale(XMFLOAT3(2, 2, 2));
-	AddObj(badass);
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	D3D11_TEXTURE2D_DESC aoTex_desc;
+	aoTex_desc.ArraySize = 1;
+	aoTex_desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+	aoTex_desc.CPUAccessFlags = 0;
+	aoTex_desc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	aoTex_desc.Width = SCREEN_WIDTH;
+	aoTex_desc.Height = SCREEN_HEIGHT;
+	aoTex_desc.MipLevels = 1;
+	aoTex_desc.MiscFlags = 0;
+	aoTex_desc.SampleDesc = { 1,0 };
+	aoTex_desc.Usage = D3D11_USAGE_DEFAULT;
+	r_assert(
+		DX_Device->CreateTexture2D(&aoTex_desc, nullptr, &aoMap)
+	);
+	D3D11_RENDER_TARGET_VIEW_DESC aoRTV_desc;
+	aoRTV_desc.Format = aoTex_desc.Format;
+	aoRTV_desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+	aoRTV_desc.Texture2D.MipSlice = 0;
+	r_assert(
+		DX_Device->CreateRenderTargetView(aoMap, &aoRTV_desc, &aoRTV)
+	);
+	D3D11_SHADER_RESOURCE_VIEW_DESC aoSRV_desc;
+	aoSRV_desc.Format = aoTex_desc.Format;
+	aoSRV_desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	aoSRV_desc.Texture2D.MipLevels = 1;
+	aoSRV_desc.Texture2D.MostDetailedMip = 0;
+	r_assert(
+		DX_Device->CreateShaderResourceView(aoMap, &aoSRV_desc, &aoSRV)
+	);
+	D3D11_TEXTURE2D_DESC aoDepth_desc;
+	aoDepth_desc.ArraySize = 1;
+	aoDepth_desc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	aoDepth_desc.CPUAccessFlags = 0;
+	aoDepth_desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	aoDepth_desc.Width = SCREEN_WIDTH;
+	aoDepth_desc.Height = SCREEN_HEIGHT;
+	aoDepth_desc.MipLevels = 1;
+	aoDepth_desc.MiscFlags = 0;
+	aoDepth_desc.SampleDesc = { 1,0 };
+	aoDepth_desc.Usage = D3D11_USAGE_DEFAULT;
+	ID3D11Texture2D* aoDepth;
+	r_assert(
+		DX_Device->CreateTexture2D(&aoDepth_desc, nullptr, &aoDepth)
+	);
+	D3D11_DEPTH_STENCIL_VIEW_DESC aoDSV_desc;
+	aoDSV_desc.Flags = 0;
+	aoDSV_desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	aoDSV_desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	aoDSV_desc.Texture2D.MipSlice = 0;
+	r_assert(
+		DX_Device->CreateDepthStencilView(aoDepth, &aoDSV_desc, &aoDSV)
+	);
+	dsState = new DepthStencilState(nullptr);
+	D3D11_DEPTH_STENCIL_DESC ds_desc2;
+	ZeroMemory(&ds_desc2, sizeof(D3D11_DEPTH_STENCIL_DESC));
+	ds_desc2.DepthEnable = false;
+	dsState2 = new DepthStencilState(&ds_desc2);
+	blendState = new BlendState(nullptr);
+
+	aoMapVS = new VShader("AOVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
+	aoMapVS->AddCB(0, 1, sizeof(SHADER_STD_TRANSF));
+	aoMapPS = new PShader("AOPS.cso");
+
+
+	aoVS = new VShader("AO2VS.cso", iLayouts, ARRAYSIZE(iLayouts));
+	aoPS = new PShader("AO2PS.cso");
+	aoVS->AddCB(0, 1, sizeof(XMFLOAT4)*4);
+	aoPS->AddCB(0, 1, sizeof(XMMATRIX));
+	aoPS->AddSRV(0, 1);
+	D3D11_SAMPLER_DESC sampDesc;
+	ZeroMemory(&sampDesc, sizeof(D3D11_SAMPLER_DESC));
+	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+	sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	sampDesc.MinLOD = 0;
+	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	aoPS->AddSamp(0, 1, &sampDesc);
+
+	D3D11_BUFFER_DESC vb_desc;
+	ZeroMemory(&vb_desc, sizeof(D3D11_BUFFER_DESC));
+	vb_desc.Usage = D3D11_USAGE_IMMUTABLE;
+	vb_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vb_desc.ByteWidth = sizeof(AO_VERTEX) * 4;
+	vb_desc.CPUAccessFlags = 0;
+	vb_desc.MiscFlags = 0;
+	vb_desc.StructureByteStride = 0;
+	D3D11_SUBRESOURCE_DATA vb_data;
+	vb_data.pSysMem = &farPlane[0];
+	r_assert(
+		DX_Device->CreateBuffer(
+			&vb_desc,
+			&vb_data,
+			&farPlaneVB)
+	);
+
+	UINT farPlaneIdx[6] = {
+		0,1,2,
+		0,2,3 };
+	D3D11_BUFFER_DESC ibd;
+	ibd.Usage = D3D11_USAGE_IMMUTABLE;
+	ibd.ByteWidth = sizeof(UINT) * 6;
+	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	ibd.CPUAccessFlags = 0;
+	ibd.MiscFlags = 0;
+	ibd.StructureByteStride = 0;
+	D3D11_SUBRESOURCE_DATA iinitData;
+	iinitData.pSysMem = farPlaneIdx;
+	r_assert(
+		DX_Device->CreateBuffer(&ibd, &iinitData, &farPlaneIB)
+	);
+
+	mesh = new nanosuit();
+	mesh->SetScale(XMFLOAT3(3, 3, 3));
 }
 
 TestScene::~TestScene()
@@ -103,7 +254,7 @@ void TestScene::Update(float elapsed, float spf)
 			25,
 			sin(elaped * 0.6f) * 20);
 		pLight->SetPos(pt);
-		Debugging::Instance()->Mark(pt, 1.5f, Colors::WhiteSmoke);
+		//Debugging::Instance()->Mark(pt, 1.5f, Colors::WhiteSmoke);
 	}
 	if (pLight2)
 	{
@@ -115,20 +266,70 @@ void TestScene::Update(float elapsed, float spf)
 		Debugging::Instance()->Mark(pt, 1.5f, Colors::Red);
 	}
 
+	//FrustumCulling(CameraMgr::Instance()->Main());
 
-	FrustumCulling(CameraMgr::Instance()->Main());
-	Scene::Update(elapsed, spf);
+	// first -------------------------------------------------------------
+	XMMATRIX projMat = CameraMgr::Instance()->Main()->ProjMat(Z_ORDER_STANDARD);
+	aoMapPS->Apply();
+	DX_DContext->ClearDepthStencilView(aoDSV, D3D11_CLEAR_DEPTH, 1.0f, NULL);
+	float rtvColor[4] = { 0,0,0,0 };
+	DX_DContext->ClearRenderTargetView(aoRTV, rtvColor);
+	ID3D11ShaderResourceView* nullSRV = nullptr;
+	DX_DContext->PSSetShaderResources(0, 1, &nullSRV);
+	DX_DContext->OMSetRenderTargets(1, &aoRTV, aoDSV);
+	for (auto obj : mesh->objs)
+	{
+		SHADER_STD_TRANSF transf(XMMatrixIdentity(), XMMatrixIdentity());
+		//world
+		transf.w = obj->transform->WorldMatrix();
+		//view
+		transf.vp = CameraMgr::Instance()->Main()->VMat();
+		//proj
+		transf.n = projMat;
+		//normal
+		transf.tex = XMMatrixTranspose(XMMatrixInverse(&XMMatrixDeterminant(transf.w), transf.w));
+		aoMapVS->WriteCB(0, &transf);
+		aoMapVS->Apply();
+		dsState->Apply();
+		blendState->Apply();
+		obj->RenderGeom();
+	}
+	graphic->RestoreRTV();
 
-	canvas->Update(timer->SPF());
+	// second -------------------------------------------------------------
+	aoVS->WriteCB(0, farPlaneCorner);
+	aoPS->WriteSRV(0, aoSRV);
+	XMMATRIX projUvMat = projMat * XMMATRIX(
+		0.5f, 0, 0, 0,
+		0, -0.5f, 0, 0,
+		0, 0, 1, 0,
+		0.5f, 0.5f, 0, 1);
+	aoPS->WriteCB(0, &projUvMat);
+
+	DX_DContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	UINT stride = sizeof(AO_VERTEX);
+	UINT offset = 0;
+	DX_DContext->IASetVertexBuffers(0, 1, &farPlaneVB, &stride, &offset);
+	DX_DContext->IASetIndexBuffer(farPlaneIB, DXGI_FORMAT_R32_UINT, 0);
+
+	aoVS->Apply();
+	aoPS->Apply();
+	dsState2->Apply();
+	DX_DContext->DrawIndexed(6, 0, 0);
+	//-----------------------------------------------------------------------
+
+	/*Scene::Update(elapsed, spf);
+
+	canvas->Update(timer->SPF());*/
 }
 
 void TestScene::Render(const Camera* camera, UINT sceneDepth)const
 {
-	DirectionalLight::Apply();
+	/*DirectionalLight::Apply();
 	PointLight::Apply();
 	SpotLight::Apply();
 
 	Scene::Render(camera, sceneDepth);
 
-	canvas->Render();
+	canvas->Render();*/
 }

@@ -15,7 +15,8 @@ public:
 	void SetRot(XMFLOAT3 rot);
 	void SetPos(XMFLOAT3 pos);
 	void SetScale(XMFLOAT3 scale);
-private:
 	std::vector<Object*> objs;
+private:
+	Object::transform;
 };
 

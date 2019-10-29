@@ -40,6 +40,7 @@ struct PS_INPUT
 };
 float4 main(PS_INPUT input) : SV_Target
 {
+
     input.normal = normalize(input.normal);
     input.tangent = normalize(input.tangent - dot(input.normal, input.tangent)*input.normal);
     float3 bitangent = cross(input.normal, input.tangent);
@@ -49,6 +50,7 @@ float4 main(PS_INPUT input) : SV_Target
     
     float3 toEye = normalize(eyePos.xyz - input.wPos);
     float3 tex = diffuseTex.Sample(samp, input.tex).xyz;
+
  
     float4 ambient = 0;
     float4 diffuse = 0;
@@ -75,7 +77,6 @@ float4 main(PS_INPUT input) : SV_Target
     float4 color = ambient + diffuse + specular;
     color = Lerp(color, reflection, mReflection.w);
     color.w = mDiffuse.a;
-
     
     return color;
 }

@@ -18,8 +18,10 @@ public:
 	const std::string key;
 protected:
 	void AddObj(Object* obj) { objs.push_back(obj); }
+
+	//debug move to private
+	std::vector<Object*> drawObjs;
 private:
 	std::vector<Object*> objs;
-	std::vector<Object*> drawObjs;
 };
 
