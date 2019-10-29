@@ -17,6 +17,9 @@ inline float Clamp(float a, float b, float v)
 {
 	return fmaxf(a, fminf(v, b));
 }
+inline float Rand01() {
+	return (rand() / (float)RAND_MAX);
+}
 
 inline XMFLOAT2 operator+(XMFLOAT2 a, XMFLOAT2 b)
 {
@@ -165,6 +168,10 @@ inline bool operator== (XMFLOAT4 a, XMFLOAT4 b)
 inline bool operator!= (XMFLOAT4 a, XMFLOAT4 b)
 {
 	return (a.x != b.x || a.y != b.y || a.z != b.z || a.w != b.w);
+}
+inline XMFLOAT4 operator*(XMFLOAT4 v, float f) {
+
+	return XMFLOAT4(v.x * f, v.y * f, v.z * f, v.w * f);
 }
 inline XMFLOAT4 operator*(XMFLOAT4 v, const XMMATRIX& m)
 {
