@@ -191,6 +191,10 @@ TestScene::TestScene(IGraphic* graphic)
 	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
 	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
 	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+	sampDesc.BorderColor[0] = 0;
+	sampDesc.BorderColor[1] = 0;
+	sampDesc.BorderColor[2] = 0;
+	sampDesc.BorderColor[3] = 1;
 	sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
 	sampDesc.MinLOD = 0;
 	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
@@ -319,6 +323,7 @@ void TestScene::Update(float elapsed, float spf)
 		aoMapVS->Apply();
 		dsState->Apply();
 		blendState->Apply();
+
 		obj->RenderGeom();
 	}
 	graphic->RestoreRTV();
