@@ -52,40 +52,32 @@ nanosuit* mesh;
 struct AO_VERTEX
 {
 	XMFLOAT3 pPos;
+	float farPlaneIdx;
 	XMFLOAT2 tex;
 
-	AO_VERTEX(XMFLOAT3 p, XMFLOAT2 t) :pPos(p), tex(t) {}
+	AO_VERTEX(XMFLOAT3 p, float idx, XMFLOAT2 t) :pPos(p), farPlaneIdx(idx), tex(t) {}
 };
 static AO_VERTEX farPlane[4] = {
-	AO_VERTEX(XMFLOAT3(-1,-1, 1),XMFLOAT2(0,1)),
-	AO_VERTEX(XMFLOAT3(-1, 1, 1),XMFLOAT2(0,0)),
-	AO_VERTEX(XMFLOAT3(1, 1, 1),XMFLOAT2(1,0)),
-	AO_VERTEX(XMFLOAT3(1,-1, 1),XMFLOAT2(1,1)) };
-
-static XMFLOAT4 offset[14] = {
-	XMFLOAT4(+1.0f, +1.0f, +1.0f, 0.0f),
-	XMFLOAT4(-1.0f, -1.0f, -1.0f, 0.0f),
-	XMFLOAT4(-1.0f, +1.0f, +1.0f, 0.0f),
-	XMFLOAT4(+1.0f, -1.0f, -1.0f, 0.0f),
-	XMFLOAT4(+1.0f, +1.0f, -1.0f, 0.0f),
-	XMFLOAT4(-1.0f, -1.0f, +1.0f, 0.0f),
-	XMFLOAT4(-1.0f, +1.0f, -1.0f, 0.0f),
-	XMFLOAT4(+1.0f, -1.0f, +1.0f, 0.0f),
-	XMFLOAT4(-1.0f, 0.0f, 0.0f, 0.0f),
-	XMFLOAT4(+1.0f, 0.0f, 0.0f, 0.0f),
-	XMFLOAT4(0.0f, -1.0f, 0.0f, 0.0f),
-	XMFLOAT4(0.0f, +1.0f, 0.0f, 0.0f),
-	XMFLOAT4(0.0f, 0.0f, -1.0f, 0.0f),
-	XMFLOAT4(0.0f, 0.0f, +1.0f, 0.0f)
+	AO_VERTEX(XMFLOAT3(-1,-1, 1), 0,XMFLOAT2(0,1)),
+	AO_VERTEX(XMFLOAT3(-1, 1, 1), 1,XMFLOAT2(0,0)),
+	AO_VERTEX(XMFLOAT3(1, 1, 1), 2,XMFLOAT2(1,0)),
+	AO_VERTEX(XMFLOAT3(1,-1, 1), 3,XMFLOAT2(1,1)) };
+static XMFLOAT4 farPlaneCorner[4] = {
+	XMFLOAT4(-1,-1, 1,1),
+	XMFLOAT4(-1, 1, 1,1),
+	XMFLOAT4(1, 1, 1,1),
+	XMFLOAT4(1,-1, 1,1)
 };
 D3D11_INPUT_ELEMENT_DESC iLayouts[] = {
 	{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, sizeof(XMFLOAT3), D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	{ "FAR_PLANE_CORNER", 0, DXGI_FORMAT_R32_FLOAT, 0, sizeof(XMFLOAT3), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, sizeof(XMFLOAT4), D3D11_INPUT_PER_VERTEX_DATA, 0 }
 };
 TestScene::TestScene(IGraphic* graphic)
 	:Scene("Test"),
 	graphic(graphic)
 {
+
 	timer = new Timer();
 	canvas = new UICanvas(SCREEN_WIDTH, SCREEN_HEIGHT);
 	//Debugging::Instance()->EnableGrid(10, 50);
@@ -182,12 +174,12 @@ TestScene::TestScene(IGraphic* graphic)
 
 	aoVS = new VShader("AO2VS.cso", iLayouts, ARRAYSIZE(iLayouts));
 	aoPS = new PShader("AO2PS.cso");
+	aoVS->AddCB(0, 1, sizeof(XMFLOAT4)*4);
 	aoPS->AddCB(0, 1, sizeof(XMMATRIX));
-	aoPS->AddCB(1, 1, sizeof(XMFLOAT4) * 14);
 	aoPS->AddSRV(0, 1);
 	D3D11_SAMPLER_DESC sampDesc;
 	ZeroMemory(&sampDesc, sizeof(D3D11_SAMPLER_DESC));
-	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
 	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
 	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
 	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
@@ -231,25 +223,6 @@ TestScene::TestScene(IGraphic* graphic)
 
 	mesh = new nanosuit();
 	mesh->SetScale(XMFLOAT3(3, 3, 3));
-
-	const int N = 4;
-	for (int z = 0; z < N; ++z) {
-		for (int y = 0; y < 2; ++y) {
-			for (int x = 0; x < N; ++x) {
-				float interval = 20;
-				XMFLOAT3 scale = XMFLOAT3(10, 10, 10);
-				XMFLOAT3 offset = XMFLOAT3(scale.x,0,scale.z)* (N / 2);
-				Object* cube = new Object(new Cube(), pbrSRV, pbrNormal);
-				cube->transform->SetScale(scale);
-				cube->transform->SetTranslation(XMFLOAT3(x * interval,7.5f + y * interval, z * interval)-offset);
-				AddObj(cube);
-			}
-		}
-	}
-	Object* floor = new Object(new Cube(), pbrSRV, pbrNormal);
-	floor->transform->SetScale(100, 100, 1);
-	floor->transform->SetRot(UP, FORWARD);
-	AddObj(floor);
 }
 
 TestScene::~TestScene()
@@ -293,18 +266,18 @@ void TestScene::Update(float elapsed, float spf)
 		Debugging::Instance()->Mark(pt, 1.5f, Colors::Red);
 	}
 
-	FrustumCulling(CameraMgr::Instance()->Main());
+	//FrustumCulling(CameraMgr::Instance()->Main());
 
 	// first -------------------------------------------------------------
 	XMMATRIX projMat = CameraMgr::Instance()->Main()->ProjMat(Z_ORDER_STANDARD);
 	aoMapPS->Apply();
 	DX_DContext->ClearDepthStencilView(aoDSV, D3D11_CLEAR_DEPTH, 1.0f, NULL);
-	float rtvColor[4] = { 1,1,1,1 };
+	float rtvColor[4] = { 0,0,0,0 };
 	DX_DContext->ClearRenderTargetView(aoRTV, rtvColor);
 	ID3D11ShaderResourceView* nullSRV = nullptr;
 	DX_DContext->PSSetShaderResources(0, 1, &nullSRV);
 	DX_DContext->OMSetRenderTargets(1, &aoRTV, aoDSV);
-	for (auto obj : drawObjs)
+	for (auto obj : mesh->objs)
 	{
 		SHADER_STD_TRANSF transf(XMMatrixIdentity(), XMMatrixIdentity());
 		//world
@@ -324,7 +297,7 @@ void TestScene::Update(float elapsed, float spf)
 	graphic->RestoreRTV();
 
 	// second -------------------------------------------------------------
-	
+	aoVS->WriteCB(0, farPlaneCorner);
 	aoPS->WriteSRV(0, aoSRV);
 	XMMATRIX projUvMat = projMat * XMMATRIX(
 		0.5f, 0, 0, 0,
@@ -332,7 +305,6 @@ void TestScene::Update(float elapsed, float spf)
 		0, 0, 1, 0,
 		0.5f, 0.5f, 0, 1);
 	aoPS->WriteCB(0, &projUvMat);
-	aoPS->WriteCB(1, offset);
 
 	DX_DContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	UINT stride = sizeof(AO_VERTEX);
