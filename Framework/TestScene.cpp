@@ -44,44 +44,21 @@ PShader* aoMapPS;
 VShader* aoVS;
 PShader* aoPS;
 DepthStencilState* dsState;
-DepthStencilState* dsState2;
-BlendState* blendState;
-ID3D11Buffer* farPlaneVB;
-ID3D11Buffer* farPlaneIB;
-nanosuit* mesh;
-struct AO_VERTEX
+DepthStencilState* noDsState;
+
+struct Vertex_AO
 {
 	XMFLOAT3 pPos;
 	XMFLOAT2 tex;
+	Vertex_AO(XMFLOAT3 p, XMFLOAT2 t) :pPos(p), tex(t) {}
+};
+static Vertex_AO aoVertice[4] = {
+	Vertex_AO(XMFLOAT3(-1, 1,1),XMFLOAT2(0,0)),
+	Vertex_AO(XMFLOAT3( 1, 1,1),XMFLOAT2(1,0)),
+	Vertex_AO(XMFLOAT3(-1,-1,1),XMFLOAT2(0,1)),
+	Vertex_AO(XMFLOAT3( 1,-1,1),XMFLOAT2(1,1)) };
+ID3D11Buffer* aoVB;
 
-	AO_VERTEX(XMFLOAT3 p, XMFLOAT2 t) :pPos(p), tex(t) {}
-};
-static AO_VERTEX farPlane[4] = {
-	AO_VERTEX(XMFLOAT3(-1,-1, 1),XMFLOAT2(0,1)),
-	AO_VERTEX(XMFLOAT3(-1, 1, 1),XMFLOAT2(0,0)),
-	AO_VERTEX(XMFLOAT3(1, 1, 1),XMFLOAT2(1,0)),
-	AO_VERTEX(XMFLOAT3(1,-1, 1),XMFLOAT2(1,1)) };
-
-static XMFLOAT4 offset[14] = {
-	XMFLOAT4(+1.0f, +1.0f, +1.0f, 0.0f),
-	XMFLOAT4(-1.0f, -1.0f, -1.0f, 0.0f),
-	XMFLOAT4(-1.0f, +1.0f, +1.0f, 0.0f),
-	XMFLOAT4(+1.0f, -1.0f, -1.0f, 0.0f),
-	XMFLOAT4(+1.0f, +1.0f, -1.0f, 0.0f),
-	XMFLOAT4(-1.0f, -1.0f, +1.0f, 0.0f),
-	XMFLOAT4(-1.0f, +1.0f, -1.0f, 0.0f),
-	XMFLOAT4(+1.0f, -1.0f, +1.0f, 0.0f),
-	XMFLOAT4(-1.0f, 0.0f, 0.0f, 0.0f),
-	XMFLOAT4(+1.0f, 0.0f, 0.0f, 0.0f),
-	XMFLOAT4(0.0f, -1.0f, 0.0f, 0.0f),
-	XMFLOAT4(0.0f, +1.0f, 0.0f, 0.0f),
-	XMFLOAT4(0.0f, 0.0f, -1.0f, 0.0f),
-	XMFLOAT4(0.0f, 0.0f, +1.0f, 0.0f)
-};
-D3D11_INPUT_ELEMENT_DESC iLayouts[] = {
-	{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, sizeof(XMFLOAT3), D3D11_INPUT_PER_VERTEX_DATA, 0 }
-};
 TestScene::TestScene(IGraphic* graphic)
 	:Scene("Test"),
 	graphic(graphic)
@@ -168,74 +145,34 @@ TestScene::TestScene(IGraphic* graphic)
 	r_assert(
 		DX_Device->CreateDepthStencilView(aoDepth, &aoDSV_desc, &aoDSV)
 	);
-	dsState = new DepthStencilState(nullptr);
-	D3D11_DEPTH_STENCIL_DESC ds_desc2;
-	ZeroMemory(&ds_desc2, sizeof(D3D11_DEPTH_STENCIL_DESC));
-	ds_desc2.DepthEnable = false;
-	dsState2 = new DepthStencilState(&ds_desc2);
-	blendState = new BlendState(nullptr);
-
 	aoMapVS = new VShader("AOVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
-	aoMapVS->AddCB(0, 1, sizeof(SHADER_STD_TRANSF));
+	aoMapVS->AddCB(0, 1, sizeof(XMMATRIX) * 4);
 	aoMapPS = new PShader("AOPS.cso");
+	static D3D11_INPUT_ELEMENT_DESC aoILayout[] = {
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, sizeof(XMFLOAT3), D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
 
-
-	aoVS = new VShader("AO2VS.cso", iLayouts, ARRAYSIZE(iLayouts));
+	aoVS = new VShader("AO2VS.cso", aoILayout, ARRAYSIZE(aoILayout));
 	aoPS = new PShader("AO2PS.cso");
-	aoPS->AddCB(0, 1, sizeof(XMMATRIX));
-	aoPS->AddCB(1, 1, sizeof(XMFLOAT4) * 14);
-	aoPS->AddSRV(0, 1);
-	D3D11_SAMPLER_DESC sampDesc;
-	ZeroMemory(&sampDesc, sizeof(D3D11_SAMPLER_DESC));
-	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
-	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
-	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
-	sampDesc.BorderColor[0] = 0;
-	sampDesc.BorderColor[1] = 0;
-	sampDesc.BorderColor[2] = 0;
-	sampDesc.BorderColor[3] = 1;
-	sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	sampDesc.MinLOD = 0;
-	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
-	aoPS->AddSamp(0, 1, &sampDesc);
+	dsState = new DepthStencilState(nullptr);
+	D3D11_DEPTH_STENCIL_DESC noDS_desc;
+	ZeroMemory(&noDS_desc, sizeof(D3D11_DEPTH_STENCIL_DESC));
+	noDS_desc.DepthEnable = false;
+	noDsState = new DepthStencilState(&noDS_desc);
 
-	D3D11_BUFFER_DESC vb_desc;
-	ZeroMemory(&vb_desc, sizeof(D3D11_BUFFER_DESC));
-	vb_desc.Usage = D3D11_USAGE_IMMUTABLE;
-	vb_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vb_desc.ByteWidth = sizeof(AO_VERTEX) * 4;
-	vb_desc.CPUAccessFlags = 0;
-	vb_desc.MiscFlags = 0;
-	vb_desc.StructureByteStride = 0;
-	D3D11_SUBRESOURCE_DATA vb_data;
-	vb_data.pSysMem = &farPlane[0];
+	D3D11_BUFFER_DESC aoVB_desc;
+	aoVB_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	aoVB_desc.ByteWidth = sizeof(Vertex_AO) * 4;
+	aoVB_desc.CPUAccessFlags = 0;
+	aoVB_desc.MiscFlags = 0;
+	aoVB_desc.StructureByteStride = 0;
+	aoVB_desc.Usage = D3D11_USAGE_DEFAULT;
+	D3D11_SUBRESOURCE_DATA data;
+	data.pSysMem = aoVertice;
 	r_assert(
-		DX_Device->CreateBuffer(
-			&vb_desc,
-			&vb_data,
-			&farPlaneVB)
-	);
-
-	UINT farPlaneIdx[6] = {
-		0,1,2,
-		0,2,3 };
-	D3D11_BUFFER_DESC ibd;
-	ibd.Usage = D3D11_USAGE_IMMUTABLE;
-	ibd.ByteWidth = sizeof(UINT) * 6;
-	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	ibd.CPUAccessFlags = 0;
-	ibd.MiscFlags = 0;
-	ibd.StructureByteStride = 0;
-	D3D11_SUBRESOURCE_DATA iinitData;
-	iinitData.pSysMem = farPlaneIdx;
-	r_assert(
-		DX_Device->CreateBuffer(&ibd, &iinitData, &farPlaneIB)
-	);
-
-	mesh = new nanosuit();
-	mesh->SetScale(XMFLOAT3(3, 3, 3));
-
+		DX_Device->CreateBuffer(&aoVB_desc, &data, &aoVB));
+	
 	const int N = 4;
 	for (int z = 0; z < N; ++z) {
 		for (int y = 0; y < 2; ++y) {
@@ -300,55 +237,34 @@ void TestScene::Update(float elapsed, float spf)
 	FrustumCulling(CameraMgr::Instance()->Main());
 
 	// first -------------------------------------------------------------
-	XMMATRIX projMat = CameraMgr::Instance()->Main()->ProjMat(Z_ORDER_STANDARD);
-	aoMapPS->Apply();
-	DX_DContext->ClearDepthStencilView(aoDSV, D3D11_CLEAR_DEPTH, 1.0f, NULL);
-	float rtvColor[4] = { 1,1,1,1 };
-	DX_DContext->ClearRenderTargetView(aoRTV, rtvColor);
-	ID3D11ShaderResourceView* nullSRV = nullptr;
-	DX_DContext->PSSetShaderResources(0, 1, &nullSRV);
+	const float defaultColor[4] = { 0,0,0,0 };
+	DX_DContext->ClearRenderTargetView(aoRTV, defaultColor);
+	DX_DContext->ClearDepthStencilView(aoDSV, D3D11_CLEAR_DEPTH, 1.0, NULL);
 	DX_DContext->OMSetRenderTargets(1, &aoRTV, aoDSV);
+	aoMapPS->Apply();
 	for (auto obj : drawObjs)
 	{
-		SHADER_STD_TRANSF transf(XMMatrixIdentity(), XMMatrixIdentity());
-		//world
-		transf.w = obj->transform->WorldMatrix();
-		//view
-		transf.vp = CameraMgr::Instance()->Main()->VMat();
-		//proj
-		transf.n = projMat;
-		//normal
-		transf.tex = XMMatrixTranspose(XMMatrixInverse(&XMMatrixDeterminant(transf.w), transf.w));
-		aoMapVS->WriteCB(0, &transf);
+		XMMATRIX transf[4];
+		transf[0] = obj->transform->WorldMatrix();
+		transf[1] = CameraMgr::Instance()->Main()->VMat();
+		transf[2] = CameraMgr::Instance()->Main()->ProjMat(Z_ORDER_STANDARD);
+		transf[3] = XMMatrixTranspose(XMMatrixInverse(&XMMatrixDeterminant(transf[0]), transf[0]));
+
+		aoMapVS->WriteCB(0, transf);
 		aoMapVS->Apply();
 		dsState->Apply();
-		blendState->Apply();
-
 		obj->RenderGeom();
 	}
 	graphic->RestoreRTV();
-
-	// second -------------------------------------------------------------
-	
-	aoPS->WriteSRV(0, aoSRV);
-	XMMATRIX projUvMat = projMat * XMMATRIX(
-		0.5f, 0, 0, 0,
-		0, -0.5f, 0, 0,
-		0, 0, 1, 0,
-		0.5f, 0.5f, 0, 1);
-	aoPS->WriteCB(0, &projUvMat);
-	aoPS->WriteCB(1, offset);
-
-	DX_DContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	UINT stride = sizeof(AO_VERTEX);
+	// second-----------------------------------------------------------
+	UINT stide = sizeof(Vertex_AO);
 	UINT offset = 0;
-	DX_DContext->IASetVertexBuffers(0, 1, &farPlaneVB, &stride, &offset);
-	DX_DContext->IASetIndexBuffer(farPlaneIB, DXGI_FORMAT_R32_UINT, 0);
-
+	DX_DContext->IASetVertexBuffers(0, 1, &aoVB, &stide, &offset);
+	DX_DContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 	aoVS->Apply();
 	aoPS->Apply();
-	dsState2->Apply();
-	DX_DContext->DrawIndexed(6, 0, 0);
+	noDsState->Apply();
+	DX_DContext->Draw(4, 0);
 	//-----------------------------------------------------------------------
 
 	/*Scene::Update(elapsed, spf);
