@@ -45,19 +45,28 @@ VShader* aoVS;
 PShader* aoPS;
 DepthStencilState* dsState;
 DepthStencilState* noDsState;
+BlendState* blendState;
+D3D11_VIEWPORT aoVp;
 
 struct Vertex_AO
 {
 	XMFLOAT3 pPos;
+	float farPlaneIdx;
 	XMFLOAT2 tex;
-	Vertex_AO(XMFLOAT3 p, XMFLOAT2 t) :pPos(p), tex(t) {}
+	Vertex_AO(XMFLOAT3 p,float id, XMFLOAT2 t) :pPos(p), farPlaneIdx(id), tex(t) {}
 };
 static Vertex_AO aoVertice[4] = {
-	Vertex_AO(XMFLOAT3(-1, 1,1),XMFLOAT2(0,0)),
-	Vertex_AO(XMFLOAT3( 1, 1,1),XMFLOAT2(1,0)),
-	Vertex_AO(XMFLOAT3(-1,-1,1),XMFLOAT2(0,1)),
-	Vertex_AO(XMFLOAT3( 1,-1,1),XMFLOAT2(1,1)) };
+	Vertex_AO(XMFLOAT3(-1, 1,1),0,XMFLOAT2(0,0)),
+	Vertex_AO(XMFLOAT3( 1, 1,1),1,XMFLOAT2(1,0)),
+	Vertex_AO(XMFLOAT3(-1,-1,1),2,XMFLOAT2(0,1)),
+	Vertex_AO(XMFLOAT3( 1,-1,1),3,XMFLOAT2(1,1)) };
+static XMFLOAT4 vFarPlane[4] = {
+	XMFLOAT4(-1000 * tan(XM_PIDIV4),  1000 * tan(XM_PIDIV4),1000,0),
+	XMFLOAT4( 1000 * tan(XM_PIDIV4),  1000 * tan(XM_PIDIV4),1000,0),
+	XMFLOAT4(-1000 * tan(XM_PIDIV4), -1000 * tan(XM_PIDIV4),1000,0),
+	XMFLOAT4( 1000 * tan(XM_PIDIV4), -1000 * tan(XM_PIDIV4),1000,0) };
 ID3D11Buffer* aoVB;
+nanosuit* mesh;
 
 TestScene::TestScene(IGraphic* graphic)
 	:Scene("Test"),
@@ -97,9 +106,9 @@ TestScene::TestScene(IGraphic* graphic)
 	aoTex_desc.ArraySize = 1;
 	aoTex_desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 	aoTex_desc.CPUAccessFlags = 0;
-	aoTex_desc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
-	aoTex_desc.Width = SCREEN_WIDTH;
-	aoTex_desc.Height = SCREEN_HEIGHT;
+	aoTex_desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	aoTex_desc.Width = SCREEN_WIDTH/2;
+	aoTex_desc.Height = SCREEN_HEIGHT/2;
 	aoTex_desc.MipLevels = 1;
 	aoTex_desc.MiscFlags = 0;
 	aoTex_desc.SampleDesc = { 1,0 };
@@ -127,8 +136,8 @@ TestScene::TestScene(IGraphic* graphic)
 	aoDepth_desc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 	aoDepth_desc.CPUAccessFlags = 0;
 	aoDepth_desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	aoDepth_desc.Width = SCREEN_WIDTH;
-	aoDepth_desc.Height = SCREEN_HEIGHT;
+	aoDepth_desc.Width = aoTex_desc.Width;
+	aoDepth_desc.Height = aoTex_desc.Height;
 	aoDepth_desc.MipLevels = 1;
 	aoDepth_desc.MiscFlags = 0;
 	aoDepth_desc.SampleDesc = { 1,0 };
@@ -139,7 +148,7 @@ TestScene::TestScene(IGraphic* graphic)
 	);
 	D3D11_DEPTH_STENCIL_VIEW_DESC aoDSV_desc;
 	aoDSV_desc.Flags = 0;
-	aoDSV_desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	aoDSV_desc.Format = aoDepth_desc.Format;
 	aoDSV_desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	aoDSV_desc.Texture2D.MipSlice = 0;
 	r_assert(
@@ -150,16 +159,33 @@ TestScene::TestScene(IGraphic* graphic)
 	aoMapPS = new PShader("AOPS.cso");
 	static D3D11_INPUT_ELEMENT_DESC aoILayout[] = {
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, sizeof(XMFLOAT3), D3D11_INPUT_PER_VERTEX_DATA, 0 }
+		{ "FAR_PLANE_IDX", 0,DXGI_FORMAT_R32_FLOAT, 0, sizeof(XMFLOAT3),D3D11_INPUT_PER_VERTEX_DATA,0},
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, sizeof(XMFLOAT4), D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 
 	aoVS = new VShader("AO2VS.cso", aoILayout, ARRAYSIZE(aoILayout));
+	aoVS->AddCB(0, 1, sizeof(XMFLOAT4) * 4);
+	aoVS->WriteCB(0, vFarPlane);
 	aoPS = new PShader("AO2PS.cso");
+	aoPS->AddCB(0, 1, sizeof(XMMATRIX));
+	aoPS->AddSRV(0, 1);
+	D3D11_SAMPLER_DESC aoSamp_desc;
+	ZeroMemory(&aoSamp_desc, sizeof(D3D11_SAMPLER_DESC));
+	aoSamp_desc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+	aoSamp_desc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+	aoSamp_desc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+	aoSamp_desc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+	aoSamp_desc.BorderColor[0] = 1;
+	aoSamp_desc.BorderColor[1] = 1;
+	aoSamp_desc.BorderColor[2] = 1;
+	aoSamp_desc.BorderColor[3] = 100000;
+	aoPS->AddSamp(0, 1, &aoSamp_desc);
 	dsState = new DepthStencilState(nullptr);
 	D3D11_DEPTH_STENCIL_DESC noDS_desc;
 	ZeroMemory(&noDS_desc, sizeof(D3D11_DEPTH_STENCIL_DESC));
 	noDS_desc.DepthEnable = false;
 	noDsState = new DepthStencilState(&noDS_desc);
+	blendState = new BlendState(nullptr);
 
 	D3D11_BUFFER_DESC aoVB_desc;
 	aoVB_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
@@ -172,8 +198,14 @@ TestScene::TestScene(IGraphic* graphic)
 	data.pSysMem = aoVertice;
 	r_assert(
 		DX_Device->CreateBuffer(&aoVB_desc, &data, &aoVB));
+	aoVp.Width = aoTex_desc.Width;
+	aoVp.Height = aoTex_desc.Height;
+	aoVp.TopLeftX = 0;
+	aoVp.TopLeftY = 0;
+	aoVp.MinDepth = 0;
+	aoVp.MaxDepth = 1;
 	
-	const int N = 4;
+	const int N = 1;
 	for (int z = 0; z < N; ++z) {
 		for (int y = 0; y < 2; ++y) {
 			for (int x = 0; x < N; ++x) {
@@ -187,10 +219,15 @@ TestScene::TestScene(IGraphic* graphic)
 			}
 		}
 	}
-	Object* floor = new Object(new Cube(), pbrSRV, pbrNormal);
+	Object* floor = new Object(new Quad(), pbrSRV, pbrNormal);
 	floor->transform->SetScale(100, 100, 1);
-	floor->transform->SetRot(UP, FORWARD);
+	floor->transform->SetRot(-FORWARD, UP);
 	AddObj(floor);
+
+	mesh = new nanosuit();
+	mesh->SetScale(XMFLOAT3(3, 3, 3));
+
+	Debugging::Instance()->EnableGrid(10);
 }
 
 TestScene::~TestScene()
@@ -235,32 +272,46 @@ void TestScene::Update(float elapsed, float spf)
 	}
 
 	FrustumCulling(CameraMgr::Instance()->Main());
+	Scene::Update(elaped, spf);
 
 	// first -------------------------------------------------------------
-	const float defaultColor[4] = { 0,0,0,0 };
+	XMMATRIX projMat= CameraMgr::Instance()->Main()->ProjMat(Z_ORDER_STANDARD);
+	const float defaultColor[4] = { 1,1,1,100000 };
+	ID3D11ShaderResourceView* nullSRV = nullptr;
+	DX_DContext->RSSetViewports(1, &aoVp);
+	DX_DContext->PSSetShaderResources(0, 1, &nullSRV);
 	DX_DContext->ClearRenderTargetView(aoRTV, defaultColor);
 	DX_DContext->ClearDepthStencilView(aoDSV, D3D11_CLEAR_DEPTH, 1.0, NULL);
 	DX_DContext->OMSetRenderTargets(1, &aoRTV, aoDSV);
 	aoMapPS->Apply();
-	for (auto obj : drawObjs)
+	for (auto obj : mesh->objs)
 	{
 		XMMATRIX transf[4];
 		transf[0] = obj->transform->WorldMatrix();
 		transf[1] = CameraMgr::Instance()->Main()->VMat();
-		transf[2] = CameraMgr::Instance()->Main()->ProjMat(Z_ORDER_STANDARD);
+		transf[2] = projMat;
 		transf[3] = XMMatrixTranspose(XMMatrixInverse(&XMMatrixDeterminant(transf[0]), transf[0]));
 
 		aoMapVS->WriteCB(0, transf);
 		aoMapVS->Apply();
 		dsState->Apply();
+		blendState->Apply();
 		obj->RenderGeom();
 	}
+	graphic->RestoreViewport();
 	graphic->RestoreRTV();
 	// second-----------------------------------------------------------
 	UINT stide = sizeof(Vertex_AO);
 	UINT offset = 0;
 	DX_DContext->IASetVertexBuffers(0, 1, &aoVB, &stide, &offset);
 	DX_DContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	aoPS->WriteSRV(0, aoSRV);
+	XMMATRIX projUv = projMat * XMMATRIX(
+		0.5f, 0, 0, 0,
+		0, -0.5f, 0, 0,
+		0, 0, 1, 0,
+		0.5f, 0.5f, 0, 1);
+	aoPS->WriteCB(0, &projUv);
 	aoVS->Apply();
 	aoPS->Apply();
 	noDsState->Apply();
