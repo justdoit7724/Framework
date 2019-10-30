@@ -46,7 +46,8 @@ PShader* aoPS;
 DepthStencilState* dsState;
 DepthStencilState* noDsState;
 BlendState* blendState;
-D3D11_VIEWPORT aoVp;
+D3D11_VIEWPORT aoVp; 
+Object* flor;
 
 struct Vertex_AO
 {
@@ -67,6 +68,21 @@ static XMFLOAT4 vFarPlane[4] = {
 	XMFLOAT4( 1000 * tan(XM_PIDIV4), -1000 * tan(XM_PIDIV4),1000,0) };
 ID3D11Buffer* aoVB;
 nanosuit* mesh;
+static XMFLOAT4 sample[14] = {
+	XMFLOAT4(+1.0f, +1.0f, +1.0f, 0.0f),
+	XMFLOAT4(-1.0f, -1.0f, -1.0f, 0.0f),
+	XMFLOAT4(-1.0f, +1.0f, +1.0f, 0.0f),
+	XMFLOAT4(+1.0f, -1.0f, -1.0f, 0.0f),
+	XMFLOAT4(+1.0f, +1.0f, -1.0f, 0.0f),
+	XMFLOAT4(-1.0f, -1.0f, +1.0f, 0.0f),
+	XMFLOAT4(-1.0f, +1.0f, -1.0f, 0.0f),
+	XMFLOAT4(+1.0f, -1.0f, +1.0f, 0.0f),
+	XMFLOAT4(-1.0f, 0.0f, 0.0f, 0.0f),
+	XMFLOAT4(+1.0f, 0.0f, 0.0f, 0.0f),
+	XMFLOAT4(0.0f, -1.0f, 0.0f, 0.0f),
+	XMFLOAT4(0.0f, +1.0f, 0.0f, 0.0f),
+	XMFLOAT4(0.0f, 0.0f, -1.0f, 0.0f),
+	XMFLOAT4(0.0f, 0.0f, +1.0f, 0.0f) };
 
 TestScene::TestScene(IGraphic* graphic)
 	:Scene("Test"),
@@ -168,6 +184,7 @@ TestScene::TestScene(IGraphic* graphic)
 	aoVS->WriteCB(0, vFarPlane);
 	aoPS = new PShader("AO2PS.cso");
 	aoPS->AddCB(0, 1, sizeof(XMMATRIX));
+	aoPS->AddCB(1, 1, sizeof(XMFLOAT4) * 14);
 	aoPS->AddSRV(0, 1);
 	D3D11_SAMPLER_DESC aoSamp_desc;
 	ZeroMemory(&aoSamp_desc, sizeof(D3D11_SAMPLER_DESC));
@@ -215,14 +232,14 @@ TestScene::TestScene(IGraphic* graphic)
 				Object* cube = new Object(new Cube(), pbrSRV, pbrNormal);
 				cube->transform->SetScale(scale);
 				cube->transform->SetTranslation(XMFLOAT3(x * interval,7.5f + y * interval, z * interval)-offset);
-				AddObj(cube);
+				//AddObj(cube);
 			}
 		}
 	}
-	Object* floor = new Object(new Quad(), pbrSRV, pbrNormal);
-	floor->transform->SetScale(100, 100, 1);
-	floor->transform->SetRot(-FORWARD, UP);
-	AddObj(floor);
+	flor = new Object(new Quad(), pbrSRV, pbrNormal);
+	flor->transform->SetScale(100, 100, 1);
+	flor->transform->SetRot(-FORWARD, UP);
+	AddObj(flor);
 
 	mesh = new nanosuit();
 	mesh->SetScale(XMFLOAT3(3, 3, 3));
@@ -312,13 +329,14 @@ void TestScene::Update(float elapsed, float spf)
 		0, 0, 1, 0,
 		0.5f, 0.5f, 0, 1);
 	aoPS->WriteCB(0, &projUv);
+	aoPS->WriteCB(1, sample);
 	aoVS->Apply();
 	aoPS->Apply();
 	noDsState->Apply();
 	DX_DContext->Draw(4, 0);
 	//-----------------------------------------------------------------------
 
-	/*Scene::Update(elapsed, spf);
+	/*
 
 	canvas->Update(timer->SPF());*/
 }

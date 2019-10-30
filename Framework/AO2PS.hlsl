@@ -16,6 +16,10 @@ cbuffer CB_TRANSF_PROJUV : register(b0)
 {
     float4x4 projUvMat;
 }
+cbuffer CB_SAMPLE : register(b1)
+{
+    float4 sample[14];
+}
 
 Texture2D aoMap : register(t0);
 SamplerState samp : register(s0);
@@ -40,19 +44,25 @@ float4 main(PS_INPUT input) :SV_Target
     float vDepth = vSample.w;
 
     float3 vP = (vDepth / input.vFarPlanePos.z) *input.vFarPlanePos;
-    float3 vQ = vP + vNormal * SAMPLE_LENGTH;
-    float4 pQ = mul(projUvMat, float4(vQ, 1));
-    float2 vQUV = pQ.xy / pQ.w;
-    float4 vRSample = aoMap.SampleLevel(samp, vQUV, 0);
-    float vrDepth = vRSample.w;
+    float occlusionSum = 0;
+    for (int i = 0; i < 14; ++i)
+    {
+        float3 sampleDir = reflect(normalize(sample[i].xyz), vNormal);
 
-    float3 vR = (vrDepth / vQ.z) * vQ;
-    float distZ = vP.z - vR.z;
-    float dp = saturate(dot(vNormal, normalize(vR - vP)));
+        float3 vQ = vP + sampleDir * SAMPLE_LENGTH;
+        float4 pQ = mul(projUvMat, float4(vQ, 1));
+        float2 vQUV = pQ.xy / pQ.w;
+        float4 vRSample = aoMap.SampleLevel(samp, vQUV, 0);
+        float vrDepth = vRSample.w;
+
+        float3 vR = (vrDepth / vQ.z) * vQ;
+        float distZ = vP.z - vR.z;
+        float dp = saturate(dot(vNormal, normalize(vR - vP)));
     
-    float occlusionSum = dp*AOIntensity(distZ);
+        occlusionSum += dp * AOIntensity(distZ);
+    }
 
-    float access = 1 - occlusionSum;
+    float access = 1 - occlusionSum/14.0f;
     return float4(access.xxx, 1);
 
 }

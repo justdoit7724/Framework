@@ -40,6 +40,8 @@ struct PS_INPUT
 };
 float4 main(PS_INPUT input) : SV_Target
 {
+    //debug
+    return float4(1, 0, 0, 1);
 
     input.normal = normalize(input.normal);
     input.tangent = normalize(input.tangent - dot(input.normal, input.tangent)*input.normal);
