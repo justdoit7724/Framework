@@ -1,9 +1,9 @@
 
 #include "ShaderInfo.cginc"
 
-#define SAMPLE_LENGTH 1.5f
-#define FADE_START 0.2f
-#define FADE_END 2.0f
+#define SAMPLE_LENGTH 1.0f
+#define FADE_START 0.1f
+#define FADE_END 1.0f
 
 struct PS_INPUT
 {
@@ -48,7 +48,7 @@ float4 main(PS_INPUT input) :SV_Target
     for (int i = 0; i < 14; ++i)
     {
         float3 sampleDir = reflect(normalize(sample[i].xyz), vNormal);
-
+        
         float3 vQ = vP + sampleDir * SAMPLE_LENGTH;
         float4 pQ = mul(projUvMat, float4(vQ, 1));
         float2 vQUV = pQ.xy / pQ.w;
@@ -58,7 +58,7 @@ float4 main(PS_INPUT input) :SV_Target
         float3 vR = (vrDepth / vQ.z) * vQ;
         float distZ = vP.z - vR.z;
         float dp = saturate(dot(vNormal, normalize(vR - vP)));
-    
+        
         occlusionSum += dp * AOIntensity(distZ);
     }
 

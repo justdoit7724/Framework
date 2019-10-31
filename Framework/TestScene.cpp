@@ -35,19 +35,7 @@
 #include "Debugging.h"
 #include "nanosuit.h"
 
-ID3D11Texture2D* aoMap;
-ID3D11ShaderResourceView* aoSRV;
-ID3D11RenderTargetView* aoRTV;
-ID3D11DepthStencilView* aoDSV;
-VShader* aoMapVS;
-PShader* aoMapPS;
-VShader* aoVS;
-PShader* aoPS;
-DepthStencilState* dsState;
-DepthStencilState* noDsState;
-BlendState* blendState;
-D3D11_VIEWPORT aoVp; 
-Object* flor;
+
 
 struct Vertex_AO
 {
@@ -84,13 +72,109 @@ static XMFLOAT4 sample[14] = {
 	XMFLOAT4(0.0f, 0.0f, -1.0f, 0.0f),
 	XMFLOAT4(0.0f, 0.0f, +1.0f, 0.0f) };
 
+
+void NDMapping(ID3D11RenderTargetView** rtv, ID3D11ShaderResourceView** srv, ID3D11DepthStencilView** dsv, D3D11_VIEWPORT& vp)
+{
+	D3D11_TEXTURE2D_DESC aoND_desc;
+	aoND_desc.ArraySize = 1;
+	aoND_desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+	aoND_desc.CPUAccessFlags = 0;
+	aoND_desc.Format = DXGI_FORMAT_R32G32B32A32_TYPELESS;
+	aoND_desc.Width = SCREEN_WIDTH * 0.5;
+	aoND_desc.Height = SCREEN_HEIGHT * 0.5;
+	aoND_desc.MipLevels = 1;
+	aoND_desc.MiscFlags = 0;
+	aoND_desc.SampleDesc = { 1,0 };
+	aoND_desc.Usage = D3D11_USAGE_DEFAULT;
+	ID3D11Texture2D* aoNDMap;
+	r_assert(
+		DX_Device->CreateTexture2D(&aoND_desc, nullptr, &aoNDMap)
+	);
+	D3D11_RENDER_TARGET_VIEW_DESC aoNDRTV_desc;
+	aoNDRTV_desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	aoNDRTV_desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+	aoNDRTV_desc.Texture2D.MipSlice = 0;
+	r_assert(
+		DX_Device->CreateRenderTargetView(aoNDMap, &aoNDRTV_desc, rtv)
+	);
+	D3D11_SHADER_RESOURCE_VIEW_DESC aoNDSRV_desc;
+	aoNDSRV_desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	aoNDSRV_desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	aoNDSRV_desc.Texture2D.MipLevels = 1;
+	aoNDSRV_desc.Texture2D.MostDetailedMip = 0;
+	r_assert(
+		DX_Device->CreateShaderResourceView(aoNDMap, &aoNDSRV_desc, srv)
+	);
+	D3D11_TEXTURE2D_DESC aoNDDepth_desc;
+	aoNDDepth_desc.ArraySize = 1;
+	aoNDDepth_desc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	aoNDDepth_desc.CPUAccessFlags = 0;
+	aoNDDepth_desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	aoNDDepth_desc.Width = aoND_desc.Width;
+	aoNDDepth_desc.Height = aoND_desc.Height;
+	aoNDDepth_desc.MipLevels = 1;
+	aoNDDepth_desc.MiscFlags = 0;
+	aoNDDepth_desc.SampleDesc = { 1,0 };
+	aoNDDepth_desc.Usage = D3D11_USAGE_DEFAULT;
+	ID3D11Texture2D* aoNDDepth;
+	r_assert(
+		DX_Device->CreateTexture2D(&aoNDDepth_desc, nullptr, &aoNDDepth)
+	);
+	D3D11_DEPTH_STENCIL_VIEW_DESC aoNDDSV_desc;
+	aoNDDSV_desc.Flags = 0;
+	aoNDDSV_desc.Format = aoNDDepth_desc.Format;
+	aoNDDSV_desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	aoNDDSV_desc.Texture2D.MipSlice = 0;
+	r_assert(
+		DX_Device->CreateDepthStencilView(aoNDDepth, &aoNDDSV_desc, dsv)
+	);
+
+	vp.Width = aoND_desc.Width;
+	vp.Height = aoND_desc.Height;
+	vp.TopLeftX = 0;
+	vp.TopLeftY = 0;
+	vp.MinDepth = 0;
+	vp.MaxDepth = 1;
+}
+void ScreenMapping(ID3D11RenderTargetView** rtv, ID3D11ShaderResourceView** srv)
+{
+	D3D11_TEXTURE2D_DESC aoTex_desc;
+	aoTex_desc.ArraySize = 1;
+	aoTex_desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+	aoTex_desc.CPUAccessFlags = 0;
+	aoTex_desc.Format = DXGI_FORMAT_R8G8B8A8_TYPELESS;
+	aoTex_desc.Width = SCREEN_WIDTH;
+	aoTex_desc.Height = SCREEN_HEIGHT;
+	aoTex_desc.MipLevels = 1;
+	aoTex_desc.MiscFlags = 0;
+	aoTex_desc.Usage = D3D11_USAGE_DEFAULT;
+	aoTex_desc.SampleDesc = { 1,0 };
+	ID3D11Texture2D* aoTex;
+	r_assert(
+		DX_Device->CreateTexture2D(&aoTex_desc, nullptr, &aoTex)
+	);
+	D3D11_RENDER_TARGET_VIEW_DESC aoRTV_desc;
+	aoRTV_desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	aoRTV_desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+	aoRTV_desc.Texture2D.MipSlice = 0;
+	r_assert(
+		DX_Device->CreateRenderTargetView(aoTex, &aoRTV_desc, rtv)
+	);
+	D3D11_SHADER_RESOURCE_VIEW_DESC aoSRV_desc;
+	aoSRV_desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	aoSRV_desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	aoSRV_desc.Texture2D.MipLevels = 1;
+	aoSRV_desc.Texture2D.MostDetailedMip = 0;
+	r_assert(
+		DX_Device->CreateShaderResourceView(aoTex, &aoSRV_desc, srv)
+	);
+}
 TestScene::TestScene(IGraphic* graphic)
 	:Scene("Test"),
 	graphic(graphic)
 {
 	timer = new Timer();
 	canvas = new UICanvas(SCREEN_WIDTH, SCREEN_HEIGHT);
-	//Debugging::Instance()->EnableGrid(10, 50);
 
 	/*dLight = new DirectionalLight(
 		XMFLOAT3(0.1f, 0.1f, 0.1f),
@@ -118,58 +202,11 @@ TestScene::TestScene(IGraphic* graphic)
 	ID3D11ShaderResourceView* simpleSRV= TextureMgr::Instance()->Get("simple");;
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	D3D11_TEXTURE2D_DESC aoTex_desc;
-	aoTex_desc.ArraySize = 1;
-	aoTex_desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
-	aoTex_desc.CPUAccessFlags = 0;
-	aoTex_desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	aoTex_desc.Width = SCREEN_WIDTH/2;
-	aoTex_desc.Height = SCREEN_HEIGHT/2;
-	aoTex_desc.MipLevels = 1;
-	aoTex_desc.MiscFlags = 0;
-	aoTex_desc.SampleDesc = { 1,0 };
-	aoTex_desc.Usage = D3D11_USAGE_DEFAULT;
-	r_assert(
-		DX_Device->CreateTexture2D(&aoTex_desc, nullptr, &aoMap)
-	);
-	D3D11_RENDER_TARGET_VIEW_DESC aoRTV_desc;
-	aoRTV_desc.Format = aoTex_desc.Format;
-	aoRTV_desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-	aoRTV_desc.Texture2D.MipSlice = 0;
-	r_assert(
-		DX_Device->CreateRenderTargetView(aoMap, &aoRTV_desc, &aoRTV)
-	);
-	D3D11_SHADER_RESOURCE_VIEW_DESC aoSRV_desc;
-	aoSRV_desc.Format = aoTex_desc.Format;
-	aoSRV_desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-	aoSRV_desc.Texture2D.MipLevels = 1;
-	aoSRV_desc.Texture2D.MostDetailedMip = 0;
-	r_assert(
-		DX_Device->CreateShaderResourceView(aoMap, &aoSRV_desc, &aoSRV)
-	);
-	D3D11_TEXTURE2D_DESC aoDepth_desc;
-	aoDepth_desc.ArraySize = 1;
-	aoDepth_desc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-	aoDepth_desc.CPUAccessFlags = 0;
-	aoDepth_desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	aoDepth_desc.Width = aoTex_desc.Width;
-	aoDepth_desc.Height = aoTex_desc.Height;
-	aoDepth_desc.MipLevels = 1;
-	aoDepth_desc.MiscFlags = 0;
-	aoDepth_desc.SampleDesc = { 1,0 };
-	aoDepth_desc.Usage = D3D11_USAGE_DEFAULT;
-	ID3D11Texture2D* aoDepth;
-	r_assert(
-		DX_Device->CreateTexture2D(&aoDepth_desc, nullptr, &aoDepth)
-	);
-	D3D11_DEPTH_STENCIL_VIEW_DESC aoDSV_desc;
-	aoDSV_desc.Flags = 0;
-	aoDSV_desc.Format = aoDepth_desc.Format;
-	aoDSV_desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-	aoDSV_desc.Texture2D.MipSlice = 0;
-	r_assert(
-		DX_Device->CreateDepthStencilView(aoDepth, &aoDSV_desc, &aoDSV)
-	);
+	NDMapping(&aoNDRTV, &aoNDSRV, &aoNDDSV, aoVp);
+	ScreenMapping(&aoRTV, &aoSRV);
+	ScreenMapping(&aoBlurRTV, &aoBlurSRV);
+	ScreenMapping(&aoBlur2RTV, &aoBlur2SRV);
+
 	aoMapVS = new VShader("AOVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
 	aoMapVS->AddCB(0, 1, sizeof(XMMATRIX) * 4);
 	aoMapPS = new PShader("AOPS.cso");
@@ -203,6 +240,12 @@ TestScene::TestScene(IGraphic* graphic)
 	noDS_desc.DepthEnable = false;
 	noDsState = new DepthStencilState(&noDS_desc);
 	blendState = new BlendState(nullptr);
+	aoBlurVS = new VShader("BlurAOVS.cso", aoILayout, ARRAYSIZE(aoILayout));
+	aoBlurPS = new PShader("BlurAOPS.cso");
+	aoBlurPS->AddSRV(0, 1);
+	aoBlurPS->AddSRV(1, 1);
+	aoBlurPS->AddCB(0, 1, sizeof(float));
+	aoBlurPS->AddSamp(0, 1, &aoSamp_desc);
 
 	D3D11_BUFFER_DESC aoVB_desc;
 	aoVB_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
@@ -215,30 +258,25 @@ TestScene::TestScene(IGraphic* graphic)
 	data.pSysMem = aoVertice;
 	r_assert(
 		DX_Device->CreateBuffer(&aoVB_desc, &data, &aoVB));
-	aoVp.Width = aoTex_desc.Width;
-	aoVp.Height = aoTex_desc.Height;
-	aoVp.TopLeftX = 0;
-	aoVp.TopLeftY = 0;
-	aoVp.MinDepth = 0;
-	aoVp.MaxDepth = 1;
+
 	
-	const int N = 1;
+	const int N = 3;
 	for (int z = 0; z < N; ++z) {
-		for (int y = 0; y < 2; ++y) {
+		for (int y = 0; y < N; ++y) {
 			for (int x = 0; x < N; ++x) {
-				float interval = 20;
+				float interval = 12.5;
 				XMFLOAT3 scale = XMFLOAT3(10, 10, 10);
 				XMFLOAT3 offset = XMFLOAT3(scale.x,0,scale.z)* (N / 2);
 				Object* cube = new Object(new Cube(), pbrSRV, pbrNormal);
 				cube->transform->SetScale(scale);
-				cube->transform->SetTranslation(XMFLOAT3(x * interval,7.5f + y * interval, z * interval)-offset);
-				//AddObj(cube);
+				cube->transform->SetTranslation(XMFLOAT3(x * interval,5.0f + y * interval, z * interval)-offset);
+				AddObj(cube);
 			}
 		}
 	}
 	flor = new Object(new Quad(), pbrSRV, pbrNormal);
 	flor->transform->SetScale(100, 100, 1);
-	flor->transform->SetRot(-FORWARD, UP);
+	flor->transform->SetRot(UP, FORWARD);
 	AddObj(flor);
 
 	mesh = new nanosuit();
@@ -294,14 +332,15 @@ void TestScene::Update(float elapsed, float spf)
 	// first -------------------------------------------------------------
 	XMMATRIX projMat= CameraMgr::Instance()->Main()->ProjMat(Z_ORDER_STANDARD);
 	const float defaultColor[4] = { 1,1,1,100000 };
-	ID3D11ShaderResourceView* nullSRV = nullptr;
 	DX_DContext->RSSetViewports(1, &aoVp);
+	ID3D11ShaderResourceView* nullSRV = nullptr;
 	DX_DContext->PSSetShaderResources(0, 1, &nullSRV);
-	DX_DContext->ClearRenderTargetView(aoRTV, defaultColor);
-	DX_DContext->ClearDepthStencilView(aoDSV, D3D11_CLEAR_DEPTH, 1.0, NULL);
-	DX_DContext->OMSetRenderTargets(1, &aoRTV, aoDSV);
+	DX_DContext->PSSetShaderResources(1, 1, &nullSRV);
+	DX_DContext->ClearRenderTargetView(aoNDRTV, defaultColor);
+	DX_DContext->ClearDepthStencilView(aoNDDSV, D3D11_CLEAR_DEPTH, 1.0, NULL);
+	DX_DContext->OMSetRenderTargets(1, &aoNDRTV, aoNDDSV);
 	aoMapPS->Apply();
-	for (auto obj : mesh->objs)
+	for (auto obj :mesh->objs)
 	{
 		XMMATRIX transf[4];
 		transf[0] = obj->transform->WorldMatrix();
@@ -315,14 +354,17 @@ void TestScene::Update(float elapsed, float spf)
 		blendState->Apply();
 		obj->RenderGeom();
 	}
-	graphic->RestoreViewport();
-	graphic->RestoreRTV();
 	// second-----------------------------------------------------------
+	graphic->RestoreViewport();
+	DX_DContext->PSSetShaderResources(0, 1, &nullSRV);
+	DX_DContext->PSSetShaderResources(1, 1, &nullSRV);
+	DX_DContext->ClearRenderTargetView(aoRTV, defaultColor);
+	DX_DContext->OMSetRenderTargets(1, &aoRTV, nullptr);
 	UINT stide = sizeof(Vertex_AO);
 	UINT offset = 0;
 	DX_DContext->IASetVertexBuffers(0, 1, &aoVB, &stide, &offset);
 	DX_DContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-	aoPS->WriteSRV(0, aoSRV);
+	aoPS->WriteSRV(0, aoNDSRV);
 	XMMATRIX projUv = projMat * XMMATRIX(
 		0.5f, 0, 0, 0,
 		0, -0.5f, 0, 0,
@@ -334,11 +376,32 @@ void TestScene::Update(float elapsed, float spf)
 	aoPS->Apply();
 	noDsState->Apply();
 	DX_DContext->Draw(4, 0);
-	//-----------------------------------------------------------------------
+	// First Blur -----------------------------------------------------------------
+	DX_DContext->ClearRenderTargetView(aoBlurRTV, defaultColor);
+	DX_DContext->OMSetRenderTargets(1, &aoBlurRTV, nullptr);
+	aoBlurVS->Apply();
+	aoBlurPS->WriteSRV(0, aoNDSRV);
+	aoBlurPS->WriteSRV(1, aoSRV);
+	float curDirection = 1;
+	aoBlurPS->WriteCB(0, &curDirection);
+	aoBlurPS->Apply();
+	noDsState->Apply();
+	DX_DContext->Draw(4, 0);
+	// Second blur -----------------------------------------------------------------------
+	/*DX_DContext->ClearRenderTargetView(aoBlur2RTV, defaultColor);
+	DX_DContext->OMSetRenderTargets(1, &aoBlur2RTV, nullptr);*/
+	graphic->RestoreRTV();
+	aoBlurVS->Apply();
+	aoBlurPS->WriteSRV(0, aoNDSRV);
+	aoBlurPS->WriteSRV(1, aoBlurSRV);
+	curDirection = 0;
+	aoBlurPS->WriteCB(0, &curDirection);
+	aoBlurPS->Apply();
+	noDsState->Apply();
+	DX_DContext->Draw(4, 0);
+	//////////////////////////////////////////////////////////////////////
 
-	/*
-
-	canvas->Update(timer->SPF());*/
+	canvas->Update(timer->SPF());
 }
 
 void TestScene::Render(const Camera* camera, UINT sceneDepth)const

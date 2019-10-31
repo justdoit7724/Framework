@@ -507,5 +507,11 @@
     <FxCompile Include="AO2PS.hlsl">
       <Filter>Tasks</Filter>
     </FxCompile>
+    <FxCompile Include="BlurAOVS.hlsl">
+      <Filter>Tasks</Filter>
+    </FxCompile>
+    <FxCompile Include="BlurAOPS.hlsl">
+      <Filter>Tasks</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
