@@ -10,15 +10,14 @@
 #include "BlendState.h"
 
 
-UI::UI(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView * srv, UINT maxSliceIdx, UINT slicePerSec)
-	:maxSliceIdx(maxSliceIdx), secPerSlice(1.0f / slicePerSec)
+UI::UI(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView * srv)
 {
 	assert(0 <= zDepth && zDepth <= 1);
 
 	quad = new Quad();
 	transform = new Transform();
 	transform->SetScale(width, height, 1);
-	transform->SetRot(-FORWARD, UP, -RIGHT);
+	transform->SetRot(-FORWARD, UP);
 	transform->SetTranslation(pivot.x + width * 0.5f, (canvasHeight - height * 0.5f) - pivot.y, zDepth);
 
 
@@ -31,29 +30,19 @@ UI::UI(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float
 	ps = new PShader("UIPS.cso");
 	vs->AddCB(0, 1, sizeof(SHADER_STD_TRANSF));
 
-	ps->AddCB(0, 1, sizeof(float));
 	D3D11_SAMPLER_DESC samplerDesc;
 	ZeroMemory(&samplerDesc, sizeof(D3D11_SAMPLER_DESC));
 	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
 	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
 	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
 	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerDesc.MinLOD = 0;
+	samplerDesc.MaxLOD = 1;
 	ps->AddSamp(0, 1, &samplerDesc);
 	ps->AddSRV(0, 1);
 	ps->WriteSRV(0, srv);
 
-	D3D11_BLEND_DESC blend_desc;
-	blend_desc.AlphaToCoverageEnable = false;
-	blend_desc.IndependentBlendEnable = false;
-	blend_desc.RenderTarget[0].BlendEnable = true;
-	blend_desc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
-	blend_desc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ZERO;
-	blend_desc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
-	blend_desc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
-	blend_desc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
-	blend_desc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-	blend_desc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-	blendState = new BlendState(&blend_desc);
+	blendState = new BlendState(nullptr);
 
 	dsState = new DepthStencilState(nullptr);
 }
@@ -72,16 +61,8 @@ UI::~UI()
 	texSampState->Release();
 }
 
-void UI::Update(float spf)
+void UI::Update()
 {
-	curTime += spf;
-	if (curTime >= secPerSlice)
-	{
-		curSliceIdx = (curSliceIdx+1) % maxSliceIdx;
-		curTime = 0;
-	}
-
-	
 }
 
 void UI::Render(const Camera* camera)const
@@ -89,9 +70,7 @@ void UI::Render(const Camera* camera)const
 	XMMATRIX vp = camera->VMat() * camera->ProjMat(Z_ORDER_UI);
 
 	vs->WriteCB(0, &SHADER_STD_TRANSF(transform->WorldMatrix(), vp, XMMatrixIdentity()));
-	float fIdx = curSliceIdx;
-	ps->WriteCB(0, &fIdx);
-
+	
 	vs->Apply();
 	hs->Apply();
 	ds->Apply();
@@ -105,9 +84,10 @@ void UI::Render(const Camera* camera)const
 UICanvas::UICanvas(float width, float height)
 	: totalWidth(width), totalHeight(height)
 {
-	camera = new Camera("UI", FRAME_KIND_ORTHOGONAL, NULL, NULL, 0.1f, 10, NULL, NULL);
+	camera = new Camera("UI", FRAME_KIND_ORTHOGONAL, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1f, 10, NULL, NULL);
 	camera->transform->SetTranslation(XMFLOAT3(width * 0.5f, height * 0.5f, -5));
 	camera->transform->SetRot(FORWARD, UP);
+	camera->Update();
 }
 
 UICanvas::~UICanvas()
@@ -123,7 +103,7 @@ void UICanvas::Add(std::string id, XMFLOAT2 pivot, float width, float height, fl
 {
 	if (UIs.find(id) == UIs.end())
 	{
-		UIs.insert(std::pair<std::string, UI*>(id, new UI(totalWidth, totalHeight, pivot,width,height, zDepth, srv, maxSliceIdx, slicePerSec)));
+		UIs.insert(std::pair<std::string, UI*>(id, new UI(totalWidth, totalHeight, pivot,width,height, zDepth, srv)));
 	}
 }
 
@@ -149,7 +129,7 @@ void UICanvas::Update(float spf)
 {
 	for (auto& ui : UIs)
 	{
-		ui.second->Update(spf);
+		ui.second->Update();
 	}
 }
 

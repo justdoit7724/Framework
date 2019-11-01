@@ -22,17 +22,13 @@ private:
 	friend class UICanvas;
 
 	// screen coordinate
-	UI(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView * srv, UINT maxSliceIdx, UINT slicePerSec);
+	UI(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView * srv);
 	// depth complexity
 	~UI();
-	void Update(float spf);
+	void Update();
 
 	void Render(const Camera* camera)const;
 
-	float curTime=0;
-	const int maxSliceIdx;
-	const float secPerSlice;
-	int curSliceIdx = 0;
 	ID3D11SamplerState* texSampState=nullptr;
 
 public:

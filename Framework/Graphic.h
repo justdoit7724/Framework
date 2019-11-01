@@ -12,7 +12,9 @@ public:
 	void Present();
 
 	ID3D11Texture2D* BackBuffer()override {return backBuffer;};
+	ID3D11RenderTargetView* RenderTargetView() override{return rtv.Get();}
 	ID3D11Texture2D* DepthStencilBuffer()override {return depthStencilBuffer;}
+	ID3D11DepthStencilView* DepthStencilView() override{return dsView.Get();}
 	void RestoreViewport()override {DX_DContext->RSSetViewports(1, &viewport);}
 	void RestoreRTV()override { 
 

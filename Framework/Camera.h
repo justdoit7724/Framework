@@ -37,9 +37,9 @@ public:
 	void Update();
 	void Visualize() override;
 
-	const XMMATRIX& VMat()const { return viewMat; }
-	const XMMATRIX& ProjMat(int zOrder)const {return projMats[zOrder];}
-	const XMMATRIX& ShadowPMat()const { return stdProjMat; }
+	XMMATRIX VMat()const { return viewMat; }
+	XMMATRIX ProjMat(int zOrder)const {return projMats[zOrder];}
+	XMMATRIX ShadowPMat()const { return stdProjMat; }
 
 	const std::string key;
 

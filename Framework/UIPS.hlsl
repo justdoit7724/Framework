@@ -7,27 +7,12 @@ struct PS_INPUT
     float2 tex : TEXCOORD0;
 };
 
-Texture2DArray uiTexture : register(t0);
+Texture2D uiTexture : register(t0);
 SamplerState sampState : register(s0);
-
-cbuffer CB_SLICE_INDEX : register(b0)
-{
-    float sliceIdx;
-};
 
 float4 main(PS_INPUT input) : SV_Target
 {
-    float4 color = uiTexture.Sample(sampState, float3(input.tex, sliceIdx));
+    float4 color = uiTexture.SampleLevel(sampState, input.tex, 0);
     
-    if(color.x == MAGENTA.x && 
-        color.y == MAGENTA.y &&
-        color.z == MAGENTA.z)
-    {
-        clip(-1.0f);
-        return 0;
-    }
-    else
-    {
-        return color;
-    }
+    return color;
 }
