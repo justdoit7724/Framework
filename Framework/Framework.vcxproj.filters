@@ -189,9 +189,6 @@
     <ClCompile Include="nanosuit.cpp">
       <Filter>Tasks</Filter>
     </ClCompile>
-    <ClCompile Include="SSAO.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Debugging.h">
@@ -359,9 +356,6 @@
     <ClInclude Include="nanosuit.h">
       <Filter>Tasks</Filter>
     </ClInclude>
-    <ClInclude Include="SSAO.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="LightInfo.cginc">
@@ -501,22 +495,22 @@
     <FxCompile Include="BindingTest2PS.hlsl">
       <Filter>Tasks</Filter>
     </FxCompile>
-    <FxCompile Include="SSAO_ND_VS.hlsl">
+    <FxCompile Include="AOVS.hlsl">
       <Filter>Tasks</Filter>
     </FxCompile>
-    <FxCompile Include="SSAO_ND_PS.hlsl">
+    <FxCompile Include="AOPS.hlsl">
       <Filter>Tasks</Filter>
     </FxCompile>
-    <FxCompile Include="SSAO_AcessVS.hlsl">
+    <FxCompile Include="AO2VS.hlsl">
       <Filter>Tasks</Filter>
     </FxCompile>
-    <FxCompile Include="SSAO_AcessPS.hlsl">
+    <FxCompile Include="AO2PS.hlsl">
       <Filter>Tasks</Filter>
     </FxCompile>
-    <FxCompile Include="SSAO_BlurPS.hlsl">
+    <FxCompile Include="BlurAOVS.hlsl">
       <Filter>Tasks</Filter>
     </FxCompile>
-    <FxCompile Include="SSAO_BlurVS.hlsl">
+    <FxCompile Include="BlurAOPS.hlsl">
       <Filter>Tasks</Filter>
     </FxCompile>
   </ItemGroup>

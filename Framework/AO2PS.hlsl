@@ -21,7 +21,7 @@ cbuffer CB_SAMPLE : register(b1)
     float4 sample[14];
 }
 
-Texture2D aoNDMap : register(t0);
+Texture2D aoMap : register(t0);
 SamplerState samp : register(s0);
 
 float AOIntensity(float distZ)
@@ -37,7 +37,7 @@ float AOIntensity(float distZ)
 
 float4 main(PS_INPUT input) :SV_Target
 {
-    float4 vSample = aoNDMap.SampleLevel (samp, input.tex, 0);
+    float4 vSample = aoMap.SampleLevel(samp, input.tex, 0);
     if(sign(input.vFarPlanePos.z-vSample.w)<0)
         return float4(1, 1, 1, 1);
     float3 vNormal = vSample.xyz;
@@ -48,20 +48,21 @@ float4 main(PS_INPUT input) :SV_Target
     for (int i = 0; i < 14; ++i)
     {
         float3 sampleDir = reflect(normalize(sample[i].xyz), vNormal);
-      
+        
         float3 vQ = vP + sampleDir * SAMPLE_LENGTH;
         float4 pQ = mul(projUvMat, float4(vQ, 1));
         float2 vQUV = pQ.xy / pQ.w;
-        float4 vRSample = aoNDMap.SampleLevel(samp, vQUV, 0);
+        float4 vRSample = aoMap.SampleLevel(samp, vQUV, 0);
         float vrDepth = vRSample.w;
 
         float3 vR = (vrDepth / vQ.z) * vQ;
         float distZ = vP.z - vR.z;
         float dp = saturate(dot(vNormal, normalize(vR - vP)));
-      
+        
         occlusionSum += dp * AOIntensity(distZ);
     }
 
     float access = 1 - occlusionSum/14.0f;
     return float4(access.xxx, 1);
+
 }

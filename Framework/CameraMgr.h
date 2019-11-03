@@ -12,7 +12,7 @@ public:
 	void Add(std::string key, Camera* camera);
 	void Remove(std::string key);
 	void SetMain(std::string key);
-	const Camera* Main();
+	Camera* Main();
 
 private:
 	std::string mainKey="";
