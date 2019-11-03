@@ -20,7 +20,7 @@ void CameraMgr::SetMain(std::string key)
 	mainKey = key;
 }
 
-Camera* CameraMgr::Main()
+const Camera* CameraMgr::Main()
 {
 	assert(list.find(mainKey) != list.end());
 	return list[mainKey];

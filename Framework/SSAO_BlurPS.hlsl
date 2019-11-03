@@ -35,7 +35,7 @@ float4 main(PS_INPUT input):SV_Target
     for (int i = 0; i < blurCenter; ++i)
     {
         float2 tex = input.tex + i * texOffset + texStart;
-        float4 curND = aoNDMap.SampleLevel(samp, tex, 0);
+        float4 curND = aoNDMap.SampleLevel(samp,tex, 0);
 
         if (dot(curND.xyz, centerND.xyz) >= 0.8 &&
             abs(curND.a - centerND.a) <= 0.2)

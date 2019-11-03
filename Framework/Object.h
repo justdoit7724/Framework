@@ -41,13 +41,14 @@ public:
 	DepthStencilState * dsState = nullptr;
 	RasterizerState* rsState = nullptr;
 
+	const int zOrder;
+
 protected:
-	Object() {}
+	Object();
 	void Render()const;
 
 	XMMATRIX worldMat;
 	XMMATRIX nMat;
-	int zOrder;
 
 	float boundRad;
 	XMFLOAT3 boundlMinPt;

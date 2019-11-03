@@ -106,6 +106,11 @@ void Object::Update()
 	boundRad = Length(wMinPt - wMaxPt)*0.5f;
 }
 
+Object::Object()
+	:zOrder(Z_ORDER_STANDARD)
+{
+}
+
 void Object::Render()const
 {
 	vs->Apply();
