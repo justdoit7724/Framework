@@ -177,42 +177,35 @@ TestScene::TestScene(IGraphic* graphic)
 	canvas = new UICanvas(SCREEN_WIDTH, SCREEN_HEIGHT);
 
 	/*dLight = new DirectionalLight(
-		XMFLOAT3(0.4f, 0.4f, 0.4f),
-		XMFLOAT3(0.7f, 0.7f, 0.7f),
-		XMFLOAT3(0.7f, 0.7f, 0.7f),
+		XMFLOAT3(0.1f, 0.1f, 0.1f),
+		XMFLOAT3(0.9f, 0.9f, 0.9f),
+		XMFLOAT3(0.9f, 0.9f, 0.9f),
 		XMFLOAT3(0.707f, -0.707f, 0));*/
-	/*pLight = new PointLight(
-		XMFLOAT3(0.5f, 0.5f, 0.5f),
-		XMFLOAT3(0.7f, 0.7f, 0.7f),
-		XMFLOAT3(0.7f, 0.7f, 0.7f),
+	pLight = new PointLight(
+		XMFLOAT3(0.1f, 0.1f, 0.1f),
+		XMFLOAT3(0.9f, 0.9f, 0.9f),
+		XMFLOAT3(0.8f, 0.8f, 0.8f),
 		200, XMFLOAT3(0.01f, 0.001f, 0.0005f), XMFLOAT3(0,0,0)
-	);*/
-	pLight2 = new PointLight(
+	);
+	/*pLight2 = new PointLight(
 		XMFLOAT3(0.15f, 0.15f, 0.15f),
 		XMFLOAT3(0.6f, 0.6f, 0.6f),
 		XMFLOAT3(0.7f, 0.7f, 0.7f),
-		200, XMFLOAT3(0.01f, 0.001f, 0.0005f), XMFLOAT3(0, 0, 0)
-	);
+		XMFLOAT3(0, 0, 0), 200, XMFLOAT3(0.05f, 0.01f, 0.001f)
+	);*/
 
 	TextureMgr::Instance()->Load("rock" ,"Data\\Texture\\rock.jpg");
 	TextureMgr::Instance()->Load("rock_normal", "Data\\Texture\\rock_normal.jpg");
 	TextureMgr::Instance()->Load("simple", "Data\\Texture\\sample.jpg");
-	TextureMgr::Instance()->Load("simple2", "Data\\Texture\\sample2.jpg");
-	TextureMgr::Instance()->Load("normal", "Data\\Texture\\default_normal.png");
 	ID3D11ShaderResourceView* pbrSRV= TextureMgr::Instance()->Get("rock");
-	ID3D11ShaderResourceView* pbrNormal= TextureMgr::Instance()->Get("rock_normal");
-	ID3D11ShaderResourceView* simpleSRV= TextureMgr::Instance()->Get("simple");
-	ID3D11ShaderResourceView* simpleSRV2= TextureMgr::Instance()->Get("simple2");
-	ID3D11ShaderResourceView* defaultNormal = TextureMgr::Instance()->Get("normal");
+	ID3D11ShaderResourceView* pbrNormal= TextureMgr::Instance()->Get("rock_normal");;
+	ID3D11ShaderResourceView* simpleSRV= TextureMgr::Instance()->Get("simple");;
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-	NDMapping(&aoNDRTV, &aoNDSRV, &aoDSV, aoVp);
+	NDMapping(&aoNDRTV, &aoNDSRV, &aoNDDSV, aoVp);
 	ScreenMapping(&aoRTV, &aoSRV);
 	ScreenMapping(&aoBlurRTV, &aoBlurSRV);
 	ScreenMapping(&aoBlur2RTV, &aoBlur2SRV);
-
-	canvas->Add("ssao", XMFLOAT2(0, 0), 300, 300, 0.5, aoBlur2SRV);
 
 	aoMapVS = new VShader("AOVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
 	aoMapVS->AddCB(0, 1, sizeof(XMMATRIX) * 4);
@@ -246,12 +239,6 @@ TestScene::TestScene(IGraphic* graphic)
 	ZeroMemory(&noDS_desc, sizeof(D3D11_DEPTH_STENCIL_DESC));
 	noDS_desc.DepthEnable = false;
 	noDsState = new DepthStencilState(&noDS_desc);
-	D3D11_DEPTH_STENCIL_DESC equalDS_desc;
-	ZeroMemory(&equalDS_desc, sizeof(D3D11_DEPTH_STENCIL_DESC));
-	equalDS_desc.DepthEnable = true;
-	equalDS_desc.DepthFunc = D3D11_COMPARISON_EQUAL;
-	equalDS_desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
-	equalDsState = new DepthStencilState(&equalDS_desc);
 	blendState = new BlendState(nullptr);
 	aoBlurVS = new VShader("BlurAOVS.cso", aoILayout, ARRAYSIZE(aoILayout));
 	aoBlurPS = new PShader("BlurAOPS.cso");
@@ -280,26 +267,22 @@ TestScene::TestScene(IGraphic* graphic)
 				float interval = 12.5;
 				XMFLOAT3 scale = XMFLOAT3(10, 10, 10);
 				XMFLOAT3 offset = XMFLOAT3(scale.x,0,scale.z)* (N / 2);
-				Object* cube = new Object(new Cube(), simpleSRV2, defaultNormal);
+				Object* cube = new Object(new Cube(), pbrSRV, pbrNormal);
 				cube->transform->SetScale(scale);
 				cube->transform->SetTranslation(XMFLOAT3(x * interval,5.0f + y * interval, z * interval)-offset);
 				AddObj(cube);
 			}
 		}
 	}
-	flor = new Object(new Quad(), simpleSRV, defaultNormal);
+	flor = new Object(new Quad(), pbrSRV, pbrNormal);
 	flor->transform->SetScale(100, 100, 1);
 	flor->transform->SetRot(UP, FORWARD);
 	AddObj(flor);
 
 	mesh = new nanosuit();
 	mesh->SetScale(XMFLOAT3(3, 3, 3));
-	for (auto obj : mesh->objs)
-	{
-		//AddObj(obj);
-	}
 
-	//Debugging::Instance()->EnableGrid(10);
+	Debugging::Instance()->EnableGrid(10);
 }
 
 TestScene::~TestScene()
@@ -311,10 +294,8 @@ TestScene::~TestScene()
 
 void TestScene::Update(float elapsed, float spf)
 {
-	if(pLight)
-		pLight->Update();
+	pLight->Update();
 	timer->Update();
-
 
 	float elaped = timer->Elapsed();
 	if (dLight)
@@ -330,7 +311,7 @@ void TestScene::Update(float elapsed, float spf)
 	{
 		XMFLOAT3 pt = XMFLOAT3(
 			cos(elaped * 0.6f) * 20,
-			0.5f,
+			25,
 			sin(elaped * 0.6f) * 20);
 		pLight->SetPos(pt);
 		//Debugging::Instance()->Mark(pt, 1.5f, Colors::WhiteSmoke);
@@ -339,15 +320,14 @@ void TestScene::Update(float elapsed, float spf)
 	{
 		XMFLOAT3 pt = XMFLOAT3(
 			cos(elaped * 0.15f) * 15,
-			cos(elaped*0.1f) * 2,
+			cos(elaped) * 3,
 			sin(elaped * 0.15f) * 25);
 		pLight2->SetPos(pt);
-		//Debugging::Instance()->Mark(pt, 1.5f, Colors::Red);
-		//Debugging::Instance()->Draw("Pos = ", pt, 10, 10);
+		Debugging::Instance()->Mark(pt, 1.5f, Colors::Red);
 	}
 
-	Scene::Update(elaped, spf);
 	FrustumCulling(CameraMgr::Instance()->Main());
+	Scene::Update(elaped, spf);
 
 	// first -------------------------------------------------------------
 	XMMATRIX projMat= CameraMgr::Instance()->Main()->ProjMat(Z_ORDER_STANDARD);
@@ -357,10 +337,10 @@ void TestScene::Update(float elapsed, float spf)
 	DX_DContext->PSSetShaderResources(0, 1, &nullSRV);
 	DX_DContext->PSSetShaderResources(1, 1, &nullSRV);
 	DX_DContext->ClearRenderTargetView(aoNDRTV, defaultColor);
-	DX_DContext->ClearDepthStencilView(aoDSV, D3D11_CLEAR_DEPTH, 1.0, NULL);
-	DX_DContext->OMSetRenderTargets(1, &aoNDRTV, aoDSV);
+	DX_DContext->ClearDepthStencilView(aoNDDSV, D3D11_CLEAR_DEPTH, 1.0, NULL);
+	DX_DContext->OMSetRenderTargets(1, &aoNDRTV, aoNDDSV);
 	aoMapPS->Apply();
-	for (auto obj :drawObjs)
+	for (auto obj :mesh->objs)
 	{
 		XMMATRIX transf[4];
 		transf[0] = obj->transform->WorldMatrix();
@@ -398,8 +378,6 @@ void TestScene::Update(float elapsed, float spf)
 	DX_DContext->Draw(4, 0);
 	// First Blur -----------------------------------------------------------------
 	DX_DContext->ClearRenderTargetView(aoBlurRTV, defaultColor);
-	DX_DContext->PSSetShaderResources(0, 1, &nullSRV);
-	DX_DContext->PSSetShaderResources(1, 1, &nullSRV);
 	DX_DContext->OMSetRenderTargets(1, &aoBlurRTV, nullptr);
 	aoBlurVS->Apply();
 	aoBlurPS->WriteSRV(0, aoNDSRV);
@@ -410,9 +388,9 @@ void TestScene::Update(float elapsed, float spf)
 	noDsState->Apply();
 	DX_DContext->Draw(4, 0);
 	// Second blur -----------------------------------------------------------------------
-	DX_DContext->ClearRenderTargetView(aoBlur2RTV, defaultColor);
-	DX_DContext->PSSetShaderResources(3, 1, &nullSRV);
-	DX_DContext->OMSetRenderTargets(1, &aoBlur2RTV, nullptr);
+	/*DX_DContext->ClearRenderTargetView(aoBlur2RTV, defaultColor);
+	DX_DContext->OMSetRenderTargets(1, &aoBlur2RTV, nullptr);*/
+	graphic->RestoreRTV();
 	aoBlurVS->Apply();
 	aoBlurPS->WriteSRV(0, aoNDSRV);
 	aoBlurPS->WriteSRV(1, aoBlurSRV);
@@ -422,22 +400,17 @@ void TestScene::Update(float elapsed, float spf)
 	noDsState->Apply();
 	DX_DContext->Draw(4, 0);
 	//////////////////////////////////////////////////////////////////////
-	ID3D11RenderTargetView* defaultRTV = /*graphic->RenderTargetView()*/nullptr;
-	DX_DContext->OMSetRenderTargets(1, &defaultRTV, aoDSV);
-	graphic->RestoreRTV();
-
-	DX_DContext->PSSetShaderResources(3, 1, &aoBlur2SRV);
 
 	canvas->Update(timer->SPF());
 }
 
 void TestScene::Render(const Camera* camera, UINT sceneDepth)const
 {
-	DirectionalLight::Apply();
+	/*DirectionalLight::Apply();
 	PointLight::Apply();
 	SpotLight::Apply();
 
 	Scene::Render(camera, sceneDepth);
 
-	canvas->Render();
+	canvas->Render();*/
 }

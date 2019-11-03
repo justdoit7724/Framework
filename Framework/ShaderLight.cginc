@@ -17,8 +17,7 @@ cbuffer POINT_LIGHT : register(b1)
     float4 p_Diffuse[LIGHT_MAX_EACH];
     float4 p_Specular[LIGHT_MAX_EACH];
     float4 p_Pos[LIGHT_MAX_EACH];
-    // enabled,range
-    float4 p_Info[LIGHT_MAX_EACH]; 
+    float4 p_Info[LIGHT_MAX_EACH]; // enabled,range
     float4 p_Att[LIGHT_MAX_EACH];
 };
 cbuffer SPOT_LIGHT : register(b2)
@@ -85,7 +84,7 @@ void ComputePointLight(float3 pos, float3 normal, float3 toEye, out float4 ambie
 
         //flatten for avoiding dynamic branch
         [flatten]
-        if (diffuseFactor > -0.01f)
+        if (diffuseFactor > 0.0f)
         {
             float3 v = reflect(-lightVec, normal);
             float specFactor = pow(saturate(dot(v, toEye)), mSpecular.w);

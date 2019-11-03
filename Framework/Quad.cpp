@@ -10,10 +10,6 @@ Quad::Quad()
 	OBJ_QUAD[1].n = FORWARD;
 	OBJ_QUAD[2].n = FORWARD;
 	OBJ_QUAD[3].n = FORWARD;
-	OBJ_QUAD[0].tangent = -RIGHT;
-	OBJ_QUAD[1].tangent = -RIGHT;
-	OBJ_QUAD[2].tangent = -RIGHT;
-	OBJ_QUAD[3].tangent = -RIGHT;
 	OBJ_QUAD[0].pos= XMFLOAT3(-0.5, -0.5, 0);
 	OBJ_QUAD[0].tex = XMFLOAT2(1, 1);
 	OBJ_QUAD[1].pos= XMFLOAT3(-0.5, 0.5, 0);
