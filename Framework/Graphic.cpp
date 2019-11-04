@@ -21,7 +21,7 @@ Graphic::Graphic(HWND _hwnd)
 	scd.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 	scd.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
 
-	scd.SampleDesc.Count = 8;
+	scd.SampleDesc.Count = 1;
 	scd.SampleDesc.Quality = 0;
 
 	scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
