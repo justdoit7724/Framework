@@ -2,10 +2,12 @@
 #include "Geometrics.h"
 #include "DX_info.h"
 
-#define SHADER_REG_PS_DIRECTIONAL_LIGHT 0
-#define SHADER_REG_PS_POINT_LIGHT 1
-#define SHADER_REG_PS_SPOT_LIGHT 2
+#define SHADER_REG_PS_CB_DIRECTIONAL_LIGHT 0
+#define SHADER_REG_PS_CB_POINT_LIGHT 1
+#define SHADER_REG_PS_CB_SPOT_LIGHT 2
 
+#define SHADER_REG_PS_SRV_CM 0
+#define SHADER_REG_PS_SRV_SSAO 3
 
 static const D3D11_INPUT_ELEMENT_DESC simple_ILayouts[] =
 {

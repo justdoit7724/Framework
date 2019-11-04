@@ -64,4 +64,5 @@ float4 main(PS_INPUT input) :SV_Target
 
     float access = 1 - occlusionSum/14.0f;
     return float4(access.xxx, 1);
+
 }
