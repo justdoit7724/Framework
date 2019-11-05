@@ -236,6 +236,8 @@ void SSAO::DrawNormalDepth(const Camera* camera, const std::vector<Object*>& obj
 	DX_DContext->RSSetViewports(1, &vp);
 	DX_DContext->ClearRenderTargetView(ndRTV.Get(), defaultColor);
 	DX_DContext->ClearDepthStencilView(dsv.Get(), D3D11_CLEAR_DEPTH, 1.0, NULL);
+	ID3D11ShaderResourceView* nullSRV = nullptr;
+	DX_DContext->PSSetShaderResources(3, 1, &nullSRV);
 	DX_DContext->OMSetRenderTargets(1, ndRTV.GetAddressOf(), dsv.Get());
 	ndPS->Apply();
 	blendState->Apply();

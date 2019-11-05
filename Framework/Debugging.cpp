@@ -260,17 +260,18 @@ void Debugging::CameraMove(float spf) {
 	static float angleY = 0;
 	static XMFLOAT2 prevMousePt;
 	const float angleSpeed = 3.141592f * 0.2f;
-	if (Mouse::Instance()->IsRightDown())
+	XMFLOAT2 mPt = Mouse::Instance()->Pos();
+	if (Mouse::Instance()->RightState()==MOUSE_STATE_PRESSING)
 	{
-		angleY += angleSpeed * spf * (Mouse::Instance()->X() - prevMousePt.x);
-		angleX += angleSpeed * spf * (Mouse::Instance()->Y() - prevMousePt.y);
+		angleY += angleSpeed * spf * (mPt.x - prevMousePt.x);
+		angleX += angleSpeed * spf * (mPt.y - prevMousePt.y);
 	}
-	prevMousePt.x = Mouse::Instance()->X();
-	prevMousePt.y = Mouse::Instance()->Y();
+	prevMousePt.x = mPt.x;
+	prevMousePt.y = mPt.y;
 	const XMMATRIX rotMat = XMMatrixRotationX(angleX) * XMMatrixRotationY(angleY);
 	debugCam->transform->SetTranslation(newPos);
-	XMFLOAT3 f = FORWARD * rotMat;
-	XMFLOAT3 u = UP * rotMat;
+	XMFLOAT3 f = MultiplyDir(FORWARD, rotMat);
+	XMFLOAT3 u = MultiplyDir(UP, rotMat);
 	debugCam->transform->SetRot(f, u);
 	debugCam->Update();
 }
@@ -384,9 +385,9 @@ void Debugging::Render()
 		XMFLOAT4 textPos = XMFLOAT4(text.pos.x, text.pos.y, text.pos.z,1);
 		if (text.is3D)
 		{
-			textPos = textPos * vp_mat;
+			textPos = Multiply(textPos, vp_mat);
 			textPos /= textPos.w;
-			textPos = textPos * textMat;
+			textPos = Multiply(textPos, textMat);
 
 			if (textPos.z < 0)
 			{

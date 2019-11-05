@@ -7,6 +7,7 @@
 #include "SceneMgr.h"
 #include "Timer.h"
 #include "TextureMgr.h"
+#include "Mouse.h"
 
 #include "TestScene.h"
 #include "DCMScene.h"
@@ -46,6 +47,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 			worldTimer->Update();
 
 			SceneMgr::Instance()->Process(worldTimer->Elapsed(), worldTimer->SPF());
+
+			Mouse::Instance()->Update();
 
 			graphic->Present();
 

@@ -21,7 +21,7 @@ protected:
 
 	//debug move to private
 	std::vector<Object*> drawObjs;
-private:
 	std::vector<Object*> objs;
+private:
 };
 

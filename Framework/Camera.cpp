@@ -3,6 +3,7 @@
 #include "CameraMgr.h"
 #include "Scene.h"
 #include "Debugging.h"
+#include "Mouse.h"
 
 #define Z_ORDER_MAX 5
 
@@ -229,4 +230,27 @@ void Camera::Visualize()
 	Debugging::Instance()->PtLine(eBR, eBL);
 	Debugging::Instance()->PtLine(eBL, eTL);
 	
+}
+
+void Camera::Pick(OUT Geometrics::Ray* ray)const
+{
+	XMFLOAT2 scnPos = Mouse::Instance()->Pos();
+
+	// vPos at z which is on d 
+	XMFLOAT3 vDir = Normalize(XMFLOAT3(
+		((scnPos.x * 2) / SCREEN_WIDTH - 1) * aspectRatio,
+		-(scnPos.y * 2) / SCREEN_HEIGHT + 1,
+		1 / tan(verticalRadian * 0.5f)));
+
+	XMFLOAT3 f = transform->GetForward();
+	XMFLOAT3 u = transform->GetUp();
+	XMFLOAT3 r = transform->GetRight();
+	XMMATRIX invVDirMat = XMMATRIX(
+		r.x, r.y, r.z, 0,
+		u.x, u.y, u.z, 0,
+		f.x, f.y, f.z, 0,
+		0, 0, 0, 1);
+		
+	ray->o = transform->GetPos();
+	ray->d = MultiplyDir(vDir, invVDirMat);
 }

@@ -85,23 +85,24 @@ TestScene::TestScene(IGraphic* graphic)
 				Object* cube = new Object(new Cube(), simpleSRV2, defaultNormal);
 				cube->transform->SetScale(scale);
 				cube->transform->SetTranslation(XMFLOAT3(x * interval,5.0f + y * interval, z * interval)-offset);
-				//AddObj(cube);
+				AddObj(cube);
+				//Debugging::Instance()->Visualize(cube);
 			}
 		}
 	}
 	Object* flor = new Object(new Quad(), simpleSRV, defaultNormal);
 	flor->transform->SetScale(100, 100, 1);
 	flor->transform->SetRot(UP, FORWARD);
-	//AddObj(flor);
+	AddObj(flor);
 
 	nanosuit* mesh = new nanosuit();
 	mesh->SetScale(XMFLOAT3(3, 3, 3));
 	for (auto obj : mesh->objs)
 	{
-		AddObj(obj);
+		//AddObj(obj);
 	}
 
-	//Debugging::Instance()->EnableGrid(10);
+	Debugging::Instance()->EnableGrid(10);
 }
 
 TestScene::~TestScene()
@@ -120,10 +121,10 @@ void TestScene::Update(float elapsed, float spf)
 	float elaped = timer->Elapsed();
 	if (dLight)
 	{
-		XMFLOAT3 pt = XMFLOAT3(
+		XMFLOAT3 pt = MultiplyDir(XMFLOAT3(
 			150,
 			150,
-			0) * XMMatrixRotationY(elaped * 0.1f);
+			0), XMMatrixRotationY(elaped * 0.1f));
 		XMFLOAT3 dir = Normalize(XMFLOAT3(-pt.x, -pt.y, -pt.z));
 		dLight->SetDir(dir);
 	}
@@ -151,6 +152,38 @@ void TestScene::Update(float elapsed, float spf)
 
 	const Camera* mainCam = CameraMgr::Instance()->Main();
 	FrustumCulling(mainCam);
+
+	Geometrics::Ray ray;
+	if (Mouse::Instance()->LeftState()==MOUSE_STATE_DOWN)
+	{
+		mainCam->Pick(&ray);
+		for (int i = 0; i < drawObjs.size();)
+		{
+			if (IntersectRaySphere(ray, drawObjs[i]->Bound()))
+			{
+				int a = 0;
+				for (int j = 0; j < objs.size(); ++j)
+				{
+					if (objs[j] == drawObjs[i])
+					{
+						objs.erase(objs.begin() + j);
+						goto AAA;
+					}
+				}
+			}
+			else
+				++i;
+		}
+	}
+
+	AAA:
+
+	/*Geometrics::Ray pickRay;
+	mainCam->Pick(&pickRay.o, &pickRay.d);
+	for (int i = 0; i < drawObjs.size(); ++i)
+	{
+
+	}*/
 
 	ssao->Update(mainCam, drawObjs);
 

@@ -2,6 +2,7 @@
 #include <string>
 #include "DX_info.h"
 #include "Network.h"
+#include "Geometrics.h"
 
 class Camera;
 struct Frustum;
@@ -42,6 +43,7 @@ public:
 	RasterizerState* rsState = nullptr;
 
 	const int zOrder;
+	Geometrics::Sphere Bound() { return bound; }
 
 protected:
 	Object();
@@ -50,8 +52,6 @@ protected:
 	XMMATRIX worldMat;
 	XMMATRIX nMat;
 
-	float boundRad;
-	XMFLOAT3 boundlMinPt;
-	XMFLOAT3 boundlMaxPt;
+	Geometrics::Sphere bound;
 };
 

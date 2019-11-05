@@ -170,7 +170,7 @@ void Mirror::UpdatePerspective(const Camera* eye)
 		FR, UF, FF, 0,
 		Dot(m,mRight)+mC.x, Dot(m,mUp)+mC.y, Dot(m,mForward)+mC.z, 1);
 
-	perspective->transform->SetTranslation(eye->transform->GetPos() * perspectiveTranslationMat);
+	perspective->transform->SetTranslation(Multiply(eye->transform->GetPos(), perspectiveTranslationMat));
 	
 	XMFLOAT3 ppos = perspective->transform->GetPos();
 	XMFLOAT3 n = transform->GetForward();
@@ -181,5 +181,5 @@ void Mirror::UpdatePerspective(const Camera* eye)
 		0,0,0,1
 	);
 	
-	perspective->transform->SetRot(eye->transform->GetForward() * perspectiveRotMat);
+	perspective->transform->SetRot(MultiplyDir(eye->transform->GetForward(), perspectiveRotMat));
 }

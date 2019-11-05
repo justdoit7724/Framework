@@ -100,10 +100,13 @@ Object::~Object()
 
 void Object::Update()
 {
+	XMFLOAT3 boundlMinPt;
+	XMFLOAT3 boundlMaxPt;
 	shape->GetLBound(&boundlMinPt, &boundlMaxPt);
 	XMFLOAT3 wMinPt = boundlMinPt * transform->GetScale();
 	XMFLOAT3 wMaxPt = boundlMaxPt * transform->GetScale();
-	boundRad = Length(wMinPt - wMaxPt)*0.5f;
+	bound.p = transform->GetPos();
+	bound.rad = Length(wMinPt - wMaxPt) * 0.5f;
 }
 
 Object::Object()
@@ -144,19 +147,18 @@ void Object::RenderGeom() const
 
 bool Object::IsInsideFrustum(const Frustum* frustum) const
 {
-	XMFLOAT3 center = transform->GetPos();
 	return (
-		IntersectInPlaneSphere(frustum->sidePt, frustum->rN, center, boundRad) &&
-		IntersectInPlaneSphere(frustum->sidePt, frustum->lN, center, boundRad) &&
-		IntersectInPlaneSphere(frustum->sidePt, frustum->tN, center, boundRad) &&
-		IntersectInPlaneSphere(frustum->sidePt, frustum->bN, center, boundRad) &&
-		IntersectInPlaneSphere(frustum->fPt, frustum->fN, center, boundRad) &&
-		IntersectInPlaneSphere(frustum->nPt, frustum->nN, center, boundRad));
+		IntersectInPlaneSphere(frustum->sidePt, frustum->rN, bound) &&
+		IntersectInPlaneSphere(frustum->sidePt, frustum->lN, bound) &&
+		IntersectInPlaneSphere(frustum->sidePt, frustum->tN, bound) &&
+		IntersectInPlaneSphere(frustum->sidePt, frustum->bN, bound) &&
+		IntersectInPlaneSphere(frustum->fPt, frustum->fN, bound) &&
+		IntersectInPlaneSphere(frustum->nPt, frustum->nN, bound));
 }
 
 void Object::Visualize()
 {
 	if(IsInsideFrustum(CameraMgr::Instance()->Main()->GetFrustum()))
-		Debugging::Instance()->Mark(transform->GetPos(), boundRad, Colors::LightGreen);
+		Debugging::Instance()->Mark(bound.p, bound.rad, Colors::LightGreen);
 }
 

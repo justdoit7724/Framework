@@ -1,6 +1,8 @@
 #pragma once
 #include "DX_info.h"
 #include "Network.h"
+#include "Geometrics.h"
+
 
 enum FRAME_KIND {
 	FRAME_KIND_PERSPECTIVE,
@@ -40,6 +42,7 @@ public:
 	XMMATRIX VMat()const { return viewMat; }
 	XMMATRIX ProjMat(int zOrder)const {return projMats[zOrder];}
 	XMMATRIX ShadowPMat()const { return stdProjMat; }
+	void Pick(OUT Geometrics::Ray* ray)const;
 
 	const std::string key;
 
