@@ -192,6 +192,9 @@
     <ClCompile Include="SSAO.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Glass.cpp">
+      <Filter>Tasks</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Debugging.h">
@@ -361,6 +364,9 @@
     </ClInclude>
     <ClInclude Include="SSAO.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Glass.h">
+      <Filter>Tasks</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -161,6 +161,7 @@
     <ClCompile Include="DepthStencilState.cpp" />
     <ClCompile Include="DisplacementObject.cpp" />
     <ClCompile Include="DynamicCubeMap.cpp" />
+    <ClCompile Include="Glass.cpp" />
     <ClCompile Include="Graphic.cpp" />
     <ClCompile Include="HDTester.cpp" />
     <ClCompile Include="Hill.cpp" />
@@ -204,6 +205,7 @@
     <ClInclude Include="CameraMgr.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="Cube.h" />
+    <ClInclude Include="Glass.h" />
     <ClInclude Include="MeshLoader.h" />
     <ClInclude Include="nanosuit.h" />
     <ClInclude Include="ObjectPooling.h" />

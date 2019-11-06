@@ -1,21 +1,22 @@
-#include "DynamicCubeMap.h"
+#include "Glass.h"
 #include "Camera.h"
 #include "Transform.h"
 #include "Shape.h"
 #include "Shader.h"
 #include "ShaderFormat.h"
 #include "Scene.h"
+#include "Game_info.h"
 
-DynamicCubeMap::DynamicCubeMap(Scene* captureScene, Shape* shape)
+Glass::Glass(Scene* captureScene, Shape* shape)
 	:Object(
 		shape,
-		"CMVS.cso", Std_ILayouts,ARRAYSIZE(Std_ILayouts),
-		"","","",
-		"CMPS.cso",
+		"GlassVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts),
+		"", "", "",
+		"GlassPS.cso",
 		Z_ORDER_STANDARD),
 	captureScene(captureScene)
 {
-	vs->AddCB(0, 1, sizeof(SHADER_STD_TRANSF));
+	vs->AddCB(0, 1, sizeof(XMMATRIX)*3);
 	ps->AddSRV(0, 1);
 	ps->AddCB(3, 1, sizeof(XMFLOAT4));
 	D3D11_SAMPLER_DESC sampDesc;
@@ -29,9 +30,9 @@ DynamicCubeMap::DynamicCubeMap(Scene* captureScene, Shape* shape)
 	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	ps->AddSamp(0, 1, &sampDesc);
 
-	const UINT captureWidth = 1024;
-	const UINT captureHeight = 1024;
-	
+	const UINT captureWidth = SCREEN_WIDTH;
+	const UINT captureHeight = SCREEN_HEIGHT;
+
 	D3D11_TEXTURE2D_DESC capture_desc;
 	capture_desc.Width = captureWidth;
 	capture_desc.Height = captureHeight;
@@ -42,7 +43,7 @@ DynamicCubeMap::DynamicCubeMap(Scene* captureScene, Shape* shape)
 	capture_desc.Usage = D3D11_USAGE_DEFAULT;
 	capture_desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 	capture_desc.CPUAccessFlags = 0;
-	capture_desc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE |D3D11_RESOURCE_MISC_GENERATE_MIPS;
+	capture_desc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
 	ComPtr<ID3D11Texture2D> captureTex;
 	r_assert(
 		DX_Device->CreateTexture2D(&capture_desc, nullptr, captureTex.GetAddressOf())
@@ -60,14 +61,6 @@ DynamicCubeMap::DynamicCubeMap(Scene* captureScene, Shape* shape)
 			DX_Device->CreateRenderTargetView(captureTex.Get(), &crtv_desc, captureRTV[i].GetAddressOf())
 		);
 	}
-	D3D11_SHADER_RESOURCE_VIEW_DESC srv_desc;
-	srv_desc.Format = capture_desc.Format;
-	srv_desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
-	srv_desc.TextureCube.MostDetailedMip = 0;
-	srv_desc.TextureCube.MipLevels = -1;
-	r_assert(
-		DX_Device->CreateShaderResourceView(captureTex.Get(), &srv_desc, &captureSRV)
-	);
 
 	D3D11_TEXTURE2D_DESC cds_desc;
 	cds_desc.Width = captureWidth;
@@ -88,11 +81,19 @@ DynamicCubeMap::DynamicCubeMap(Scene* captureScene, Shape* shape)
 	cdsv_desc.Format = cds_desc.Format;
 	cdsv_desc.Flags = 0;
 	cdsv_desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-	cdsv_desc.Texture2D.MipSlice=0;
+	cdsv_desc.Texture2D.MipSlice = 0;
 	r_assert(
 		DX_Device->CreateDepthStencilView(cdsTex.Get(), &cdsv_desc, &captureDSV)
 	);
 
+	D3D11_SHADER_RESOURCE_VIEW_DESC srv_desc;
+	srv_desc.Format = capture_desc.Format;
+	srv_desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
+	srv_desc.TextureCube.MostDetailedMip = 0;
+	srv_desc.TextureCube.MipLevels = 1;
+	r_assert(
+		DX_Device->CreateShaderResourceView(captureTex.Get(), &srv_desc, &captureSRV)
+	);
 
 
 	captureViewport.TopLeftX = 0.0f;
@@ -116,7 +117,7 @@ DynamicCubeMap::DynamicCubeMap(Scene* captureScene, Shape* shape)
 	captureCamera[5]->transform->SetRot(-FORWARD, UP);
 }
 
-DynamicCubeMap::~DynamicCubeMap()
+Glass::~Glass()
 {
 	for (int i = 0; i < 6; ++i)
 	{
@@ -124,7 +125,7 @@ DynamicCubeMap::~DynamicCubeMap()
 	}
 }
 
-void DynamicCubeMap::Render(const Camera* camera, UINT sceneDepth) const
+void Glass::Render(const Camera* camera, UINT sceneDepth) const
 {
 	//debug for now, do not render
 	if (sceneDepth > 0)
@@ -153,7 +154,7 @@ void DynamicCubeMap::Render(const Camera* camera, UINT sceneDepth) const
 		DX_DContext->RSSetViewports(1, &captureViewport);
 
 		captureScene->FrustumCulling(captureCamera[i]);
-		captureScene->Render(captureCamera[i], sceneDepth+1);
+		captureScene->Render(captureCamera[i], sceneDepth + 1);
 	}
 	DX_DContext->GenerateMips(captureSRV.Get());
 	DX_DContext->OMSetRenderTargets(1, &oriRTV, oriDSV);
