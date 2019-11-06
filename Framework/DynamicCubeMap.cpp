@@ -17,7 +17,7 @@ DynamicCubeMap::DynamicCubeMap(Scene* captureScene, Shape* shape)
 {
 	vs->AddCB(0, 1, sizeof(SHADER_STD_TRANSF));
 	ps->AddSRV(0, 1);
-	ps->AddCB(0, 1, sizeof(XMFLOAT4));
+	ps->AddCB(3, 1, sizeof(XMFLOAT4));
 	D3D11_SAMPLER_DESC sampDesc;
 	ZeroMemory(&sampDesc, sizeof(D3D11_SAMPLER_DESC));
 	sampDesc.Filter = D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR;
@@ -149,7 +149,7 @@ void DynamicCubeMap::Render(const Camera* camera, UINT sceneDepth) const
 		DX_DContext->ClearRenderTargetView(captureRTV[i].Get(), Colors::Transparent);
 		DX_DContext->ClearDepthStencilView(captureDSV.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-		DX_DContext->OMSetRenderTargets(1, captureRTV->GetAddressOf(), captureDSV.Get());
+		DX_DContext->OMSetRenderTargets(1, captureRTV[i].GetAddressOf(), captureDSV.Get());
 		DX_DContext->RSSetViewports(1, &captureViewport);
 
 		captureScene->FrustumCulling(captureCamera[i]);
@@ -161,7 +161,7 @@ void DynamicCubeMap::Render(const Camera* camera, UINT sceneDepth) const
 	vs->WriteCB(0, &SHADER_STD_TRANSF(transform->WorldMatrix(), camera->VMat() * camera->ProjMat(zOrder), XMMatrixIdentity()));
 	ps->WriteSRV(0, captureSRV.Get());
 	XMFLOAT3 eye = camera->transform->GetPos();
-	ps->WriteCB(0, &XMFLOAT4(eye.x, eye.y, eye.z, 0));
+	ps->WriteCB(3, &XMFLOAT4(eye.x, eye.y, eye.z, 0));
 
 	Object::Render();
 }

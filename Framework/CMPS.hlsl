@@ -2,7 +2,7 @@ TextureCube cubeMap : register(t0);
 
 sampler samp : register(s0);
 
-cbuffer CB_EYE : register(b0)
+cbuffer CB_EYE : register(b3)
 {
     float4 eye;
 }

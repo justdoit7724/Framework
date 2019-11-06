@@ -74,6 +74,11 @@ TestScene::TestScene(IGraphic* graphic)
 	ID3D11ShaderResourceView* defaultNormal = TextureMgr::Instance()->Get("normal");
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+	Object* dcm = new DynamicCubeMap(this, new Sphere(3));
+	dcm->transform->SetScale(20, 20, 20);
+	dcm->transform->SetTranslation(-40, 40, 40);
+	AddObj(dcm);
+
 	const int N = 3;
 	for (int z = 0; z < N; ++z) {
 		for (int y = 0; y < N; ++y) {
@@ -92,7 +97,7 @@ TestScene::TestScene(IGraphic* graphic)
 	Object* flor = new Object(new Quad(), simpleSRV, defaultNormal);
 	flor->transform->SetScale(100, 100, 1);
 	flor->transform->SetRot(UP, FORWARD);
-	AddObj(flor);
+	//AddObj(flor);
 
 	nanosuit* mesh = new nanosuit();
 	mesh->SetScale(XMFLOAT3(3, 3, 3));
@@ -147,35 +152,12 @@ void TestScene::Update(float elapsed, float spf)
 		//Debugging::Instance()->Draw("Pos = ", pt, 10, 10);
 	}
 
-	Scene::Update(elaped, spf);
 
 	const Camera* mainCam = CameraMgr::Instance()->Main();
 	FrustumCulling(mainCam);
 
-	Geometrics::Ray ray;
-	if (Mouse::Instance()->LeftState()==MOUSE_STATE_DOWN)
-	{
-		mainCam->Pick(&ray);
-		for (int i = 0; i < drawObjs.size();)
-		{
-			if (IntersectRaySphere(ray, drawObjs[i]->Bound()))
-			{
-				int a = 0;
-				for (int j = 0; j < objs.size(); ++j)
-				{
-					if (objs[j] == drawObjs[i])
-					{
-						objs.erase(objs.begin() + j);
-						goto AAA;
-					}
-				}
-			}
-			else
-				++i;
-		}
-	}
-
-	AAA:
+	Scene::Update(elaped, spf);
+	
 
 	/*Geometrics::Ray pickRay;
 	mainCam->Pick(&pickRay.o, &pickRay.d);
@@ -184,7 +166,7 @@ void TestScene::Update(float elapsed, float spf)
 
 	}*/
 
-	ssao->Update(mainCam, drawObjs);
+	//ssao->Update(mainCam, drawObjs);
 
 	canvas->Update(timer->SPF());
 }
