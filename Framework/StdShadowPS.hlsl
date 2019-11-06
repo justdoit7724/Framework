@@ -30,9 +30,12 @@ float3 GetBodyNormal(float2 tex)
     float3 ori_tex = bodyNTex.Sample(bodySampleState, float3(tex, 0)).xyz;
     return (ori_tex * 2 - 1);
 }
-void ComputeReflection(float3 normal, float3 look, out float4 color)
+float3 ComputeMetalic(float3 color, float3 normal, float3 look)
 {
-    color = cm_tex.Sample(cmSampleState, reflect(look, normal)) * mReflection;
+    //debug modify metalic to mReflection
+    float3 cm = cm_tex.Sample(cmSampleState, reflect(look, normal)).xyz;
+    float metalic = 1.0f;
+    return Lerp(color, cm, metalic);
 }
 
 struct PS_INPUT
@@ -60,6 +63,7 @@ float4 main(PS_INPUT input) : SV_Target
     
     float3 toEye = normalize(eyePos.xyz - input.wPos);
     float3 tex = bodyTex.Sample(bodySampleState, float3(input.tex, 0)).xyz;
+    tex = ComputeMetalic(tex, wNormal, -toEye);
     float4 ambient = 0;
     float4 diffuse = 0;
     float4 specular = 0;
@@ -69,25 +73,24 @@ float4 main(PS_INPUT input) : SV_Target
 
     float shadowFactor = PointLightShadowFactor(input.normal, input.wPos, p_Pos[0].xyz, pointLightShadowTex, cmSampleState, input.pMatZElem);
     
-    ComputeDirectionalLight(wNormal, toEye, A, D, S);
+    //debug set roughness
+    ComputeDirectionalLight(wNormal, toEye,0, A, D, S);
     ambient += A;
     diffuse += D * shadowFactor;
     specular += S * shadowFactor;
-    ComputePointLight(input.wPos, wNormal, toEye, A, D, S);
+    ComputePointLight(input.wPos, wNormal, toEye,0, A, D, S);
     ambient += A;
     diffuse += D * shadowFactor;
     specular += S * shadowFactor;
-    ComputeSpotLight(input.wPos, wNormal, toEye, A, D, S);
+    ComputeSpotLight(input.wPos, wNormal, toEye,0, A, D, S);
     ambient += A;
     diffuse += D * shadowFactor;
     specular += S * shadowFactor;
-    ComputeReflection(wNormal, -toEye, reflection);
     
     ambient *= float4(tex, 1);
     diffuse *= float4(tex, 1);
     
     float4 color = ambient + diffuse + specular;
-    color = Lerp(color, reflection, mReflection.w);
     
     color.w = mDiffuse.a;
     return color;

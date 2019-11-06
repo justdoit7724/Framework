@@ -16,7 +16,7 @@ PT_Obj::PT_Obj(Shape* shape, const XMMATRIX& vp_mat, XMFLOAT3 dif, float transp,
 	ps->AddCB(3, 1, sizeof(XMFLOAT4));
 	ps->AddCB(4, 1, sizeof(SHADER_MATERIAL));
 	ps->AddCB(5, 1, sizeof(float));
-	ps->WriteCB(4, &SHADER_MATERIAL(dif, transp, amb, spec, sp, refl));
+	ps->WriteCB(4, &SHADER_MATERIAL(dif, transp, amb, spec, sp));
 
 	ps->AddSRV(0, 1);
 	ps->AddSRV(1, 1);

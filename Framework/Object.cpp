@@ -43,7 +43,7 @@ Object::Object(Shape* shape, ID3D11ShaderResourceView* diffSRV, ID3D11ShaderReso
 	ps->AddCB(3, 1, sizeof(XMFLOAT4));
 	ps->AddCB(4, 1, sizeof(SHADER_MATERIAL));
 	ps->AddCB(5, 1, sizeof(float));
-	ps->WriteCB(4,&SHADER_MATERIAL(XMFLOAT3(1,1,1), 1, XMFLOAT3(0.2, 0.2, 0.2), XMFLOAT3(1, 1, 1), 4, XMFLOAT3(0,0,0)));
+	ps->WriteCB(4,&SHADER_MATERIAL(XMFLOAT3(0.7,0.7,0.7), 1, XMFLOAT3(0.2, 0.2, 0.2), XMFLOAT3(0.8, 0.8, 0.8), 64));
 	
 
 	D3D11_SAMPLER_DESC cmSamp_desc;
@@ -71,10 +71,8 @@ Object::Object(Shape* shape, ID3D11ShaderResourceView* diffSRV, ID3D11ShaderReso
 	body_desc.MinLOD = 0;
 	body_desc.MaxLOD = D3D11_FLOAT32_MAX;
 	ps->AddSamp(1, 1, &body_desc);
-	ps->AddSRV(0, 1);
 	ps->AddSRV(1, 1);
 	ps->AddSRV(2, 1);
-	ps->WriteSRV(0, nullptr);
 	ps->WriteSRV(1, diffSRV);
 	ps->WriteSRV(2, normalSRV);
 

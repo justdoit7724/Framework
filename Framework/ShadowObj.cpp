@@ -12,7 +12,7 @@ ShadowObj::ShadowObj(Shape* shape, ID3D11ShaderResourceView* bodySRV, ID3D11Shad
 	ps->AddCB(3, 1, sizeof(XMFLOAT4));
 	ps->AddCB(4, 1, sizeof(SHADER_MATERIAL));
 	ps->AddCB(5, 1, sizeof(float));
-	ps->WriteCB(4, &SHADER_MATERIAL(XMFLOAT3(1,1,1), 1, XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), 4, XMFLOAT3(0, 0, 0)));
+	ps->WriteCB(4, &SHADER_MATERIAL(XMFLOAT3(1,1,1), 1, XMFLOAT3(1, 1, 1), XMFLOAT3(1, 1, 1), 16));
 
 
 	D3D11_SAMPLER_DESC samplerDesc;

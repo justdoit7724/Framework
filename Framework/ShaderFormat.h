@@ -94,7 +94,7 @@ struct VS_Simple_Property
 
 #define LIGHT_ENABLED 1
 #define LIGHT_DISABLED 0
-#define LIGHT_MAX_EACH 10
+#define LIGHT_MAX_EACH 5
 struct SHADER_DIRECTIONAL_LIGHT {
 
 	SHADER_DIRECTIONAL_LIGHT() {
@@ -150,11 +150,10 @@ private:
 	XMFLOAT4 diffuse;
 	XMFLOAT4 ambient;
 	XMFLOAT4 specular;
-	XMFLOAT4 reflection;
 
 public:
-	SHADER_MATERIAL(XMFLOAT3 d, float transparency, XMFLOAT3 a, XMFLOAT3 s, float sp, XMFLOAT3 r)
-		:diffuse(XMFLOAT4(d.x, d.y, d.z, transparency)),ambient(XMFLOAT4(a.x, a.y, a.z, 0)),specular(XMFLOAT4(s.x, s.y, s.z, sp)), reflection(XMFLOAT4(r.x, r.y, r.z, 0)){}
+	SHADER_MATERIAL(XMFLOAT3 d, float transparency, XMFLOAT3 a, XMFLOAT3 s, float sp)
+		:diffuse(XMFLOAT4(d.x, d.y, d.z, transparency)),ambient(XMFLOAT4(a.x, a.y, a.z, 0)),specular(XMFLOAT4(s.x, s.y, s.z, sp)){}
 	void SetTransparency(float t)
 	{
 		diffuse.w = t;

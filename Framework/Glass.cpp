@@ -43,7 +43,7 @@ Glass::Glass(Scene* captureScene, Shape* shape)
 	capture_desc.Usage = D3D11_USAGE_DEFAULT;
 	capture_desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 	capture_desc.CPUAccessFlags = 0;
-	capture_desc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
+	capture_desc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE|D3D11_RESOURCE_MISC_GENERATE_MIPS;
 	ComPtr<ID3D11Texture2D> captureTex;
 	r_assert(
 		DX_Device->CreateTexture2D(&capture_desc, nullptr, captureTex.GetAddressOf())
@@ -61,6 +61,15 @@ Glass::Glass(Scene* captureScene, Shape* shape)
 			DX_Device->CreateRenderTargetView(captureTex.Get(), &crtv_desc, captureRTV[i].GetAddressOf())
 		);
 	}
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC srv_desc;
+	srv_desc.Format = capture_desc.Format;
+	srv_desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
+	srv_desc.TextureCube.MostDetailedMip = 0;
+	srv_desc.TextureCube.MipLevels = -1;
+	r_assert(
+		DX_Device->CreateShaderResourceView(captureTex.Get(), &srv_desc, &captureSRV)
+	);
 
 	D3D11_TEXTURE2D_DESC cds_desc;
 	cds_desc.Width = captureWidth;
@@ -84,15 +93,6 @@ Glass::Glass(Scene* captureScene, Shape* shape)
 	cdsv_desc.Texture2D.MipSlice = 0;
 	r_assert(
 		DX_Device->CreateDepthStencilView(cdsTex.Get(), &cdsv_desc, &captureDSV)
-	);
-
-	D3D11_SHADER_RESOURCE_VIEW_DESC srv_desc;
-	srv_desc.Format = capture_desc.Format;
-	srv_desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
-	srv_desc.TextureCube.MostDetailedMip = 0;
-	srv_desc.TextureCube.MipLevels = 1;
-	r_assert(
-		DX_Device->CreateShaderResourceView(captureTex.Get(), &srv_desc, &captureSRV)
 	);
 
 

@@ -37,7 +37,7 @@ DisplacementObject::DisplacementObject(
 	ps->AddCB(3, 1, sizeof(XMFLOAT4));
 	ps->AddCB(4, 1, sizeof(SHADER_MATERIAL));
 	ps->AddCB(5, 1, sizeof(float));
-	ps->WriteCB(4, &SHADER_MATERIAL(mDiffuse, 1, mAmbient, mSpec, sp, XMFLOAT3(0, 0, 0)));
+	ps->WriteCB(4, &SHADER_MATERIAL(mDiffuse, 1, mAmbient, mSpec, sp));
 	ps->AddSRV(0, 1);
 	ps->AddSRV(1, 1);
 	ps->AddSRV(2, 1);
