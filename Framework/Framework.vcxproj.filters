@@ -519,5 +519,11 @@
     <FxCompile Include="SSAO_BlurVS.hlsl">
       <Filter>Tasks</Filter>
     </FxCompile>
+    <FxCompile Include="GlassVS.hlsl">
+      <Filter>Tasks</Filter>
+    </FxCompile>
+    <FxCompile Include="GlassPS.hlsl">
+      <Filter>Tasks</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

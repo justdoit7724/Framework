@@ -62,7 +62,6 @@ TestScene::TestScene(IGraphic* graphic)
 	);*/
 
 	ssao = new SSAO();
-
 	TextureMgr::Instance()->Load("rock" ,"Data\\Texture\\rock.jpg");
 	TextureMgr::Instance()->Load("rock_normal", "Data\\Texture\\rock_normal.jpg");
 	TextureMgr::Instance()->Load("simple", "Data\\Texture\\sample.jpg");

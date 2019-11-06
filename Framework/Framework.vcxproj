@@ -261,6 +261,8 @@
     <None Include="ShaderShadow.cginc" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="GlassPS.hlsl" />
+    <FxCompile Include="GlassVS.hlsl" />
     <FxCompile Include="SSAO_AcessPS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
