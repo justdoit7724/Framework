@@ -74,15 +74,15 @@ float4 main(PS_INPUT input) : SV_Target
     float shadowFactor = PointLightShadowFactor(input.normal, input.wPos, p_Pos[0].xyz, pointLightShadowTex, cmSampleState, input.pMatZElem);
     
     //debug set roughness
-    ComputeDirectionalLight(wNormal, toEye,0, A, D, S);
+    ComputeDirectionalLight(wNormal, toEye, A, D, S);
     ambient += A;
     diffuse += D * shadowFactor;
     specular += S * shadowFactor;
-    ComputePointLight(input.wPos, wNormal, toEye,0, A, D, S);
+    ComputePointLight(input.wPos, wNormal, toEye, A, D, S);
     ambient += A;
     diffuse += D * shadowFactor;
     specular += S * shadowFactor;
-    ComputeSpotLight(input.wPos, wNormal, toEye,0, A, D, S);
+    ComputeSpotLight(input.wPos, wNormal, toEye, A, D, S);
     ambient += A;
     diffuse += D * shadowFactor;
     specular += S * shadowFactor;

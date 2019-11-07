@@ -38,7 +38,7 @@ cbuffer MATERIAL : register(b4)
     float4 mAmbient;
     float4 mSpecular;
 };
-void ComputeDirectionalLight(float3 normal, float3 toEye, float roughness, out float4 ambient, out float4 diffuse, out float4 spec)
+void ComputeDirectionalLight(float3 normal, float3 toEye, out float4 ambient, out float4 diffuse, out float4 spec)
 {
     ambient = float4(0.0f, 0.0f, 0.0f, 0.0f);
     diffuse = float4(0.0f, 0.0f, 0.0f, 0.0f);
@@ -53,13 +53,12 @@ void ComputeDirectionalLight(float3 normal, float3 toEye, float roughness, out f
         float diffuseFactor = max(0.0f, dot(-d_Dir[i].xyz, normal));
     
         float3 v = reflect(d_Dir[i].xyz, normal);
-        float smoothness = 1 - roughness;
-        float specFactor = pow(saturate(dot(v, toEye)) * smoothness, mSpecular.w * smoothness);
+        float specFactor = pow(saturate(dot(v, toEye)), mSpecular.w);
         diffuse += diffuseFactor * mDiffuse * d_Diffuse[i];
         spec += specFactor * mSpecular * d_Specular[i];
     }
 }
-void ComputePointLight(float3 pos, float3 normal, float3 toEye, float roughness, out float4 ambient, out float4 diffuse, out float4 spec)
+void ComputePointLight(float3 pos, float3 normal, float3 toEye, out float4 ambient, out float4 diffuse, out float4 spec)
 {
     ambient = float4(0.0f, 0.0f, 0.0f, 0.0f);
     diffuse = float4(0.0f, 0.0f, 0.0f, 0.0f);
@@ -80,8 +79,7 @@ void ComputePointLight(float3 pos, float3 normal, float3 toEye, float roughness,
         float diffuseFactor = max(0.0f, dot(lightVec, normal));
         
         float3 hVec = normalize(toEye + lightVec);
-        float smoothness = 1 - roughness;
-        float specFactor = pow(saturate(dot(hVec, normal)), mSpecular.w * smoothness);
+        float specFactor = pow(saturate(dot(hVec, normal)), mSpecular.w);
         float att = 1.0f / dot(p_Att[i].xyz, float3(1.0f, d, d * d));
         
         tmpD = diffuseFactor * mDiffuse * p_Diffuse[i] * att;
@@ -92,7 +90,7 @@ void ComputePointLight(float3 pos, float3 normal, float3 toEye, float roughness,
         spec += tmpS;
     }
 }
-void ComputeSpotLight(float3 pos, float3 normal, float3 toEye, float roughness, out float4 ambient, out float4 diffuse, out float4 spec)
+void ComputeSpotLight(float3 pos, float3 normal, float3 toEye, out float4 ambient, out float4 diffuse, out float4 spec)
 {
     ambient = float4(0.0f, 0.0f, 0.0f, 0.0f);
     diffuse = float4(0.0f, 0.0f, 0.0f, 0.0f);

@@ -55,30 +55,33 @@ float4 main(PS_INPUT input) : SV_Target
     float3 wNormal = normalize(mul(tNormal, tbn));
 
     float3 toEye = normalize(eyePos.xyz - input.wPos);
-    float roughness = roughnessTex.SampleLevel(samp, input.tex, 0).x;
+
     
     float4 ambient = 0;
     float4 diffuse = 0;
     float4 specular = 0;
     float4 reflection = 0;
     float4 A, D, S;
-    ComputeDirectionalLight(wNormal, toEye, roughness, A, D, S);
-    ambient += A;
-    diffuse += D;
-    specular += S;
-
-    ComputePointLight(input.wPos, wNormal, toEye, roughness, A, D, S);
+    //debug change
+    ComputeDirectionalLight(wNormal, toEye, A, D, S);
     ambient += A;
     diffuse += D;
     specular += S;
     
-    ComputeSpotLight(input.wPos, wNormal, toEye, roughness, A, D, S);
+    ComputePointLight(input.wPos, wNormal, toEye, A, D, S);
+    ambient += A;
+    diffuse += D;
+    specular += S;
+    
+    ComputeSpotLight(input.wPos, wNormal, toEye, A, D, S);
     ambient += A;
     diffuse += D;
     specular += S;
     
     float3 tex = diffuseTex.Sample(samp, input.tex).xyz;
+    
     tex = ComputeMetalic(tex, wNormal, -toEye, input.tex);
+
     float4x4 uvMat = float4x4(
         0.5, 0, 0, 0,
         0, -0.5, 0, 0,
@@ -88,8 +91,10 @@ float4 main(PS_INPUT input) : SV_Target
     float2 viewUV = input.pPos.xy / input.pPos.w;
     float ssao = ssaoTex.SampleLevel(samp, viewUV, 0).r;
     
-    diffuse *= float4(tex, 1);
-    ambient *= float4(tex, 1) * ssao;
+    float smoothness = 1 - roughnessTex.SampleLevel(samp, input.tex, 0).x;
+    specular *= smoothness;
+    diffuse = Lerp(diffuse, diffuse * float4(tex, 1), smoothness);
+    ambient = Lerp(ambient, ambient * float4(tex, 1), smoothness)*ssao;
     
     float4 color = ambient + diffuse + specular;
     color.w = mDiffuse.a;

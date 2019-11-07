@@ -36,6 +36,14 @@
 #include "SSAO.h"
 #include "nanosuit.h"
 
+ID3D11ShaderResourceView* pbrSRV;
+ID3D11ShaderResourceView* pbrNormal;
+ID3D11ShaderResourceView* pbrRough;
+ID3D11ShaderResourceView* simpleSRV;
+ID3D11ShaderResourceView* grassSRV;
+ID3D11ShaderResourceView* defaultNormal;
+ID3D11ShaderResourceView* cmSRV;
+
 TestScene::TestScene(IGraphic* graphic)
 	:Scene("Test"),
 	graphic(graphic)
@@ -43,11 +51,13 @@ TestScene::TestScene(IGraphic* graphic)
 	timer = new Timer();
 	canvas = new UICanvas(SCREEN_WIDTH, SCREEN_HEIGHT);
 
+	ssao = new SSAO();
+
 	dLight = new DirectionalLight(
-		XMFLOAT3(0.5f, 0.5f, 0.5f),
-		XMFLOAT3(0.7f, 0.7f, 0.7f),
-		XMFLOAT3(0.8f, 0.8f, 0.8f),
-		XMFLOAT3(0.707f, -0.707f, 0));
+		XMFLOAT3(1.5f, 1.5f, 1.5f),
+		XMFLOAT3(1.0f, 1.0f, 1.0f),
+		XMFLOAT3(1.0f, 1.0f, 1.0f),
+		XMFLOAT3(1.0f, 0.0f, 0));
 	/*pLight = new PointLight(
 		XMFLOAT3(0.5f, 0.5f, 0.5f),
 		XMFLOAT3(0.7f, 0.7f, 0.7f),
@@ -65,7 +75,7 @@ TestScene::TestScene(IGraphic* graphic)
 	TextureMgr::Instance()->Load("rock" ,"Data\\Texture\\rock.jpg");
 	TextureMgr::Instance()->Load("rock_normal", "Data\\Texture\\rock_normal.jpg");
 	TextureMgr::Instance()->Load("rock_rough", "Data\\Texture\\rock_rough.jpg");
-	TextureMgr::Instance()->Load("simple", "Data\\Texture\\heightmap2.jpg");
+	TextureMgr::Instance()->Load("simple", "Data\\Texture\\green_light.png");
 	TextureMgr::Instance()->Load("grass", "Data\\Texture\\grass.jpg");
 	TextureMgr::Instance()->Load("normal", "Data\\Texture\\default_normal.png");
 	std::vector<std::string> cms;
@@ -76,18 +86,15 @@ TestScene::TestScene(IGraphic* graphic)
 	cms.push_back("Data\\Texture\\cm_normal_pz.png");
 	cms.push_back("Data\\Texture\\cm_normal_nz.png");
 	TextureMgr::Instance()->LoadCM("skybox", cms);
-	ID3D11ShaderResourceView* pbrSRV= TextureMgr::Instance()->Get("rock");
-	ID3D11ShaderResourceView* pbrNormal= TextureMgr::Instance()->Get("rock_normal");
-	ID3D11ShaderResourceView* pbrRough= TextureMgr::Instance()->Get("rock_rough");
-	ID3D11ShaderResourceView* simpleSRV= TextureMgr::Instance()->Get("simple");
-	ID3D11ShaderResourceView* grassSRV= TextureMgr::Instance()->Get("grass");
-	ID3D11ShaderResourceView* defaultNormal = TextureMgr::Instance()->Get("normal");
-	ID3D11ShaderResourceView* cmSRV = TextureMgr::Instance()->Get("skybox");
+	pbrSRV= TextureMgr::Instance()->Get("rock");
+	pbrNormal= TextureMgr::Instance()->Get("rock_normal");
+	pbrRough= TextureMgr::Instance()->Get("rock_rough");
+	simpleSRV= TextureMgr::Instance()->Get("simple");
+	grassSRV= TextureMgr::Instance()->Get("grass");
+	defaultNormal = TextureMgr::Instance()->Get("normal");
+	cmSRV = TextureMgr::Instance()->Get("skybox");
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	DX_DContext->PSSetShaderResources(5, 1, &simpleSRV);
-	DX_DContext->PSSetShaderResources(4, 1, &pbrRough);
-	DX_DContext->PSSetShaderResources(0, 1, &cmSRV);
 	//canvas->Add("TEST", XMFLOAT2(0, 0), 300, 300, 0, grassSRV);
 
 	Object* dcm = new DynamicCubeMap(this, new Sphere(3));
@@ -95,16 +102,20 @@ TestScene::TestScene(IGraphic* graphic)
 	dcm->transform->SetTranslation(-40, 40, 40);
 	//AddObj(dcm);
 
-	const int N = 3;
+	const int N = 6;
 	for (int y = 0; y < N; ++y) {
 		for (int x = 0; x < N; ++x) {
 			float interval = 15;
 			XMFLOAT3 scale = XMFLOAT3(5, 5, 5);
 			XMFLOAT3 offset = XMFLOAT3(scale.x,0,scale.z)* (N / 2);
-			Object* cube = new Object(new Sphere(4), pbrSRV, defaultNormal);
+			Object* cube = new Object(new Sphere(4), simpleSRV, defaultNormal);
 			cube->transform->SetScale(scale);
 			cube->transform->SetTranslation(XMFLOAT3(x * interval,10.0f + y * interval, 0)-offset);
+			cube->ps->AddCB(6, 1, sizeof(XMFLOAT2));
+			float pbr[2] = { x / (float)N, y / (float)N };
+			cube->ps->WriteCB(6, pbr);
 			AddObj(cube);
+			
 			//Debugging::Instance()->Visualize(cube);
 		}
 	}
@@ -133,15 +144,15 @@ void TestScene::Update(float elapsed, float spf)
 	timer->Update();
 
 	float elaped = timer->Elapsed();
-	if (dLight)
+	/*if (dLight)
 	{
 		XMFLOAT3 pt = MultiplyDir(XMFLOAT3(
 			150,
-			150,
+			0,
 			0), XMMatrixRotationY(elaped * 0.5f));
 		XMFLOAT3 dir = Normalize(XMFLOAT3(-pt.x, -pt.y, -pt.z));
 		dLight->SetDir(dir);
-	}
+	}*/
 	if (pLight)
 	{
 		XMFLOAT3 pt = XMFLOAT3(
@@ -176,7 +187,12 @@ void TestScene::Update(float elapsed, float spf)
 
 	}*/
 
-	//ssao->Update(mainCam, drawObjs);
+	ssao->Update(mainCam, drawObjs);
+
+
+	DX_DContext->PSSetShaderResources(5, 1, &simpleSRV);
+	DX_DContext->PSSetShaderResources(4, 1, &pbrRough);
+	DX_DContext->PSSetShaderResources(0, 1, &cmSRV);
 
 	canvas->Update(timer->SPF());
 }
