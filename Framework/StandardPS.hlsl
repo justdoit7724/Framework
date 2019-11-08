@@ -2,6 +2,8 @@
 #include "ShaderInfo.cginc"
 #include "ShaderLight.cginc"
 
+#define REFRACTION_INDEX_GLASS 1.2
+
 cbuffer EYE : register(b3)
 {
     float4 eyePos;
@@ -30,10 +32,28 @@ float3 GetBodyNormal(float2 tex)
 }
 float3 ComputeMetalic(float3 color, float3 normal, float3 look, float2 uv)
 {
-    //debug modify metalic to mReflection
     float3 cm = cmTex.Sample(cmSamp, reflect(look, normal)).xyz;
     float metalic = metalicTex.SampleLevel(samp, uv, 0).x;
+    
     return Lerp(color, cm, metalic);
+}
+float3 Refract(float3 d, float3 n, float i)
+{
+    float3 newD = normalize(d - n);
+    return Lerp(d, newD, saturate(i - 1));
+}
+
+float3 ComputeTransparency(float3 color, float3 normal, float3 look)
+{
+    float3 rtex3d = Refract(look, normal, REFRACTION_INDEX_GLASS-0.02f);
+    float3 gtex3d = Refract(look, normal, REFRACTION_INDEX_GLASS);
+    float3 btex3d = Refract(look, normal, REFRACTION_INDEX_GLASS+0.02f);
+    float3 transpColor = float3(
+        cmTex.SampleLevel(cmSamp, rtex3d, 0).r,
+        cmTex.SampleLevel(cmSamp, gtex3d, 0).g,
+        cmTex.SampleLevel(cmSamp, btex3d, 0).b);
+
+    return Lerp(color, transpColor, 1 - mDiffuse.w);
 }
 
 struct PS_INPUT
@@ -54,7 +74,7 @@ float4 main(PS_INPUT input) : SV_Target
     float3 tNormal = GetBodyNormal(input.tex);
     float3 wNormal = normalize(mul(tNormal, tbn));
 
-    float3 toEye = normalize(eyePos.xyz - input.wPos);
+    float3 look = normalize(input.wPos-eyePos.xyz);
 
     
     float4 ambient = 0;
@@ -63,24 +83,27 @@ float4 main(PS_INPUT input) : SV_Target
     float4 reflection = 0;
     float4 A, D, S;
     //debug change
-    ComputeDirectionalLight(wNormal, toEye, A, D, S);
+    ComputeDirectionalLight(wNormal, -look, A, D, S);
     ambient += A;
     diffuse += D;
     specular += S;
     
-    ComputePointLight(input.wPos, wNormal, toEye, A, D, S);
+    ComputePointLight(input.wPos, wNormal, -look, A, D, S);
     ambient += A;
     diffuse += D;
     specular += S;
     
-    ComputeSpotLight(input.wPos, wNormal, toEye, A, D, S);
+    ComputeSpotLight(input.wPos, wNormal, -look, A, D, S);
     ambient += A;
     diffuse += D;
     specular += S;
     
     float3 tex = diffuseTex.Sample(samp, input.tex).xyz;
     
-    tex = ComputeMetalic(tex, wNormal, -toEye, input.tex);
+    tex = ComputeTransparency(tex, wNormal, look);
+    //debug
+    return float4(tex, 1);
+    tex = ComputeMetalic(tex, wNormal, look, input.tex);
 
     float4x4 uvMat = float4x4(
         0.5, 0, 0, 0,

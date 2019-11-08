@@ -97,6 +97,9 @@ TestScene::TestScene(IGraphic* graphic)
 
 	//canvas->Add("TEST", XMFLOAT2(0, 0), 300, 300, 0, grassSRV);
 
+	Object* cm = new Skybox(cmSRV);
+	AddObj(cm);
+
 	Object* dcm = new DynamicCubeMap(this, new Sphere(3));
 	dcm->transform->SetScale(20, 20, 20);
 	dcm->transform->SetTranslation(-40, 40, 40);
@@ -111,9 +114,6 @@ TestScene::TestScene(IGraphic* graphic)
 			Object* cube = new Object(new Sphere(4), simpleSRV, defaultNormal);
 			cube->transform->SetScale(scale);
 			cube->transform->SetTranslation(XMFLOAT3(x * interval,10.0f + y * interval, 0)-offset);
-			cube->ps->AddCB(6, 1, sizeof(XMFLOAT2));
-			float pbr[2] = { x / (float)N, y / (float)N };
-			cube->ps->WriteCB(6, pbr);
 			AddObj(cube);
 			
 			//Debugging::Instance()->Visualize(cube);

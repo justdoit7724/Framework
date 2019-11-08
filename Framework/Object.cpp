@@ -43,12 +43,12 @@ Object::Object(Shape* shape, ID3D11ShaderResourceView* diffSRV, ID3D11ShaderReso
 	ps->AddCB(3, 1, sizeof(XMFLOAT4));
 	ps->AddCB(4, 1, sizeof(SHADER_MATERIAL));
 	ps->AddCB(5, 1, sizeof(float));
-	ps->WriteCB(4,&SHADER_MATERIAL(XMFLOAT3(0.7,0.7,0.7), 1, XMFLOAT3(0.2, 0.2, 0.2), XMFLOAT3(0.8, 0.8, 0.8), 32));
+	ps->WriteCB(4,&SHADER_MATERIAL(XMFLOAT3(0.7,0.7,0.7), 0.0, XMFLOAT3(0.2, 0.2, 0.2), XMFLOAT3(0.8, 0.8, 0.8), 32));
 	
 
 	D3D11_SAMPLER_DESC cmSamp_desc;
 	ZeroMemory(&cmSamp_desc, sizeof(D3D11_SAMPLER_DESC));
-	cmSamp_desc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+	cmSamp_desc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
 	cmSamp_desc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
 	cmSamp_desc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
 	cmSamp_desc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
