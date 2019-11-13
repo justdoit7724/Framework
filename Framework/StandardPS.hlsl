@@ -97,13 +97,17 @@ float4 main(PS_INPUT input) : SV_Target
     ambient += A;
     diffuse += D;
     specular += S;
+
+    float3 color = 0;
+    float3 light = specular.xyz + diffuse.xyz + ambient.xyz;
     
     float3 tex = diffuseTex.Sample(samp, input.tex).xyz;
-    
     tex = ComputeTransparency(tex, wNormal, look);
+    
+    color = light * tex;
+
     //debug
-    return float4(tex, 1);
-    tex = ComputeMetalic(tex, wNormal, look, input.tex);
+    return float4(color, 1);
 
     float4x4 uvMat = float4x4(
         0.5, 0, 0, 0,
@@ -114,13 +118,15 @@ float4 main(PS_INPUT input) : SV_Target
     float2 viewUV = input.pPos.xy / input.pPos.w;
     float ssao = ssaoTex.SampleLevel(samp, viewUV, 0).r;
     
+
+    tex = ComputeMetalic(tex, wNormal, look, input.tex);
+
     float smoothness = 1 - roughnessTex.SampleLevel(samp, input.tex, 0).x;
     specular *= smoothness;
     diffuse = Lerp(diffuse, diffuse * float4(tex, 1), smoothness);
     ambient = Lerp(ambient, ambient * float4(tex, 1), smoothness)*ssao;
     
-    float4 color = ambient + diffuse + specular;
-    color.w = mDiffuse.a;
+    color = ambient + diffuse + specular;
     
-    return color;
+    return float4(color, mDiffuse.w);
 }
