@@ -20,10 +20,12 @@ class Scene;
 
 struct Frustum
 {
-	XMFLOAT3 sidePt, nPt, fPt;
-	XMFLOAT3 nN, fN;
-	XMFLOAT3 rN, lN;
-	XMFLOAT3 tN, bN;
+	Geometrics::PlaneInf front;
+	Geometrics::PlaneInf back;
+	Geometrics::PlaneInf right;
+	Geometrics::PlaneInf left;
+	Geometrics::PlaneInf top;
+	Geometrics::PlaneInf bottom;
 };
 
 class Camera : public IDebug

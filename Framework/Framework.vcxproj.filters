@@ -66,9 +66,6 @@
     <ClCompile Include="Mouse.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Medium.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -123,9 +120,6 @@
     <ClCompile Include="DepthComplexity.cpp">
       <Filter>Tasks</Filter>
     </ClCompile>
-    <ClCompile Include="Billboard.cpp">
-      <Filter>Tasks</Filter>
-    </ClCompile>
     <ClCompile Include="RasterizerState.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -133,9 +127,6 @@
       <Filter>Tasks</Filter>
     </ClCompile>
     <ClCompile Include="Scene.cpp">
-      <Filter>Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="TestScene.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
     <ClCompile Include="CameraMgr.cpp">
@@ -148,9 +139,6 @@
       <Filter>Manager</Filter>
     </ClCompile>
     <ClCompile Include="DebuggingScene.cpp">
-      <Filter>Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="DCMScene.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
     <ClCompile Include="DynamicCubeMap.cpp">
@@ -177,9 +165,6 @@
     <ClCompile Include="ShadowObj.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BindingTestScene.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -194,6 +179,9 @@
     </ClCompile>
     <ClCompile Include="Glass.cpp">
       <Filter>Tasks</Filter>
+    </ClCompile>
+    <ClCompile Include="Lobby.cpp">
+      <Filter>Scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -219,9 +207,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Mouse.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Medium.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Geometrics.h">
@@ -287,22 +272,13 @@
     <ClInclude Include="DepthComplexity.h">
       <Filter>Tasks</Filter>
     </ClInclude>
-    <ClInclude Include="Billboard.h">
-      <Filter>Tasks</Filter>
-    </ClInclude>
     <ClInclude Include="RasterizerState.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="HDTester.h">
       <Filter>Tasks</Filter>
     </ClInclude>
-    <ClInclude Include="InputLayoutBuilder.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Scene.h">
-      <Filter>Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="TestScene.h">
       <Filter>Scene</Filter>
     </ClInclude>
     <ClInclude Include="CameraMgr.h">
@@ -315,9 +291,6 @@
       <Filter>Manager</Filter>
     </ClInclude>
     <ClInclude Include="DebuggingScene.h">
-      <Filter>Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="DCMScene.h">
       <Filter>Scene</Filter>
     </ClInclude>
     <ClInclude Include="DynamicCubeMap.h">
@@ -344,14 +317,8 @@
     <ClInclude Include="ShadowObj.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BindingTestScene.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ShaderFormat.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ObjectPooling.h">
-      <Filter>DesignPattern</Filter>
     </ClInclude>
     <ClInclude Include="Texture.h">
       <Filter>Header Files</Filter>
@@ -367,6 +334,12 @@
     </ClInclude>
     <ClInclude Include="Glass.h">
       <Filter>Tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="ObserverDP.h">
+      <Filter>DesignPattern</Filter>
+    </ClInclude>
+    <ClInclude Include="Lobby.h">
+      <Filter>Scene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -416,15 +389,6 @@
     </FxCompile>
     <FxCompile Include="GS.hlsl">
       <Filter>hlsl</Filter>
-    </FxCompile>
-    <FxCompile Include="BillboardVS.hlsl">
-      <Filter>Tasks</Filter>
-    </FxCompile>
-    <FxCompile Include="BillboardGS.hlsl">
-      <Filter>Tasks</Filter>
-    </FxCompile>
-    <FxCompile Include="BillboardPS.hlsl">
-      <Filter>Tasks</Filter>
     </FxCompile>
     <FxCompile Include="DepthComplexUIPS.hlsl">
       <Filter>Tasks</Filter>
@@ -484,27 +448,6 @@
       <Filter>Tasks</Filter>
     </FxCompile>
     <FxCompile Include="ShadowMapVS.hlsl">
-      <Filter>Tasks</Filter>
-    </FxCompile>
-    <FxCompile Include="BindingTestVS.hlsl">
-      <Filter>Tasks</Filter>
-    </FxCompile>
-    <FxCompile Include="BindingTestPS.hlsl">
-      <Filter>Tasks</Filter>
-    </FxCompile>
-    <FxCompile Include="BindingTest2VS.hlsl">
-      <Filter>Tasks</Filter>
-    </FxCompile>
-    <FxCompile Include="BindingTestHS.hlsl">
-      <Filter>Tasks</Filter>
-    </FxCompile>
-    <FxCompile Include="BindingTestDS.hlsl">
-      <Filter>Tasks</Filter>
-    </FxCompile>
-    <FxCompile Include="BindingTestGS.hlsl">
-      <Filter>Tasks</Filter>
-    </FxCompile>
-    <FxCompile Include="BindingTest2PS.hlsl">
       <Filter>Tasks</Filter>
     </FxCompile>
     <FxCompile Include="SSAO_ND_VS.hlsl">

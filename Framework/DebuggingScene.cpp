@@ -4,6 +4,7 @@
 DebuggingScene::DebuggingScene()
 	:Scene("Debugging")
 {
+	Debugging::Instance();
 }
 
 void DebuggingScene::Update(float elapsed,float spf)

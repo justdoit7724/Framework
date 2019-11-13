@@ -150,12 +150,12 @@ void Object::RenderGeom() const
 bool Object::IsInsideFrustum(const Frustum* frustum) const
 {
 	return (
-		IntersectInPlaneSphere(frustum->sidePt, frustum->rN, bound) &&
-		IntersectInPlaneSphere(frustum->sidePt, frustum->lN, bound) &&
-		IntersectInPlaneSphere(frustum->sidePt, frustum->tN, bound) &&
-		IntersectInPlaneSphere(frustum->sidePt, frustum->bN, bound) &&
-		IntersectInPlaneSphere(frustum->fPt, frustum->fN, bound) &&
-		IntersectInPlaneSphere(frustum->nPt, frustum->nN, bound));
+		IntersectInPlaneSphere(frustum->front, bound) &&
+		IntersectInPlaneSphere(frustum->back, bound) &&
+		IntersectInPlaneSphere(frustum->right, bound) &&
+		IntersectInPlaneSphere(frustum->left, bound) &&
+		IntersectInPlaneSphere(frustum->top, bound) &&
+		IntersectInPlaneSphere(frustum->bottom, bound));
 }
 
 void Object::Visualize()

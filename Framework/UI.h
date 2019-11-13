@@ -1,7 +1,10 @@
 #pragma once
 #include <string>
 #include <unordered_map>
+#include <vector>
 #include "DX_info.h"
+#include "ObserverDP.h"
+#include "Geometrics.h"
 
 class Transform;
 class Camera;
@@ -17,31 +20,48 @@ class BlendState;
 struct SHADER_STD_TRANSF;
 class UI
 {
-private:
-
-	friend class UICanvas;
-
-	// screen coordinate
-	UI(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView * srv);
-	// depth complexity
-	~UI();
-	void Update();
-
-	void Render(const Camera* camera)const;
-
-	ID3D11SamplerState* texSampState=nullptr;
-
 public:
+	UI(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView * srv);
+	~UI();
+
+protected:
+
 	Quad* quad;
 	Transform* transform;
 	VShader* vs;
-	HShader* hs;
-	DShader* ds;
-	GShader* gs;
 	PShader* ps;
 	DepthStencilState* dsState;
 	BlendState* blendState;
+	ID3D11ShaderResourceView* srv;
+
+	XMFLOAT2 size;
+
+	friend class UICanvas;
+	virtual void Update();
+
+	virtual void Render(const Camera* camera)const;
 };
+
+class UIButton : public UI, public Subject
+{
+public:
+	UIButton(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, XMFLOAT2 size, ID3D11ShaderResourceView* idleSRV, ID3D11ShaderResourceView* hoverSRV, ID3D11ShaderResourceView* pressSRV);
+	~UIButton();
+private:
+	friend class UICanvas;
+
+	void Update() override ;
+
+	void Render(const Camera* camera)const override;
+
+
+	ID3D11ShaderResourceView*const idleSRV;
+	ID3D11ShaderResourceView*const hoverSRV;
+	ID3D11ShaderResourceView*const pressSRV;
+
+	Geometrics::Plane bound;
+};
+
 
 class UICanvas
 {
@@ -51,9 +71,9 @@ public:
 
 	// screen coordinate
 	void Add(std::string id, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView* srv, UINT maxSliceIdx = 1, UINT slicePerSec = 1);
+	void AddButton(std::string id, XMFLOAT2 pivot, XMFLOAT2 size, ID3D11ShaderResourceView* idleSRV, ID3D11ShaderResourceView* hoverSRV, ID3D11ShaderResourceView* pressSRV);
 
 	void Remove(std::string id);
-	UI* Get(std::string id);
 
 	void Update(float spf);
 	void Render();

@@ -153,15 +153,12 @@ void Camera::Update()
 		-up * tri * f +
 		forward * f);
 
-	frustum.nPt = p + forward * n;
-	frustum.fPt = p + forward * f;
-	frustum.sidePt = p;
-	frustum.nN = forward;
-	frustum.fN = -forward;
-	frustum.tN = Cross(right, trDir);
-	frustum.bN = Cross(blDir, right);
-	frustum.rN = Cross(-up, trDir);
-	frustum.lN = Cross(up, blDir);
+	frustum.front = Geometrics::PlaneInf(p + forward * f, -forward);
+	frustum.back = Geometrics::PlaneInf(p + forward * n, forward);
+	frustum.left = Geometrics::PlaneInf(p, Cross(up, blDir));
+	frustum.right = Geometrics::PlaneInf(p, Cross(-up, trDir));
+	frustum.top = Geometrics::PlaneInf(p, Cross(right, trDir));
+	frustum.bottom = Geometrics::PlaneInf(p, Cross(blDir, right));
 
 	SetView();
 }

@@ -9,10 +9,8 @@
 #include "TextureMgr.h"
 #include "Mouse.h"
 
-#include "TestScene.h"
-#include "DCMScene.h"
+#include "Lobby.h"
 #include "DebuggingScene.h"
-#include "BindingTestScene.h"
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 
@@ -24,7 +22,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 #ifdef _DEBUG
 	Scene* debugScene = new DebuggingScene();
 #endif // !_DEBUG
-	Scene* testScene = new TestScene(graphic);
+	Scene* testScene = new Lobby();
 	//Scene* dcmScene = new DCMScene(graphic, testScene);
 	//Scene* bindScene = new BindingTestScene();
 

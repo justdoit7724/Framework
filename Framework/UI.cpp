@@ -4,13 +4,16 @@
 #include "Camera.h"
 #include "Game_info.h"
 #include "ShaderFormat.h"
+#include "CameraMgr.h"
 
 #include "Transform.h"
 #include "DepthStencilState.h"
 #include "BlendState.h"
+#include "Mouse.h"
 
 
 UI::UI(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView * srv)
+	:size(XMFLOAT2(width, height)), srv(srv)
 {
 	assert(0 <= zDepth && zDepth <= 1);
 
@@ -24,9 +27,6 @@ UI::UI(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float
 	vs = new VShader("UIVS.cso", 
 		Std_ILayouts,
 		ARRAYSIZE(Std_ILayouts));
-	hs = new HShader();
-	ds = new DShader();
-	gs = new GShader();
 	ps = new PShader("UIPS.cso");
 	vs->AddCB(0, 1, sizeof(SHADER_STD_TRANSF));
 
@@ -40,7 +40,6 @@ UI::UI(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float
 	samplerDesc.MaxLOD = 1;
 	ps->AddSamp(0, 1, &samplerDesc);
 	ps->AddSRV(0, 1);
-	ps->WriteSRV(0, srv);
 
 	blendState = new BlendState(nullptr);
 
@@ -51,14 +50,9 @@ UI::~UI()
 {
 	delete quad;
 	delete vs;
-	delete hs;
-	delete ds;
-	delete gs;
 	delete ps;
 	delete dsState;
 	delete blendState;
-	if(texSampState)
-	texSampState->Release();
 }
 
 void UI::Update()
@@ -72,15 +66,44 @@ void UI::Render(const Camera* camera)const
 	vs->WriteCB(0, &SHADER_STD_TRANSF(transform->WorldMatrix(), vp, XMMatrixIdentity()));
 	
 	vs->Apply();
-	hs->Apply();
-	ds->Apply();
-	gs->Apply();
+	DX_DContext->HSSetShader(nullptr, nullptr, 0);
+	DX_DContext->DSSetShader(nullptr, nullptr, 0);
+	DX_DContext->GSSetShader(nullptr, nullptr, 0);
+	ps->WriteSRV(0, srv);
 	ps->Apply();
 	blendState->Apply();
 	dsState->Apply();
 	quad->Apply();
 }
 
+
+UIButton::UIButton(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, XMFLOAT2 size, ID3D11ShaderResourceView* idleSRV, ID3D11ShaderResourceView* hoverSRV, ID3D11ShaderResourceView* pressSRV)
+	:UI(canvasWidth, canvasHeight, pivot, size.x, size.y, 0, nullptr), idleSRV(idleSRV), hoverSRV(hoverSRV), pressSRV(pressSRV)
+{
+	bound = Geometrics::Plane(transform->GetPos(),
+		transform->GetForward(),
+		transform->GetUp(),
+		size * 0.5f);
+
+}
+
+UIButton::~UIButton()
+{
+}
+void UIButton::Update()
+{
+	bound = Geometrics::Plane(transform->GetPos(),
+		transform->GetForward(),
+		transform->GetUp(),
+		size * 0.5f);
+
+	Geometrics::Ray ray;
+	CameraMgr::Instance()->Main()->Pick(&ray);
+}
+void UIButton::Render(const Camera* camera) const
+{
+	UI::Render(camera);
+}
 UICanvas::UICanvas(float width, float height)
 	: totalWidth(width), totalHeight(height)
 {
@@ -107,6 +130,11 @@ void UICanvas::Add(std::string id, XMFLOAT2 pivot, float width, float height, fl
 	}
 }
 
+void UICanvas::AddButton(std::string id, XMFLOAT2 pivot, XMFLOAT2 size, ID3D11ShaderResourceView* idleSRV, ID3D11ShaderResourceView* hoverSRV, ID3D11ShaderResourceView* pressSRV)
+{
+	UIs.insert(std::pair<std::string, UI*>(id, new UIButton(totalWidth, totalHeight, pivot, size, idleSRV, hoverSRV, pressSRV)));
+}
+
 void UICanvas::Remove(std::string id)
 {
 	if (UIs.find(id) != UIs.end())
@@ -116,14 +144,6 @@ void UICanvas::Remove(std::string id)
 	}
 }
 
-UI * UICanvas::Get(std::string id)
-{
-	auto i = UIs.find(id);
-
-	assert(i != UIs.end());
-
-	return i->second;
-}
 
 void UICanvas::Update(float spf)
 {
@@ -140,4 +160,3 @@ void UICanvas::Render()
 		ui.second->Render(camera);
 	}
 }
-

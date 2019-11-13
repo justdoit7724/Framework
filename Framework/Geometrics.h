@@ -197,6 +197,30 @@ namespace Geometrics {
 		Sphere() {}
 		Sphere(XMFLOAT3 p, float rad) :p(p), rad(rad) {}
 	};
+	class PlaneInf {
+	public:
+		XMFLOAT3 p;
+		XMFLOAT3 n;
+		PlaneInf() {}
+		PlaneInf(XMFLOAT3 p, XMFLOAT3 n) :p(p), n(n) {}
+	};
+	class Plane {
+	public:
+		XMFLOAT3 c;
+		XMFLOAT3 normal;
+		XMFLOAT3 up;
+		XMFLOAT3 right;
+		XMFLOAT2 rad;
+		Plane() {}
+		Plane(XMFLOAT3 c, XMFLOAT3 normal, XMFLOAT3 up, XMFLOAT2 rad) :c(c), normal(normal),up(up), right(Cross(up,normal)), rad(rad) {}
+	};
+	class Bound {
+	public:
+		XMFLOAT3 center;
+		XMFLOAT3 rad;
+		Bound() {}
+		Bound(XMFLOAT3 c, XMFLOAT3 rad) :center(c), rad(rad) {}
+	};
 	class Ray {
 
 	public:
@@ -212,21 +236,36 @@ namespace Geometrics {
 		}
 	};
 
-	
+	inline bool IntersectInPlaneSphere(PlaneInf plane, Sphere sph)
+	{
+		float proj = Dot(sph.p - plane.p, plane.n);
+
+		return ((proj + sph.rad) > 0);
+	}
+	// infinite ray
+	inline bool IntersectRaySphere(Ray ray, Sphere sph)
+	{
+		XMFLOAT3 toRayPt = ray.o - sph.p;
+		XMFLOAT3 tempRight = Normalize(Cross(ray.d, toRayPt));
+		XMFLOAT3 dir = Cross(tempRight, ray.d);
+
+		return (Dot(toRayPt, dir) < sph.rad);
+	}
+	// considered infinite ray & both plane side
+	inline bool IntersectRayPlane(Ray ray, Plane plane, XMFLOAT3* pt)
+	{
+		float dirDot = Dot(ray.d, plane.normal);
+		if (dirDot == 0)
+			return false;
+
+		float t = Dot(plane.normal, plane.c - ray.o) / dirDot;
+		*pt = ray.o + ray.d * t;
+		float xDist = abs(Dot(plane.right, *pt - plane.c));
+		float yDist = abs(Dot(plane.up, *pt - plane.c));
+
+		return (xDist < plane.rad.x) && (yDist < plane.rad.y);
+	}
 }
 
-inline bool IntersectInPlaneSphere(XMFLOAT3 pC, XMFLOAT3 pN, Geometrics::Sphere sph)
-{
-	float proj = Dot(sph.p - pC, pN);
 
-	return ((proj + sph.rad) > 0);
-}
-inline bool IntersectRaySphere(Geometrics::Ray ray, Geometrics::Sphere sph)
-{
-	XMFLOAT3 toRayPt = ray.o - sph.p;
-	XMFLOAT3 tempRight = Normalize(Cross(ray.d, toRayPt));
-	XMFLOAT3 dir = Cross(tempRight, ray.d);
-
-	return (Dot(toRayPt, dir) < sph.rad);
-}
 
