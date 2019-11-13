@@ -4,13 +4,12 @@
 #include "Camera.h"
 #include "Game_info.h"
 #include "ShaderFormat.h"
-#include "CameraMgr.h"
 
 #include "Transform.h"
 #include "DepthStencilState.h"
 #include "BlendState.h"
 #include "Mouse.h"
-
+#include "Debugging.h"
 
 UI::UI(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView * srv)
 	:size(XMFLOAT2(width, height)), srv(srv)
@@ -55,7 +54,7 @@ UI::~UI()
 	delete blendState;
 }
 
-void UI::Update()
+void UI::Update(const Camera* camera)
 {
 }
 
@@ -90,7 +89,22 @@ UIButton::UIButton(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, XMFLOA
 UIButton::~UIButton()
 {
 }
-void UIButton::Update()
+void UIButton::Visualize()
+{
+	XMFLOAT3 c = transform->GetPos();
+	XMFLOAT3 right = transform->GetRight();
+	XMFLOAT3 up = transform->GetUp();
+
+	XMFLOAT3 bl = c - right * size.x*0.5f - up * size.y*0.5f;
+	XMFLOAT3 br = c + right * size.x*0.5f - up * size.y*0.5f;
+	XMFLOAT3 tl = c - right * size.x*0.5f + up * size.y*0.5f;
+	XMFLOAT3 tr = c + right * size.x*0.5f + up * size.y*0.5f;
+	Debugging::Instance()->PtLine(bl, br, Colors::LightGreen);
+	Debugging::Instance()->PtLine(bl, tl, Colors::LightGreen);
+	Debugging::Instance()->PtLine(tl, tr, Colors::LightGreen);
+	Debugging::Instance()->PtLine(tr, br, Colors::LightGreen);
+}
+void UIButton::Update(const Camera* camera)
 {
 	bound = Geometrics::Plane(transform->GetPos(),
 		transform->GetForward(),
@@ -98,7 +112,31 @@ void UIButton::Update()
 		size * 0.5f);
 
 	Geometrics::Ray ray;
-	CameraMgr::Instance()->Main()->Pick(&ray);
+	camera->Pick(&ray);
+
+	XMFLOAT3 itsPt;
+	if (Geometrics::IntersectRayPlane(ray, bound, &itsPt))
+	{
+		switch (Mouse::Instance()->LeftState())
+		{
+		case MOUSE_STATE_DOWN:
+		case MOUSE_STATE_PRESSING:
+			srv = pressSRV;
+			break;
+		case MOUSE_STATE_RELEASE:
+			srv = hoverSRV;
+			break;
+		case MOUSE_STATE_UP:
+			Notify(nullptr);
+			break;
+		}
+	}
+	else
+		srv = idleSRV;
+	XMFLOAT2 mpt = Mouse::Instance()->Pos();
+	Debugging::Instance()->Draw("mouse pt x = ", (mpt.x), 0, 0);
+	Debugging::Instance()->Draw("mouse pt y = ", (mpt.y), 0, 15);
+
 }
 void UIButton::Render(const Camera* camera) const
 {
@@ -122,17 +160,24 @@ UICanvas::~UICanvas()
 	}
 }
 
-void UICanvas::Add(std::string id, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView* srv, UINT maxSliceIdx, UINT slicePerSec)
+UI* UICanvas::Add(std::string id, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView* srv, UINT maxSliceIdx, UINT slicePerSec)
 {
-	if (UIs.find(id) == UIs.end())
-	{
-		UIs.insert(std::pair<std::string, UI*>(id, new UI(totalWidth, totalHeight, pivot,width,height, zDepth, srv)));
-	}
+	assert(UIs.count(id) == 0);
+	
+	UI* newUI = new UI(totalWidth, totalHeight, pivot, width, height, zDepth, srv);
+	UIs.insert(std::pair<std::string, UI*>(id, newUI));
+	
+	return newUI;
 }
 
-void UICanvas::AddButton(std::string id, XMFLOAT2 pivot, XMFLOAT2 size, ID3D11ShaderResourceView* idleSRV, ID3D11ShaderResourceView* hoverSRV, ID3D11ShaderResourceView* pressSRV)
+UIButton* UICanvas::AddButton(std::string id, XMFLOAT2 pivot, XMFLOAT2 size, ID3D11ShaderResourceView* idleSRV, ID3D11ShaderResourceView* hoverSRV, ID3D11ShaderResourceView* pressSRV)
 {
-	UIs.insert(std::pair<std::string, UI*>(id, new UIButton(totalWidth, totalHeight, pivot, size, idleSRV, hoverSRV, pressSRV)));
+	assert(UIs.count(id) == 0);
+
+	UIButton* newButton = new UIButton(totalWidth, totalHeight, pivot, size, idleSRV, hoverSRV, pressSRV);
+	UIs.insert(std::pair<std::string, UI*>(id, newButton));
+
+	return newButton;
 }
 
 void UICanvas::Remove(std::string id)
@@ -144,12 +189,11 @@ void UICanvas::Remove(std::string id)
 	}
 }
 
-
 void UICanvas::Update(float spf)
 {
 	for (auto& ui : UIs)
 	{
-		ui.second->Update();
+		ui.second->Update(camera);
 	}
 }
 
@@ -159,4 +203,21 @@ void UICanvas::Render()
 	{
 		ui.second->Render(camera);
 	}
+}
+
+void UICanvas::Visualize()
+{
+	XMFLOAT3 c = camera->transform->GetPos();
+	c.z = 0;
+	XMFLOAT3 right = camera->transform->GetRight();
+	XMFLOAT3 up = camera->transform->GetUp();
+
+	XMFLOAT3 bl = c - right * totalWidth * 0.5f - up * totalHeight * 0.5f;
+	XMFLOAT3 br = c + right * totalWidth * 0.5f - up * totalHeight * 0.5f;
+	XMFLOAT3 tl = c - right * totalWidth * 0.5f + up * totalHeight * 0.5f;
+	XMFLOAT3 tr = c + right * totalWidth * 0.5f + up * totalHeight * 0.5f;
+	Debugging::Instance()->PtLine(bl, br, Colors::LightGreen);
+	Debugging::Instance()->PtLine(bl, tl, Colors::LightGreen);
+	Debugging::Instance()->PtLine(tl, tr, Colors::LightGreen);
+	Debugging::Instance()->PtLine(tr, br, Colors::LightGreen);
 }

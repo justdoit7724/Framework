@@ -5,6 +5,7 @@
 #include "DX_info.h"
 #include "ObserverDP.h"
 #include "Geometrics.h"
+#include "Network.h"
 
 class Transform;
 class Camera;
@@ -37,20 +38,21 @@ protected:
 	XMFLOAT2 size;
 
 	friend class UICanvas;
-	virtual void Update();
+	virtual void Update(const Camera* camera);
 
 	virtual void Render(const Camera* camera)const;
 };
 
-class UIButton : public UI, public Subject
+class UIButton : public UI, public Subject, public IDebug
 {
 public:
 	UIButton(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, XMFLOAT2 size, ID3D11ShaderResourceView* idleSRV, ID3D11ShaderResourceView* hoverSRV, ID3D11ShaderResourceView* pressSRV);
 	~UIButton();
+	void Visualize()override;
 private:
 	friend class UICanvas;
 
-	void Update() override ;
+	void Update(const Camera* camera) override ;
 
 	void Render(const Camera* camera)const override;
 
@@ -63,15 +65,15 @@ private:
 };
 
 
-class UICanvas
+class UICanvas : public IDebug
 {
 public:
 	UICanvas(float width, float height);
 	~UICanvas();
 
 	// screen coordinate
-	void Add(std::string id, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView* srv, UINT maxSliceIdx = 1, UINT slicePerSec = 1);
-	void AddButton(std::string id, XMFLOAT2 pivot, XMFLOAT2 size, ID3D11ShaderResourceView* idleSRV, ID3D11ShaderResourceView* hoverSRV, ID3D11ShaderResourceView* pressSRV);
+	UI* Add(std::string id, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView* srv, UINT maxSliceIdx = 1, UINT slicePerSec = 1);
+	UIButton* AddButton(std::string id, XMFLOAT2 pivot, XMFLOAT2 size, ID3D11ShaderResourceView* idleSRV, ID3D11ShaderResourceView* hoverSRV, ID3D11ShaderResourceView* pressSRV);
 
 	void Remove(std::string id);
 
@@ -79,6 +81,8 @@ public:
 	void Render();
 
 	const float totalWidth, totalHeight;
+
+	void Visualize() override;
 
 private:
 

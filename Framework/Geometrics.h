@@ -252,16 +252,18 @@ namespace Geometrics {
 		return (Dot(toRayPt, dir) < sph.rad);
 	}
 	// considered infinite ray & both plane side
-	inline bool IntersectRayPlane(Ray ray, Plane plane, XMFLOAT3* pt)
+	inline bool IntersectRayPlane(Ray ray, Plane plane, XMFLOAT3* itsPt)
 	{
 		float dirDot = Dot(ray.d, plane.normal);
 		if (dirDot == 0)
 			return false;
 
 		float t = Dot(plane.normal, plane.c - ray.o) / dirDot;
-		*pt = ray.o + ray.d * t;
-		float xDist = abs(Dot(plane.right, *pt - plane.c));
-		float yDist = abs(Dot(plane.up, *pt - plane.c));
+		XMFLOAT3 pt = ray.o + ray.d * t;
+		float xDist = abs(Dot(plane.right, pt - plane.c));
+		float yDist = abs(Dot(plane.up, pt - plane.c));
+		if (itsPt)
+			* itsPt = pt;
 
 		return (xDist < plane.rad.x) && (yDist < plane.rad.y);
 	}
