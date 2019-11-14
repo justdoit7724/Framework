@@ -1,47 +1,34 @@
 #include "Scene.h"
-#include "SceneMgr.h"
 #include "Object.h"
 #include "Shader.h"
 #include "ShaderFormat.h"
 #include "Camera.h"
-
-Scene::Scene(std::string key)
-	:key(key)
-{
-	SceneMgr::Instance()->Add(this);
-}
-
-Scene::~Scene()
-{
-	SceneMgr::Instance()->Remove(key);
-}
+#include "SceneMgr.h"
 
 void Scene::Update(float elapsed, float spf)
 {
-	for (auto obj : drawObjs)
+	for (auto obj : objs)
 	{
-		obj->Update();
+		if(obj->enabled)
+			obj->Update();
 	}
 }
 
 void Scene::Render(const Camera* camera, UINT sceneDepth) const
 {
-	//use temp container because drawObjs is being changed in loop
-	std::vector<Object*>tempMemObjs(drawObjs);
-
-	for (auto obj : tempMemObjs)
+	for (auto obj : objs)
 	{
-		obj->Render(camera, sceneDepth);
+		if(obj->enabled)
+			obj->Render(camera, sceneDepth);
 	}
 }
 
 void Scene::FrustumCulling(const Camera* camera)
 {
-	drawObjs.clear();
-
 	for (auto obj : objs)
 	{
-		if(obj->IsInsideFrustum(camera->GetFrustum()))
-			drawObjs.push_back(obj);
+		obj->UpdateBound();
+
+		obj->enabled = obj->IsInsideFrustum(camera->GetFrustum());
 	}
 }

@@ -1,11 +1,11 @@
 #include "CameraMgr.h"
 #include <assert.h>
 
-void CameraMgr::Add(std::string key, Camera* camera)
+void CameraMgr::Add(std::string key, const Camera* camera)
 {
 	if (list.find(key) == list.end())
 	{
-		list.insert(std::pair<std::string, Camera*>(key, camera));
+		list.insert(std::pair<std::string, const Camera*>(key, camera));
 	}
 }
 

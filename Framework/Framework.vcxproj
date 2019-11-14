@@ -188,9 +188,11 @@
     <ClCompile Include="Texture2D.cpp" />
     <ClCompile Include="TextureMgr.cpp" />
     <ClCompile Include="Timer.cpp" />
+    <ClCompile Include="TokenMgr.cpp" />
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="UI.cpp" />
     <ClCompile Include="Window.cpp" />
+    <ClCompile Include="GamePlayScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BlendState.h" />
@@ -242,9 +244,11 @@
     <ClInclude Include="Texture2D.h" />
     <ClInclude Include="TextureMgr.h" />
     <ClInclude Include="Timer.h" />
+    <ClInclude Include="TokenMgr.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="UI.h" />
     <ClInclude Include="Window.h" />
+    <ClInclude Include="GamePlayScene.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="LightInfo.cginc" />

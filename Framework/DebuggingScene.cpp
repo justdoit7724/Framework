@@ -2,7 +2,6 @@
 #include "Debugging.h"
 
 DebuggingScene::DebuggingScene()
-	:Scene("Debugging")
 {
 	Debugging::Instance();
 }
@@ -14,5 +13,5 @@ void DebuggingScene::Update(float elapsed,float spf)
 
 void DebuggingScene::Render(const Camera* camera, UINT sceneDepth) const
 {
-	Debugging::Instance()->Render();
+	Debugging::Instance()->Render(camera);
 }

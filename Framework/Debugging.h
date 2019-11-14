@@ -49,7 +49,7 @@ private:
 	Camera* debugCam;
 	void CameraMove(float spf);
 	void Update(float spf);
-	void Render();
+	void Render(const Camera* camera);
 
 	friend class Singleton<Debugging>;
 	Debugging();

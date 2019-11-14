@@ -183,6 +183,12 @@
     <ClCompile Include="Lobby.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
+    <ClCompile Include="GamePlayScene.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="TokenMgr.cpp">
+      <Filter>Object</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Debugging.h">
@@ -340,6 +346,12 @@
     </ClInclude>
     <ClInclude Include="Lobby.h">
       <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="GamePlayScene.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="TokenMgr.h">
+      <Filter>Object</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

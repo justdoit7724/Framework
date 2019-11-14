@@ -4,7 +4,7 @@
 class Observer
 {
 public:
-	virtual void Notify(void* data) = 0;
+	virtual void Notify(const void* data) = 0;
 };
 class Subject
 {
@@ -14,7 +14,7 @@ private:
 public:
 	void AddObserver(Observer* observer) { observers.insert(observer); }
 	void RemoveObserver(Observer* observer) { observers.erase(observer); }
-	void Notify(void* data) {
+	void Notify(const void* data) {
 		for (auto ob : observers)
 			ob->Notify(data);
 	}

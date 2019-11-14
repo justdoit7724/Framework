@@ -71,7 +71,7 @@ void Shader::AddSamp(UINT slot, UINT arrayNum, D3D11_SAMPLER_DESC * desc)
 	}
 }
 
-void Shader::WriteCB(UINT slot, void * data)
+void Shader::WriteCB(UINT slot, const void * data)
 {
 	if (cbs.find(slot)!=cbs.end() && data)
 	{

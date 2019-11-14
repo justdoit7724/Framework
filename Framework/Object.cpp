@@ -98,6 +98,11 @@ Object::~Object()
 
 void Object::Update()
 {
+	
+}
+
+void Object::UpdateBound()
+{
 	XMFLOAT3 boundlMinPt;
 	XMFLOAT3 boundlMaxPt;
 	shape->GetLBound(&boundlMinPt, &boundlMaxPt);
@@ -128,10 +133,6 @@ void Object::Render()const
 }
 void Object::Render(const Camera* camera, UINT sceneDepth) const
 {
-	if (sceneDepth == 0)
-	{
-		int a = 0;
-	}
 	const SHADER_STD_TRANSF STransformation(transform->WorldMatrix(), camera->VMat() * camera->ProjMat(zOrder), XMMatrixIdentity());
 
 	XMFLOAT3 eye = camera->transform->GetPos();

@@ -10,7 +10,7 @@ public:
 	void SetSRV(D3D11_SHADER_RESOURCE_VIEW_DESC* srvDesc);
 	void SetUAV(D3D11_UNORDERED_ACCESS_VIEW_DESC* uavDesc);
 
-	void Write(void* data);
+	void Write(const void* data);
 
 	ID3D11Buffer* Get(){return resource.Get(); }
 	ID3D11Buffer** GetAddress() {return resource.GetAddressOf(); }

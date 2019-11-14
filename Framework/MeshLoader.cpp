@@ -25,11 +25,13 @@ void ProcessNode(std::vector<Object*>& storage, std::string filepath, aiNode* no
 		std::vector<UINT> indice(mesh->mNumFaces*3);
 		std::string diffMtl = "";
 		std::string normalMtl = "";
-
+		
 		aiString textureName;
-		assert(material->GetTexture(aiTextureType_DIFFUSE, 0, &textureName) == aiReturn_SUCCESS);
+		//debug decomment
+		//assert(material->GetTexture(aiTextureType_DIFFUSE, 0, &textureName) == aiReturn_SUCCESS);
 		diffMtl = textureName.C_Str();
-		assert(material->GetTexture(aiTextureType_HEIGHT, 0, &textureName) == aiReturn_SUCCESS);
+		//debug decomment
+		//assert(material->GetTexture(aiTextureType_HEIGHT, 0, &textureName) == aiReturn_SUCCESS);
 		normalMtl = textureName.C_Str();
 
 		for (int i = 0; i < mesh->mNumVertices; ++i)
@@ -63,13 +65,15 @@ void ProcessNode(std::vector<Object*>& storage, std::string filepath, aiNode* no
 
 		Vertex* vData = vertice.data();
 		UINT* iData = indice.data();
-		TextureMgr::Instance()->Load(diffMtl, "Data\\Model\\" + filepath + "\\" + diffMtl);
-		TextureMgr::Instance()->Load(normalMtl, "Data\\Model\\" + filepath + "\\" + normalMtl);
+		//debug decomment
+		//TextureMgr::Instance()->Load(diffMtl, "Data\\Model\\" + filepath + "\\" + diffMtl);
+		//TextureMgr::Instance()->Load(normalMtl, "Data\\Model\\" + filepath + "\\" + normalMtl);
 		
+		//debug decomment
 		storage.push_back(new Object(
 			new Shape(vData, sizeof(Vertex), vertice.size(), iData, indice.size(), D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST),
-			TextureMgr::Instance()->Get(diffMtl),
-			TextureMgr::Instance()->Get(normalMtl)));
+			/*TextureMgr::Instance()->Get(diffMtl)*/nullptr,
+			/*TextureMgr::Instance()->Get(normalMtl)*/nullptr));
 	}
 
 	for (UINT i = 0; i < node->mNumChildren; i++)
@@ -86,7 +90,9 @@ void MeshLoader::Load(std::vector<Object*>& storage, std::string filepath, std::
 		aiProcess_MakeLeftHanded|
 		aiProcess_FlipUVs|
 		aiProcess_FlipWindingOrder|
-		aiProcess_CalcTangentSpace);
+		aiProcess_CalcTangentSpace|
+		aiProcess_GenNormals|
+		aiProcess_Triangulate);
 
 	assert(
 		pScene != nullptr &&

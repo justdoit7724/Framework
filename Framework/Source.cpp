@@ -11,6 +11,7 @@
 
 #include "Lobby.h"
 #include "DebuggingScene.h"
+#include "GamePlayScene.h"
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 
@@ -18,15 +19,15 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	Window window(hInstance, "Low Level");
 	Graphic* graphic = new Graphic(window.Hwnd());
 
-
 #ifdef _DEBUG
-	Scene* debugScene = new DebuggingScene();
+	SceneMgr::Instance()->Add("Debugging",new DebuggingScene());
+	SceneMgr::Instance()->SetEnabled("Debugging", true);
 #endif // !_DEBUG
-	Scene* testScene = new Lobby();
-	//Scene* dcmScene = new DCMScene(graphic, testScene);
-	//Scene* bindScene = new BindingTestScene();
 
-
+	SceneMgr::Instance()->Add("GamePlay", new GamePlayScene());
+	SceneMgr::Instance()->SetEnabled("GamePlay", true);
+	SceneMgr::Instance()->Add("Lobby",new Lobby());
+	SceneMgr::Instance()->SetEnabled("Lobby", true);
 
 	Timer* worldTimer = new Timer();
 

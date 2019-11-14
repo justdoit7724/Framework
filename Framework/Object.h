@@ -25,9 +25,11 @@ public:
 	~Object();
 
 	virtual void Update();
+	virtual void UpdateBound();
 	virtual void Render(const Camera* camera, UINT sceneDepth) const;
 	void RenderGeom() const;
 	virtual bool IsInsideFrustum(const Frustum* frustum) const;
+
 	void Visualize() override;
 
 	//TODO
@@ -45,9 +47,12 @@ public:
 	const int zOrder;
 	Geometrics::Sphere Bound() { return bound; }
 
+	bool enabled = true;
+
 protected:
 	Object();
 	void Render()const;
+
 
 	XMMATRIX worldMat;
 	XMMATRIX nMat;

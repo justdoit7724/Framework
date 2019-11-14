@@ -11,23 +11,28 @@
 #include "Mouse.h"
 #include "Debugging.h"
 
-UI::UI(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView * srv)
-	:size(XMFLOAT2(width, height)), srv(srv)
+UI::UI(UICanvas* canvas, XMFLOAT2 pivot, XMFLOAT2 size, float zDepth, ID3D11ShaderResourceView * srv)
+	:size(size), srv(srv)
 {
 	assert(0 <= zDepth && zDepth <= 1);
 
+	canvas->Add(this);
+	enabled = true;
+
+	transp = 1;
+
 	quad = new Quad();
 	transform = new Transform();
-	transform->SetScale(width, height, 1);
+	transform->SetScale(size.x, size.y, 1);
 	transform->SetRot(-FORWARD, UP);
-	transform->SetTranslation(pivot.x + width * 0.5f, (canvasHeight - height * 0.5f) - pivot.y, zDepth);
-
+	transform->SetTranslation(pivot.x + size.x * 0.5f, (canvas->totalHeight -size.y * 0.5f) - pivot.y, zDepth);
 
 	vs = new VShader("UIVS.cso", 
 		Std_ILayouts,
 		ARRAYSIZE(Std_ILayouts));
 	ps = new PShader("UIPS.cso");
 	vs->AddCB(0, 1, sizeof(SHADER_STD_TRANSF));
+	ps->AddCB(0, 1, sizeof(float));
 
 	D3D11_SAMPLER_DESC samplerDesc;
 	ZeroMemory(&samplerDesc, sizeof(D3D11_SAMPLER_DESC));
@@ -40,7 +45,18 @@ UI::UI(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float
 	ps->AddSamp(0, 1, &samplerDesc);
 	ps->AddSRV(0, 1);
 
-	blendState = new BlendState(nullptr);
+	D3D11_BLEND_DESC blend_desc;
+	blend_desc.AlphaToCoverageEnable = false;
+	blend_desc.IndependentBlendEnable = false;
+	blend_desc.RenderTarget[0].BlendEnable = true;
+	blend_desc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	blend_desc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	blend_desc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	blend_desc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
+	blend_desc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	blend_desc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	blend_desc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	blendState = new BlendState(&blend_desc);
 
 	dsState = new DepthStencilState(nullptr);
 }
@@ -54,8 +70,16 @@ UI::~UI()
 	delete blendState;
 }
 
+void UI::Fade(float offset)
+{
+	transp += offset;
+	
+	transp = Clamp(0, 1, transp);
+}
+
 void UI::Update(const Camera* camera)
 {
+
 }
 
 void UI::Render(const Camera* camera)const
@@ -68,6 +92,7 @@ void UI::Render(const Camera* camera)const
 	DX_DContext->HSSetShader(nullptr, nullptr, 0);
 	DX_DContext->DSSetShader(nullptr, nullptr, 0);
 	DX_DContext->GSSetShader(nullptr, nullptr, 0);
+	ps->WriteCB(0, &transp);
 	ps->WriteSRV(0, srv);
 	ps->Apply();
 	blendState->Apply();
@@ -76,9 +101,12 @@ void UI::Render(const Camera* camera)const
 }
 
 
-UIButton::UIButton(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, XMFLOAT2 size, ID3D11ShaderResourceView* idleSRV, ID3D11ShaderResourceView* hoverSRV, ID3D11ShaderResourceView* pressSRV)
-	:UI(canvasWidth, canvasHeight, pivot, size.x, size.y, 0, nullptr), idleSRV(idleSRV), hoverSRV(hoverSRV), pressSRV(pressSRV)
+UIButton::UIButton(UICanvas* canvas, const void* data, UINT dataSize, XMFLOAT2 pivot, XMFLOAT2 size, ID3D11ShaderResourceView* idleSRV, ID3D11ShaderResourceView* hoverSRV, ID3D11ShaderResourceView* pressSRV)
+	:UI(canvas, pivot, size, 0, nullptr), idleSRV(idleSRV), hoverSRV(hoverSRV), pressSRV(pressSRV)
 {
+	triggerData = malloc(dataSize);
+	memcpy(triggerData, data, dataSize);
+
 	bound = Geometrics::Plane(transform->GetPos(),
 		transform->GetForward(),
 		transform->GetUp(),
@@ -88,6 +116,7 @@ UIButton::UIButton(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, XMFLOA
 
 UIButton::~UIButton()
 {
+	delete triggerData;
 }
 void UIButton::Visualize()
 {
@@ -106,6 +135,8 @@ void UIButton::Visualize()
 }
 void UIButton::Update(const Camera* camera)
 {
+	srv = idleSRV;
+
 	bound = Geometrics::Plane(transform->GetPos(),
 		transform->GetForward(),
 		transform->GetUp(),
@@ -127,15 +158,12 @@ void UIButton::Update(const Camera* camera)
 			srv = hoverSRV;
 			break;
 		case MOUSE_STATE_UP:
-			Notify(nullptr);
+		{
+			Notify(triggerData);
+		}
 			break;
 		}
 	}
-	else
-		srv = idleSRV;
-	XMFLOAT2 mpt = Mouse::Instance()->Pos();
-	Debugging::Instance()->Draw("mouse pt x = ", (mpt.x), 0, 0);
-	Debugging::Instance()->Draw("mouse pt y = ", (mpt.y), 0, 15);
 
 }
 void UIButton::Render(const Camera* camera) const
@@ -153,55 +181,39 @@ UICanvas::UICanvas(float width, float height)
 
 UICanvas::~UICanvas()
 {
-	while (!UIs.empty())
+	delete camera;
+	for (auto ui : UIs)
 	{
-		delete UIs.begin()->second;
-		UIs.erase(UIs.begin());
+		delete ui;
 	}
+	UIs.clear();
 }
 
-UI* UICanvas::Add(std::string id, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView* srv, UINT maxSliceIdx, UINT slicePerSec)
+void UICanvas::Add(UI* ui)
 {
-	assert(UIs.count(id) == 0);
-	
-	UI* newUI = new UI(totalWidth, totalHeight, pivot, width, height, zDepth, srv);
-	UIs.insert(std::pair<std::string, UI*>(id, newUI));
-	
-	return newUI;
-}
+	assert(UIs.count(ui) == 0);
 
-UIButton* UICanvas::AddButton(std::string id, XMFLOAT2 pivot, XMFLOAT2 size, ID3D11ShaderResourceView* idleSRV, ID3D11ShaderResourceView* hoverSRV, ID3D11ShaderResourceView* pressSRV)
-{
-	assert(UIs.count(id) == 0);
-
-	UIButton* newButton = new UIButton(totalWidth, totalHeight, pivot, size, idleSRV, hoverSRV, pressSRV);
-	UIs.insert(std::pair<std::string, UI*>(id, newButton));
-
-	return newButton;
-}
-
-void UICanvas::Remove(std::string id)
-{
-	if (UIs.find(id) != UIs.end())
-	{
-		delete UIs[id];
-		UIs.erase(id);
-	}
+	UIs.insert(ui);
 }
 
 void UICanvas::Update(float spf)
 {
-	for (auto& ui : UIs)
+	for (auto ui : UIs)
 	{
-		ui.second->Update(camera);
+		if(ui->Enabled())
+			ui->Update(camera);
 	}
 }
 
-void UICanvas::Render()
+void UICanvas::Render(UINT sceneDepth)
 {
-	for (auto& ui : UIs)
+	if (sceneDepth >= 1)
+		return;
+
+	for (auto ui : UIs)
 	{
-		ui.second->Render(camera);
+		if (ui->Enabled())
+			ui->Render(camera);
 	}
 }
 

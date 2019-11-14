@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 #include "DX_info.h"
 #include "ObserverDP.h"
@@ -17,15 +17,22 @@ class GShader;
 class PShader;
 class DepthStencilState;
 class BlendState;
+class UICanvas;
 
 struct SHADER_STD_TRANSF;
 class UI
 {
 public:
-	UI(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView * srv);
-	~UI();
+	UI(UICanvas* canvas, XMFLOAT2 pivot, XMFLOAT2 size, float zDepth, ID3D11ShaderResourceView * srv);
+
+	void Fade(float offset);
+	bool Enabled() { return enabled; }
+	void SetEnabled(bool e) { enabled = e; }
+	float GetTransp() { return transp; }
 
 protected:
+	~UI();
+	bool enabled;
 
 	Quad* quad;
 	Transform* transform;
@@ -37,22 +44,25 @@ protected:
 
 	XMFLOAT2 size;
 
+
 	friend class UICanvas;
 	virtual void Update(const Camera* camera);
 
 	virtual void Render(const Camera* camera)const;
+private:
+	float transp;
 };
 
 class UIButton : public UI, public Subject, public IDebug
 {
 public:
-	UIButton(float canvasWidth, float canvasHeight, XMFLOAT2 pivot, XMFLOAT2 size, ID3D11ShaderResourceView* idleSRV, ID3D11ShaderResourceView* hoverSRV, ID3D11ShaderResourceView* pressSRV);
-	~UIButton();
+	UIButton(UICanvas* canvas, const void* data, UINT dataSize, XMFLOAT2 pivot, XMFLOAT2 size, ID3D11ShaderResourceView* idleSRV, ID3D11ShaderResourceView* hoverSRV, ID3D11ShaderResourceView* pressSRV);
 	void Visualize()override;
 private:
+	~UIButton();
 	friend class UICanvas;
 
-	void Update(const Camera* camera) override ;
+	void Update(const Camera* camera) override;
 
 	void Render(const Camera* camera)const override;
 
@@ -62,6 +72,8 @@ private:
 	ID3D11ShaderResourceView*const pressSRV;
 
 	Geometrics::Plane bound;
+
+	void* triggerData;
 };
 
 
@@ -71,22 +83,16 @@ public:
 	UICanvas(float width, float height);
 	~UICanvas();
 
-	// screen coordinate
-	UI* Add(std::string id, XMFLOAT2 pivot, float width, float height, float zDepth, ID3D11ShaderResourceView* srv, UINT maxSliceIdx = 1, UINT slicePerSec = 1);
-	UIButton* AddButton(std::string id, XMFLOAT2 pivot, XMFLOAT2 size, ID3D11ShaderResourceView* idleSRV, ID3D11ShaderResourceView* hoverSRV, ID3D11ShaderResourceView* pressSRV);
-
-	void Remove(std::string id);
-
 	void Update(float spf);
-	void Render();
+	void Render(UINT sceneDepth);
 
+	void Add(UI* ui);
 	const float totalWidth, totalHeight;
 
 	void Visualize() override;
 
 private:
-
-	std::unordered_map<std::string, UI*> UIs;
+	std::unordered_set<UI*> UIs;
 	Camera* camera;
 };
 

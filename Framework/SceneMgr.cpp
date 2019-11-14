@@ -2,18 +2,61 @@
 #include "Scene.h"
 #include "CameraMgr.h"
 
-void SceneMgr::Add(Scene* scene)
+void SceneMgr::Add(std::string key, Scene* scene)
 {
-	assert(list.find(scene->key) == list.end());
+	executeOrder.push_back(key);
 
-	list.insert(std::pair<std::string, Scene*>(scene->key, scene));
+	list.insert(std::pair<std::string, Scene*>(key, scene));
+}
+
+void SceneMgr::BroadcastMessage(UINT msg)
+{
+	for (auto s : list)
+	{
+		Scene* curScene = s.second;
+		if (curScene->enabled)
+		{
+			s.second->Message(msg);
+		}
+	}
+}
+
+void SceneMgr::SafeDeleteScene(std::string key)
+{
+	assert(list.count(key));
+
+	deleteList.push_back(key);
+}
+
+void SceneMgr::SetEnabled(std::string key, bool e)
+{
+	list[key]->enabled = e;
 }
 
 void SceneMgr::Process(float wElapsed, float wSpf)
 {
-	for (auto i = list.begin(); i != list.end(); ++i)
+	for (auto key : executeOrder)
 	{
-		i->second->Update(wElapsed, wSpf);
-		i->second->Render(CameraMgr::Instance()->Main(),0);
+		if (list[key]->enabled)
+		{
+			list[key]->Update(wElapsed, wSpf);
+			list[key]->Render(CameraMgr::Instance()->Main(), 0);
+		}
 	}
+
+	for (auto key : deleteList)
+	{
+		delete list[key];
+		list.erase(key);
+
+		for (int i = 0; i < executeOrder.size(); ++i)
+		{
+			if (executeOrder[i] == key)
+			{
+				executeOrder.erase(executeOrder.begin() + i);
+				break;
+			}
+		}
+	}
+	deleteList.clear();
 }

@@ -67,6 +67,9 @@ struct PS_INPUT
 };
 float4 main(PS_INPUT input) : SV_Target
 {
+    //debug
+    return float4(1, 0, 0, 1);
+
     input.normal = normalize(input.normal);
     input.tangent = normalize(input.tangent - dot(input.normal, input.tangent)*input.normal);
     float3 bitangent = cross(input.normal, input.tangent);
@@ -82,7 +85,6 @@ float4 main(PS_INPUT input) : SV_Target
     float4 specular = 0;
     float4 reflection = 0;
     float4 A, D, S;
-    //debug change
     ComputeDirectionalLight(wNormal, -look, A, D, S);
     ambient += A;
     diffuse += D;

@@ -10,7 +10,7 @@ using namespace DirectX;
 #define RIGHT XMFLOAT3(1,0,0)
 #define UP XMFLOAT3(0,1,0)
 
-inline float Lerp(float t, float v1, float v2) {
+inline float Lerp(float v1, float v2, float t) {
 	return v1 + (v2 - v1)*t;
 }
 inline float Clamp(float a, float b, float v)

@@ -285,9 +285,9 @@ void Debugging::Update(float spf)
 	}
 }
 
-void Debugging::Render()
+void Debugging::Render(const Camera* camera)
 {
-	XMMATRIX vp_mat = debugCam->VMat() * debugCam->ProjMat(Z_ORDER_STANDARD);
+	XMMATRIX vp_mat = camera->VMat() * camera->ProjMat(Z_ORDER_STANDARD);
 
 	DX_DContext->HSSetShader(nullptr, nullptr, 0);
 	DX_DContext->DSSetShader(nullptr, nullptr, 0);

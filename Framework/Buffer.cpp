@@ -58,7 +58,7 @@ void Buffer::SetUAV(D3D11_UNORDERED_ACCESS_VIEW_DESC * uavDesc)
 	);
 }
 
-void Buffer::Write(void * data)
+void Buffer::Write(const void * data)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedData;
 
