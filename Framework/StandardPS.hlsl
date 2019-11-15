@@ -67,11 +67,10 @@ struct PS_INPUT
 };
 float4 main(PS_INPUT input) : SV_Target
 {
-    //debug
-    return float4(1, 0, 0, 1);
 
     input.normal = normalize(input.normal);
     input.tangent = normalize(input.tangent - dot(input.normal, input.tangent)*input.normal);
+    
     float3 bitangent = cross(input.normal, input.tangent);
     float3x3 tbn = float3x3(input.tangent, bitangent, input.normal);
     float3 tNormal = GetBodyNormal(input.tex);
@@ -104,6 +103,8 @@ float4 main(PS_INPUT input) : SV_Target
     float3 light = specular.xyz + diffuse.xyz + ambient.xyz;
     
     float3 tex = diffuseTex.Sample(samp, input.tex).xyz;
+    //debug
+    return float4(wNormal, 1);
     tex = ComputeTransparency(tex, wNormal, look);
     
     color = light * tex;

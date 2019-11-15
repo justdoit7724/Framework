@@ -87,7 +87,7 @@ void GamePlayScene::Update(float elapsed, float spf)
 		break;
 	case GAMEPLAY_STAGE_CAM_MODIFY:
 		if (CameraFrameLerping(spf) && CameraSliding(spf))
-			;//curStage = GAMEPLAY_STAGE_PLAY;
+			curStage = GAMEPLAY_STAGE_PLAY;
 		break;
 	case GAMEPLAY_STAGE_PLAY:
 		CameraMove(camera, spf);
@@ -113,7 +113,7 @@ void GamePlayScene::Render(const Camera* camera, UINT sceneDepth) const
 		break;
 	}
 
-	tokenMgr->Render(curTempVP, camera->transform->GetPos());
+	tokenMgr->Render(curTempVP, camera->transform->GetPos(), sceneDepth);
 
 	Scene::Render(camera, sceneDepth);
 }

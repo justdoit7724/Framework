@@ -12,7 +12,7 @@ public:
 	~TokenMgr();
 
 	void Update();
-	void Render(const XMMATRIX& vp, XMFLOAT3 eye)const;
+	void Render(const XMMATRIX& vp, XMFLOAT3 eye, UINT sceneDepth)const;
 
 private:
 

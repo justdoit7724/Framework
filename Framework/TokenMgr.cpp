@@ -12,38 +12,45 @@
 #include "Light.h"
 
 //debug remove
-#include "Cube.h"
+#include "Cylinder.h"
 
 std::vector<Object*> meshes;
 TokenMgr::TokenMgr()
 {
 	tokens.resize(6);
 
-	TextureMgr::Instance()->Load("Default1", "Data\\Texture\\sample.jpg");
-	TextureMgr::Instance()->Load("Default2", "Data\\Texture\\sample2.jpg");
-	TextureMgr::Instance()->Load("Default3", "Data\\Texture\\sample3.jpg");
-	TextureMgr::Instance()->Load("DefaultNormal", "Data\\Texture\\default_normal.png");
+	TextureMgr::Instance()->Load("token", "Data\\Model\\Token\\pawn.png");
+	TextureMgr::Instance()->Load("tokenNormal", "Data\\Model\\Token\\pawn_normal.png");
+	//TextureMgr::Instance()->Load("foot", "Data\\Model\\Token\\foot.jpg");
+	//TextureMgr::Instance()->Load("footNormal", "Data\\Model\\Token\\foot_normal.jpg");
 
-	ID3D11ShaderResourceView* default1 = TextureMgr::Instance()->Get("Default1");
-	ID3D11ShaderResourceView* default2 = TextureMgr::Instance()->Get("Default2");
-	ID3D11ShaderResourceView* default3 = TextureMgr::Instance()->Get("Default3");
-	ID3D11ShaderResourceView* defaultNormal = TextureMgr::Instance()->Get("DefaultNormal");
+	ID3D11ShaderResourceView* tOpaqueSRV = TextureMgr::Instance()->Get("token");
+	ID3D11ShaderResourceView* tOpaqueNormalSRV = TextureMgr::Instance()->Get("tokenNormal");
+	//ID3D11ShaderResourceView* footSRV = TextureMgr::Instance()->Get("foot");
+	//ID3D11ShaderResourceView* footNormalSRV = TextureMgr::Instance()->Get("footNormal");
 	
-	tokens[0] = new Object(new Cube(), default1, defaultNormal);
-	tokens[1] = new Object(new Cube(), default2, defaultNormal);
-	tokens[2] = new Object(new Cube(), default3, defaultNormal);
-	tokens[0]->transform->SetScale(10, 10, 10);
-	tokens[1]->transform->SetScale(10, 10, 10);
-	tokens[2]->transform->SetScale(10, 10, 10);
+	MeshLoader::LoadToken(meshes);
+	tokens[0] = new Object(meshes[1]->shape, tOpaqueSRV, tOpaqueNormalSRV);
+	tokens[1] = new Object(meshes[1]->shape, tOpaqueSRV, tOpaqueNormalSRV);
+	tokens[2] = new Object(meshes[1]->shape, tOpaqueSRV, tOpaqueNormalSRV);
+	tokens[0]->transform->SetTranslation(10, 0, 10);
+	tokens[1]->transform->SetTranslation(30, 0, 10);
+	tokens[2]->transform->SetTranslation(10, 0, 30);
+	tokens[0]->transform->SetScale(0.02f, 0.02f, 0.02f);
+	tokens[1]->transform->SetScale(0.02f, 0.02f, 0.02f);
+	tokens[2]->transform->SetScale(0.02f, 0.02f, 0.02f);
 
-	tokens[3] = new Object(new Cube(), default1, defaultNormal);
-	tokens[4] = new Object(new Cube(), default2, defaultNormal);
-	tokens[5] = new Object(new Cube(), default3, defaultNormal);
-	tokens[3]->transform->SetScale(10, 10, 10);
-	tokens[4]->transform->SetScale(10, 10, 10);
-	tokens[5]->transform->SetScale(10, 10, 10);
+	tokens[3] = new Object(meshes[1]->shape, tOpaqueSRV, tOpaqueNormalSRV);
+	tokens[4] = new Object(meshes[1]->shape, tOpaqueSRV, tOpaqueNormalSRV);
+	tokens[5] = new Object(meshes[1]->shape, tOpaqueSRV, tOpaqueNormalSRV);
+	tokens[3]->transform->SetTranslation(-10, 0,-10);
+	tokens[4]->transform->SetTranslation(-30, 0, -10);
+	tokens[5]->transform->SetTranslation(-10, 0, -30);
+	tokens[3]->transform->SetScale(0.02f, 0.02f, 0.02f);
+	tokens[4]->transform->SetScale(0.02f, 0.02f, 0.02f);
+	tokens[5]->transform->SetScale(0.02f, 0.02f, 0.02f);
 
-	//MeshLoader::Load(meshes, "Token", "Checkboard.obj");
+
 }
 
 TokenMgr::~TokenMgr()
@@ -63,7 +70,7 @@ void TokenMgr::Update()
 }
 
 #include "CameraMgr.h"
-void TokenMgr::Render(const XMMATRIX& vp, XMFLOAT3 eye)const
+void TokenMgr::Render(const XMMATRIX& vp, XMFLOAT3 eye, UINT sceneDepth)const
 {
 	DirectionalLight::Apply();
 	PointLight::Apply();

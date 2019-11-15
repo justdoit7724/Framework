@@ -105,6 +105,24 @@ Cylinder::Cylinder(const int sliceCount)
 	}
 #pragma endregion
 
+	int polySize = indice.size()/3;
+	for (int i=0; i< polySize; ++i)
+	{
+		XMFLOAT3 tangent;
+
+		CalculateTangent(
+			vertice[indice[i*3]].pos,
+			vertice[indice[i*3+1]].pos,
+			vertice[indice[i*3+2]].pos,
+			vertice[indice[i * 3]].tex,
+			vertice[indice[i * 3+1]].tex,
+			vertice[indice[i * 3+2]].tex, &tangent);
+
+		vertice[indice[i * 3]].tangent = tangent;
+		vertice[indice[i * 3+1]].tangent = tangent;
+		vertice[indice[i * 3+2]].tangent = tangent;
+	}
+
 	Init(vertice.data(), sizeof(Vertex), vertice.size(), indice.data(), indice.size(), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
