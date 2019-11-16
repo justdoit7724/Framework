@@ -69,6 +69,9 @@ float4 main(PS_INPUT input) : SV_Target
 {
 
     input.normal = normalize(input.normal);
+    input.tangent = normalize(input.tangent);
+    
+
     input.tangent = normalize(input.tangent - dot(input.normal, input.tangent)*input.normal);
     
     float3 bitangent = cross(input.normal, input.tangent);
@@ -103,8 +106,10 @@ float4 main(PS_INPUT input) : SV_Target
     float3 light = specular.xyz + diffuse.xyz + ambient.xyz;
     
     float3 tex = diffuseTex.Sample(samp, input.tex).xyz;
-    //debug
-    return float4(wNormal, 1);
+    //debug REMOVE
+    return float4(tex, 1);
+
+
     tex = ComputeTransparency(tex, wNormal, look);
     
     color = light * tex;

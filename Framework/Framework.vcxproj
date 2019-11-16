@@ -169,6 +169,7 @@
     <ClCompile Include="Mirror.cpp" />
     <ClCompile Include="Mouse.cpp" />
     <ClCompile Include="nanosuit.cpp" />
+    <ClCompile Include="NonagaLogic.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="PT_Obj.cpp" />
     <ClCompile Include="RasterizerState.cpp" />
@@ -187,6 +188,7 @@
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Texture2D.cpp" />
     <ClCompile Include="TextureMgr.cpp" />
+    <ClCompile Include="TileMgr.cpp" />
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="TokenMgr.cpp" />
     <ClCompile Include="Transform.cpp" />
@@ -205,6 +207,7 @@
     <ClInclude Include="Lobby.h" />
     <ClInclude Include="MeshLoader.h" />
     <ClInclude Include="nanosuit.h" />
+    <ClInclude Include="NonagaLogic.h" />
     <ClInclude Include="ObserverDP.h" />
     <ClInclude Include="ShaderFormat.h" />
     <ClInclude Include="Cylinder.h" />
@@ -243,6 +246,7 @@
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Texture2D.h" />
     <ClInclude Include="TextureMgr.h" />
+    <ClInclude Include="TileMgr.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="TokenMgr.h" />
     <ClInclude Include="Transform.h" />

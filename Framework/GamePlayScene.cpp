@@ -7,14 +7,16 @@
 #include "Debugging.h"
 #include "SceneMgr.h"
 #include "Mouse.h"
+#include "TileMgr.h"
 #include "Keyboard.h"
+#include "NonagaLogic.h"
 
 GamePlayScene::GamePlayScene()
 {
 	curStage = GAMEPLAY_STAGE_LOBBY;
 
-	camera = new Camera("Lobby", FRAME_KIND_ORTHOGONAL, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1f, 200.0f, NULL, NULL);
-	camera->transform->SetTranslation(XMFLOAT3(0, 130, 0));
+	camera = new Camera("Lobby", FRAME_KIND_ORTHOGONAL, SCREEN_WIDTH/8, SCREEN_HEIGHT/8, 0.1f, 200.0f, NULL, NULL);
+	camera->transform->SetTranslation(XMFLOAT3(0, 40, 0));
 	camera->transform->SetRot(-UP, FORWARD);
 	XMStoreFloat4x4(&orthogonalP, camera->ProjMat(Z_ORDER_STANDARD));
 
@@ -23,7 +25,11 @@ GamePlayScene::GamePlayScene()
 
 	CameraMgr::Instance()->SetMain("Lobby");
 
-	tokenMgr = new TokenMgr();
+	std::vector<XMFLOAT3> firstTileArrange;
+	std::vector<XMFLOAT3> firstTokenArrange;
+	gameLogic = new NonagaLogic(&firstTileArrange, &firstTokenArrange);
+	tokenMgr = new TokenMgr(firstTokenArrange);
+	tileMgr = new TileMgr(firstTileArrange);
 
 	Debugging::Instance()->EnableGrid(10);
 
@@ -33,6 +39,7 @@ GamePlayScene::GamePlayScene()
 GamePlayScene::~GamePlayScene()
 {
 	delete tokenMgr;
+	delete tileMgr;
 	delete camera;
 }
 
@@ -72,8 +79,8 @@ void CameraMove(Camera* cam, float spf)
 	prevMousePt.y = mPt.y;
 	const XMMATRIX rotMat = XMMatrixRotationX(angleX) * XMMatrixRotationY(angleY);
 	cam->transform->SetTranslation(newPos);
-	XMFLOAT3 f = MultiplyDir(FORWARD, rotMat);
-	XMFLOAT3 u = MultiplyDir(UP, rotMat);
+	XMFLOAT3 f = MultiplyDir(-UP, rotMat);
+	XMFLOAT3 u = MultiplyDir(FORWARD, rotMat);
 	cam->transform->SetRot(f, u);
 	cam->Update();
 }
@@ -94,7 +101,7 @@ void GamePlayScene::Update(float elapsed, float spf)
 		break;
 	}
 
-	Scene::Update(elapsed, spf);
+	tileMgr->Update();
 }
 
 void GamePlayScene::Render(const Camera* camera, UINT sceneDepth) const
@@ -113,9 +120,8 @@ void GamePlayScene::Render(const Camera* camera, UINT sceneDepth) const
 		break;
 	}
 
+	tileMgr->Render(curTempVP, camera->transform->GetPos(), camera->GetFrustum(), sceneDepth);
 	tokenMgr->Render(curTempVP, camera->transform->GetPos(), sceneDepth);
-
-	Scene::Render(camera, sceneDepth);
 }
 
 void GamePlayScene::Message(UINT msg)

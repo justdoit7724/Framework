@@ -2,6 +2,8 @@
 #include "Scene.h"
 
 class TokenMgr;
+class TileMgr;
+class NonagaLogic;
 
 class GamePlayScene : public Scene
 {
@@ -33,5 +35,7 @@ private:
 
 	Camera* camera;
 
+	NonagaLogic* gameLogic;
 	TokenMgr* tokenMgr;
+	TileMgr* tileMgr;
 };

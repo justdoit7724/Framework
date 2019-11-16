@@ -33,7 +33,7 @@ Cylinder::Cylinder(const int sliceCount)
 
 	std::vector<UINT> indice;
 	int ringVertexCount = sliceCount + 1;
-	for (int i = 0; i < ringVertexCount; ++i)
+	for (int i = 0; i < sliceCount; ++i)
 	{
 		indice.push_back(i);
 		indice.push_back(ringVertexCount + i);
@@ -109,14 +109,18 @@ Cylinder::Cylinder(const int sliceCount)
 	for (int i=0; i< polySize; ++i)
 	{
 		XMFLOAT3 tangent;
+		Vertex v0 = vertice[indice[i * 3]];
+		Vertex v1 = vertice[indice[i * 3 + 1]];
+		Vertex v2 = vertice[indice[i * 3 + 2]];
 
 		CalculateTangent(
-			vertice[indice[i*3]].pos,
-			vertice[indice[i*3+1]].pos,
-			vertice[indice[i*3+2]].pos,
-			vertice[indice[i * 3]].tex,
-			vertice[indice[i * 3+1]].tex,
-			vertice[indice[i * 3+2]].tex, &tangent);
+			v0.pos,
+			v1.pos,
+			v2.pos,
+			v0.tex,
+			v1.tex,
+			v2.tex, &tangent);
+		tangent = Normalize(tangent);
 
 		vertice[indice[i * 3]].tangent = tangent;
 		vertice[indice[i * 3+1]].tangent = tangent;

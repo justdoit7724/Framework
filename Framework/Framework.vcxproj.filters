@@ -189,6 +189,12 @@
     <ClCompile Include="TokenMgr.cpp">
       <Filter>Object</Filter>
     </ClCompile>
+    <ClCompile Include="TileMgr.cpp">
+      <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="NonagaLogic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Debugging.h">
@@ -352,6 +358,12 @@
     </ClInclude>
     <ClInclude Include="TokenMgr.h">
       <Filter>Object</Filter>
+    </ClInclude>
+    <ClInclude Include="TileMgr.h">
+      <Filter>Object</Filter>
+    </ClInclude>
+    <ClInclude Include="NonagaLogic.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

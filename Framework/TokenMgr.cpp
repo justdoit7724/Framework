@@ -13,44 +13,37 @@
 
 //debug remove
 #include "Cylinder.h"
-
 std::vector<Object*> meshes;
-TokenMgr::TokenMgr()
-{
-	tokens.resize(6);
 
+TokenMgr::TokenMgr(const std::vector<XMFLOAT3>& firstArrange)
+{
 	TextureMgr::Instance()->Load("token", "Data\\Model\\Token\\pawn.png");
 	TextureMgr::Instance()->Load("tokenNormal", "Data\\Model\\Token\\pawn_normal.png");
 	//TextureMgr::Instance()->Load("foot", "Data\\Model\\Token\\foot.jpg");
 	//TextureMgr::Instance()->Load("footNormal", "Data\\Model\\Token\\foot_normal.jpg");
 
-	ID3D11ShaderResourceView* tOpaqueSRV = TextureMgr::Instance()->Get("token");
-	ID3D11ShaderResourceView* tOpaqueNormalSRV = TextureMgr::Instance()->Get("tokenNormal");
+	ID3D11ShaderResourceView* tokenSRV = TextureMgr::Instance()->Get("token");
+	ID3D11ShaderResourceView* tokenNormalSRV = TextureMgr::Instance()->Get("tokenNormal");
 	//ID3D11ShaderResourceView* footSRV = TextureMgr::Instance()->Get("foot");
 	//ID3D11ShaderResourceView* footNormalSRV = TextureMgr::Instance()->Get("footNormal");
 	
 	MeshLoader::LoadToken(meshes);
-	tokens[0] = new Object(meshes[1]->shape, tOpaqueSRV, tOpaqueNormalSRV);
-	tokens[1] = new Object(meshes[1]->shape, tOpaqueSRV, tOpaqueNormalSRV);
-	tokens[2] = new Object(meshes[1]->shape, tOpaqueSRV, tOpaqueNormalSRV);
-	tokens[0]->transform->SetTranslation(10, 0, 10);
-	tokens[1]->transform->SetTranslation(30, 0, 10);
-	tokens[2]->transform->SetTranslation(10, 0, 30);
-	tokens[0]->transform->SetScale(0.02f, 0.02f, 0.02f);
-	tokens[1]->transform->SetScale(0.02f, 0.02f, 0.02f);
-	tokens[2]->transform->SetScale(0.02f, 0.02f, 0.02f);
 
-	tokens[3] = new Object(meshes[1]->shape, tOpaqueSRV, tOpaqueNormalSRV);
-	tokens[4] = new Object(meshes[1]->shape, tOpaqueSRV, tOpaqueNormalSRV);
-	tokens[5] = new Object(meshes[1]->shape, tOpaqueSRV, tOpaqueNormalSRV);
-	tokens[3]->transform->SetTranslation(-10, 0,-10);
-	tokens[4]->transform->SetTranslation(-30, 0, -10);
-	tokens[5]->transform->SetTranslation(-10, 0, -30);
-	tokens[3]->transform->SetScale(0.02f, 0.02f, 0.02f);
-	tokens[4]->transform->SetScale(0.02f, 0.02f, 0.02f);
-	tokens[5]->transform->SetScale(0.02f, 0.02f, 0.02f);
-
-
+	Shape* sharedShape = meshes[1]->shape;
+	tokens.resize(firstArrange.size());
+	for (int i = 0; i < firstArrange.size(); ++i)
+	{
+		if (i <= 2)
+		{
+			tokens[i] = new Object(sharedShape, tokenSRV, tokenNormalSRV);
+		}
+		else
+		{
+			tokens[i] = new Object(sharedShape, tokenSRV, tokenNormalSRV);
+		}
+		tokens[i]->transform->SetScale(0.02f, 0.02f, 0.02f);
+		tokens[i]->transform->SetTranslation(firstArrange[i]);
+	}
 }
 
 TokenMgr::~TokenMgr()
@@ -60,6 +53,12 @@ TokenMgr::~TokenMgr()
 		delete token;
 	}
 }
+
+void TokenMgr::Move(UINT id, XMFLOAT3 to)
+{
+	tokens[id]->transform->SetTranslation(to);
+}
+
 
 void TokenMgr::Update()
 {
