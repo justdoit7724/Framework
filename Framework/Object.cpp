@@ -98,6 +98,9 @@ Object::~Object()
 
 void Object::Update()
 {
+	if (!enabled)
+		return;
+
 	UpdateBound();
 }
 
@@ -119,6 +122,9 @@ Object::Object()
 
 void Object::Render()const
 {
+	if (!enabled || !show)
+		return;
+
 	vs->Apply();
 	hs->Apply();
 	ds->Apply();
@@ -131,11 +137,9 @@ void Object::Render()const
 
 	shape->Apply();
 }
-void Object::Render(const Camera* camera, UINT sceneDepth) const
+void Object::Render(const XMMATRIX& vp, XMFLOAT3 eye, UINT sceneDepth) const
 {
-	const SHADER_STD_TRANSF STransformation(transform->WorldMatrix(), camera->VMat() * camera->ProjMat(zOrder), XMMatrixIdentity());
-
-	XMFLOAT3 eye = camera->transform->GetPos();
+	const SHADER_STD_TRANSF STransformation(transform->WorldMatrix(), vp, XMMatrixIdentity());
 
 	vs->WriteCB(0, (void*)(&STransformation));
 	ps->WriteCB(3, &XMFLOAT4(eye.x, eye.y, eye.z, 0));

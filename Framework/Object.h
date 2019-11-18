@@ -4,7 +4,6 @@
 #include "Network.h"
 #include "Geometrics.h"
 
-class Camera;
 struct Frustum;
 class Transform;
 class Shape;
@@ -25,12 +24,15 @@ public:
 	~Object();
 
 	virtual void Update();
-	virtual void Render(const Camera* camera, UINT sceneDepth) const;
+	virtual void Render(const XMMATRIX& vp, XMFLOAT3 eye, UINT sceneDepth) const;
 	void RenderGeom() const;
+
 	virtual bool IsInsideFrustum(const Frustum* frustum) const;
 	virtual bool IsPicking(const Geometrics::Ray ray)const;
 
 	void Visualize() override;
+	void SetEnabled(bool e) { enabled = e; }
+	void SetShow(bool s) { show = s; }
 
 	//TODO
 	Transform* transform;
@@ -47,13 +49,14 @@ public:
 	const int zOrder;
 	Geometrics::Sphere Bound() { return bound; }
 
-	bool enabled = true;
 
 protected:
 	Object();
 	void Render()const;
 	virtual void UpdateBound();
 
+	bool enabled = true;
+	bool show = true;
 
 	XMMATRIX worldMat;
 	XMMATRIX nMat;

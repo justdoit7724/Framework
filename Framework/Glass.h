@@ -2,6 +2,7 @@
 #include "Object.h"
 
 class Scene;
+class Camera;
 
 class Glass :
 	public Object
@@ -10,7 +11,7 @@ public:
 	Glass(Scene* captureScene, Shape* shape);
 	~Glass();
 
-	void Render(const Camera* camera, UINT sceneDepth)const override;
+	void Render(const XMMATRIX& vp, XMFLOAT3 eye, UINT sceneDepth)const override;
 
 private:
 	Scene* captureScene;

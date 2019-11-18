@@ -171,9 +171,6 @@
     <ClCompile Include="MeshLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="nanosuit.cpp">
-      <Filter>Tasks</Filter>
-    </ClCompile>
     <ClCompile Include="SSAO.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -338,9 +335,6 @@
     <ClInclude Include="MeshLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="nanosuit.h">
-      <Filter>Tasks</Filter>
-    </ClInclude>
     <ClInclude Include="SSAO.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -363,6 +357,9 @@
       <Filter>Object</Filter>
     </ClInclude>
     <ClInclude Include="NonagaLogic.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CommObjInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

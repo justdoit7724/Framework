@@ -114,7 +114,7 @@ void Mirror::Update()
 	UpdatePerspective(CameraMgr::Instance()->Main());
 }
 
-void Mirror::Render(const Camera* camera, UINT sceneDepth)const
+void Mirror::Render(const XMMATRIX& vpMat, XMFLOAT3 eye, UINT sceneDepth)const
 {
 	D3D11_VIEWPORT vp = CD3D11_VIEWPORT(0.0f, 0.0f, resolution.x, resolution.y, 0.0f, 1.0f);
 	ID3D11RenderTargetView* oriRTV;
@@ -140,7 +140,7 @@ void Mirror::Render(const Camera* camera, UINT sceneDepth)const
 
 
 
-	vs->WriteCB(0, &(transform->WorldMatrix()*camera->VMat() * camera->ProjMat(zOrder)));
+	vs->WriteCB(0, &(transform->WorldMatrix()* vpMat));
 	ps->WriteSRV(0, srv.Get());
 
 	Object::Render();

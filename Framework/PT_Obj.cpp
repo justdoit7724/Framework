@@ -40,10 +40,10 @@ PT_Obj::PT_Obj(Shape* shape, const XMMATRIX& vp_mat, XMFLOAT3 dif, float transp,
 	ps->AddSamp(1, 1, &sampDesc);
 }
 
-void PT_Obj::Render(const Camera* camera, UINT sceneDepth)const
+void PT_Obj::Render(const XMMATRIX& vp, XMFLOAT3 eye, UINT sceneDepth)const
 {
-	vs->WriteCB(0, &SHADER_PT_TRANSF(transform->WorldMatrix(), camera->VMat() * camera->ProjMat(zOrder), XMMatrixIdentity(), vp_mat,XMMatrixIdentity()));
-	ps->WriteCB(3, &(camera->transform->GetPos()));
+	vs->WriteCB(0, &SHADER_PT_TRANSF(transform->WorldMatrix(), vp, XMMatrixIdentity(), vp_mat,XMMatrixIdentity()));
+	ps->WriteCB(3, &eye);
 
 	Object::Render();
 }

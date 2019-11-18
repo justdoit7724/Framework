@@ -3,14 +3,14 @@
 #include "Shader.h"
 #include "ShaderFormat.h"
 #include "Camera.h"
+#include "Transform.h"
 #include "SceneMgr.h"
 
 void Scene::Update(float elapsed, float spf)
 {
 	for (auto obj : objs)
 	{
-		if(obj->enabled)
-			obj->Update();
+		obj->Update();
 	}
 }
 
@@ -18,15 +18,11 @@ void Scene::Render(const Camera* camera, UINT sceneDepth) const
 {
 	for (auto obj : objs)
 	{
-		if(obj->enabled)
-			obj->Render(camera, sceneDepth);
-	}
-}
+		if (obj->IsInsideFrustum(camera->GetFrustum()))
+		{
+			XMMATRIX vp = camera->VMat() * camera->ProjMat(obj->zOrder);
 
-void Scene::FrustumCulling(const Camera* camera)
-{
-	for (auto obj : objs)
-	{
-		obj->enabled = obj->IsInsideFrustum(camera->GetFrustum());
+			obj->Render(vp, camera->transform->GetPos(), sceneDepth);
+		}
 	}
 }

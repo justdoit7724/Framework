@@ -10,10 +10,10 @@
 
 #include "Debugging.h"
 
-static const int OBS_DATA_AI= 0;
-static const int OBS_DATA_PVP =1;
-static const int OBS_DATA_AI_NORMAL= 2;
-static const int OBS_DATA_AI_HARD =3;
+#define OBS_DATA_AI 0
+#define OBS_DATA_PVP 1
+#define OBS_DATA_AI_NORMAL 2
+#define OBS_DATA_AI_HARD 3
 
 Lobby::Lobby()
 {
@@ -51,13 +51,13 @@ Lobby::Lobby()
 	XMFLOAT2 selectButtonSize = XMFLOAT2(180, 120);
 	XMFLOAT2 diffButtonSize = XMFLOAT2(220, 120);
 	title = new UI(canvas,XMFLOAT2(380 - titleSize.x * 0.5f, 170-titleSize.y*0.5f), titleSize, 0, titleSRV);
-	singleButton = new UIButton(canvas, &OBS_DATA_AI,sizeof(OBS_DATA_AI),XMFLOAT2(380 - selectButtonSize.x * 0.5f, 370 - selectButtonSize.y * 0.5f), selectButtonSize,
+	singleButton = new UIButton(canvas, OBS_DATA_AI, nullptr,XMFLOAT2(380 - selectButtonSize.x * 0.5f, 370 - selectButtonSize.y * 0.5f), selectButtonSize,
 		aiSRV, aiHoverSRV, aiPressSRV);
-	pvpButton = new UIButton(canvas, &OBS_DATA_PVP, sizeof(OBS_DATA_PVP), XMFLOAT2(380 - selectButtonSize.x * 0.5f, 520 - selectButtonSize.y * 0.5f), selectButtonSize,
+	pvpButton = new UIButton(canvas, OBS_DATA_PVP, nullptr, XMFLOAT2(380 - selectButtonSize.x * 0.5f, 520 - selectButtonSize.y * 0.5f), selectButtonSize,
 		pvpSRV, pvpHoverSRV, pvpPressSRV);
-	aiNormalButton = new UIButton(canvas, &OBS_DATA_AI_NORMAL, sizeof(OBS_DATA_AI_NORMAL), XMFLOAT2(380 - diffButtonSize.x * 0.5f, 370 - diffButtonSize.y * 0.5f), diffButtonSize,
+	aiNormalButton = new UIButton(canvas, OBS_DATA_AI_NORMAL, nullptr, XMFLOAT2(380 - diffButtonSize.x * 0.5f, 370 - diffButtonSize.y * 0.5f), diffButtonSize,
 		diffNormalSRV, diffNormalHoverSRV, diffNormalPressSRV);
-	aiHardButton = new UIButton(canvas, &OBS_DATA_AI_HARD, sizeof(OBS_DATA_AI_HARD), XMFLOAT2(380 - diffButtonSize.x * 0.5f, 520 - diffButtonSize.y * 0.5f), diffButtonSize,
+	aiHardButton = new UIButton(canvas, OBS_DATA_AI_HARD, nullptr, XMFLOAT2(380 - diffButtonSize.x * 0.5f, 520 - diffButtonSize.y * 0.5f), diffButtonSize,
 		diffHardSRV, diffHardHoverSRV, diffHardPressSRV);
 	singleButton->AddObserver(this);
 	pvpButton->AddObserver(this);
@@ -91,11 +91,9 @@ void Lobby::Render(const Camera* camera, UINT sceneDepth) const
 	canvas->Render(sceneDepth);
 }	
 
-void Lobby::Notify(const void* data)
+void Lobby::Notify(unsigned int id, const void* data)
 {
-	int value = *((int*)data);
-
-	switch (value)
+	switch (id)
 	{
 	case OBS_DATA_AI:
 		singleButton->SetEnabled(false);

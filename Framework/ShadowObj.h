@@ -1,5 +1,8 @@
 #pragma once
 #include "Object.h"
+
+class Camera;
+
 class ShadowObj :
 	public Object
 {

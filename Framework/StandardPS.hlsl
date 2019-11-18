@@ -107,7 +107,8 @@ float4 main(PS_INPUT input) : SV_Target
     
     float3 tex = diffuseTex.Sample(samp, input.tex).xyz;
     //debug REMOVE
-    return float4(wNormal, 1);
+    return float4(tex, 1);
+
 
 
     tex = ComputeTransparency(tex, wNormal, look);

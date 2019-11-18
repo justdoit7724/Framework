@@ -56,10 +56,9 @@ private:
 class UIButton : public UI, public Subject, public IDebug
 {
 public:
-	UIButton(UICanvas* canvas, const void* data, UINT dataSize, XMFLOAT2 pivot, XMFLOAT2 size, ID3D11ShaderResourceView* idleSRV, ID3D11ShaderResourceView* hoverSRV, ID3D11ShaderResourceView* pressSRV);
+	UIButton(UICanvas* canvas, UINT trigID, const void* trigData, XMFLOAT2 pivot, XMFLOAT2 size, ID3D11ShaderResourceView* idleSRV, ID3D11ShaderResourceView* hoverSRV, ID3D11ShaderResourceView* pressSRV);
 	void Visualize()override;
 private:
-	~UIButton();
 	friend class UICanvas;
 
 	void Update(const Camera* camera) override;
@@ -73,7 +72,8 @@ private:
 
 	Geometrics::Plane bound;
 
-	void* triggerData;
+	UINT triggerID;
+	const void* triggerData;
 };
 
 

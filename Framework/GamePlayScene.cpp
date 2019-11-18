@@ -25,11 +25,13 @@ GamePlayScene::GamePlayScene()
 
 	CameraMgr::Instance()->SetMain("Lobby");
 
-	std::vector<XMFLOAT3> firstTileArrange;
-	std::vector<XMFLOAT3> firstTokenArrange;
-	gameLogic = new NonagaLogic(&firstTileArrange, &firstTokenArrange);
-	tokenMgr = new TokenMgr(firstTokenArrange);
-	tileMgr = new TileMgr(firstTileArrange);
+	gameLogic = new NonagaLogic();
+	tokenMgr = new TokenMgr();
+	tileMgr = new TileMgr();
+	gameLogic->AddObserver(tokenMgr);
+	gameLogic->AddObserver(tileMgr);
+
+	gameLogic->SetupFirstArrange();
 
 	Debugging::Instance()->EnableGrid(10);
 
@@ -104,9 +106,9 @@ void GamePlayScene::Update(float elapsed, float spf)
 	Geometrics::Ray camRay;
 	camera->Pick(&camRay);
 
-	gameLogic->Update(camRay);
+	gameLogic->Update(camRay, tokenMgr->GetPickingTokenID(), tileMgr->GetCurTileID());
 	tokenMgr->Update(camRay);
-	tileMgr->Update();
+	tileMgr->Update(camRay);
 
 }
 
@@ -127,7 +129,7 @@ void GamePlayScene::Render(const Camera* camera, UINT sceneDepth) const
 	}
 
 	tileMgr->Render(curTempVP, camera->transform->GetPos(), camera->GetFrustum(), sceneDepth);
-	tokenMgr->Render(curTempVP, camera->transform->GetPos(), sceneDepth);
+	tokenMgr->Render(curTempVP, camera->transform->GetPos(), camera->GetFrustum(), sceneDepth);
 }
 
 void GamePlayScene::Message(UINT msg)

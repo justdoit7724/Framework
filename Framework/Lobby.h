@@ -5,7 +5,6 @@
 class UICanvas;
 class UI;
 class UIButton;
-class Camera;
 
 class Lobby : public Scene, public Observer
 {
@@ -16,7 +15,7 @@ public:
 	void Update(float elapsed, float spf) override;
 	void Render(const Camera* camera, UINT sceneDepth)const override;
 
-	void Notify(const void* data)override;
+	void Notify(unsigned int id, const void* data)override;
 
 private:
 

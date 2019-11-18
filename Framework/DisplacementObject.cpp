@@ -66,11 +66,9 @@ DisplacementObject::DisplacementObject(
 	ps->AddSamp(1, 1, &sampDesc);
 }
 
-void DisplacementObject::Render(const Camera* camera, UINT sceneDepth)const
+void DisplacementObject::Render(const XMMATRIX& vp, XMFLOAT3 eye, UINT sceneDepth)const
 {
-	XMFLOAT3 eye = camera->transform->GetPos();
-
-	const SHADER_STD_TRANSF STransformation(transform->WorldMatrix(), camera->VMat() * camera->ProjMat(zOrder), XMMatrixIdentity());
+	const SHADER_STD_TRANSF STransformation(transform->WorldMatrix(), vp, XMMatrixIdentity());
 
 	vs->WriteCB(0, (void*)(&STransformation));
 	vs->WriteCB(1, &XMFLOAT4(eye.x, eye.y, eye.z,0));

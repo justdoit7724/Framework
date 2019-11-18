@@ -101,11 +101,11 @@ void UI::Render(const Camera* camera)const
 }
 
 
-UIButton::UIButton(UICanvas* canvas, const void* data, UINT dataSize, XMFLOAT2 pivot, XMFLOAT2 size, ID3D11ShaderResourceView* idleSRV, ID3D11ShaderResourceView* hoverSRV, ID3D11ShaderResourceView* pressSRV)
+UIButton::UIButton(UICanvas* canvas, UINT trigID, const void* trigData, XMFLOAT2 pivot, XMFLOAT2 size, ID3D11ShaderResourceView* idleSRV, ID3D11ShaderResourceView* hoverSRV, ID3D11ShaderResourceView* pressSRV)
 	:UI(canvas, pivot, size, 0, nullptr), idleSRV(idleSRV), hoverSRV(hoverSRV), pressSRV(pressSRV)
 {
-	triggerData = malloc(dataSize);
-	memcpy(triggerData, data, dataSize);
+	triggerID = trigID;
+	triggerData = trigData;
 
 	bound = Geometrics::Plane(transform->GetPos(),
 		transform->GetForward(),
@@ -114,10 +114,6 @@ UIButton::UIButton(UICanvas* canvas, const void* data, UINT dataSize, XMFLOAT2 p
 
 }
 
-UIButton::~UIButton()
-{
-	delete triggerData;
-}
 void UIButton::Visualize()
 {
 	XMFLOAT3 c = transform->GetPos();
@@ -159,7 +155,7 @@ void UIButton::Update(const Camera* camera)
 			break;
 		case MOUSE_STATE_UP:
 		{
-			Notify(triggerData);
+			Notify(triggerID, triggerData);
 		}
 			break;
 		}

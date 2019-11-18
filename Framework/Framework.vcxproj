@@ -168,7 +168,6 @@
     <ClCompile Include="MeshLoader.cpp" />
     <ClCompile Include="Mirror.cpp" />
     <ClCompile Include="Mouse.cpp" />
-    <ClCompile Include="nanosuit.cpp" />
     <ClCompile Include="NonagaLogic.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="PT_Obj.cpp" />
@@ -206,8 +205,8 @@
     <ClInclude Include="Glass.h" />
     <ClInclude Include="Lobby.h" />
     <ClInclude Include="MeshLoader.h" />
-    <ClInclude Include="nanosuit.h" />
     <ClInclude Include="NonagaLogic.h" />
+    <ClInclude Include="CommObjInfo.h" />
     <ClInclude Include="ObserverDP.h" />
     <ClInclude Include="ShaderFormat.h" />
     <ClInclude Include="Cylinder.h" />

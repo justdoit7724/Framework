@@ -38,10 +38,10 @@ Skybox::Skybox(ID3D11ShaderResourceView* srv)
 	rsState = new RasterizerState(&rs_desc);
 }
 
-void Skybox::Render(const Camera* camera, UINT sceneDepth) const
+void Skybox::Render(const XMMATRIX& vp, XMFLOAT3 eye, UINT sceneDepth) const
 {
-	transform->SetTranslation(camera->transform->GetPos());
-	XMMATRIX wvp = transform->WorldMatrix() * camera->VMat() * camera->ProjMat(zOrder);
+	transform->SetTranslation(eye);
+	XMMATRIX wvp = transform->WorldMatrix() * vp;
 	vs->WriteCB(0, &wvp);
 
 	Object::Render();

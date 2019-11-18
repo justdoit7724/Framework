@@ -2,6 +2,7 @@
 #include "Object.h"
 
 class Scene;
+class Camera;
 
 class Mirror :
 	public Object
@@ -10,7 +11,7 @@ public:
 	Mirror(Scene* captureScene, UINT width, UINT height);
 
 	void Update()override;
-	void Render(const Camera* camera, UINT sceneDepth)const override;
+	void Render(const XMMATRIX& vp, XMFLOAT3 eye, UINT sceneDepth)const override;
 
 	Scene* const captureScene;
 	const XMINT2 resolution;

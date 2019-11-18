@@ -3,9 +3,12 @@
 
 class Observer
 {
-public:
-	virtual void Notify(const void* data) = 0;
+private:
+	friend class Subject;
+	virtual void Notify(unsigned int id, const void* data) = 0;
 };
+
+
 class Subject
 {
 private:
@@ -14,8 +17,8 @@ private:
 public:
 	void AddObserver(Observer* observer) { observers.insert(observer); }
 	void RemoveObserver(Observer* observer) { observers.erase(observer); }
-	void Notify(const void* data) {
+	void Notify(unsigned int id, const void* data) {
 		for (auto ob : observers)
-			ob->Notify(data);
+			ob->Notify(id, data);
 	}
 };
