@@ -4,6 +4,9 @@
 #include <assert.h>
 #include <limits>
 
+#ifndef GEOMETRICS
+#define GEOMETRICS
+
 using namespace DirectX;
 
 #define FORWARD XMFLOAT3(0,0,1)
@@ -251,6 +254,17 @@ namespace Geometrics {
 
 		return (Dot(toRayPt, dir) < sph.rad);
 	}
+	inline bool IntersectRayPlaneInf(const Ray ray, const PlaneInf plane, XMFLOAT3* itsPt)
+	{
+		float dirDot = Dot(ray.d, plane.n);
+		if (dirDot == 0)
+			return false;
+
+		float t = Dot(plane.n, plane.p - ray.o) / dirDot;
+		*itsPt = ray.o + ray.d * t;
+
+		return true;
+	}
 	// considered infinite ray & both plane side
 	inline bool IntersectRayPlane(Ray ray, Plane plane, XMFLOAT3* itsPt)
 	{
@@ -269,5 +283,5 @@ namespace Geometrics {
 	}
 }
 
-
+#endif
 

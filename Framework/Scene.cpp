@@ -27,8 +27,6 @@ void Scene::FrustumCulling(const Camera* camera)
 {
 	for (auto obj : objs)
 	{
-		obj->UpdateBound();
-
 		obj->enabled = obj->IsInsideFrustum(camera->GetFrustum());
 	}
 }

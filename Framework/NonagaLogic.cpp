@@ -1,4 +1,5 @@
 ﻿#include "NonagaLogic.h"
+#include "Debugging.h"
 
 /* 2d array tile.
 Only even index tile will be used in order to implement hexagonal arrangement of tile.
@@ -14,7 +15,7 @@ Transformation needed after.
 #define TILE_SPACE_COUNT_X 25
 #define TILE_SPACE_COUNT_Z 25
 #define TILE_SPACE_INTERVAL_X 10.0f
-#define TILE_SPACE_INTERVAL_Z 12.0f
+#define TILE_SPACE_INTERVAL_Z 10.0f
 #define TILE_OBJ_COUNT 19
 
 NonagaLogic::NonagaLogic(
@@ -24,14 +25,26 @@ NonagaLogic::NonagaLogic(
 	firstTileArrange->clear();
 	firstTokenArrange->clear();
 
+	curPlayState = PLAY_STATE_P1_TOKEN;
+
 	playSpace = new PlaySpace * [TILE_SPACE_COUNT_Z * TILE_SPACE_COUNT_X]{ nullptr };
 
 	// create tile space
 	int centerIDZ = TILE_SPACE_COUNT_Z / 2.0f;
 	int centerIDX = TILE_SPACE_COUNT_X / 2.0f;
 
+	tileSpaceMat = XMMATRIX(
+		TILE_SPACE_INTERVAL_X, 0, 0, 0,
+		0, 1, 0, 0,
+		0, 0, TILE_SPACE_INTERVAL_Z / 2.0f, 0,
+		-TILE_SPACE_INTERVAL_X * centerIDX, 0, -TILE_SPACE_INTERVAL_Z * centerIDZ / 2.0f, 1);
+
+	invTileSpaceMat = XMMatrixInverse(&XMMatrixDeterminant(tileSpaceMat), tileSpaceMat);
+
+	tileDetectPlane = Geometrics::PlaneInf(XMFLOAT3(0, 0, 0), UP);
+	tokenDetectPlane = Geometrics::PlaneInf(XMFLOAT3(0, 4, 0), UP);
+
 	int tileObjIdx = -1;
-	XMFLOAT3 origin = -XMFLOAT3(TILE_SPACE_INTERVAL_X*centerIDX, 0, TILE_SPACE_INTERVAL_Z*centerIDZ/2.0f);
 	std::vector<int> p1Id;
 	std::vector<int> p2Id;
 	for (int z = 0; z < TILE_SPACE_COUNT_Z; ++z)
@@ -42,8 +55,8 @@ NonagaLogic::NonagaLogic(
 			if (idx & 1)
 				continue;
  
-			XMFLOAT3 offset = XMFLOAT3(TILE_SPACE_INTERVAL_X*x, 0, TILE_SPACE_INTERVAL_Z*z/2.0f);
-			playSpace[idx] = new PlaySpace(origin + offset);
+			XMFLOAT3 offset = XMFLOAT3(x, 0, z);
+			playSpace[idx] = new PlaySpace(Multiply(offset, tileSpaceMat));
 			 
 			// find out first tile arrange area
 			float idDistX = abs(centerIDX - x);
@@ -100,6 +113,50 @@ NonagaLogic::~NonagaLogic()
 	}
 
 	delete[] playSpace;
+}
+
+XMINT2 NonagaLogic::Convert2ID(XMFLOAT3 pickPt)
+{
+	XMFLOAT3 mTokenPt = Multiply(pickPt, invTileSpaceMat);
+	int evenOdd = (int)mTokenPt.x & 1;
+
+	return XMINT2(mTokenPt.x, floor((mTokenPt.z - evenOdd + 0.5f)/2.0f)*2 + evenOdd);
+
+}
+void NonagaLogic::Update(const Geometrics::Ray ray)
+{
+	switch (curPlayState)
+	{
+	case NonagaLogic::PLAY_STATE_P1_TOKEN:
+	{
+		XMFLOAT3 curTokenPickPt;
+		Geometrics::IntersectRayPlaneInf(ray, tokenDetectPlane, &curTokenPickPt);
+		
+		XMINT2 pickID = Convert2ID(curTokenPickPt);
+		Debugging::Instance()->Draw("pt x ID = ", pickID.x, 10, 10);
+		if (pickID.x <0 || pickID.x >= TILE_SPACE_COUNT_X || pickID.y <0 || pickID.y >=TILE_SPACE_COUNT_Z)
+			return;
+		UINT idx = pickID.x + pickID.y * TILE_SPACE_COUNT_X;
+		if (playSpace[idx] == nullptr)
+			return;
+	}
+		break;
+	case NonagaLogic::PLAY_STATE_P1_TILE:
+	{
+		XMFLOAT3 curTilePickPt;
+		Geometrics::IntersectRayPlaneInf(ray, tileDetectPlane, &curTilePickPt);
+		XMFLOAT3 mTilePt = Multiply(curTilePickPt, invTileSpaceMat);
+
+	}
+		break;
+	case NonagaLogic::PLAY_STATE_P2_TOKEN:
+		break;
+	case NonagaLogic::PLAY_STATE_P2_TILE:
+		break;
+	}
+
+
+
 }
 
 void NonagaLogic::MoveToken(unsigned int* id, XMFLOAT3* pos)

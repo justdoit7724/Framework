@@ -10,6 +10,9 @@
 #include "BlendState.h"
 #include "RasterizerState.h"
 #include "Light.h"
+#include "Debugging.h"
+
+#define TOKEN_PICKING_NONE -1
 
 //debug remove
 #include "Cylinder.h"
@@ -43,7 +46,11 @@ TokenMgr::TokenMgr(const std::vector<XMFLOAT3>& firstArrange)
 		}
 		tokens[i]->transform->SetScale(0.02f, 0.02f, 0.02f);
 		tokens[i]->transform->SetTranslation(firstArrange[i]);
+
+		Debugging::Instance()->Visualize(tokens[i]);
 	}
+
+	curPickingTokenID = TOKEN_PICKING_NONE;
 }
 
 TokenMgr::~TokenMgr()
@@ -60,11 +67,15 @@ void TokenMgr::Move(UINT id, XMFLOAT3 to)
 }
 
 
-void TokenMgr::Update()
+void TokenMgr::Update(const Geometrics::Ray ray)
 {
-	for (auto token : tokens)
+	curPickingTokenID = TOKEN_PICKING_NONE;
+	for (int i=0; i< tokens.size(); ++i)
 	{
-		token->Update();
+		tokens[i]->Update();
+
+		if (tokens[i]->IsPicking(ray))
+			curPickingTokenID = i;
 	}
 }
 

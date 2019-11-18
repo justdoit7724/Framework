@@ -25,10 +25,10 @@ public:
 	~Object();
 
 	virtual void Update();
-	virtual void UpdateBound();
 	virtual void Render(const Camera* camera, UINT sceneDepth) const;
 	void RenderGeom() const;
 	virtual bool IsInsideFrustum(const Frustum* frustum) const;
+	virtual bool IsPicking(const Geometrics::Ray ray)const;
 
 	void Visualize() override;
 
@@ -52,6 +52,7 @@ public:
 protected:
 	Object();
 	void Render()const;
+	virtual void UpdateBound();
 
 
 	XMMATRIX worldMat;

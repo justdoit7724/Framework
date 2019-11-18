@@ -98,7 +98,7 @@ Object::~Object()
 
 void Object::Update()
 {
-	
+	UpdateBound();
 }
 
 void Object::UpdateBound()
@@ -157,6 +157,11 @@ bool Object::IsInsideFrustum(const Frustum* frustum) const
 		IntersectInPlaneSphere(frustum->left, bound) &&
 		IntersectInPlaneSphere(frustum->top, bound) &&
 		IntersectInPlaneSphere(frustum->bottom, bound));
+}
+
+bool Object::IsPicking(const Geometrics::Ray ray) const
+{
+	return Geometrics::IntersectRaySphere(ray, bound);
 }
 
 void Object::Visualize()

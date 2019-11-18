@@ -101,7 +101,13 @@ void GamePlayScene::Update(float elapsed, float spf)
 		break;
 	}
 
+	Geometrics::Ray camRay;
+	camera->Pick(&camRay);
+
+	gameLogic->Update(camRay);
+	tokenMgr->Update(camRay);
 	tileMgr->Update();
+
 }
 
 void GamePlayScene::Render(const Camera* camera, UINT sceneDepth) const
@@ -145,7 +151,6 @@ bool GamePlayScene::CameraFrameLerping(float spf)
 {
 	curTime += spf;
 	float t = pow(std::fminf(1,curTime / camFrameLerpingTime),16);
-	Debugging::Instance()->Draw("t = ", t, 10, 10);
 
 	curP = XMMATRIX(
 		Lerp(orthogonalP._11, perspectiveP._11, t), 0, 0, 0,
