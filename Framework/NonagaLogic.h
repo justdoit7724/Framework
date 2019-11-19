@@ -11,15 +11,16 @@ public:
 	void SetupFirstArrange();
 
 	void Update(const Geometrics::Ray ray, unsigned int curTokenID, unsigned int curTileID);
-	
-	void MoveToken(unsigned int* id, XMFLOAT3* pos);
-	void MoveTile(unsigned int* id, XMFLOAT3* pos);
-	bool PreviewToken(bool* isPossible, XMFLOAT3* pos);
-	bool PreviewTile(bool* isPossible, XMFLOAT3* pos);
 private:
+	void TokenDragStart(bool range, unsigned int curTokenID, XMUINT2 curId2);
+	void TokenDragging(bool range, XMUINT2 curId2);
+	void TokenMove();
+	void TileDragStart(bool range, unsigned int curTokenID, XMUINT2 curId2);
+	void TileDragging(bool range);
+	void TileMove();
 	void CheckDirection(XMUINT2 id2, XMINT2 offset);
 	void CalcDests(XMUINT2 id2);
-	bool GetCurID2(const Geometrics::Ray ray, XMUINT2* id);
+	bool GetCurID2(const Geometrics::Ray& ray, const Geometrics::PlaneInf& detectPlane, XMUINT2* id);
 	enum TILE_STATE {
 		TILE_STATE_NONE,
 		TILE_STATE_TILE,
@@ -49,8 +50,10 @@ private:
 	XMMATRIX invTileSpaceMat;
 	Geometrics::PlaneInf tileDetectPlane;
 	Geometrics::PlaneInf tokenDetectPlane;
-	unsigned int holdingToken;
-	unsigned int curIdx;
-	unsigned int holdingTile;
+	int holdingTokenObjID;
+	int holdingSpaceID;
+	int curIdx;
+	int holdingTileObjID;
 	std::unordered_set<unsigned int> tempDest;
+	bool p1Turn;
 };

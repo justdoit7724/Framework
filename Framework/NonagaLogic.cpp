@@ -23,9 +23,12 @@ Transformation needed after.
 NonagaLogic::NonagaLogic()
 {
 	curPlayState = PLAY_STATE_P1_TOKEN;
-	holdingToken = OBJ_PICKING_NONE;
-	holdingTile = OBJ_PICKING_NONE;
+	holdingTokenObjID = OBJ_PICKING_NONE;
+	holdingTileObjID = OBJ_PICKING_NONE;
 	curIdx = OBJ_PICKING_NONE;
+	holdingSpaceID = OBJ_PICKING_NONE;
+
+	p1Turn = true;
 }
 
 NonagaLogic::~NonagaLogic()
@@ -116,7 +119,11 @@ void NonagaLogic::SetupFirstArrange()
 
 	Notify(OBS_TILE_FIRST_ARRANGE, firstTileArrange.data());
 	Notify(OBS_TOKEN_FIRST_ARRANGE, firstTokenArrange.data());
+
+	p1Turn = true;
 }
+
+
 
 void NonagaLogic::CheckDirection(XMUINT2 id2, XMINT2 offset)
 {
@@ -157,10 +164,10 @@ void NonagaLogic::CalcDests(XMUINT2 id2)
 	CheckDirection(id2, XMINT2(0, -2));
 }
 
-bool NonagaLogic::GetCurID2(const Geometrics::Ray ray, XMUINT2* id)
+bool NonagaLogic::GetCurID2(const Geometrics::Ray& ray, const Geometrics::PlaneInf& detectPlane, XMUINT2* id)
 {
 	XMFLOAT3 curTokenPickPt;
-	Geometrics::IntersectRayPlaneInf(ray, tokenDetectPlane, &curTokenPickPt);
+	Geometrics::IntersectRayPlaneInf(ray, detectPlane, &curTokenPickPt);
 
 	XMFLOAT3 mTokenPt = Multiply(curTokenPickPt, invTileSpaceMat);
 	mTokenPt += XMFLOAT3(0.5f, 0, 0.5f);
@@ -173,91 +180,142 @@ bool NonagaLogic::GetCurID2(const Geometrics::Ray ray, XMUINT2* id)
 	return (0 <= tempID.x || tempID.x < TILE_SPACE_COUNT_X || 0 < tempID.y || tempID.y < TILE_SPACE_COUNT_Z);
 
 }
+void NonagaLogic::TokenDragStart(bool range, unsigned int curTokenID, XMUINT2 curId2)
+{
+	holdingTokenObjID = curTokenID;
+
+	if (holdingTokenObjID == OBJ_PICKING_NONE ||
+		(p1Turn && curTokenID >= 3) ||
+		(!p1Turn && curTokenID <= 2))
+	{
+		holdingTokenObjID = OBJ_PICKING_NONE;
+	}
+	else if(range)
+	{
+		CalcDests(curId2);
+	}
+}
+
+void NonagaLogic::TokenDragging(bool range, XMUINT2 curId2)
+{
+	if (holdingTokenObjID != OBJ_PICKING_NONE)
+	{
+		UINT obsID = OBS_TOKEN_DISABLE_INDICATOR;
+		XMFLOAT3* obsData = nullptr;
+
+		if (range)
+		{
+			curIdx = curId2.x + curId2.y * TILE_SPACE_COUNT_X;
+
+			if (playSpace[curIdx]->state == TILE_STATE_TILE)
+			{
+				if (tempDest.count(curIdx))
+				{
+					obsID = OBS_TOKEN_ENABLE_INDICATOR_GREEN;
+					obsData = &playSpace[curIdx]->pos;
+				}
+				else
+				{
+					obsID = OBS_TOKEN_ENABLE_INDICATOR_RED;
+					obsData = &playSpace[curIdx]->pos;
+				}
+			}
+
+		}
+
+		Notify(obsID, obsData);
+	}
+}
+void NonagaLogic::TokenMove()
+{
+	if (holdingTokenObjID != OBJ_PICKING_NONE && tempDest.count(curIdx))
+	{
+		XMFLOAT4 data = XMFLOAT4(
+			playSpace[curIdx]->pos.x,
+			playSpace[curIdx]->pos.y,
+			playSpace[curIdx]->pos.z,
+			holdingTokenObjID);
+		Notify(OBS_TOKEN_MOVE, &data);
+
+		playSpace[holdingSpaceID]->state = TILE_STATE_TILE;
+		playSpace[curIdx]->state = p1Turn? TILE_STATE_P1 : TILE_STATE_P2;
+	}
+	else
+	{
+		Notify(OBS_TOKEN_DISABLE_INDICATOR, nullptr);
+	}
+}
+void NonagaLogic::TileDragStart(bool range, unsigned int curTokenID, XMUINT2 curId2)
+{
+	holdingTileObjID = curTokenID;
+
+	if (holdingTileObjID == OBJ_PICKING_NONE)
+	{
+		
+	}
+	else if (range)
+	{
+		CalcDests(curId2);
+	}
+}
+void NonagaLogic::TileDragging(bool range)
+{
+}
+void NonagaLogic::TileMove()
+{
+}
 void NonagaLogic::Update(const Geometrics::Ray ray, unsigned int curTokenID, unsigned int curTileID)
 {
+
 	switch (curPlayState)
 	{
 	case PLAY_STATE_P1_TOKEN:
 	{
+		XMUINT2 curID2;
+		const bool isInRange = GetCurID2(ray, tokenDetectPlane, &curID2);
+		curIdx = curID2.x + curID2.y * TILE_SPACE_COUNT_X;
+
 		switch (Mouse::Instance()->LeftState())
 		{
 		case MOUSE_STATE_DOWN:
-		{
-			holdingToken = curTokenID;
-
-			XMUINT2 curId2;
-			if (GetCurID2(ray, &curId2))
-				CalcDests(curId2);
-		}
-			break;
-		case MOUSE_STATE_RELEASE:
-
+			holdingSpaceID = curIdx;
+			TokenDragStart(isInRange, curTokenID, curID2);
 			break;
 		case MOUSE_STATE_PRESSING:
-		{
-			UINT obsID = OBS_TOKEN_DISABLE_INDICATOR;
-			XMFLOAT3* obsData = nullptr;
-
-			XMUINT2 curId2;
-			if (GetCurID2(ray, &curId2))
-			{
-				curIdx = curId2.x + curId2.y * TILE_SPACE_COUNT_X;
-
-				if (holdingToken != OBJ_PICKING_NONE)
-				{
-					if (playSpace[curIdx]->state == TILE_STATE_TILE)
-					{
-						if (tempDest.count(curIdx))
-						{
-							obsID = OBS_TOKEN_ENABLE_INDICATOR_GREEN;
-							obsData = &playSpace[curIdx]->pos;
-						}
-						else
-						{
-							obsID = OBS_TOKEN_ENABLE_INDICATOR_RED;
-							obsData = &playSpace[curIdx]->pos;
-						}
-					}
-				}
-			}
-
-			Notify(obsID, obsData);
-		}
+			TokenDragging(isInRange, curID2);
 			break;
 		case MOUSE_STATE_UP:
-			if (holdingToken != OBJ_PICKING_NONE && tempDest.count(curIdx))
-			{
-				XMFLOAT4 data = XMFLOAT4(
-					playSpace[curIdx]->pos.x,
-					playSpace[curIdx]->pos.y,
-					playSpace[curIdx]->pos.z,
-					holdingToken);
-				Notify(OBS_TOKEN_MOVE, &data);
-
-				playSpace[curIdx]->state = TILE_STATE_TILE;
-			}
-			else
-			{
-				Notify(OBS_TOKEN_DISABLE_INDICATOR, nullptr);
-			}
+			TokenMove();
 
 			curIdx = OBJ_PICKING_NONE;
-			holdingToken = OBJ_PICKING_NONE;
+			holdingTokenObjID = OBJ_PICKING_NONE;
+			holdingSpaceID = OBJ_PICKING_NONE;
+			curPlayState = PLAY_STATE_P1_TILE;
 			break;
 		}
-
-		
-		
-
-
 	}
 		break;
 	case PLAY_STATE_P1_TILE:
 	{
-		XMFLOAT3 curTilePickPt;
-		Geometrics::IntersectRayPlaneInf(ray, tileDetectPlane, &curTilePickPt);
-		XMFLOAT3 mTilePt = Multiply(curTilePickPt, invTileSpaceMat);
+		XMUINT2 curID2;
+		const bool isInRange = GetCurID2(ray, tileDetectPlane, &curID2);
+		curIdx = curID2.x + curID2.y * TILE_SPACE_COUNT_X;
 
+		switch (Mouse::Instance()->LeftState())
+		{
+		case MOUSE_STATE_DOWN:
+			TokenDragStart(isInRange, curTokenID, curID2);
+			break;
+		case MOUSE_STATE_PRESSING:
+			break;
+		case MOUSE_STATE_UP:
+			TokenMove();
+
+			curIdx = OBJ_PICKING_NONE;
+			holdingTokenObjID = OBJ_PICKING_NONE;
+			curPlayState = PLAY_STATE_P1_TILE;
+			break;
+		}
 	}
 		break;
 	case PLAY_STATE_P2_TOKEN:
@@ -270,20 +328,4 @@ void NonagaLogic::Update(const Geometrics::Ray ray, unsigned int curTokenID, uns
 
 }
 
-void NonagaLogic::MoveToken(unsigned int* id, XMFLOAT3* pos)
-{
-}
 
-void NonagaLogic::MoveTile(unsigned int* id, XMFLOAT3* pos)
-{
-}
-
-bool NonagaLogic::PreviewToken(bool* isPossible, XMFLOAT3* pos)
-{
-	return false;
-}
-
-bool NonagaLogic::PreviewTile(bool* isPossible, XMFLOAT3* pos)
-{
-	return false;
-}
