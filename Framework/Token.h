@@ -20,6 +20,7 @@ public:
 
 	bool IsP1() { return isP1; }
 	void SetEnabled(bool b);
+	Object* Obj() { return obj; }
 private:
 	Object* obj;
 	PlaySpace*const* space;

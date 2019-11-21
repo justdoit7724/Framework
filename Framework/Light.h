@@ -25,8 +25,6 @@ protected:
 	XMFLOAT3 ambient;
 	XMFLOAT3 diffuse;
 	XMFLOAT3 specular;
-	ComPtr<ID3D11ShaderResourceView> shadowMapSRV;
-	D3D11_VIEWPORT shadowMapVP;
 
 public:
 	enum STATE{
@@ -42,8 +40,6 @@ public:
 	virtual void SetDiffuse(const XMFLOAT3& d)=0;
 	virtual void SetSpecular(const XMFLOAT3& s)=0;
 	virtual void Enable(STATE enable) = 0;
-	virtual void ShadowCapture(std::vector<Object*>& objs)const = 0;
-	ID3D11ShaderResourceView* ShadowMapSRV() { return shadowMapSRV.Get(); }
 };
 
 class DirectionalLight : public Light
@@ -51,19 +47,17 @@ class DirectionalLight : public Light
 private:
 	static SHADER_DIRECTIONAL_LIGHT data;
 	static ComPtr<ID3D11Buffer> cb;
-	Camera* view;
-	ComPtr<ID3D11DepthStencilView> shadowMapDSV;
 
 public:
 	DirectionalLight(XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, XMFLOAT3 dir);
-	~DirectionalLight();
 	void SetAmbient(const XMFLOAT3& a) override;
 	void SetDiffuse(const XMFLOAT3& d) override;
 	void SetSpecular(const XMFLOAT3& s) override;
 	void SetDir( XMFLOAT3 d); 
 	void Enable(STATE enable) override;
-	void ShadowCapture(std::vector<Object*>& objs)const override;
 	void Update();
+
+	XMFLOAT3 GetDir()const;
 
 	static void Apply();
 };
@@ -76,8 +70,6 @@ private:
 
 	static SHADER_POINT_LIGHT data;
 	static ID3D11Buffer* cb;
-	Camera* view[6];
-	ComPtr<ID3D11DepthStencilView> shadowMapDSV[6];
 
 public:
 	PointLight(XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, float range, XMFLOAT3 att, XMFLOAT3 pos);
@@ -89,9 +81,7 @@ public:
 	void SetRange( float r);
 	void SetAtt( XMFLOAT3 at);
 	void Enable(STATE enable) override;
-	void ShadowCapture(std::vector<Object*>& objs)const override;
 	void Update();
-	const XMMATRIX& GetShadowPMat();
 
 	static void Apply();
 };
@@ -101,8 +91,6 @@ class SpotLight : public Light
 private:
 	static SHADER_SPOT_LIGHT data;
 	static ID3D11Buffer* cb;
-	Camera* view;
-	ComPtr<ID3D11DepthStencilView> shadowMapDSV;
 
 	float range;
 	float spot;
@@ -122,7 +110,6 @@ public:
 	void SetSpot( float s);
 	void SetAtt( XMFLOAT3 at);
 	void Enable(STATE enable);
-	void ShadowCapture(std::vector<Object*>& objs)const override;
 
 	static void Apply();
 };

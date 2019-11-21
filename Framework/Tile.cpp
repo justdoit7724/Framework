@@ -9,15 +9,19 @@
 Tile::Tile(PlaySpace* const* space, unsigned int id)
 	:space(space), id(id)
 {
-	obj = new Object(new Cylinder(30), nullptr, nullptr);
+	TextureMgr::Instance()->Load("normal", "Data\\Texture\\default_normal.png");
+	TextureMgr::Instance()->Load("red", "Data\\Texture\\red_light.png");
+	TextureMgr::Instance()->Load("green", "Data\\Texture\\green_light.png");
+	obj = new Object(new Cylinder(30), TextureMgr::Instance()->Get("green"), TextureMgr::Instance()->Get("normal"));
 	obj->transform->SetScale(10, 1, 10);
 }
 
 Tile::Tile(bool isRed)
 {
+	TextureMgr::Instance()->Load("normal", "Data\\Texture\\default_normal.png");
 	TextureMgr::Instance()->Load("red", "Data\\Texture\\red_light.png");
 	TextureMgr::Instance()->Load("green", "Data\\Texture\\green_light.png");
-	obj = new Object(new Cylinder(30), TextureMgr::Instance()->Get(isRed ? "red" : "green"), nullptr);
+	obj = new Object(new Cylinder(30), TextureMgr::Instance()->Get(isRed ? "red" : "green"), TextureMgr::Instance()->Get("normal"));
 	obj->transform->SetScale(10, 1, 10);
 }
 
@@ -60,4 +64,9 @@ bool Tile::IsPicking(const Geometrics::Ray ray)
 void Tile::SetEnabled(bool e)
 {
 	obj->SetEnabled(e);
+}
+
+Object* Tile::Obj()
+{
+	return obj;
 }

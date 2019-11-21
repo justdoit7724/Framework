@@ -33,12 +33,10 @@ void Scene::Render(const Camera* camera, UINT sceneDepth) const
 	}
 }
 
-void Scene::Objs(OUT std::vector<const Object*>& list)
+const Object* Scene::GetObj(UINT id)
 {
-	list.clear();
+	if (objs.size() <= id)
+		return nullptr;
 
-	for (auto obj : objs)
-	{
-		list.push_back(obj);
-	}
+	return objs[id];
 }

@@ -15,6 +15,7 @@
 #include "GamePlayScene.h"
 #include "CameraMgr.h"
 #include "Keyboard.h"
+#include <dxgidebug.h>
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 
@@ -24,13 +25,16 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 
 #ifdef _DEBUG
-	SceneMgr::Instance()->Add("Debugging", new DebuggingScene());
+	Scene* debugScene = new DebuggingScene();
+	SceneMgr::Instance()->Add("Debugging", debugScene);
 	SceneMgr::Instance()->SetEnabled("Debugging", true);
 #endif // !_DEBUG
 
-	SceneMgr::Instance()->Add("GamePlay", new GamePlayScene());
+	Scene* playScene = new GamePlayScene();
+	SceneMgr::Instance()->Add("GamePlay", playScene);
 	SceneMgr::Instance()->SetEnabled("GamePlay", true);
-	SceneMgr::Instance()->Add("Lobby",new Lobby());
+	Scene* lobbyScene = new Lobby();
+	SceneMgr::Instance()->Add("Lobby", lobbyScene);
 	SceneMgr::Instance()->SetEnabled("Lobby", true);
 
 	Timer* worldTimer = new Timer();
@@ -62,16 +66,18 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 	DestroyWindow(window.Hwnd());
 
+
+
 	delete worldTimer;
 	delete graphic;
 
-
 	TextureMgr::Instance()->Release();
 	SceneMgr::Instance()->Release();
-	CameraMgr::Instance()->Release();
-	Mouse::Instance()->Release();
 
 
+	ID3D11Debug* debug;
+	r_assert(DX_Device->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void**>(&debug)));
+	debug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
 
 	return 0;
 }

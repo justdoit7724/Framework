@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "Geometrics.h"
 #include "TileSpaceInfo.h"
+#include <vector>
 
 class Token;
 class Tile;
@@ -16,11 +17,11 @@ public:
 	~NonagaLogic();
 
 	void Update(const Geometrics::Ray ray);
-	void Render(const XMMATRIX& vp, XMFLOAT3 eye, unsigned int sceneDepth);
+	void Objs(std::vector<Object*>& obj);
 
+	void Render(const XMMATRIX& vp, XMFLOAT3 eye, unsigned int sceneDepth)const;
 	
 private:
-	int SingleID();
 	int GetScore();
 	bool IsWin();
 	void TokenDragStart(const Geometrics::Ray ray);

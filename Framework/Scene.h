@@ -6,14 +6,14 @@ class Object;
 class SceneMgr;
 class Camera;
 
-class Scene 
+class Scene
 {
 public:
 	virtual ~Scene();
 
 	virtual void Update(float elapsed, float spf);
 	virtual void Render(const Camera* camera, UINT sceneDepth)const;
-	void Objs(OUT std::vector<const Object*>& obj);
+	const Object* GetObj(UINT id);
 
 	virtual void Message(UINT msg) {};
 	bool Enabled() { return enabled; }

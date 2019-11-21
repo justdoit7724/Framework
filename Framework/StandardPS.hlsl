@@ -1,25 +1,27 @@
 
 #include "ShaderInfo.cginc"
 #include "ShaderLight.cginc"
+#include "ShaderShadow.cginc"
+#include "ShaderReg.cginc"
 
 #define REFRACTION_INDEX_GLASS 1.2
 
-cbuffer EYE : register(b3)
+cbuffer EYE : SHADER_REG_PS_CB_EYE
 {
     float4 eyePos;
 };
 
-TextureCube cmTex : register(t0);
-Texture2D diffuseTex : register(t1);
-Texture2D normalTex : register(t2);
-Texture2D shadowTex : register(t3);
-Texture2D ssaoTex : register(t4);
+
+TextureCube cmTex : SHADER_REG_PS_SRV_CM;
+Texture2D diffuseTex : SHADER_REG_PS_SRV_DIFFUSE;
+Texture2D normalTex : SHADER_REG_PS_SRV_NORMAL;
+Texture2D ssaoTex : SHADER_REG_PS_SRV_SSAO;
 Texture2D metalicTex : register(t5);
 Texture2D roughnessTex : register(t6);
 //...
 
-SamplerState cmSamp : register(s0);
-SamplerState samp : register(s1);
+SamplerState cmSamp : SHADER_REG_PS_SAMP_CM;
+SamplerState samp : SHADER_REG_PS_SAMP_TEX;
 
 float3 GetBodyNormal(float2 tex)
 {
@@ -76,7 +78,9 @@ float4 main(PS_INPUT input) : SV_Target
     float3 wNormal = normalize(mul(tNormal, tbn));
 
     float3 look = normalize(input.wPos-eyePos.xyz);
-
+    
+    //debug remove return
+    return float4(DirectionalLightShadowFactor(wNormal, d_Dir[0].xyz, input.wPos).xxx, 1);
     
     float4 ambient = 0;
     float4 diffuse = 0;
@@ -103,18 +107,13 @@ float4 main(PS_INPUT input) : SV_Target
     
     float3 tex = diffuseTex.Sample(samp, input.tex).xyz;
 
-    //debug REMOVE
-    return float4((tex + wNormal)/2, 1);
 
 
 
     tex = ComputeTransparency(tex, wNormal, look);
     
     color = light * tex;
-
-    //debug
-    return float4(color, 1);
-
+    
     float4x4 uvMat = float4x4(
         0.5, 0, 0, 0,
         0, -0.5, 0, 0,

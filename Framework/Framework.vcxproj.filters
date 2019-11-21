@@ -385,6 +385,9 @@
     <None Include="ShaderInfo.cginc">
       <Filter>hlsl</Filter>
     </None>
+    <None Include="ShaderReg.cginc">
+      <Filter>hlsl</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="MarkPS.hlsl">
@@ -467,12 +470,6 @@
     </FxCompile>
     <FxCompile Include="ProjectiveTexturePS.hlsl">
       <Filter>hlsl</Filter>
-    </FxCompile>
-    <FxCompile Include="StdShadowVS.hlsl">
-      <Filter>Tasks</Filter>
-    </FxCompile>
-    <FxCompile Include="StdShadowPS.hlsl">
-      <Filter>Tasks</Filter>
     </FxCompile>
     <FxCompile Include="ShadowMapVS.hlsl">
       <Filter>Tasks</Filter>

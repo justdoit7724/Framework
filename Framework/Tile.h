@@ -2,6 +2,7 @@
 #include "Geometrics.h"
 
 class Object;
+class Object;
 class PlaySpace;
 class Tile
 {
@@ -19,6 +20,7 @@ public:
 	bool IsPicking(const Geometrics::Ray ray);
 	void SetEnabled(bool e);
 	unsigned int ID() { return id; }
+	Object* Obj();
 
 private:
 	Object* obj;

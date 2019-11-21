@@ -20,9 +20,9 @@ GamePlayScene::GamePlayScene()
 		XMFLOAT3(0.5f, 0.5f, 0.5f),
 		XMFLOAT3(0.8f, 0.8f, 0.8f),
 		XMFLOAT3(0.8f, 0.8f, 0.8f),
-		Normalize(XMFLOAT3(2,1,-2)));
+		Normalize(XMFLOAT3(2,-1,0)));
 
-	camera = new Camera("Lobby", FRAME_KIND_ORTHOGONAL, SCREEN_WIDTH/8, SCREEN_HEIGHT/8, 0.1f, 200.0f, NULL, NULL);
+	camera = new Camera("GamePlay", FRAME_KIND_ORTHOGONAL, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1f, 200.0f, NULL, NULL);
 	camera->transform->SetTranslation(XMFLOAT3(0, 40, 0));
 	camera->transform->SetRot(-UP, FORWARD);
 	XMStoreFloat4x4(&orthogonalP, camera->ProjMat(Z_ORDER_STANDARD));
@@ -30,9 +30,15 @@ GamePlayScene::GamePlayScene()
 	camera->SetFrame(FRAME_KIND_PERSPECTIVE, XMFLOAT2(NULL, NULL), 0.1f, 300.0f, XM_PIDIV2, 1);
 	XMStoreFloat4x4(&perspectiveP, camera->ProjMat(Z_ORDER_STANDARD));
 
-	CameraMgr::Instance()->SetMain("Lobby");
+	CameraMgr::Instance()->SetMain("GamePlay");
 
 	gameLogic = new NonagaLogic();
+	std::vector<Object*> gameObjs;
+	gameLogic->Objs(gameObjs);
+	for (auto go : gameObjs)
+	{
+		AddObj(go);
+	}
 
 	cbEye = new Buffer(sizeof(XMFLOAT4));
 
@@ -45,7 +51,7 @@ GamePlayScene::GamePlayScene()
 	slideEndPt = -slideEndForward * radFromCenter;
 	slideEndUp = Normalize(XMFLOAT3(0, 4, 1));
 
-	//shadowMapping = new ShadowMap(
+	shadowMapping = new ShadowMap(1024, 1024, 512, 512);
 }
 
 GamePlayScene::~GamePlayScene()
@@ -88,6 +94,10 @@ void GamePlayScene::CameraMove(Camera* cam, float spf)
 }
 void GamePlayScene::Update(float elapsed, float spf)
 {
+	Scene::Update(elapsed, spf);
+
+	dLight->SetDir(MultiplyDir(dLight->GetDir(), XMMatrixRotationY(elapsed * 0.0002f)));
+
 	switch (curStage)
 	{
 	case GAMEPLAY_STAGE_LOBBY:
@@ -114,6 +124,7 @@ void GamePlayScene::Update(float elapsed, float spf)
 	}
 
 	BindEye();
+	shadowMapping->Mapping(this, dLight);
 }
 
 void GamePlayScene::Render(const Camera* camera, UINT sceneDepth) const
@@ -134,7 +145,9 @@ void GamePlayScene::Render(const Camera* camera, UINT sceneDepth) const
 		break;
 	}
 
+	Scene::Render(camera, sceneDepth);
 	gameLogic->Render(curTempVP, camera->transform->GetPos(), sceneDepth);
+
 }
 
 void GamePlayScene::Message(UINT msg)

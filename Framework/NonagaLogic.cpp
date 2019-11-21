@@ -5,7 +5,6 @@
 #include "Tile.h"
 #include "PlaySpace.h"
 #include "Transform.h"
-#include "Object.h"
 #include <vector>
 
 /* 2d array tile.
@@ -515,16 +514,20 @@ void NonagaLogic::Update(const Geometrics::Ray ray)
 
 }
 
-void NonagaLogic::Render(const XMMATRIX& vp, XMFLOAT3 eye, unsigned int sceneDepth)
+void NonagaLogic::Objs(std::vector<Object*>& obj)
 {
-	for (int i=0; i<TILE_OBJ_COUNT; ++i)
+	for (int i = 0; i < TILE_OBJ_COUNT; ++i)
 	{
-		tiles[i]->Render(vp, eye, sceneDepth);
+		obj.push_back(tiles[i]->Obj());
 	}
 	for (int i = 0; i < TOKEN_OBJ_COUNT_TOTAL; ++i)
 	{
-		tokens[i]->Render(vp, eye, sceneDepth);
+		obj.push_back(tokens[i]->Obj());
 	}
+}
+
+void NonagaLogic::Render(const XMMATRIX& vp, XMFLOAT3 eye, unsigned int sceneDepth)const
+{
 	redTile->Render(vp, eye, sceneDepth);
 	greenTile->Render(vp, eye, sceneDepth);
 	redToken->Render(vp, eye, sceneDepth);

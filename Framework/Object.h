@@ -16,6 +16,7 @@ class BlendState;
 class DepthStencilState;
 class RasterizerState;
 
+
 class Object : public IDebug
 {
 public:
@@ -25,7 +26,7 @@ public:
 
 	virtual void Update();
 	virtual void Render(const XMMATRIX& vp, XMFLOAT3 eye, UINT sceneDepth) const;
-	void RenderGeom() const;
+	virtual void RenderGeom() const;
 
 	virtual bool IsInsideFrustum(const Frustum* frustum) const;
 	virtual bool IsPicking(const Geometrics::Ray ray)const;
