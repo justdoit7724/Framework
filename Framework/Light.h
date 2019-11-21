@@ -16,6 +16,7 @@ class Light
 {
 protected:
 	Light();
+	virtual ~Light();
 	static VShader* shadowMapVS;
 	static DepthStencilState* dsState;
 	static BlendState* blendState;
@@ -49,12 +50,13 @@ class DirectionalLight : public Light
 {
 private:
 	static SHADER_DIRECTIONAL_LIGHT data;
-	static ID3D11Buffer* cb;
+	static ComPtr<ID3D11Buffer> cb;
 	Camera* view;
 	ComPtr<ID3D11DepthStencilView> shadowMapDSV;
 
 public:
 	DirectionalLight(XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, XMFLOAT3 dir);
+	~DirectionalLight();
 	void SetAmbient(const XMFLOAT3& a) override;
 	void SetDiffuse(const XMFLOAT3& d) override;
 	void SetSpecular(const XMFLOAT3& s) override;
@@ -79,6 +81,7 @@ private:
 
 public:
 	PointLight(XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, float range, XMFLOAT3 att, XMFLOAT3 pos);
+	~PointLight();
 	void SetAmbient(const XMFLOAT3& a) override;
 	void SetDiffuse(const XMFLOAT3& d) override;
 	void SetSpecular(const XMFLOAT3& s) override;
@@ -108,6 +111,7 @@ private:
 
 public:
 	SpotLight(XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, float range, float spot, float rad, XMFLOAT3 att, XMFLOAT3 pos, XMFLOAT3 dir);
+	~SpotLight();
 	void SetAmbient(const XMFLOAT3& a) override;
 	void SetDiffuse(const XMFLOAT3& d) override;
 	void SetSpecular(const XMFLOAT3& s) override;

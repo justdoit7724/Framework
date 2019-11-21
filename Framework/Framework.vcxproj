@@ -170,6 +170,7 @@
     <ClCompile Include="Mouse.cpp" />
     <ClCompile Include="NonagaLogic.cpp" />
     <ClCompile Include="Object.cpp" />
+    <ClCompile Include="PlaySpace.cpp" />
     <ClCompile Include="PT_Obj.cpp" />
     <ClCompile Include="RasterizerState.cpp" />
     <ClCompile Include="Resource.cpp" />
@@ -187,10 +188,9 @@
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Texture2D.cpp" />
     <ClCompile Include="TextureMgr.cpp" />
-    <ClCompile Include="TileMgr.cpp" />
+    <ClCompile Include="Tile.cpp" />
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="Token.cpp" />
-    <ClCompile Include="TokenMgr.cpp" />
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="UI.cpp" />
     <ClCompile Include="Window.cpp" />
@@ -207,8 +207,8 @@
     <ClInclude Include="Lobby.h" />
     <ClInclude Include="MeshLoader.h" />
     <ClInclude Include="NonagaLogic.h" />
-    <ClInclude Include="CommObjInfo.h" />
     <ClInclude Include="ObserverDP.h" />
+    <ClInclude Include="PlaySpace.h" />
     <ClInclude Include="ShaderFormat.h" />
     <ClInclude Include="Cylinder.h" />
     <ClInclude Include="Debugging.h" />
@@ -232,6 +232,7 @@
     <ClInclude Include="PT_Obj.h" />
     <ClInclude Include="RasterizerState.h" />
     <ClInclude Include="SceneMgr.h" />
+    <ClInclude Include="ShaderReg.h" />
     <ClInclude Include="ShadowMap.h" />
     <ClInclude Include="ShadowObj.h" />
     <ClInclude Include="Shape.h" />
@@ -246,10 +247,10 @@
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Texture2D.h" />
     <ClInclude Include="TextureMgr.h" />
-    <ClInclude Include="TileMgr.h" />
+    <ClInclude Include="Tile.h" />
+    <ClInclude Include="TileSpaceInfo.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="Token.h" />
-    <ClInclude Include="TokenMgr.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="UI.h" />
     <ClInclude Include="Window.h" />

@@ -9,17 +9,13 @@ cbuffer EYE : register(b3)
     float4 eyePos;
 };
 
-cbuffer CB_TIME : register(b5)
-{
-    float elapsed;
-}
-
 TextureCube cmTex : register(t0);
 Texture2D diffuseTex : register(t1);
 Texture2D normalTex : register(t2);
-Texture2D ssaoTex : register(t3);
-Texture2D metalicTex : register(t4);
-Texture2D roughnessTex : register(t5);
+Texture2D shadowTex : register(t3);
+Texture2D ssaoTex : register(t4);
+Texture2D metalicTex : register(t5);
+Texture2D roughnessTex : register(t6);
 //...
 
 SamplerState cmSamp : register(s0);
@@ -106,8 +102,9 @@ float4 main(PS_INPUT input) : SV_Target
     float3 light = specular.xyz + diffuse.xyz + ambient.xyz;
     
     float3 tex = diffuseTex.Sample(samp, input.tex).xyz;
+
     //debug REMOVE
-    return float4(tex, 1);
+    return float4((tex + wNormal)/2, 1);
 
 
 

@@ -4,9 +4,11 @@
 #include "BlendState.h"
 #include "Object.h"
 #include "Shader.h"
+#include "Scene.h"
 #include "Shape.h"
 #include "Transform.h"
 #include "ShaderFormat.h"
+#include "ShaderReg.h"
 
 ShadowMap::ShadowMap(UINT width, UINT height)
 	:width(width), height(height), depthSRV(nullptr), depthDSV(nullptr)
@@ -56,9 +58,9 @@ ShadowMap::ShadowMap(UINT width, UINT height)
 	rs_desc.CullMode = D3D11_CULL_BACK;
 	rs_desc.FillMode = D3D11_FILL_SOLID;
 	rs_desc.FrontCounterClockwise = false;
-	rs_desc.DepthBias = 0x1000;
+	rs_desc.DepthBias = 0x10;
 	rs_desc.DepthBiasClamp = 1.0f;
-	rs_desc.SlopeScaledDepthBias = 2.0f;
+	rs_desc.SlopeScaledDepthBias = 1.0f;
 	
 	rsState = new RasterizerState(&rs_desc);
 	dsState = new DepthStencilState(nullptr);
@@ -77,7 +79,7 @@ ID3D11ShaderResourceView* ShadowMap::Depth()
 
 }
 
-void ShadowMap::Mapping(std::vector<Object*>& objs, const XMMATRIX& ptVPMat)
+void ShadowMap::Mapping(Scene* depthScene, const XMMATRIX& ptVPMat)
 {
 	DX_DContext->RSSetViewports(1, &vp);
 
@@ -89,7 +91,9 @@ void ShadowMap::Mapping(std::vector<Object*>& objs, const XMMATRIX& ptVPMat)
 	DX_DContext->DSSetShader(nullptr, nullptr, 0);
 	DX_DContext->GSSetShader(nullptr, nullptr, 0);
 	DX_DContext->PSSetShader(nullptr, nullptr, 0);
-	for (auto obj : objs)
+	std::vector<const Object*> sceneObjs;
+	depthScene->Objs(sceneObjs);
+	for (auto obj : sceneObjs)
 	{
 		rsState->Apply();
 		dsState->Apply();
@@ -100,8 +104,3 @@ void ShadowMap::Mapping(std::vector<Object*>& objs, const XMMATRIX& ptVPMat)
 		obj->shape->Apply();
 	}
 }
-
-//ShadowMap& ShadowMap::operator=(const ShadowMap& rhs)
-//{
-//	// TODO: insert return statement here
-//}

@@ -24,6 +24,7 @@ class UI
 {
 public:
 	UI(UICanvas* canvas, XMFLOAT2 pivot, XMFLOAT2 size, float zDepth, ID3D11ShaderResourceView * srv);
+	~UI();
 
 	void Fade(float offset);
 	bool Enabled() { return enabled; }
@@ -31,7 +32,6 @@ public:
 	float GetTransp() { return transp; }
 
 protected:
-	~UI();
 	bool enabled;
 
 	Quad* quad;

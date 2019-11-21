@@ -44,6 +44,8 @@ public:
 	void DisableGrid();
 
 	void Visualize(IDebug* obj);
+	
+	~Debugging();
 
 private:
 	Camera* debugCam;
@@ -53,7 +55,6 @@ private:
 
 	friend class Singleton<Debugging>;
 	Debugging();
-	~Debugging();
 
 	std::unique_ptr<DirectX::SpriteBatch> spriteBatch;
 	std::unique_ptr<DirectX::SpriteFont> spriteFont;

@@ -13,10 +13,15 @@ public:
 		return instance;
 	}
 
+	void Release()
+	{
+		delete instance;
+		instance = nullptr;
+	}
+
 protected:
 	Singleton() {}
-	~Singleton() {
-	}
+	~Singleton() {}
 
 
 private:

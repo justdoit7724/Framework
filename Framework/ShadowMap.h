@@ -6,6 +6,7 @@ class DepthStencilState;
 class BlendState;
 class Object;
 class VShader;
+class Scene;
 
 class ShadowMap
 {
@@ -14,7 +15,7 @@ public:
 	~ShadowMap();
 
 	ID3D11ShaderResourceView* Depth();
-	void Mapping(std::vector<Object*>& objs, const XMMATRIX& ptVPMat);
+	void Mapping(Scene* depthScene, const XMMATRIX& ptVPMat);
 
 private:
 	ShadowMap(const ShadowMap& rhs);

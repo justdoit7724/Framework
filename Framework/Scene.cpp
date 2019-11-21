@@ -6,6 +6,12 @@
 #include "Transform.h"
 #include "SceneMgr.h"
 
+Scene::~Scene()
+{
+	for (auto obj : objs)
+		delete obj;
+}
+
 void Scene::Update(float elapsed, float spf)
 {
 	for (auto obj : objs)
@@ -24,5 +30,15 @@ void Scene::Render(const Camera* camera, UINT sceneDepth) const
 
 			obj->Render(vp, camera->transform->GetPos(), sceneDepth);
 		}
+	}
+}
+
+void Scene::Objs(OUT std::vector<const Object*>& list)
+{
+	list.clear();
+
+	for (auto obj : objs)
+	{
+		list.push_back(obj);
 	}
 }

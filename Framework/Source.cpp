@@ -8,10 +8,13 @@
 #include "Timer.h"
 #include "TextureMgr.h"
 #include "Mouse.h"
+#include "Debugging.h"
 
 #include "Lobby.h"
 #include "DebuggingScene.h"
 #include "GamePlayScene.h"
+#include "CameraMgr.h"
+#include "Keyboard.h"
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 
@@ -19,8 +22,9 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	Window window(hInstance, "Low Level");
 	Graphic* graphic = new Graphic(window.Hwnd());
 
+
 #ifdef _DEBUG
-	SceneMgr::Instance()->Add("Debugging",new DebuggingScene());
+	SceneMgr::Instance()->Add("Debugging", new DebuggingScene());
 	SceneMgr::Instance()->SetEnabled("Debugging", true);
 #endif // !_DEBUG
 
@@ -57,6 +61,17 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	}
 
 	DestroyWindow(window.Hwnd());
+
+	delete worldTimer;
+	delete graphic;
+
+
+	TextureMgr::Instance()->Release();
+	SceneMgr::Instance()->Release();
+	CameraMgr::Instance()->Release();
+	Mouse::Instance()->Release();
+
+
 
 	return 0;
 }

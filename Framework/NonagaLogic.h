@@ -1,59 +1,65 @@
 ﻿#pragma once
 #include "Geometrics.h"
-#include "ObserverDP.h"
+#include "TileSpaceInfo.h"
 
-class NonagaLogic : public Subject
+class Token;
+class Tile;
+class PlaySpace;
+class Object;
+
+#define OBJ_PICKING_NONE -1
+
+class NonagaLogic
 {
 public:
 	NonagaLogic();
 	~NonagaLogic();
 
-	void SetupFirstArrange();
+	void Update(const Geometrics::Ray ray);
+	void Render(const XMMATRIX& vp, XMFLOAT3 eye, unsigned int sceneDepth);
 
-	void Update(const Geometrics::Ray ray, unsigned int curTokenID, unsigned int curTileID);
+	
 private:
-	void TokenDragStart(bool range, unsigned int curTokenID, XMUINT2 curId2);
-	void TokenDragging(bool range, XMUINT2 curId2);
+	int SingleID();
+	int GetScore();
+	bool IsWin();
+	void TokenDragStart(const Geometrics::Ray ray);
+	void TokenDragging();
 	void TokenMove();
-	void TileDragStart(bool range, unsigned int curTokenID, XMUINT2 curId2);
-	void TileDragging(bool range);
+	void TileDragStart(const Geometrics::Ray ray);
+	void TileDragging();
 	void TileMove();
-	void CheckDirection(XMUINT2 id2, XMINT2 offset);
-	void CalcDests(XMUINT2 id2);
-	bool GetCurID2(const Geometrics::Ray& ray, const Geometrics::PlaneInf& detectPlane, XMUINT2* id);
-	enum TILE_STATE {
-		TILE_STATE_NONE,
-		TILE_STATE_TILE,
-		TILE_STATE_P1,
-		TILE_STATE_P2,
-	};
-	struct PlaySpace
-	{
-		XMFLOAT3 pos;
-		TILE_STATE state;
-		//maybe not in use
-		//unsigned int tokenID, tileID;
-		PlaySpace(XMFLOAT3 p, TILE_STATE state) :pos(p), state(state) {}
-		PlaySpace() {}
-	};
-	PlaySpace** playSpace;
+	bool CanMove();
+	bool CanMoveTile(unsigned int toID);
+	bool GetCurID2(const Geometrics::Ray& ray, const Geometrics::PlaneInf& detectPlane);
+
+	
+	PlaySpace* playSpace[TILE_SPACE_COUNT_Z * TILE_SPACE_COUNT_X]{ nullptr };
 
 	enum PLAY_STATE
 	{
 		PLAY_STATE_P1_TOKEN,
 		PLAY_STATE_P1_TILE,
 		PLAY_STATE_P2_TOKEN,
-		PLAY_STATE_P2_TILE
+		PLAY_STATE_P2_TILE,
+		PLAY_STATE_FINISH
 	}curPlayState;
 
 	XMMATRIX tileSpaceMat;
 	XMMATRIX invTileSpaceMat;
-	Geometrics::PlaneInf tileDetectPlane;
-	Geometrics::PlaneInf tokenDetectPlane;
-	int holdingTokenObjID;
-	int holdingSpaceID;
-	int curIdx;
-	int holdingTileObjID;
-	std::unordered_set<unsigned int> tempDest;
+	Geometrics::PlaneInf detectPlane;
+	Token* holdingToken;
+	Tile* holdingTile;
+	XMINT2 pDetectID2;
+	
+	int unmovableTileID;
 	bool p1Turn;
+	bool isMove;
+
+	// 0~2 = p1
+	// 3~5 = p2
+	Token* tokens[TOKEN_OBJ_COUNT_TOTAL];
+	Token* redToken, * greenToken;
+	Tile* tiles[TILE_OBJ_COUNT];
+	Tile* redTile, *greenTile;
 };

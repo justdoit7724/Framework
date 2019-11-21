@@ -122,9 +122,6 @@ Object::Object()
 
 void Object::Render()const
 {
-	if (!enabled || !show)
-		return;
-
 	vs->Apply();
 	hs->Apply();
 	ds->Apply();
@@ -135,10 +132,16 @@ void Object::Render()const
 	blendState->Apply();
 	rsState->Apply();
 
+
+
+
 	shape->Apply();
 }
 void Object::Render(const XMMATRIX& vp, XMFLOAT3 eye, UINT sceneDepth) const
 {
+	if (!enabled || !show)
+		return;
+
 	const SHADER_STD_TRANSF STransformation(transform->WorldMatrix(), vp, XMMatrixIdentity());
 
 	vs->WriteCB(0, (void*)(&STransformation));

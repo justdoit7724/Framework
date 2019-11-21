@@ -23,11 +23,6 @@ Shader::~Shader()
 	{
 		delete cb.second.data;
 	}
-	for (auto srv : srvs)
-	{
-		if(srv.second.data)
-			srv.second.data->Release();
-	}
 	for (auto samp : samps)
 	{
 		if(samp.second.data)

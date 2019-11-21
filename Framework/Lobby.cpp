@@ -66,20 +66,29 @@ Lobby::Lobby()
 }
 Lobby::~Lobby()
 {
+	delete canvas;
+	delete title;
+	delete singleButton;
+	delete pvpButton;
+	delete aiNormalButton;
+	delete aiHardButton;
 }
 void Lobby::Update(float elapsed, float spf)
 {
+	const float fadeDuration = 1;
+	float fadeT = -spf / fadeDuration;
+
 	switch (curStage)
 	{
 	case Lobby::LOBBY_STAGE_SELECT:
 		canvas->Update(spf);
 		break;
 	case Lobby::LOBBY_STAGE_FADEOUT:
-		title->Fade(-0.3f * spf);
-		singleButton->Fade(-0.3f * spf);
-		pvpButton->Fade(-0.3f * spf);
-		aiNormalButton->Fade(-0.3f * spf);
-		aiHardButton->Fade(-0.3f * spf);
+		title->Fade(fadeT);
+		singleButton->Fade(fadeT);
+		pvpButton->Fade(fadeT);
+		aiNormalButton->Fade(fadeT);
+		aiHardButton->Fade(fadeT);
 		if (aiNormalButton->GetTransp() <= 0)
 			SceneMgr::Instance()->SafeDeleteScene("Lobby");
 		break;

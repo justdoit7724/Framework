@@ -13,12 +13,12 @@ using namespace DirectX;
 #define RIGHT XMFLOAT3(1,0,0)
 #define UP XMFLOAT3(0,1,0)
 
-inline float Lerp(float v1, float v2, float t) {
-	return v1 + (v2 - v1)*t;
-}
 inline float Clamp(float a, float b, float v)
 {
 	return fmaxf(a, fminf(v, b));
+}
+inline float Lerp(float v1, float v2, float t) {
+	return v1 + (v2 - v1)*Clamp(0,1,t);
 }
 inline float Rand01() {
 	return (rand() / (float)RAND_MAX);
@@ -128,6 +128,10 @@ inline XMFLOAT3 Cross(XMFLOAT3 a, XMFLOAT3 b)
 	XMFLOAT3 f3;
 	XMStoreFloat3(&f3, v);
 	return f3;
+}
+inline XMFLOAT3 Lerp(XMFLOAT3 v1, XMFLOAT3 v2, float t)
+{
+	return v1 + (v2 - v1) * Clamp(0, 1, t);
 }
 inline float Dot(XMFLOAT3 a, XMFLOAT3 b)
 {

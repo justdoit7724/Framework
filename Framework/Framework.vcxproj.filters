@@ -40,9 +40,6 @@
     <Filter Include="Manager">
       <UniqueIdentifier>{8e1b4faf-b0f0-4c5d-a5ea-b6cfe5a31dc5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Shadow">
-      <UniqueIdentifier>{1c98553d-33ef-4798-a7b2-563b090cfda4}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Debugging.cpp">
@@ -156,9 +153,6 @@
     <ClCompile Include="Mirror.cpp">
       <Filter>Object</Filter>
     </ClCompile>
-    <ClCompile Include="ShadowMap.cpp">
-      <Filter>Shadow</Filter>
-    </ClCompile>
     <ClCompile Include="PT_Obj.cpp">
       <Filter>Object</Filter>
     </ClCompile>
@@ -183,17 +177,20 @@
     <ClCompile Include="GamePlayScene.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
-    <ClCompile Include="TokenMgr.cpp">
-      <Filter>Object</Filter>
-    </ClCompile>
-    <ClCompile Include="TileMgr.cpp">
-      <Filter>Object</Filter>
-    </ClCompile>
     <ClCompile Include="NonagaLogic.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Token.cpp">
       <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="PlaySpace.cpp">
+      <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Tile.cpp">
+      <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="ShadowMap.cpp">
+      <Filter>PBR</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -320,9 +317,6 @@
     <ClInclude Include="Mirror.h">
       <Filter>Object</Filter>
     </ClInclude>
-    <ClInclude Include="ShadowMap.h">
-      <Filter>Shadow</Filter>
-    </ClInclude>
     <ClInclude Include="PT_Obj.h">
       <Filter>Object</Filter>
     </ClInclude>
@@ -353,20 +347,26 @@
     <ClInclude Include="GamePlayScene.h">
       <Filter>Scene</Filter>
     </ClInclude>
-    <ClInclude Include="TokenMgr.h">
-      <Filter>Object</Filter>
-    </ClInclude>
-    <ClInclude Include="TileMgr.h">
-      <Filter>Object</Filter>
-    </ClInclude>
     <ClInclude Include="NonagaLogic.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CommObjInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Token.h">
       <Filter>Object</Filter>
+    </ClInclude>
+    <ClInclude Include="PlaySpace.h">
+      <Filter>Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Tile.h">
+      <Filter>Object</Filter>
+    </ClInclude>
+    <ClInclude Include="TileSpaceInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ShadowMap.h">
+      <Filter>PBR</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderReg.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

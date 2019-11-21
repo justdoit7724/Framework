@@ -45,6 +45,9 @@ Camera::Camera(FRAME_KIND frameKind, float orthoScnWidth, float orthoScnHeight, 
 Camera::~Camera()
 {
 	CameraMgr::Instance()->Remove(key);
+
+	delete transform;
+	delete[] projMats;
 }
 void Camera::SetMain()
 {

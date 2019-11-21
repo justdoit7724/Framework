@@ -7,12 +7,13 @@
 #include "Shader.h"
 #include "BlendState.h"
 #include "RasterizerState.h"
+#include "ShaderReg.h"
 #include "DepthStencilState.h"
 
 SHADER_DIRECTIONAL_LIGHT DirectionalLight::data;
 SHADER_POINT_LIGHT PointLight::data;
 SHADER_SPOT_LIGHT SpotLight::data;
-ID3D11Buffer* DirectionalLight::cb=nullptr;
+ComPtr<ID3D11Buffer> DirectionalLight::cb=nullptr;
 ID3D11Buffer* PointLight::cb = nullptr;
 ID3D11Buffer* SpotLight::cb = nullptr;
 VShader* Light::shadowMapVS=nullptr;
@@ -38,6 +39,30 @@ Light::Light()
 		rsState = new RasterizerState(&rs_desc);
 		blendState = new BlendState(nullptr);
 		dsState = new DepthStencilState(nullptr);
+	}
+}
+
+Light::~Light()
+{
+	if (shadowMapVS)
+	{
+		delete shadowMapVS;
+		shadowMapVS = nullptr;
+	}
+	if (dsState)
+	{
+		delete dsState;
+		dsState = nullptr;
+	}
+	if (blendState)
+	{
+		delete blendState;
+		blendState = nullptr;
+	}
+	if (rsState)
+	{
+		delete rsState;
+		rsState = nullptr;
 	}
 }
 
@@ -102,6 +127,11 @@ DirectionalLight::DirectionalLight(XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, XMFLOAT3 
 	SetDir(dir);
 	Enable(ENABLED);
 
+}
+
+DirectionalLight::~DirectionalLight()
+{
+	delete view;
 }
 
 void DirectionalLight::SetAmbient(const XMFLOAT3 & a)
@@ -191,17 +221,17 @@ void DirectionalLight::Apply()
 		cb_desc.StructureByteStride = 0;
 		cb_desc.Usage = D3D11_USAGE_DYNAMIC;
 		r_assert(
-			DX_Device->CreateBuffer(&cb_desc, nullptr, &cb)
+			DX_Device->CreateBuffer(&cb_desc, nullptr, cb.GetAddressOf())
 		);
 	}
 
 	D3D11_MAPPED_SUBRESOURCE mappedData;
 
-	r_assert(DX_DContext->Map(cb, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData));
+	r_assert(DX_DContext->Map(cb.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData));
 	CopyMemory(mappedData.pData, &data, sizeof(SHADER_DIRECTIONAL_LIGHT));
-	DX_DContext->Unmap(cb, 0);
+	DX_DContext->Unmap(cb.Get(), 0);
 
-	DX_DContext->PSSetConstantBuffers(SHADER_REG_PS_CB_DIRECTIONAL_LIGHT, 1, &cb);
+	DX_DContext->PSSetConstantBuffers(SHADER_REG_PS_CB_DIRECTIONAL_LIGHT, 1, cb.GetAddressOf());
 }
 
 
@@ -284,6 +314,17 @@ PointLight::PointLight(XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, float range, XMFLOAT3
 	SetRange(range);
 	SetAtt(att);
 	Enable(ENABLED);
+}
+
+PointLight::~PointLight()
+{
+	if (cb)
+	{
+		delete cb;
+		cb = nullptr;
+	}
+	for (int i = 0; i < 6; ++i)
+		delete view[i];
 }
 
 void PointLight::SetAmbient(const XMFLOAT3 & a)
@@ -483,6 +524,16 @@ SpotLight::SpotLight(XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, float r, float spot, fl
 	SetSpot(spot);
 	SetAtt(att);
 	Enable(ENABLED);
+}
+
+SpotLight::~SpotLight()
+{
+	if (cb)
+	{
+		delete cb;
+		cb = nullptr;
+	}
+	delete view;
 }
 
 void SpotLight::SetAmbient(const XMFLOAT3 & a)

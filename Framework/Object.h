@@ -49,11 +49,11 @@ public:
 	const int zOrder;
 	Geometrics::Sphere Bound() { return bound; }
 
+	virtual void UpdateBound();
 
 protected:
 	Object();
 	void Render()const;
-	virtual void UpdateBound();
 
 	bool enabled = true;
 	bool show = true;

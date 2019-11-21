@@ -178,11 +178,6 @@ UICanvas::UICanvas(float width, float height)
 UICanvas::~UICanvas()
 {
 	delete camera;
-	for (auto ui : UIs)
-	{
-		delete ui;
-	}
-	UIs.clear();
 }
 
 void UICanvas::Add(UI* ui)

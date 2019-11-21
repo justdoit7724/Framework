@@ -7,7 +7,6 @@ class Component
 {
 public:
 	Component();
-	~Component();
 
 	virtual void Apply()const = 0;
 };

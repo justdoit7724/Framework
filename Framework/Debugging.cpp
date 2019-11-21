@@ -61,9 +61,13 @@ Debugging::~Debugging()
 	delete blendState;
 	delete dsState;
 	delete rsState;
+	delete markShape;
+	delete markTransform;
+	delete debugCam;
 
 	delete lineVB;
 	delete gridVB;
+	delete originVB;
 }
 
 const XMMATRIX textMat = XMMATRIX(

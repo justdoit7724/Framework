@@ -2,18 +2,25 @@
 #include "Camera.h"
 #include "Game_info.h"
 #include "Transform.h"
-#include "TokenMgr.h"
 #include "CameraMgr.h"
 #include "Debugging.h"
 #include "SceneMgr.h"
 #include "Mouse.h"
-#include "TileMgr.h"
-#include "Keyboard.h"
+#include "Buffer.h"
+#include "Light.h"
 #include "NonagaLogic.h"
+#include "ShaderReg.h"
+#include "ShadowMap.h"
 
 GamePlayScene::GamePlayScene()
 {
 	curStage = GAMEPLAY_STAGE_LOBBY;
+
+	dLight = new DirectionalLight(
+		XMFLOAT3(0.5f, 0.5f, 0.5f),
+		XMFLOAT3(0.8f, 0.8f, 0.8f),
+		XMFLOAT3(0.8f, 0.8f, 0.8f),
+		Normalize(XMFLOAT3(2,1,-2)));
 
 	camera = new Camera("Lobby", FRAME_KIND_ORTHOGONAL, SCREEN_WIDTH/8, SCREEN_HEIGHT/8, 0.1f, 200.0f, NULL, NULL);
 	camera->transform->SetTranslation(XMFLOAT3(0, 40, 0));
@@ -26,94 +33,93 @@ GamePlayScene::GamePlayScene()
 	CameraMgr::Instance()->SetMain("Lobby");
 
 	gameLogic = new NonagaLogic();
-	tokenMgr = new TokenMgr();
-	tileMgr = new TileMgr();
-	gameLogic->AddObserver(tokenMgr);
-	gameLogic->AddObserver(tileMgr);
 
-	gameLogic->SetupFirstArrange();
+	cbEye = new Buffer(sizeof(XMFLOAT4));
 
 	Debugging::Instance()->EnableGrid(10);
 
 	curP = XMMatrixIdentity();
+
+	slideStartPt = camera->transform->GetPos();
+	slideEndForward = Normalize(XMFLOAT3(0, -1, 4));
+	slideEndPt = -slideEndForward * radFromCenter;
+	slideEndUp = Normalize(XMFLOAT3(0, 4, 1));
+
+	//shadowMapping = new ShadowMap(
 }
 
 GamePlayScene::~GamePlayScene()
 {
-	delete tokenMgr;
-	delete tileMgr;
+	delete dLight;
 	delete camera;
+	delete gameLogic;
+	delete cbEye;
 }
 
-void CameraMove(Camera* cam, float spf)
+void GamePlayScene::BindEye()
 {
-	XMFLOAT3 newPos = cam->transform->GetPos();
-	XMFLOAT3 right = cam->transform->GetRight();
-	XMFLOAT3 forward = cam->transform->GetForward();
-	const float speed = 50;
-	if (Keyboard::IsPressing('A')) {
+	XMFLOAT4 camEye = XMFLOAT4(
+		camera->transform->GetPos().x,
+		camera->transform->GetPos().y,
+		camera->transform->GetPos().z, 0);
+	cbEye->Write(&camEye);
+	DX_DContext->PSSetConstantBuffers(SHADER_REG_PS_CB_EYE, 1, cbEye->GetAddress());
+}
 
-		newPos += -right * speed * spf;
-	}
-	else if (Keyboard::IsPressing('D')) {
-
-		newPos += right * speed * spf;
-	}
-	if (Keyboard::IsPressing('S')) {
-
-		newPos += -forward * speed * spf;
-	}
-	else if (Keyboard::IsPressing('W')) {
-
-		newPos += forward * speed * spf;
-	}
+void GamePlayScene::CameraMove(Camera* cam, float spf)
+{
 	static float angleX = 0;
 	static float angleY = 0;
 	static XMFLOAT2 prevMousePt;
-	const float angleSpeed = 3.141592f * 0.2f;
 	XMFLOAT2 mPt = Mouse::Instance()->Pos();
 	if (Mouse::Instance()->RightState() == MOUSE_STATE_PRESSING)
 	{
 		angleY += angleSpeed * spf * (mPt.x - prevMousePt.x);
-		angleX += angleSpeed * spf * (mPt.y - prevMousePt.y);
+		angleX = Clamp(-XM_PIDIV2, XM_PIDIV4,angleX + angleSpeed * spf * (mPt.y - prevMousePt.y));
 	}
 	prevMousePt.x = mPt.x;
 	prevMousePt.y = mPt.y;
 	const XMMATRIX rotMat = XMMatrixRotationX(angleX) * XMMatrixRotationY(angleY);
-	cam->transform->SetTranslation(newPos);
-	XMFLOAT3 f = MultiplyDir(-UP, rotMat);
-	XMFLOAT3 u = MultiplyDir(FORWARD, rotMat);
+	XMFLOAT3 f = MultiplyDir(slideEndForward, rotMat);
+	XMFLOAT3 u = MultiplyDir(slideEndUp, rotMat);
 	cam->transform->SetRot(f, u);
+	cam->transform->SetTranslation(-f*radFromCenter);
 	cam->Update();
 }
 void GamePlayScene::Update(float elapsed, float spf)
 {
-	camera->Update();
-
 	switch (curStage)
 	{
 	case GAMEPLAY_STAGE_LOBBY:
 		break;
 	case GAMEPLAY_STAGE_CAM_MODIFY:
-		if (CameraFrameLerping(spf) && CameraSliding(spf))
+	{
+		curTime += spf;
+
+		float t = curTime / camFrameLerpingTime;
+		CameraFrameLerping(t);
+		CameraSliding(t);
+		LightRotating(t);
+		if (t>2)
 			curStage = GAMEPLAY_STAGE_PLAY;
+	}
 		break;
 	case GAMEPLAY_STAGE_PLAY:
 		CameraMove(camera, spf);
+		Geometrics::Ray camRay;
+		camera->Pick(&camRay);
+
+		gameLogic->Update(camRay);
 		break;
 	}
 
-	Geometrics::Ray camRay;
-	camera->Pick(&camRay);
-
-	gameLogic->Update(camRay, tokenMgr->GetPickingTokenID(), tileMgr->GetCurTileID());
-	tokenMgr->Update(camRay);
-	tileMgr->Update(camRay);
-
+	BindEye();
 }
 
 void GamePlayScene::Render(const Camera* camera, UINT sceneDepth) const
 {
+	dLight->Apply();
+
 	XMMATRIX curTempVP = XMMatrixIdentity();
 	switch (curStage)
 	{
@@ -128,8 +134,7 @@ void GamePlayScene::Render(const Camera* camera, UINT sceneDepth) const
 		break;
 	}
 
-	tileMgr->Render(curTempVP, camera->transform->GetPos(), camera->GetFrustum(), sceneDepth);
-	tokenMgr->Render(curTempVP, camera->transform->GetPos(), camera->GetFrustum(), sceneDepth);
+	gameLogic->Render(curTempVP, camera->transform->GetPos(), sceneDepth);
 }
 
 void GamePlayScene::Message(UINT msg)
@@ -149,22 +154,28 @@ void GamePlayScene::Message(UINT msg)
 
 }
 
-bool GamePlayScene::CameraFrameLerping(float spf)
+void GamePlayScene::CameraFrameLerping(float t)
 {
-	curTime += spf;
-	float t = pow(std::fminf(1,curTime / camFrameLerpingTime),16);
-
 	curP = XMMATRIX(
 		Lerp(orthogonalP._11, perspectiveP._11, t), 0, 0, 0,
 		0, Lerp(orthogonalP._22, perspectiveP._22, t), 0, 0,
 		0, 0, Lerp(orthogonalP._33, perspectiveP._33, t), Lerp(0, 1, t),
 		0, 0, Lerp(orthogonalP._43, perspectiveP._43, t), Lerp(1, 0, t)
 	);
-
-	return (t>0.9f);
 }
 
-bool GamePlayScene::CameraSliding(float spf)
+void GamePlayScene::CameraSliding(float t)
 {
-	return true;
+	float mt = fmaxf(0,t - 0.9f);
+
+	XMFLOAT3 sPos = Lerp(slideStartPt, slideEndPt, mt);
+	XMFLOAT3 sForward = Lerp(-UP, slideEndForward, mt);
+	XMFLOAT3 sUp = Lerp(FORWARD, slideEndUp, mt);
+
+	camera->transform->SetTranslation(sPos);
+	camera->transform->SetRot(sForward, sUp);
+}
+
+void GamePlayScene::LightRotating(float t)
+{
 }

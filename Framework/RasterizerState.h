@@ -6,6 +6,7 @@ class RasterizerState :
 public:
 	RasterizerState(D3D11_RASTERIZER_DESC* desc);
 
+
 	void Apply()const override;
 
 private:
