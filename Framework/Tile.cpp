@@ -1,13 +1,12 @@
 #include "Tile.h"
-#include "PlaySpace.h"
 #include "Object.h"
 #include "Transform.h"
 #include "TextureMgr.h"
 
 #include "Cylinder.h"
 
-Tile::Tile(PlaySpace* const* space, unsigned int id)
-	:space(space), id(id)
+Tile::Tile(unsigned int id)
+	:id(id)
 {
 	TextureMgr::Instance()->Load("normal", "Data\\Texture\\default_normal.png");
 	TextureMgr::Instance()->Load("red", "Data\\Texture\\red_light.png");
@@ -30,18 +29,9 @@ Tile::~Tile()
 	delete obj;
 }
 
-
-void Tile::Move(unsigned int toID)
+void Tile::Move(int toId, XMFLOAT3 pos)
 {
-	space[id]->state = TILE_STATE_NONE;
-	id = toID;
-	
-	obj->transform->SetTranslation(space[toID]->pos);
-	space[toID]->state = TILE_STATE_TILE;
-}
-
-void Tile::RawMove(XMFLOAT3 pos)
-{
+	id = toId;
 	obj->transform->SetTranslation(pos);
 }
 

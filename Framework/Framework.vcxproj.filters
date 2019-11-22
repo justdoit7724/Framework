@@ -165,9 +165,6 @@
     <ClCompile Include="MeshLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SSAO.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Glass.cpp">
       <Filter>Tasks</Filter>
     </ClCompile>
@@ -176,9 +173,6 @@
     </ClCompile>
     <ClCompile Include="GamePlayScene.cpp">
       <Filter>Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="NonagaLogic.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Token.cpp">
       <Filter>Object</Filter>
@@ -191,6 +185,12 @@
     </ClCompile>
     <ClCompile Include="ShadowMap.cpp">
       <Filter>PBR</Filter>
+    </ClCompile>
+    <ClCompile Include="SSAOMap.cpp">
+      <Filter>PBR</Filter>
+    </ClCompile>
+    <ClCompile Include="Nonaga.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -332,9 +332,6 @@
     <ClInclude Include="MeshLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SSAO.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Glass.h">
       <Filter>Tasks</Filter>
     </ClInclude>
@@ -346,9 +343,6 @@
     </ClInclude>
     <ClInclude Include="GamePlayScene.h">
       <Filter>Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="NonagaLogic.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Token.h">
       <Filter>Object</Filter>
@@ -366,6 +360,12 @@
       <Filter>PBR</Filter>
     </ClInclude>
     <ClInclude Include="ShaderReg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SSAOMap.h">
+      <Filter>PBR</Filter>
+    </ClInclude>
+    <ClInclude Include="Nonaga.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -474,29 +474,29 @@
     <FxCompile Include="ShadowMapVS.hlsl">
       <Filter>Tasks</Filter>
     </FxCompile>
-    <FxCompile Include="SSAO_ND_VS.hlsl">
-      <Filter>Tasks</Filter>
-    </FxCompile>
-    <FxCompile Include="SSAO_ND_PS.hlsl">
-      <Filter>Tasks</Filter>
-    </FxCompile>
-    <FxCompile Include="SSAO_AcessVS.hlsl">
-      <Filter>Tasks</Filter>
-    </FxCompile>
-    <FxCompile Include="SSAO_AcessPS.hlsl">
-      <Filter>Tasks</Filter>
-    </FxCompile>
-    <FxCompile Include="SSAO_BlurPS.hlsl">
-      <Filter>Tasks</Filter>
-    </FxCompile>
-    <FxCompile Include="SSAO_BlurVS.hlsl">
-      <Filter>Tasks</Filter>
-    </FxCompile>
     <FxCompile Include="GlassVS.hlsl">
       <Filter>Tasks</Filter>
     </FxCompile>
     <FxCompile Include="GlassPS.hlsl">
       <Filter>Tasks</Filter>
+    </FxCompile>
+    <FxCompile Include="SSAO_ND_VS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="SSAO_AcessPS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="SSAO_AcessVS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="SSAO_BlurPS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="SSAO_BlurVS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="SSAO_ND_PS.hlsl">
+      <Filter>hlsl</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

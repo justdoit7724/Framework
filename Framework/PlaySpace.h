@@ -1,25 +1,25 @@
 #pragma once
+#ifndef _PlaySpace
+#define _PlaySpace
 #include "Geometrics.h"
+#include "Token.h"
+#include "Tile.h"
 
-class Token;
-class Tile;
-
-enum TILE_STATE {
-	TILE_STATE_NONE,
-	TILE_STATE_TILE,
-	TILE_STATE_P1,
-	TILE_STATE_P2,
-};
 class PlaySpace
 {
 public :
 	PlaySpace(XMFLOAT3 p);
 	PlaySpace():pos(XMFLOAT3(0,0,0)) {}
-	TILE_STATE State() { return state; }
 	const XMFLOAT3 pos;
 
+	void SetToken(Token* newToken);
+	void SetTile(Tile* newTile);
+	Tile* GetTile() { return tile; }
+	Token* GetToken() { return token; }
+
 private:
-	friend class Token;
-	friend class Tile;
-	TILE_STATE state;
+	Tile* tile;
+	Token* token;
 };
+
+#endif

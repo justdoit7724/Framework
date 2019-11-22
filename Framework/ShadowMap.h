@@ -18,7 +18,7 @@ public:
 	~ShadowMap();
 
 	ID3D11ShaderResourceView* Depth();
-	void Mapping(Scene* depthScene, const DirectionalLight* light);
+	void Mapping(const Scene* depthScene, const DirectionalLight* light);
 
 private:
 	ShadowMap(const ShadowMap& rhs);

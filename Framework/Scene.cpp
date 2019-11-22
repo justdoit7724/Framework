@@ -33,7 +33,7 @@ void Scene::Render(const Camera* camera, UINT sceneDepth) const
 	}
 }
 
-const Object* Scene::GetObj(UINT id)
+const Object* Scene::GetObj(UINT id)const
 {
 	if (objs.size() <= id)
 		return nullptr;

@@ -79,8 +79,6 @@ float4 main(PS_INPUT input) : SV_Target
 
     float3 look = normalize(input.wPos-eyePos.xyz);
     
-    //debug remove return
-    return float4(DirectionalLightShadowFactor(wNormal, d_Dir[0].xyz, input.wPos).xxx, 1);
     
     float4 ambient = 0;
     float4 diffuse = 0;
@@ -106,14 +104,9 @@ float4 main(PS_INPUT input) : SV_Target
     float3 light = specular.xyz + diffuse.xyz + ambient.xyz;
     
     float3 tex = diffuseTex.Sample(samp, input.tex).xyz;
-
-
-
-
-    tex = ComputeTransparency(tex, wNormal, look);
     
-    color = light * tex;
-    
+    float shadowFactor = DirectionalLightShadowFactor(wNormal, d_Dir[0].xyz, input.wPos).r;
+
     float4x4 uvMat = float4x4(
         0.5, 0, 0, 0,
         0, -0.5, 0, 0,
@@ -122,6 +115,14 @@ float4 main(PS_INPUT input) : SV_Target
     input.pPos = mul(input.pPos, uvMat);
     float2 viewUV = input.pPos.xy / input.pPos.w;
     float ssao = ssaoTex.SampleLevel(samp, viewUV, 0).r;
+    //debug
+    return float4(tex, 1);
+
+
+    tex = ComputeTransparency(tex, wNormal, look);
+    
+    color = light * tex;
+    
     
 
     tex = ComputeMetalic(tex, wNormal, look, input.tex);

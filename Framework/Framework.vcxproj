@@ -168,7 +168,7 @@
     <ClCompile Include="MeshLoader.cpp" />
     <ClCompile Include="Mirror.cpp" />
     <ClCompile Include="Mouse.cpp" />
-    <ClCompile Include="NonagaLogic.cpp" />
+    <ClCompile Include="Nonaga.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="PlaySpace.cpp" />
     <ClCompile Include="PT_Obj.cpp" />
@@ -184,7 +184,7 @@
     <ClCompile Include="Skybox.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="Sphere.cpp" />
-    <ClCompile Include="SSAO.cpp" />
+    <ClCompile Include="SSAOMap.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Texture2D.cpp" />
     <ClCompile Include="TextureMgr.cpp" />
@@ -206,7 +206,7 @@
     <ClInclude Include="Glass.h" />
     <ClInclude Include="Lobby.h" />
     <ClInclude Include="MeshLoader.h" />
-    <ClInclude Include="NonagaLogic.h" />
+    <ClInclude Include="Nonaga.h" />
     <ClInclude Include="ObserverDP.h" />
     <ClInclude Include="PlaySpace.h" />
     <ClInclude Include="ShaderFormat.h" />
@@ -243,7 +243,7 @@
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="Skybox.h" />
     <ClInclude Include="Sphere.h" />
-    <ClInclude Include="SSAO.h" />
+    <ClInclude Include="SSAOMap.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Texture2D.h" />
     <ClInclude Include="TextureMgr.h" />

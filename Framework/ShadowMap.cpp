@@ -98,7 +98,7 @@ ID3D11ShaderResourceView* ShadowMap::Depth()
 
 }
 
-void ShadowMap::Mapping(Scene* depthScene, const DirectionalLight* light)
+void ShadowMap::Mapping(const Scene* depthScene, const DirectionalLight* light)
 {
 	UINT noUs=1;
 	D3D11_VIEWPORT oriVP;

@@ -1,10 +1,11 @@
 #pragma once
 #include "Scene.h"
 
-class NonagaLogic;
+class NonagaStage;
 class DirectionalLight;
 class Buffer;
 class ShadowMap;
+class SSAOMap;
 
 class GamePlayScene : public Scene
 {
@@ -42,7 +43,7 @@ private:
 
 	Camera* camera;
 
-	NonagaLogic* gameLogic;
+	NonagaStage* nonaga;
 
 	Buffer* cbEye;
 
@@ -54,5 +55,6 @@ private:
 	const float angleSpeed = 3.141592f * 0.2f;
 
 	ShadowMap* shadowMapping;
+	SSAOMap* ssao;
 };
 

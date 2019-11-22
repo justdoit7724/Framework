@@ -1,14 +1,11 @@
 #include "Token.h"
-#include "PlaySpace.h"
 #include "Object.h"
 #include "Transform.h"
 #include "Cube.h"
-#include "NonagaLogic.h"
 #include "TextureMgr.h"
-#include "TileSpaceInfo.h"
 
-Token::Token(PlaySpace*const* space, unsigned int id, bool p1)
-	:space(space), id(id), isP1(p1)
+Token::Token(unsigned int id, bool p1)
+	:id(id), isP1(p1)
 {
 	TextureMgr::Instance()->Load("token", "Data\\Model\\Token\\pawn.png");
 	TextureMgr::Instance()->Load("tokenNormal", "Data\\Model\\Token\\pawn_normal.png");
@@ -18,8 +15,6 @@ Token::Token(PlaySpace*const* space, unsigned int id, bool p1)
 
 	obj = new Object(new Cube(), TextureMgr::Instance()->Get("token"), TextureMgr::Instance()->Get("tokenNormal"));
 	obj->transform->SetScale(10, 20, 10);
-	obj->transform->SetTranslation(space[id]->pos);
-	space[id]->state = isP1 ? TILE_STATE_P1 : TILE_STATE_P2;
 }
 
 Token::Token(bool isRed)
@@ -36,19 +31,9 @@ Token::~Token()
 	delete obj;
 }
 
-void Token::Move(unsigned int toID)
+void Token::Move(int toId, XMFLOAT3 pos)
 {
-	assert(id != toID);
-	obj->transform->SetTranslation(space[toID]->pos);
-	space[toID]->state = isP1 ? TILE_STATE_P1 : TILE_STATE_P2;
-
-	space[id]->state = TILE_STATE_TILE;
-
-	id = toID;
-}
-
-void Token::RawMove(XMFLOAT3 pos)
-{
+	id = toId;
 	obj->transform->SetTranslation(pos);
 }
 

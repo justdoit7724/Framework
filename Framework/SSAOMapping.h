@@ -9,14 +9,14 @@ class BlendState;
 class Camera;
 class Object;
 
-class SSAO
+class SSAOMap
 {
 public:
-	SSAO();
-	~SSAO();
+	SSAOMap();
+	~SSAOMap();
 
-	void Update(const Camera* camera, const std::vector<Object*>& objs);
-	
+	void Mapping(const Scene* scene, const Camera* camera);
+
 private:
 	void DrawNormalDepth(const Camera* camera, const std::vector<Object*>& objs);
 	void DrawAccess(const XMMATRIX& p);
@@ -40,7 +40,7 @@ private:
 
 	ComPtr<ID3D11Buffer> vb;
 
-	VShader *ndVS, *acsVS, *blurVS;
+	VShader* ndVS, * acsVS, * blurVS;
 	PShader* ndPS, * acsPS, * blurPS;
 
 	DepthStencilState* dsState;
@@ -64,4 +64,5 @@ private:
 
 	const float defaultColor[4] = { 1,1,1,10000 };
 };
+
 

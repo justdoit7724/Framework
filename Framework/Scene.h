@@ -13,7 +13,7 @@ public:
 
 	virtual void Update(float elapsed, float spf);
 	virtual void Render(const Camera* camera, UINT sceneDepth)const;
-	const Object* GetObj(UINT id);
+	const Object* GetObj(UINT id)const;
 
 	virtual void Message(UINT msg) {};
 	bool Enabled() { return enabled; }

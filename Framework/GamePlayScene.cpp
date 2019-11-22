@@ -8,9 +8,10 @@
 #include "Mouse.h"
 #include "Buffer.h"
 #include "Light.h"
-#include "NonagaLogic.h"
+#include "Nonaga.h"
 #include "ShaderReg.h"
 #include "ShadowMap.h"
+#include "SSAOMapping.h"
 
 GamePlayScene::GamePlayScene()
 {
@@ -32,9 +33,9 @@ GamePlayScene::GamePlayScene()
 
 	CameraMgr::Instance()->SetMain("GamePlay");
 
-	gameLogic = new NonagaLogic();
+	nonaga = new NonagaStage();
 	std::vector<Object*> gameObjs;
-	gameLogic->Objs(gameObjs);
+	nonaga->Objs(gameObjs);
 	for (auto go : gameObjs)
 	{
 		AddObj(go);
@@ -52,13 +53,14 @@ GamePlayScene::GamePlayScene()
 	slideEndUp = Normalize(XMFLOAT3(0, 4, 1));
 
 	shadowMapping = new ShadowMap(4096, 4096, 256, 256);
+	ssao = new SSAOMap();
 }
 
 GamePlayScene::~GamePlayScene()
 {
 	delete dLight;
 	delete camera;
-	delete gameLogic;
+	delete nonaga;
 	delete cbEye;
 }
 
@@ -119,12 +121,13 @@ void GamePlayScene::Update(float elapsed, float spf)
 		Geometrics::Ray camRay;
 		camera->Pick(&camRay);
 
-		gameLogic->Update(camRay);
+		nonaga->Update(camRay);
 		break;
 	}
 
 	BindEye();
 	shadowMapping->Mapping(this, dLight);
+	ssao->Mapping(this, camera);
 }
 
 void GamePlayScene::Render(const Camera* camera, UINT sceneDepth) const
@@ -146,7 +149,7 @@ void GamePlayScene::Render(const Camera* camera, UINT sceneDepth) const
 	}
 
 	Scene::Render(camera, sceneDepth);
-	gameLogic->Render(curTempVP, camera->transform->GetPos(), sceneDepth);
+	nonaga->Render(curTempVP, camera->transform->GetPos(), sceneDepth);
 
 }
 

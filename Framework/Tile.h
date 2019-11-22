@@ -2,18 +2,15 @@
 #include "Geometrics.h"
 
 class Object;
-class Object;
-class PlaySpace;
+
 class Tile
 {
 public: 
-	Tile(PlaySpace* const* space, unsigned int id);
+	Tile(unsigned int id);
 	Tile(bool isRed);
 	~Tile();
 
-	void Move(unsigned int toID);
-	void RawMove(XMFLOAT3 pos);
-
+	void Move(int toId, XMFLOAT3 pos);
 	void UpdateBound();
 	void Render(const XMMATRIX& vp, XMFLOAT3 eye, unsigned int sceneDepth)const;
 
@@ -24,6 +21,5 @@ public:
 
 private:
 	Object* obj;
-	PlaySpace* const* space;
 	unsigned int id;
 };

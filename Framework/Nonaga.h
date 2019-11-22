@@ -8,34 +8,53 @@ class Tile;
 class PlaySpace;
 class Object;
 
-#define OBJ_PICKING_NONE -1
+#define NONE -1
 
 class NonagaLogic
 {
 public:
-	NonagaLogic();
+	NonagaLogic(PlaySpace* const* space);
 	~NonagaLogic();
 
+	int CanMoveToken(int from, int to);
+	bool CanPickTile(int id);
+	bool CanMoveTileTo(int from, int to);
+	void TokenMove(int from, int to);
+	void TileMove(int from, int to);
+	int GetScore(const std::vector<Token*>& tokens);
+	bool IsP1Turn() { return p1Turn; }
+
+private:
+	PlaySpace* const* space;
+	int unmovableTileID;
+	bool p1Turn;
+	bool CheckDirection(XMINT2 holdingTokenID2, XMINT2 offset, XMINT2& destId2);
+	int CheckNeighbor(int centerID, int except);
+};
+
+class NonagaStage
+{
+public:
+	NonagaStage();
+	~NonagaStage();
+
 	void Update(const Geometrics::Ray ray);
-	void Objs(std::vector<Object*>& obj);
+	void Objs(std::vector<Object*>& objOutput);
 
 	void Render(const XMMATRIX& vp, XMFLOAT3 eye, unsigned int sceneDepth)const;
 	
 private:
-	int GetScore();
 	bool IsWin();
 	void TokenDragStart(const Geometrics::Ray ray);
 	void TokenDragging();
-	void TokenMove();
 	void TileDragStart(const Geometrics::Ray ray);
 	void TileDragging();
-	void TileMove();
-	bool CanMove();
-	bool CanMoveTile(unsigned int toID);
 	bool GetCurID2(const Geometrics::Ray& ray, const Geometrics::PlaneInf& detectPlane);
 
 	
 	PlaySpace* playSpace[TILE_SPACE_COUNT_Z * TILE_SPACE_COUNT_X]{ nullptr };
+
+	NonagaLogic* logic;
 
 	enum PLAY_STATE
 	{
@@ -49,18 +68,17 @@ private:
 	XMMATRIX tileSpaceMat;
 	XMMATRIX invTileSpaceMat;
 	Geometrics::PlaneInf detectPlane;
-	Token* holdingToken;
-	Tile* holdingTile;
-	XMINT2 pDetectID2;
+	int pDetectID;
+	int holdingTokenID;
+	int holdingTileID;
 	
-	int unmovableTileID;
-	bool p1Turn;
 	bool isMove;
 
 	// 0~2 = p1
 	// 3~5 = p2
-	Token* tokens[TOKEN_OBJ_COUNT_TOTAL];
+	std::vector<Token*> tokens;
 	Token* redToken, * greenToken;
-	Tile* tiles[TILE_OBJ_COUNT];
+	std::vector < Tile*> tiles;
 	Tile* redTile, *greenTile;
 };
+
