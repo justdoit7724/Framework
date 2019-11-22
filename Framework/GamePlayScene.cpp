@@ -51,7 +51,7 @@ GamePlayScene::GamePlayScene()
 	slideEndPt = -slideEndForward * radFromCenter;
 	slideEndUp = Normalize(XMFLOAT3(0, 4, 1));
 
-	shadowMapping = new ShadowMap(1024, 1024, 512, 512);
+	shadowMapping = new ShadowMap(4096, 4096, 256, 256);
 }
 
 GamePlayScene::~GamePlayScene()

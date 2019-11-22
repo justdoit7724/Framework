@@ -62,8 +62,7 @@ ShadowMap::ShadowMap(UINT resX, UINT resY, UINT width, UINT height)
 	samp_desc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
 	samp_desc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
 	samp_desc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
-	samp_desc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
-	samp_desc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_POINT;
+	samp_desc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
 	samp_desc.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
 	samp_desc.MinLOD = 0;
 	samp_desc.MaxLOD = D3D11_FLOAT32_MAX;
@@ -76,9 +75,9 @@ ShadowMap::ShadowMap(UINT resX, UINT resY, UINT width, UINT height)
 	rs_desc.CullMode = D3D11_CULL_BACK;
 	rs_desc.FillMode = D3D11_FILL_SOLID;
 	rs_desc.FrontCounterClockwise = false;
-	rs_desc.DepthBias = 0x0008ff;
-	rs_desc.DepthBiasClamp = 0.0f;
-	rs_desc.SlopeScaledDepthBias = 0.0f;
+	rs_desc.DepthBias = 0x008fff;
+	rs_desc.DepthBiasClamp = 1.0f;
+	rs_desc.SlopeScaledDepthBias = 1.0f;
 	rsState = new RasterizerState(&rs_desc);
 	dsState = new DepthStencilState(nullptr);
 	blendState = new BlendState(nullptr);
