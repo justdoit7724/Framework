@@ -2,7 +2,7 @@
 #ifndef _SHADER_REG
 #define _SHADER_REG
 
-#define SHADER_REG_PS_CM_DIRLIGHT register(b0)
+#define SHADER_REG_PS_CB_DIRLIGHT register(b0)
 #define SHADER_REG_PS_CB_POINTLIGHT register(b1)
 #define SHADER_REG_PS_CB_SPOTLIGHT register(b2)
 #define SHADER_REG_PS_CB_EYE register(b3)

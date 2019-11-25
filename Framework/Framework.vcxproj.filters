@@ -147,15 +147,6 @@
     <ClCompile Include="Skybox.cpp">
       <Filter>Object</Filter>
     </ClCompile>
-    <ClCompile Include="DisplacementObject.cpp">
-      <Filter>Object</Filter>
-    </ClCompile>
-    <ClCompile Include="Mirror.cpp">
-      <Filter>Object</Filter>
-    </ClCompile>
-    <ClCompile Include="PT_Obj.cpp">
-      <Filter>Object</Filter>
-    </ClCompile>
     <ClCompile Include="ShadowObj.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -311,15 +302,6 @@
     <ClInclude Include="Skybox.h">
       <Filter>Object</Filter>
     </ClInclude>
-    <ClInclude Include="DisplacementObject.h">
-      <Filter>Object</Filter>
-    </ClInclude>
-    <ClInclude Include="Mirror.h">
-      <Filter>Object</Filter>
-    </ClInclude>
-    <ClInclude Include="PT_Obj.h">
-      <Filter>Object</Filter>
-    </ClInclude>
     <ClInclude Include="ShadowObj.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -368,6 +350,9 @@
     <ClInclude Include="Nonaga.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="classTask.h">
+      <Filter>Tasks</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="LightInfo.cginc">
@@ -414,9 +399,6 @@
     <FxCompile Include="ShadowVS.hlsl">
       <Filter>hlsl</Filter>
     </FxCompile>
-    <FxCompile Include="ShadowPS.hlsl">
-      <Filter>hlsl</Filter>
-    </FxCompile>
     <FxCompile Include="GS.hlsl">
       <Filter>hlsl</Filter>
     </FxCompile>
@@ -439,12 +421,6 @@
       <Filter>hlsl</Filter>
     </FxCompile>
     <FxCompile Include="CMVS.hlsl">
-      <Filter>hlsl</Filter>
-    </FxCompile>
-    <FxCompile Include="MirrorPS.hlsl">
-      <Filter>hlsl</Filter>
-    </FxCompile>
-    <FxCompile Include="MirrorVS.hlsl">
       <Filter>hlsl</Filter>
     </FxCompile>
     <FxCompile Include="CMGS.hlsl">
@@ -470,9 +446,6 @@
     </FxCompile>
     <FxCompile Include="ProjectiveTexturePS.hlsl">
       <Filter>hlsl</Filter>
-    </FxCompile>
-    <FxCompile Include="ShadowMapVS.hlsl">
-      <Filter>Tasks</Filter>
     </FxCompile>
     <FxCompile Include="GlassVS.hlsl">
       <Filter>Tasks</Filter>

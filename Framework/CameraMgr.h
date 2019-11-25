@@ -13,6 +13,7 @@ public:
 	void Remove(std::string key);
 	void SetMain(std::string key);
 	const Camera* Main();
+	std::string GetMainKey() { return mainKey; }
 
 private:
 	std::string mainKey="";

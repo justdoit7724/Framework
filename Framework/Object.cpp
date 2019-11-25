@@ -41,25 +41,9 @@ Object::Object(Shape* shape, ID3D11ShaderResourceView* diffSRV, ID3D11ShaderReso
 	ps = new PShader("StandardPS.cso");
 
 	vs->AddCB(0, 1, sizeof(SHADER_STD_TRANSF));
-	ps->AddCB(SHADER_REG_PS_CB_EYE, 1, sizeof(XMFLOAT4));
 	ps->AddCB(SHADER_REG_PS_CB_MATERIAL, 1, sizeof(SHADER_MATERIAL));
 	ps->WriteCB(SHADER_REG_PS_CB_MATERIAL,&SHADER_MATERIAL(XMFLOAT3(0.7,0.7,0.7), 0.2, XMFLOAT3(0.2, 0.2, 0.2), XMFLOAT3(0.8, 0.8, 0.8), 32));
 	
-
-	D3D11_SAMPLER_DESC cmSamp_desc;
-	ZeroMemory(&cmSamp_desc, sizeof(D3D11_SAMPLER_DESC));
-	cmSamp_desc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
-	cmSamp_desc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
-	cmSamp_desc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
-	cmSamp_desc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
-	cmSamp_desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	cmSamp_desc.BorderColor[0] = 0;
-	cmSamp_desc.BorderColor[1] = 1;
-	cmSamp_desc.BorderColor[2] = 0;
-	cmSamp_desc.BorderColor[3] = 1;
-	cmSamp_desc.MinLOD = 0;
-	cmSamp_desc.MaxLOD = D3D11_FLOAT32_MAX;
-	ps->AddSamp(SHADER_REG_PS_SAMP_CM, 1, &cmSamp_desc);
 	D3D11_SAMPLER_DESC body_desc;
 	ZeroMemory(&body_desc, sizeof(D3D11_SAMPLER_DESC));
 	body_desc.Filter = D3D11_FILTER_ANISOTROPIC;
@@ -97,10 +81,14 @@ Object::~Object()
 
 void Object::Update()
 {
+	for (auto child : children)
+		child->UpdateBound();
+
 	if (!enabled)
 		return;
 
 	UpdateBound();
+
 }
 
 void Object::UpdateBound()
@@ -131,20 +119,21 @@ void Object::Render()const
 	blendState->Apply();
 	rsState->Apply();
 
-
-
-
 	shape->Apply();
 }
-void Object::Render(const XMMATRIX& vp, XMFLOAT3 eye, UINT sceneDepth) const
+void Object::Render(const XMMATRIX& parentWorld, const XMMATRIX& vp, UINT sceneDepth) const
 {
+	XMMATRIX curWorld = transform->WorldMatrix()*parentWorld;
+
+	for (auto child : children)
+		child->Render(curWorld,vp, sceneDepth);
+
 	if (!enabled || !show)
 		return;
 
-	const SHADER_STD_TRANSF STransformation(transform->WorldMatrix(), vp, XMMatrixIdentity());
+	const SHADER_STD_TRANSF STransformation(curWorld, vp);
 
-	vs->WriteCB(0, (void*)(&STransformation));
-	ps->WriteCB(3, &XMFLOAT4(eye.x, eye.y, eye.z, 0));
+	vs->WriteCB(0, &STransformation);
 
 	Render();
 }
@@ -154,15 +143,15 @@ void Object::RenderGeom() const
 	shape->Apply();
 }
 
-bool Object::IsInsideFrustum(const Frustum* frustum) const
+bool Object::IsInsideFrustum(const Frustum& frustum) const
 {
 	return (
-		IntersectInPlaneSphere(frustum->front, bound) &&
-		IntersectInPlaneSphere(frustum->back, bound) &&
-		IntersectInPlaneSphere(frustum->right, bound) &&
-		IntersectInPlaneSphere(frustum->left, bound) &&
-		IntersectInPlaneSphere(frustum->top, bound) &&
-		IntersectInPlaneSphere(frustum->bottom, bound));
+		IntersectInPlaneSphere(frustum.front, bound) &&
+		IntersectInPlaneSphere(frustum.back, bound) &&
+		IntersectInPlaneSphere(frustum.right, bound) &&
+		IntersectInPlaneSphere(frustum.left, bound) &&
+		IntersectInPlaneSphere(frustum.top, bound) &&
+		IntersectInPlaneSphere(frustum.bottom, bound));
 }
 
 bool Object::IsPicking(const Geometrics::Ray ray) const
@@ -174,5 +163,10 @@ void Object::Visualize()
 {
 	if(IsInsideFrustum(CameraMgr::Instance()->Main()->GetFrustum()))
 		Debugging::Instance()->Mark(bound.p, bound.rad, Colors::LightGreen);
+}
+
+void Object::AddChildren(Object* obj)
+{
+	children.insert(obj);
 }
 

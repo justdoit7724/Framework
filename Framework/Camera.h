@@ -17,6 +17,7 @@ enum FRAME_KIND {
 
 class Transform;
 class Scene;
+class Buffer;
 
 struct Frustum
 {
@@ -36,7 +37,6 @@ public:
 	Camera(std::string key, FRAME_KIND frameKind, float screenWidth, float screenHeight, float nearPlane, float farPlane, float verticalViewRad, float aspectRatio);
 	Camera(FRAME_KIND frameKind, float screenWidth, float screenHeight, float nearPlane, float farPlane, float verticalViewRad, float aspectRatio);
 	~Camera();
-	void SetMain();
 	void SetFrame(const FRAME_KIND fKind, XMFLOAT2 orthoSize, const float nearPlane, const float farPlane, const float verticalViewAngle, const float aspectRatio);
 	void Update();
 	void Visualize() override;
@@ -55,7 +55,7 @@ public:
 	float GetVRad()const { return verticalRadian; }
 	float GetAspectRatio()const { return aspectRatio; }
 
-	const Frustum* GetFrustum()const { return &frustum; }
+	const Frustum& GetFrustum()const { return frustum; }
 
 	Transform* transform;
 

@@ -20,15 +20,13 @@ void Scene::Update(float elapsed, float spf)
 	}
 }
 
-void Scene::Render(const Camera* camera, UINT sceneDepth) const
+void Scene::Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) const
 {
 	for (auto obj : objs)
 	{
-		if (obj->IsInsideFrustum(camera->GetFrustum()))
+		if (obj->IsInsideFrustum(frustum))
 		{
-			XMMATRIX vp = camera->VMat() * camera->ProjMat(obj->zOrder);
-
-			obj->Render(vp, camera->transform->GetPos(), sceneDepth);
+			obj->Render(XMMatrixIdentity(), vp, sceneDepth);
 		}
 	}
 }

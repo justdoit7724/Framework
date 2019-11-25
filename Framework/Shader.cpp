@@ -93,6 +93,11 @@ void Shader::RemoveCB(UINT slot)
 	cbs.erase(slot);
 }
 
+bool Shader::CheckCBSlot(UINT slot)
+{
+	return cbs.count(slot);
+}
+
 
 
 

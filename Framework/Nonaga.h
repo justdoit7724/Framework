@@ -41,7 +41,7 @@ public:
 	void Update(const Geometrics::Ray ray);
 	void Objs(std::vector<Object*>& objOutput);
 
-	void Render(const XMMATRIX& vp, XMFLOAT3 eye, unsigned int sceneDepth)const;
+	void Render(const XMMATRIX& vp, unsigned int sceneDepth)const;
 	
 private:
 	bool IsWin();

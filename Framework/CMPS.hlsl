@@ -1,8 +1,10 @@
-TextureCube cubeMap : register(t0);
+#include "ShaderReg.cginc"
 
-sampler samp : register(s0);
+TextureCube cubeMap : SHADER_REG_PS_SRV_CM;
 
-cbuffer CB_EYE : register(b3)
+sampler samp : SHADER_REG_PS_SAMP_CM;
+
+cbuffer CB_EYE : SHADER_REG_PS_CB_EYE
 {
     float4 eye;
 }

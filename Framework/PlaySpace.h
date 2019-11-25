@@ -9,7 +9,7 @@ class PlaySpace
 {
 public :
 	PlaySpace(XMFLOAT3 p);
-	PlaySpace():pos(XMFLOAT3(0,0,0)) {}
+	PlaySpace():pos(XMFLOAT3(0,0,0)),tile(nullptr), token(nullptr) {}
 	const XMFLOAT3 pos;
 
 	void SetToken(Token* newToken);

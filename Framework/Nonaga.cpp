@@ -108,14 +108,6 @@ NonagaStage::~NonagaStage()
 			playSpace[i] = nullptr;
 		}
 	}
-	for (int i = 0; i < TOKEN_OBJ_COUNT_TOTAL; ++i)
-	{
-		delete tokens[i];
-	}
-	for (int i = 0; i < TILE_OBJ_COUNT; ++i)
-	{
-		delete tiles [i] ;
-	}
 	delete redToken;
 	delete greenToken;
 	delete redTile;
@@ -340,20 +332,21 @@ void NonagaStage::Objs(std::vector<Object*>& objOutput)
 {
 	for (int i = 0; i < TILE_OBJ_COUNT; ++i)
 	{
-		objOutput.push_back(tiles[i]->Obj());
+		objOutput.push_back(tiles[i]);
 	}
 	for (int i = 0; i < TOKEN_OBJ_COUNT_TOTAL; ++i)
 	{
-		objOutput.push_back(tokens[i]->Obj());
+		objOutput.push_back(tokens[i]);
 	}
 }
 
-void NonagaStage::Render(const XMMATRIX& vp, XMFLOAT3 eye, unsigned int sceneDepth)const
+void NonagaStage::Render(const XMMATRIX& vp, unsigned int sceneDepth)const
 {
-	redTile->Render(vp, eye, sceneDepth);
-	greenTile->Render(vp, eye, sceneDepth);
-	redToken->Render(vp, eye, sceneDepth);
-	greenToken->Render(vp, eye, sceneDepth);
+	XMMATRIX identity = XMMatrixIdentity();
+	redTile->Render(identity, vp, sceneDepth);
+	greenTile->Render(identity, vp, sceneDepth);
+	redToken->Render(identity, vp, sceneDepth);
+	greenToken->Render(identity, vp, sceneDepth);
 }
 
 
@@ -511,7 +504,8 @@ int NonagaLogic::GetScore(const std::vector<Token*>& tokens)
 
 	for (int i = 0; i < TOKEN_OBJ_COUNT_PER; ++i)
 	{
-		Token* curToken = tokens[i + (p1Turn ? 0 : 3)];
+		int tIdx = i + (p1Turn ? 0 : 3);
+		Token* curToken = tokens[tIdx];
 
 		XMUINT2 curTokenID2 = XMUINT2(
 			curToken->ID() % TILE_SPACE_COUNT_X,

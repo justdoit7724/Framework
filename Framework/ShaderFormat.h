@@ -21,7 +21,7 @@ struct Vertex {
 	XMFLOAT2 tex;
 	XMFLOAT3 tangent;
 
-	Vertex() {}
+	Vertex():pos(XMFLOAT3(0,0,0)), n(XMFLOAT3(0, 0, 0)), tex(XMFLOAT2(0, 0)), tangent(XMFLOAT3(0, 0, 0)) {}
 	Vertex(const Vertex& v)
 	{
 		pos = v.pos;
@@ -44,12 +44,11 @@ struct SHADER_STD_TRANSF
 	XMMATRIX w;
 	XMMATRIX vp;
 	XMMATRIX n;
-	XMMATRIX tex;
 
-	SHADER_STD_TRANSF(const XMMATRIX& vp, const XMMATRIX& tex)
-		:w(XMMatrixIdentity()), vp(vp),n(XMMatrixIdentity()), tex(tex){}
-	SHADER_STD_TRANSF(const XMMATRIX& world, const XMMATRIX& vp, const XMMATRIX& tex)
-		:w(world), vp(vp), tex(tex)
+	SHADER_STD_TRANSF(const XMMATRIX& vp)
+		:w(XMMatrixIdentity()), vp(vp),n(XMMatrixIdentity()){}
+	SHADER_STD_TRANSF(const XMMATRIX& world, const XMMATRIX& vp)
+		:w(world), vp(vp)
 	{
 		n = XMMatrixTranspose(XMMatrixInverse(&XMMatrixDeterminant(world), world));
 	}
@@ -95,6 +94,10 @@ struct SHADER_DIRECTIONAL_LIGHT {
 		for (int i = 0; i < LIGHT_MAX_EACH; ++i)
 		{
 			enabled[i] = XMFLOAT4(LIGHT_DISABLED, LIGHT_DISABLED, LIGHT_DISABLED, LIGHT_DISABLED);
+			ambient[i] = XMFLOAT4(0, 0, 0, 0);
+			diffuse[i] = XMFLOAT4(0, 0, 0, 0);
+			specular[i] = XMFLOAT4(0, 0, 0, 0);
+			dir[i] = XMFLOAT4(0, 0, 0, 0);
 		}
 	}
 

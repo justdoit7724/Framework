@@ -1,26 +1,19 @@
 #pragma once
-#include "Geometrics.h"
+#include "Object.h"
 
-class Object;
-
-class Token
+class Token : public Object
 {
 public:
 	Token(unsigned int id, bool p1);
 	Token(bool isRed);
-	~Token();
+
+
+	void Render(const XMMATRIX& parentWorld, const XMMATRIX& vp, UINT sceneDepth) const override;
 
 	void Move(int toID, XMFLOAT3 pos);
-	bool IsPicking(const Geometrics::Ray ray);
 	unsigned int ID() { return id; }
-	void UpdateBound();
-	void Render(const XMMATRIX& vp, XMFLOAT3 eye, unsigned int sceneDepth)const;
-
 	bool IsP1()const { return isP1; }
-	void SetEnabled(bool b);
-	Object* Obj() { return obj; }
 private:
-	Object* obj;
 	unsigned int id;
 	bool isP1;
 };

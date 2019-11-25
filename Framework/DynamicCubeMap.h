@@ -11,7 +11,7 @@ public:
 	DynamicCubeMap(Scene* captureScene, Shape* shape);
 	~DynamicCubeMap();
 
-	void Render(const XMMATRIX& vp, XMFLOAT3 eye, UINT sceneDepth)const override;
+	void Render(const XMMATRIX& parentWorld, const XMMATRIX& vp, UINT sceneDepth)const override;
 
 private:
 	Scene* captureScene;

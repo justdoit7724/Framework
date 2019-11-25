@@ -49,10 +49,6 @@ Camera::~Camera()
 	delete transform;
 	delete[] projMats;
 }
-void Camera::SetMain()
-{
-	CameraMgr::Instance()->SetMain(key);
-}
 void Camera::SetFrame(const FRAME_KIND fKind, XMFLOAT2 orthoSize, const float n, const float f, const float verticalViewRad, const float aspectRatio)
 {
 	assert(n > 0.0f);

@@ -4,7 +4,7 @@
 
 class Object;
 class SceneMgr;
-class Camera;
+struct Frustum;
 
 class Scene
 {
@@ -12,7 +12,7 @@ public:
 	virtual ~Scene();
 
 	virtual void Update(float elapsed, float spf);
-	virtual void Render(const Camera* camera, UINT sceneDepth)const;
+	virtual void Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth)const;
 	const Object* GetObj(UINT id)const;
 
 	virtual void Message(UINT msg) {};

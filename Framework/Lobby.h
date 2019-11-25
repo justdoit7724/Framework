@@ -13,7 +13,7 @@ public:
 	~Lobby();
 
 	void Update(float elapsed, float spf) override;
-	void Render(const Camera* camera, UINT sceneDepth)const override;
+	void Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth)const override;
 
 	void Notify(unsigned int id, const void* data)override;
 

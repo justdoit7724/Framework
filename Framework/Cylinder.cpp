@@ -106,7 +106,7 @@ Cylinder::Cylinder(const int sliceCount)
 #pragma endregion
 
 	int polySize = indice.size()/3;
-	for (int i=0; i< polySize; ++i)
+	for (UINT64 i=0; i< polySize; ++i)
 	{
 		XMFLOAT3 tangent;
 		Vertex v0 = vertice[indice[i * 3]];

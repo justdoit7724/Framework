@@ -124,9 +124,12 @@ DynamicCubeMap::~DynamicCubeMap()
 	}
 }
 
-void DynamicCubeMap::Render(const XMMATRIX& vp, XMFLOAT3 eye, UINT sceneDepth) const
+void DynamicCubeMap::Render(const XMMATRIX& parentWorld, const XMMATRIX& vp, UINT sceneDepth) const
 {
-	//debug for now, do not render
+	XMMATRIX curWorld = transform->WorldMatrix()*parentWorld ;
+	for (auto c : children)
+		c->Render(curWorld, vp, sceneDepth);
+
 	if (sceneDepth > 0)
 		return;
 
@@ -152,15 +155,16 @@ void DynamicCubeMap::Render(const XMMATRIX& vp, XMFLOAT3 eye, UINT sceneDepth) c
 		DX_DContext->OMSetRenderTargets(1, captureRTV[i].GetAddressOf(), captureDSV.Get());
 		DX_DContext->RSSetViewports(1, &captureViewport);
 
-		captureScene->Render(captureCamera[i], sceneDepth+1);
+		const XMMATRIX vp = captureCamera[i]->VMat() * captureCamera[i]->StdProjMat();
+		const Frustum& frustum = captureCamera[i]->GetFrustum();
+		captureScene->Render(vp, frustum, sceneDepth+1);
 	}
 	DX_DContext->GenerateMips(captureSRV.Get());
 	DX_DContext->OMSetRenderTargets(1, &oriRTV, oriDSV);
 	DX_DContext->RSSetViewports(1, &oriVP);
 
-	vs->WriteCB(0, &SHADER_STD_TRANSF(transform->WorldMatrix(), vp, XMMatrixIdentity()));
+	vs->WriteCB(0, &SHADER_STD_TRANSF(curWorld, vp));
 	ps->WriteSRV(0, captureSRV.Get());
-	ps->WriteCB(3, &XMFLOAT4(eye.x, eye.y, eye.z, 0));
 
 	Object::Render();
 }

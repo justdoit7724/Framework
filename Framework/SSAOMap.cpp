@@ -224,8 +224,12 @@ void SSAOMap::Mapping(const Scene* scene, const Camera* camera)
 	UINT oriVPNum = 1;
 	DX_DContext->RSGetViewports(&oriVPNum, &oriVP);
 
+	DX_DContext->HSSetShader(nullptr, nullptr, 0);
+	DX_DContext->DSSetShader(nullptr, nullptr, 0);
+	DX_DContext->GSSetShader(nullptr, nullptr, 0);
+
 	DrawNormalDepth(scene, camera);
-	DrawAccess(camera->ProjMat(Z_ORDER_STANDARD), oriVP);
+	DrawAccess(camera->StdProjMat(), oriVP);
 	BlurHorizon();
 	BlurVertical();
 
@@ -261,12 +265,19 @@ void SSAOMap::DrawNormalDepth(const Scene* scene, const Camera* camera)
 		XMMATRIX drawTransf[4] = {
 			w,
 			camera->VMat(),
-			camera->ProjMat(Z_ORDER_STANDARD), // no z Priority for ssao
+			camera->StdProjMat(), // no z Priority for ssao
 			XMMatrixTranspose(XMMatrixInverse(&XMMatrixDeterminant(w), w))
 		};
 		ndVS->WriteCB(0, drawTransf);
 		ndVS->Apply();
+
+		// only triangle
+		D3D11_PRIMITIVE_TOPOLOGY curPrimitiveType = curObj->shape->GetPrimitiveType();
+		curObj->shape->SetPrimitiveType(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
 		curObj->RenderGeom();
+
+		curObj->shape->SetPrimitiveType(curPrimitiveType);
 	}
 }
 

@@ -12,6 +12,11 @@
 #include "ShaderReg.h"
 #include "ShadowMap.h"
 #include "SSAOMapping.h"
+#include "Skybox.h"
+#include "Debugging.h"
+#include "TextureMgr.h"
+#include "Quad.h"
+#include "BlendState.h"
 
 GamePlayScene::GamePlayScene()
 {
@@ -23,23 +28,26 @@ GamePlayScene::GamePlayScene()
 		XMFLOAT3(0.8f, 0.8f, 0.8f),
 		Normalize(XMFLOAT3(2,-1,0)));
 
-	camera = new Camera("GamePlay", FRAME_KIND_ORTHOGONAL, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1f, 200.0f, NULL, NULL);
+	camera = new Camera("GamePlay", FRAME_KIND_ORTHOGONAL, SCREEN_WIDTH/10, SCREEN_HEIGHT/10, 0.1f, 200.0f, NULL, NULL);
 	camera->transform->SetTranslation(XMFLOAT3(0, 40, 0));
 	camera->transform->SetRot(-UP, FORWARD);
-	XMStoreFloat4x4(&orthogonalP, camera->ProjMat(Z_ORDER_STANDARD));
+	XMStoreFloat4x4(&orthogonalP, camera->StdProjMat());
 
 	camera->SetFrame(FRAME_KIND_PERSPECTIVE, XMFLOAT2(NULL, NULL), 0.1f, 300.0f, XM_PIDIV2, 1);
-	XMStoreFloat4x4(&perspectiveP, camera->ProjMat(Z_ORDER_STANDARD));
+	XMStoreFloat4x4(&perspectiveP, camera->StdProjMat());
 
 	CameraMgr::Instance()->SetMain("GamePlay");
 
 	nonaga = new NonagaStage();
 	std::vector<Object*> gameObjs;
 	nonaga->Objs(gameObjs);
+	parentObj = new Object(new Quad(), nullptr, nullptr);
+	parentObj->SetShow(false);
 	for (auto go : gameObjs)
 	{
-		AddObj(go);
+		parentObj->AddChildren(go);
 	}
+	AddObj(parentObj);
 
 	cbEye = new Buffer(sizeof(XMFLOAT4));
 
@@ -52,47 +60,58 @@ GamePlayScene::GamePlayScene()
 	slideEndPt = -slideEndForward * radFromCenter;
 	slideEndUp = Normalize(XMFLOAT3(0, 4, 1));
 
+	std::vector<std::string> cm;
+	cm.push_back("Data\\Texture\\cm_px.jpg");
+	cm.push_back("Data\\Texture\\cm_nx.jpg");
+	cm.push_back("Data\\Texture\\cm_py.jpg");
+	cm.push_back("Data\\Texture\\cm_ny.jpg");
+	cm.push_back("Data\\Texture\\cm_pz.jpg");
+	cm.push_back("Data\\Texture\\cm_nz.jpg");
+	TextureMgr::Instance()->LoadCM("cm", cm);
+	skybox = new Skybox(TextureMgr::Instance()->Get("cm"));
+	AddObj(skybox);
 	shadowMapping = new ShadowMap(4096, 4096, 256, 256);
-	ssao = new SSAOMap();
+	//ssao = new SSAOMap();
 }
 
 GamePlayScene::~GamePlayScene()
 {
+	delete cbEye;
 	delete dLight;
 	delete camera;
 	delete nonaga;
-	delete cbEye;
 }
 
 void GamePlayScene::BindEye()
 {
 	XMFLOAT4 camEye = XMFLOAT4(
-		camera->transform->GetPos().x,
-		camera->transform->GetPos().y,
-		camera->transform->GetPos().z, 0);
+		CameraMgr::Instance()->Main()->transform->GetPos().x,
+		CameraMgr::Instance()->Main()->transform->GetPos().y,
+		CameraMgr::Instance()->Main()->transform->GetPos().z, 0);
 	cbEye->Write(&camEye);
 	DX_DContext->PSSetConstantBuffers(SHADER_REG_PS_CB_EYE, 1, cbEye->GetAddress());
 }
 
-void GamePlayScene::CameraMove(Camera* cam, float spf)
+void GamePlayScene::ObjMove(float spf)
 {
 	static float angleX = 0;
 	static float angleY = 0;
-	static XMFLOAT2 prevMousePt;
+	static XMFLOAT2 prevMousePt=XMFLOAT2(0,0);
+	XMFLOAT3 cameraForward = camera->transform->GetForward();
 	XMFLOAT2 mPt = Mouse::Instance()->Pos();
 	if (Mouse::Instance()->RightState() == MOUSE_STATE_PRESSING)
 	{
-		angleY += angleSpeed * spf * (mPt.x - prevMousePt.x);
-		angleX = Clamp(-XM_PIDIV2, XM_PIDIV4,angleX + angleSpeed * spf * (mPt.y - prevMousePt.y));
+		angleX += angleSpeed * spf * (prevMousePt.x-mPt.x);
+
+		angleY += (prevMousePt.y - mPt.y)*angleSpeed * spf;
+		const float offset = acosf(Dot(cameraForward, FORWARD));
+		angleY = Clamp(-XM_PIDIV2+offset, XM_PIDIV4+offset, angleY);
 	}
 	prevMousePt.x = mPt.x;
 	prevMousePt.y = mPt.y;
-	const XMMATRIX rotMat = XMMatrixRotationX(angleX) * XMMatrixRotationY(angleY);
-	XMFLOAT3 f = MultiplyDir(slideEndForward, rotMat);
-	XMFLOAT3 u = MultiplyDir(slideEndUp, rotMat);
-	cam->transform->SetRot(f, u);
-	cam->transform->SetTranslation(-f*radFromCenter);
-	cam->Update();
+	XMFLOAT3 u = MultiplyDir(UP, XMMatrixRotationX(angleY));
+	XMFLOAT3 f = RotateFromDir(Cross(u, -RIGHT), u, angleX);
+	parentObj->transform->SetRot(f, u);
 }
 void GamePlayScene::Update(float elapsed, float spf)
 {
@@ -109,15 +128,16 @@ void GamePlayScene::Update(float elapsed, float spf)
 		curTime += spf;
 
 		float t = curTime / camFrameLerpingTime;
+		Debugging::Instance()->Draw("frame t = ", t, 10, 30);
 		CameraFrameLerping(t);
-		CameraSliding(t);
+		CameraSliding(Clamp(0,1,t-0.9));
 		LightRotating(t);
 		if (t>2)
 			curStage = GAMEPLAY_STAGE_PLAY;
 	}
 		break;
 	case GAMEPLAY_STAGE_PLAY:
-		CameraMove(camera, spf);
+		ObjMove(spf);
 		Geometrics::Ray camRay;
 		camera->Pick(&camRay);
 
@@ -125,16 +145,21 @@ void GamePlayScene::Update(float elapsed, float spf)
 		break;
 	}
 
+
+	camera->Update();
+
 	BindEye();
+
+	skybox->Mapping();
 	shadowMapping->Mapping(this, dLight);
-	ssao->Mapping(this, camera);
+	//ssao->Mapping(this, camera);
 }
 
-void GamePlayScene::Render(const Camera* camera, UINT sceneDepth) const
+void GamePlayScene::Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) const
 {
 	dLight->Apply();
 
-	XMMATRIX curTempVP = XMMatrixIdentity();
+	XMMATRIX curTempVP = vp;
 	switch (curStage)
 	{
 	case GAMEPLAY_STAGE_LOBBY:
@@ -144,12 +169,11 @@ void GamePlayScene::Render(const Camera* camera, UINT sceneDepth) const
 		curTempVP = camera->VMat()*curP;
 		break;
 	case GAMEPLAY_STAGE_PLAY:
-		curTempVP = camera->VMat() * camera->ProjMat(Z_ORDER_STANDARD);
 		break;
 	}
 
-	Scene::Render(camera, sceneDepth);
-	nonaga->Render(curTempVP, camera->transform->GetPos(), sceneDepth);
+	Scene::Render(curTempVP, frustum, sceneDepth);
+	nonaga->Render(curTempVP, sceneDepth);
 
 }
 
@@ -182,16 +206,17 @@ void GamePlayScene::CameraFrameLerping(float t)
 
 void GamePlayScene::CameraSliding(float t)
 {
-	float mt = fmaxf(0,t - 0.9f);
+	float mt = sinf((t - 0.5f) * XM_PI + 1) / 2;
 
 	XMFLOAT3 sPos = Lerp(slideStartPt, slideEndPt, mt);
 	XMFLOAT3 sForward = Lerp(-UP, slideEndForward, mt);
 	XMFLOAT3 sUp = Lerp(FORWARD, slideEndUp, mt);
 
-	camera->transform->SetTranslation(sPos);
+	camera->transform->SetTranslation(-sForward* radFromCenter);
 	camera->transform->SetRot(sForward, sUp);
 }
 
 void GamePlayScene::LightRotating(float t)
 {
+
 }

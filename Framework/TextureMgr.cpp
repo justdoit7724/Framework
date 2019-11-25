@@ -189,7 +189,7 @@ void TextureMgr::LoadArray(std::string key,std::wstring folderName, std::vector<
 
 }
 
-void TextureMgr::LoadCM(std::string key, std::vector<std::string> fileNames)
+void TextureMgr::LoadCM(std::string key, const std::vector<std::string>& fileNames)
 {
 	ComPtr<ID3D11Resource> ori_resources[6];
 	D3D11_TEXTURE2D_DESC ori_desc;

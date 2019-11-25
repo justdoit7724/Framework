@@ -11,7 +11,7 @@ public:
 	Glass(Scene* captureScene, Shape* shape);
 	~Glass();
 
-	void Render(const XMMATRIX& vp, XMFLOAT3 eye, UINT sceneDepth)const override;
+	void Render(const XMMATRIX& parentWorld, const XMMATRIX& vp, UINT sceneDepth)const override;
 
 private:
 	Scene* captureScene;

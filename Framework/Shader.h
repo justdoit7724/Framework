@@ -15,6 +15,7 @@ public:
 	void WriteCB(UINT slot, const void* data);
 	void WriteSRV(UINT slot, ID3D11ShaderResourceView* srv);
 	void RemoveCB(UINT slot);
+	bool CheckCBSlot(UINT slot);
 
 protected:
 	struct BindingCB 

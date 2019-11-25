@@ -24,11 +24,6 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	Graphic* graphic = new Graphic(window.Hwnd());
 
 
-#ifdef _DEBUG
-	Scene* debugScene = new DebuggingScene();
-	SceneMgr::Instance()->Add("Debugging", debugScene);
-	SceneMgr::Instance()->SetEnabled("Debugging", true);
-#endif // !_DEBUG
 
 	Scene* playScene = new GamePlayScene();
 	SceneMgr::Instance()->Add("GamePlay", playScene);
@@ -36,6 +31,9 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	Scene* lobbyScene = new Lobby();
 	SceneMgr::Instance()->Add("Lobby", lobbyScene);
 	SceneMgr::Instance()->SetEnabled("Lobby", true);
+	Scene* debugScene = new DebuggingScene();
+	SceneMgr::Instance()->Add("Debugging", debugScene);
+	SceneMgr::Instance()->SetEnabled("Debugging", true);
 
 	Timer* worldTimer = new Timer();
 
@@ -74,10 +72,6 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	TextureMgr::Instance()->Release();
 	SceneMgr::Instance()->Release();
 
-
-	ID3D11Debug* debug;
-	r_assert(DX_Device->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void**>(&debug)));
-	debug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
 
 	return 0;
 }

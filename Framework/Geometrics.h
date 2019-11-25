@@ -4,8 +4,8 @@
 #include <assert.h>
 #include <limits>
 
-#ifndef GEOMETRICS
-#define GEOMETRICS
+#ifndef _GEOMETRICS
+#define _GEOMETRICS
 
 using namespace DirectX;
 
@@ -50,7 +50,7 @@ inline XMFLOAT2 operator/(XMFLOAT2 v, float f)
 }
 inline float Length(XMFLOAT2 v)
 {
-	return sqrt(v.x*v.x + v.y*v.y);
+	return sqrtf(v.x * v.x + v.y*v.y);
 }
 inline XMFLOAT2 Cross(XMFLOAT2 a, XMFLOAT2 b)
 {
@@ -120,7 +120,7 @@ inline XMFLOAT3 operator/(XMFLOAT3 v, float f)
 }
 inline float Length(XMFLOAT3 v)
 {
-	return sqrt(v.x*v.x + v.y*v.y + v.z*v.z);
+	return sqrtf(v.x*v.x + v.y*v.y + v.z*v.z);
 }
 inline XMFLOAT3 Cross(XMFLOAT3 a, XMFLOAT3 b)
 {
@@ -158,7 +158,7 @@ inline float Max(XMFLOAT3 v)
 // radian between dir1, dir2
 inline float Rad(XMFLOAT3 d1, XMFLOAT3 d2)
 {
-	return acos(Dot(d1, d2));
+	return acosf(Dot(d1, d2));
 }
 inline void operator/=(XMFLOAT4& v, float f)
 {
@@ -174,6 +174,14 @@ inline bool operator== (XMFLOAT3 a, XMFLOAT3 b)
 inline bool operator!= (XMFLOAT3 a, XMFLOAT3 b)
 {
 	return (a.x != b.x || a.y != b.y || a.z != b.z);
+}
+inline XMFLOAT3 RotateFromDir(XMFLOAT3 p, XMFLOAT3 dir, float rad)
+{
+	XMFLOAT3 c = dir * Dot(dir, p);
+	XMFLOAT3 right = p - c;
+	XMFLOAT3 up = Cross(dir, right);
+
+	return c + right * cosf(rad) + up * sinf(rad);
 }
 inline bool operator== (XMFLOAT4 a, XMFLOAT4 b)
 {
@@ -201,14 +209,14 @@ namespace Geometrics {
 		XMFLOAT3 p;
 		float rad;
 
-		Sphere() {}
+		Sphere():p(XMFLOAT3(0,0,0)), rad(1) {}
 		Sphere(XMFLOAT3 p, float rad) :p(p), rad(rad) {}
 	};
 	class PlaneInf {
 	public:
 		XMFLOAT3 p;
 		XMFLOAT3 n;
-		PlaneInf() {}
+		PlaneInf():p(XMFLOAT3(0, 0, 0)), n(XMFLOAT3(0, 0, 0)) {}
 		PlaneInf(XMFLOAT3 p, XMFLOAT3 n) :p(p), n(n) {}
 	};
 	class Plane {
@@ -218,14 +226,14 @@ namespace Geometrics {
 		XMFLOAT3 up;
 		XMFLOAT3 right;
 		XMFLOAT2 rad;
-		Plane() {}
+		Plane() :c(XMFLOAT3(0,0,0)), normal(XMFLOAT3(0, 0, 0)), up(XMFLOAT3(0, 0, 0)), right(XMFLOAT3(0, 0, 0)), rad(XMFLOAT2(0, 0)) {}
 		Plane(XMFLOAT3 c, XMFLOAT3 normal, XMFLOAT3 up, XMFLOAT2 rad) :c(c), normal(normal),up(up), right(Cross(up,normal)), rad(rad) {}
 	};
 	class Bound {
 	public:
 		XMFLOAT3 center;
 		XMFLOAT3 rad;
-		Bound() {}
+		Bound(): center(XMFLOAT3(0, 0, 0)), rad(XMFLOAT3(0, 0, 0)){}
 		Bound(XMFLOAT3 c, XMFLOAT3 rad) :center(c), rad(rad) {}
 	};
 	class Ray {
@@ -234,7 +242,7 @@ namespace Geometrics {
 		XMFLOAT3 o;
 		XMFLOAT3 d;
 
-		Ray() {}
+		Ray():o(XMFLOAT3(0,0,0)), d(XMFLOAT3(0,0,0)) {}
 		Ray(const XMFLOAT3& o, const XMFLOAT3& d) : o(o), d(d) {}
 
 		XMFLOAT3 operator() (float t) const {

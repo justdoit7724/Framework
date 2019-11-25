@@ -10,6 +10,7 @@
 #include "ShaderFormat.h"
 #include "ShaderReg.h"
 #include "Light.h"
+#include "Shape.h"
 #include "Camera.h"
 #include "Debugging.h"
 #include "Buffer.h"
@@ -81,8 +82,9 @@ ShadowMap::ShadowMap(UINT resX, UINT resY, UINT width, UINT height)
 	rsState = new RasterizerState(&rs_desc);
 	dsState = new DepthStencilState(nullptr);
 	blendState = new BlendState(nullptr);
-	mapVS = new VShader("ShadowMapVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
+	mapVS = new VShader("ShadowVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
 	mapVS->AddCB(0, 1, sizeof(XMMATRIX));
+
 
 	view = new Camera(FRAME_KIND_ORTHOGONAL, width, height, 0.1f, 500.0f, XM_PIDIV2, 1);
 	cbVPMat = new Buffer(sizeof(XMMATRIX));
@@ -141,7 +143,14 @@ void ShadowMap::Mapping(const Scene* depthScene, const DirectionalLight* light)
 
 		mapVS->WriteCB(0,&(curObj->transform->WorldMatrix() * lightVP));
 		mapVS->Apply();
+
+		// only triangles
+		D3D11_PRIMITIVE_TOPOLOGY curPrimitiveType = curObj->shape->GetPrimitiveType();
+		curObj->shape->SetPrimitiveType(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
 		curObj->RenderGeom();
+
+		curObj->shape->SetPrimitiveType(curPrimitiveType);
 
 		curObj = depthScene->GetObj(++i);
 	}

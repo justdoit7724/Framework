@@ -1,6 +1,7 @@
 #include "SceneMgr.h"
 #include "Scene.h"
 #include "CameraMgr.h"
+#include "Camera.h"
 
 void SceneMgr::Add(std::string key, Scene* scene)
 {
@@ -48,7 +49,10 @@ void SceneMgr::Process(float wElapsed, float wSpf)
 		if (list[key]->Enabled())
 		{
 			list[key]->Update(wElapsed, wSpf);
-			list[key]->Render(CameraMgr::Instance()->Main(), 0);
+
+			const Camera* mainCam = CameraMgr::Instance()->Main();
+			const Frustum& frustum = mainCam->GetFrustum();
+			list[key]->Render(mainCam->VMat()*mainCam->StdProjMat(), frustum, 0);
 		}
 	}
 

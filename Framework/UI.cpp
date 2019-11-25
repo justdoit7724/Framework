@@ -86,7 +86,7 @@ void UI::Render(const Camera* camera)const
 {
 	XMMATRIX vp = camera->VMat() * camera->ProjMat(Z_ORDER_UI);
 
-	vs->WriteCB(0, &SHADER_STD_TRANSF(transform->WorldMatrix(), vp, XMMatrixIdentity()));
+	vs->WriteCB(0, &SHADER_STD_TRANSF(transform->WorldMatrix(), vp));
 	
 	vs->Apply();
 	DX_DContext->HSSetShader(nullptr, nullptr, 0);

@@ -22,10 +22,11 @@ RasterizerState* Light::rsState = nullptr;
 DepthStencilState* Light::dsState = nullptr;
 
 Light::Light()
+	:diffuse(XMFLOAT3(1,1,1)), ambient(XMFLOAT3(1,1,1)), specular(XMFLOAT3(0,0,0))
 {
 	if (shadowMapVS == nullptr)
 	{
-		shadowMapVS = new VShader("ShadowMapVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
+		shadowMapVS = new VShader("ShadowVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
 		shadowMapVS->AddCB(0, 1, sizeof(XMMATRIX));
 
 		D3D11_RASTERIZER_DESC rs_desc;
