@@ -12,7 +12,6 @@ cbuffer CB_VS_PROPERTY : register(b0)
     float4x4 WMat;
     float4x4 VPMat;
     float4x4 NMat;
-    float4x4 texMat;
 };
 
 VS_OUTPUT main(STD_VS_INPUT input)

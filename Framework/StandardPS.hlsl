@@ -1,29 +1,27 @@
 
 #include "ShaderInfo.cginc"
 #include "ShaderLight.cginc"
+#include "ShaderShadow.cginc"
+#include "ShaderReg.cginc"
 
 #define REFRACTION_INDEX_GLASS 1.2
 
-cbuffer EYE : register(b3)
+cbuffer EYE : SHADER_REG_PS_CB_EYE
 {
     float4 eyePos;
 };
 
-cbuffer CB_TIME : register(b5)
-{
-    float elapsed;
-}
 
-TextureCube cmTex : register(t0);
-Texture2D diffuseTex : register(t1);
-Texture2D normalTex : register(t2);
-Texture2D ssaoTex : register(t3);
-Texture2D metalicTex : register(t4);
-Texture2D roughnessTex : register(t5);
+TextureCube cmTex : SHADER_REG_PS_SRV_CM;
+Texture2D diffuseTex : SHADER_REG_PS_SRV_DIFFUSE;
+Texture2D normalTex : SHADER_REG_PS_SRV_NORMAL;
+Texture2D ssaoTex : SHADER_REG_PS_SRV_SSAO;
+Texture2D metalicTex : register(t5);
+Texture2D roughnessTex : register(t6);
 //...
 
-SamplerState cmSamp : register(s0);
-SamplerState samp : register(s1);
+SamplerState cmSamp : SHADER_REG_PS_SAMP_CM;
+SamplerState samp : SHADER_REG_PS_SAMP_TEX;
 
 float3 GetBodyNormal(float2 tex)
 {
@@ -67,22 +65,26 @@ struct PS_INPUT
 };
 float4 main(PS_INPUT input) : SV_Target
 {
+
     input.normal = normalize(input.normal);
+    input.tangent = normalize(input.tangent);
+    
+
     input.tangent = normalize(input.tangent - dot(input.normal, input.tangent)*input.normal);
+    
     float3 bitangent = cross(input.normal, input.tangent);
     float3x3 tbn = float3x3(input.tangent, bitangent, input.normal);
     float3 tNormal = GetBodyNormal(input.tex);
     float3 wNormal = normalize(mul(tNormal, tbn));
 
     float3 look = normalize(input.wPos-eyePos.xyz);
-
+    
     
     float4 ambient = 0;
     float4 diffuse = 0;
     float4 specular = 0;
     float4 reflection = 0;
     float4 A, D, S;
-    //debug change
     ComputeDirectionalLight(wNormal, -look, A, D, S);
     ambient += A;
     diffuse += D;
@@ -102,12 +104,8 @@ float4 main(PS_INPUT input) : SV_Target
     float3 light = specular.xyz + diffuse.xyz + ambient.xyz;
     
     float3 tex = diffuseTex.Sample(samp, input.tex).xyz;
-    tex = ComputeTransparency(tex, wNormal, look);
     
-    color = light * tex;
-
-    //debug
-    return float4(color, 1);
+    float shadowFactor = DirectionalLightShadowFactor(wNormal, d_Dir[0].xyz, input.wPos).r;
 
     float4x4 uvMat = float4x4(
         0.5, 0, 0, 0,
@@ -117,6 +115,14 @@ float4 main(PS_INPUT input) : SV_Target
     input.pPos = mul(input.pPos, uvMat);
     float2 viewUV = input.pPos.xy / input.pPos.w;
     float ssao = ssaoTex.SampleLevel(samp, viewUV, 0).r;
+    //debug
+    return float4(tex, 1);
+
+
+    tex = ComputeTransparency(tex, wNormal, look);
+    
+    color = light * tex;
+    
     
 
     tex = ComputeMetalic(tex, wNormal, look, input.tex);

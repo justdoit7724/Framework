@@ -22,28 +22,33 @@ Window::Window(HINSTANCE _hinstance, const char* name)
 	wc.cbSize = sizeof(WNDCLASSEX);
 	RegisterClassEx(&wc);
 	
-	/*RECT wr;
-	wr.left = 100;
-	wr.right = wr.left + _width;
-	wr.top = 100;
-	wr.bottom = wr.top + _height;
-	AdjustWindowRect(&wr, WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, FALSE);*/
+	UINT wndStyle = WS_OVERLAPPED | WS_SYSMENU;
+
+	UINT x = 10;
+	UINT y = 10;
 
 	hwnd = CreateWindowEx(
 		0,
 		className,
 		name,
-		WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU,
-		0, 0,
+		wndStyle,
+		x, y,
 		SCREEN_WIDTH, SCREEN_HEIGHT,
 		NULL,
 		NULL,
 		hInstance,
 		this);
 
-	ShowWindow(hwnd, SW_SHOWDEFAULT);
+	ShowWindow(hwnd, SW_SHOW);
 	SetForegroundWindow(hwnd);
 	SetFocus(hwnd);
+
+	RECT clientRect;
+	GetClientRect(hwnd, &clientRect);
+	DirectX::XMFLOAT2 offset = DirectX::XMFLOAT2(
+		SCREEN_WIDTH - clientRect.right,
+		SCREEN_HEIGHT - clientRect.bottom);
+	MoveWindow(hwnd, x, y, SCREEN_WIDTH + offset.x, SCREEN_HEIGHT + offset.y, FALSE);
 }
 
 

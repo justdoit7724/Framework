@@ -45,10 +45,9 @@ Camera::Camera(FRAME_KIND frameKind, float orthoScnWidth, float orthoScnHeight, 
 Camera::~Camera()
 {
 	CameraMgr::Instance()->Remove(key);
-}
-void Camera::SetMain()
-{
-	CameraMgr::Instance()->SetMain(key);
+
+	delete transform;
+	delete[] projMats;
 }
 void Camera::SetFrame(const FRAME_KIND fKind, XMFLOAT2 orthoSize, const float n, const float f, const float verticalViewRad, const float aspectRatio)
 {
@@ -153,15 +152,12 @@ void Camera::Update()
 		-up * tri * f +
 		forward * f);
 
-	frustum.nPt = p + forward * n;
-	frustum.fPt = p + forward * f;
-	frustum.sidePt = p;
-	frustum.nN = forward;
-	frustum.fN = -forward;
-	frustum.tN = Cross(right, trDir);
-	frustum.bN = Cross(blDir, right);
-	frustum.rN = Cross(-up, trDir);
-	frustum.lN = Cross(up, blDir);
+	frustum.front = Geometrics::PlaneInf(p + forward * f, -forward);
+	frustum.back = Geometrics::PlaneInf(p + forward * n, forward);
+	frustum.left = Geometrics::PlaneInf(p, Cross(up, blDir));
+	frustum.right = Geometrics::PlaneInf(p, Cross(-up, trDir));
+	frustum.top = Geometrics::PlaneInf(p, Cross(right, trDir));
+	frustum.bottom = Geometrics::PlaneInf(p, Cross(blDir, right));
 
 	SetView();
 }
@@ -236,21 +232,53 @@ void Camera::Pick(OUT Geometrics::Ray* ray)const
 {
 	XMFLOAT2 scnPos = Mouse::Instance()->Pos();
 
-	// vPos at z which is on d 
-	XMFLOAT3 vDir = Normalize(XMFLOAT3(
-		((scnPos.x * 2) / SCREEN_WIDTH - 1) * aspectRatio,
-		-(scnPos.y * 2) / SCREEN_HEIGHT + 1,
-		1 / tan(verticalRadian * 0.5f)));
+	XMFLOAT2 pPos = XMFLOAT2(
+		((scnPos.x * 2) / (float)SCREEN_WIDTH - 1),
+		-(scnPos.y * 2) / (float)SCREEN_HEIGHT + 1);
+	XMFLOAT3 vDir = XMFLOAT3(NULL,NULL,NULL);
 
-	XMFLOAT3 f = transform->GetForward();
-	XMFLOAT3 u = transform->GetUp();
-	XMFLOAT3 r = transform->GetRight();
-	XMMATRIX invVDirMat = XMMATRIX(
-		r.x, r.y, r.z, 0,
-		u.x, u.y, u.z, 0,
-		f.x, f.y, f.z, 0,
-		0, 0, 0, 1);
-		
-	ray->o = transform->GetPos();
-	ray->d = MultiplyDir(vDir, invVDirMat);
+	const XMFLOAT3 forward = transform->GetForward();
+	const XMFLOAT3 up = transform->GetUp();
+	const XMFLOAT3 right = transform->GetRight();
+	const XMFLOAT3 eye = transform->GetPos();
+	switch (curFrame)
+	{
+	case FRAME_KIND_PERSPECTIVE:
+	{
+		// vPos at z which is on d 
+		vDir = Normalize(XMFLOAT3(
+			pPos.x * aspectRatio,
+			pPos.y,
+			1 / tan(verticalRadian * 0.5f)));
+
+		XMMATRIX invVDirMat = XMMATRIX(
+			right.x, right.y, right.z, 0,
+			up.x, up.y, up.z, 0,
+			forward.x, forward.y, forward.z, 0,
+			0, 0, 0, 1);
+		ray->o = eye;
+		ray->d = MultiplyDir(vDir, invVDirMat);
+	}
+		break;
+	case FRAME_KIND_ORTHOGONAL:
+	{
+		float invSX = size.x/2;
+		float invSY = size.y/2;
+		XMFLOAT3 vPos = XMFLOAT3(
+			pPos.x * invSX,
+			pPos.y * invSY,
+			1);
+		vDir = Normalize(vPos);
+
+		ray->o = eye + right * vPos.x + up * vPos.y;
+
+		ray->d = forward;
+	}
+		break;
+	default:
+		break;
+	}
+
+
+	
 }

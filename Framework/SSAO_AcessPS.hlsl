@@ -38,8 +38,8 @@ float AOIntensity(float distZ)
 float4 main(PS_INPUT input) :SV_Target
 {
     float4 vSample = aoNDMap.SampleLevel (samp, input.tex, 0);
-    if(sign(input.vFarPlanePos.z-vSample.w)<0)
-        return float4(1, 1, 1, 1);
+    //if(sign(input.vFarPlanePos.z-vSample.w)<0)
+    //    return float4(1, 1, 1, 1);
     float3 vNormal = vSample.xyz;
     float vDepth = vSample.w;
 

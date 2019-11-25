@@ -44,16 +44,17 @@ public:
 	void DisableGrid();
 
 	void Visualize(IDebug* obj);
+	
+	~Debugging();
 
 private:
 	Camera* debugCam;
 	void CameraMove(float spf);
 	void Update(float spf);
-	void Render();
+	void Render(const XMMATRIX& vp);
 
 	friend class Singleton<Debugging>;
 	Debugging();
-	~Debugging();
 
 	std::unique_ptr<DirectX::SpriteBatch> spriteBatch;
 	std::unique_ptr<DirectX::SpriteFont> spriteFont;
@@ -65,7 +66,7 @@ private:
 		float scale;
 		bool is3D;
 
-		ScreenTextInfo() {}
+		ScreenTextInfo():tex(""),pos(XMFLOAT3(0,0,0)), color(Colors::White), scale(1),is3D(false) {}
 	};
 	std::vector<ScreenTextInfo> texts;
 
@@ -75,7 +76,7 @@ private:
 		float rad;
 		XMVECTOR color;
 
-		MarkInfo():isDraw(false){}
+		MarkInfo():isDraw(false),pos(XMFLOAT3(0,0,0)), rad(1), color(Colors::Red){}
 	};
 	UINT curMarkIdx = 0;
 	Transform* markTransform;
@@ -86,7 +87,7 @@ private:
 		XMFLOAT3 p1, p2;
 		XMVECTOR color;
 
-		LineInfo() {}
+		LineInfo():p1(XMFLOAT3(0,0,0)), p2(XMFLOAT3(0,0,0)), color(Colors::White) {}
 		LineInfo(const XMFLOAT3 _p1, const XMFLOAT3 _p2, const XMVECTORF32 _c) {
 			p1 = _p1;
 			p2 = _p2;

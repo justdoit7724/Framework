@@ -17,13 +17,16 @@ enum FRAME_KIND {
 
 class Transform;
 class Scene;
+class Buffer;
 
 struct Frustum
 {
-	XMFLOAT3 sidePt, nPt, fPt;
-	XMFLOAT3 nN, fN;
-	XMFLOAT3 rN, lN;
-	XMFLOAT3 tN, bN;
+	Geometrics::PlaneInf front;
+	Geometrics::PlaneInf back;
+	Geometrics::PlaneInf right;
+	Geometrics::PlaneInf left;
+	Geometrics::PlaneInf top;
+	Geometrics::PlaneInf bottom;
 };
 
 class Camera : public IDebug
@@ -34,14 +37,13 @@ public:
 	Camera(std::string key, FRAME_KIND frameKind, float screenWidth, float screenHeight, float nearPlane, float farPlane, float verticalViewRad, float aspectRatio);
 	Camera(FRAME_KIND frameKind, float screenWidth, float screenHeight, float nearPlane, float farPlane, float verticalViewRad, float aspectRatio);
 	~Camera();
-	void SetMain();
 	void SetFrame(const FRAME_KIND fKind, XMFLOAT2 orthoSize, const float nearPlane, const float farPlane, const float verticalViewAngle, const float aspectRatio);
 	void Update();
 	void Visualize() override;
 
 	XMMATRIX VMat()const { return viewMat; }
 	XMMATRIX ProjMat(int zOrder)const {return projMats[zOrder];}
-	XMMATRIX ShadowPMat()const { return stdProjMat; }
+	XMMATRIX StdProjMat()const { return stdProjMat; }
 	void Pick(OUT Geometrics::Ray* ray)const;
 
 	const std::string key;
@@ -53,7 +55,7 @@ public:
 	float GetVRad()const { return verticalRadian; }
 	float GetAspectRatio()const { return aspectRatio; }
 
-	const Frustum* GetFrustum()const { return &frustum; }
+	const Frustum& GetFrustum()const { return frustum; }
 
 	Transform* transform;
 

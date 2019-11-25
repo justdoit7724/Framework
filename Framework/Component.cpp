@@ -6,7 +6,3 @@ Component::Component()
 {
 }
 
-
-Component::~Component()
-{
-}

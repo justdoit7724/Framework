@@ -4,7 +4,6 @@ cbuffer CB_VS_PROPERTY : register(b0)
     float4x4 w_mat;
     float4x4 vp_mat;
     float4x4 n_mat;
-    float4x4 tex_mat;
 }
 
 struct GS_INPUT
@@ -57,7 +56,7 @@ void main(triangle GS_INPUT gin[3], inout TriangleStream<GS_OUTPUT> triStream)
         outVertice[i].wPos = mul(w_mat, float4(vertice[i].lPos, 1)).xyz;
         outVertice[i].pos = mul(vp_mat, float4(outVertice[i].wPos, 1));
         outVertice[i].n = mul(n_mat, float4(vertice[i].n, 1)).xyz;
-        outVertice[i].tex = mul(tex_mat, float4(vertice[i].tex, 0, 1)).xy;
+        outVertice[i].tex = vertice[i].tex;
     }
     
     [unroll]

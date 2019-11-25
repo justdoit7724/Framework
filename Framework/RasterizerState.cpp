@@ -20,7 +20,6 @@ RasterizerState::RasterizerState(D3D11_RASTERIZER_DESC* desc)
 		DX_Device->CreateRasterizerState(&curDesc, state.GetAddressOf())
 	);
 }
-
 void RasterizerState::Apply()const
 {
 	DX_DContext->RSSetState(state.Get());

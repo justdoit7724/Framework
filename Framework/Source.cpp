@@ -8,11 +8,14 @@
 #include "Timer.h"
 #include "TextureMgr.h"
 #include "Mouse.h"
+#include "Debugging.h"
 
-#include "TestScene.h"
-#include "DCMScene.h"
+#include "Lobby.h"
 #include "DebuggingScene.h"
-#include "BindingTestScene.h"
+#include "GamePlayScene.h"
+#include "CameraMgr.h"
+#include "Keyboard.h"
+#include <dxgidebug.h>
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 
@@ -21,14 +24,16 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	Graphic* graphic = new Graphic(window.Hwnd());
 
 
-#ifdef _DEBUG
+
+	Scene* playScene = new GamePlayScene();
+	SceneMgr::Instance()->Add("GamePlay", playScene);
+	SceneMgr::Instance()->SetEnabled("GamePlay", true);
+	Scene* lobbyScene = new Lobby();
+	SceneMgr::Instance()->Add("Lobby", lobbyScene);
+	SceneMgr::Instance()->SetEnabled("Lobby", true);
 	Scene* debugScene = new DebuggingScene();
-#endif // !_DEBUG
-	Scene* testScene = new TestScene(graphic);
-	//Scene* dcmScene = new DCMScene(graphic, testScene);
-	//Scene* bindScene = new BindingTestScene();
-
-
+	SceneMgr::Instance()->Add("Debugging", debugScene);
+	SceneMgr::Instance()->SetEnabled("Debugging", true);
 
 	Timer* worldTimer = new Timer();
 
@@ -58,6 +63,15 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	}
 
 	DestroyWindow(window.Hwnd());
+
+
+
+	delete worldTimer;
+	delete graphic;
+
+	TextureMgr::Instance()->Release();
+	SceneMgr::Instance()->Release();
+
 
 	return 0;
 }

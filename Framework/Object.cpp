@@ -1,6 +1,7 @@
 #include "Object.h"
 #include "ShaderFormat.h"
 #include "Camera.h"
+#include "ShaderReg.h"
 #include "TextureMgr.h"
 #include "Transform.h"
 #include "Shader.h"
@@ -40,27 +41,9 @@ Object::Object(Shape* shape, ID3D11ShaderResourceView* diffSRV, ID3D11ShaderReso
 	ps = new PShader("StandardPS.cso");
 
 	vs->AddCB(0, 1, sizeof(SHADER_STD_TRANSF));
-	ps->AddCB(3, 1, sizeof(XMFLOAT4));
-	ps->AddCB(4, 1, sizeof(SHADER_MATERIAL));
-	ps->AddCB(5, 1, sizeof(float));
-	ps->WriteCB(4,&SHADER_MATERIAL(XMFLOAT3(0.7,0.7,0.7), 0.2, XMFLOAT3(0.2, 0.2, 0.2), XMFLOAT3(0.8, 0.8, 0.8), 32));
+	ps->AddCB(SHADER_REG_PS_CB_MATERIAL, 1, sizeof(SHADER_MATERIAL));
+	ps->WriteCB(SHADER_REG_PS_CB_MATERIAL,&SHADER_MATERIAL(XMFLOAT3(0.7,0.7,0.7), 0.2, XMFLOAT3(0.2, 0.2, 0.2), XMFLOAT3(0.8, 0.8, 0.8), 32));
 	
-
-	D3D11_SAMPLER_DESC cmSamp_desc;
-	ZeroMemory(&cmSamp_desc, sizeof(D3D11_SAMPLER_DESC));
-	cmSamp_desc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
-	cmSamp_desc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
-	cmSamp_desc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
-	cmSamp_desc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
-	cmSamp_desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	float borderC[4] = { 0,0,1,1 };
-	cmSamp_desc.BorderColor[0] = 0;
-	cmSamp_desc.BorderColor[1] = 1;
-	cmSamp_desc.BorderColor[2] = 0;
-	cmSamp_desc.BorderColor[3] = 1;
-	cmSamp_desc.MinLOD = 0;
-	cmSamp_desc.MaxLOD = D3D11_FLOAT32_MAX;
-	ps->AddSamp(0, 1, &cmSamp_desc);
 	D3D11_SAMPLER_DESC body_desc;
 	ZeroMemory(&body_desc, sizeof(D3D11_SAMPLER_DESC));
 	body_desc.Filter = D3D11_FILTER_ANISOTROPIC;
@@ -70,11 +53,11 @@ Object::Object(Shape* shape, ID3D11ShaderResourceView* diffSRV, ID3D11ShaderReso
 	body_desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
 	body_desc.MinLOD = 0;
 	body_desc.MaxLOD = D3D11_FLOAT32_MAX;
-	ps->AddSamp(1, 1, &body_desc);
-	ps->AddSRV(1, 1);
-	ps->AddSRV(2, 1);
-	ps->WriteSRV(1, diffSRV);
-	ps->WriteSRV(2, normalSRV);
+	ps->AddSamp(SHADER_REG_PS_SAMP_TEX, 1, &body_desc);
+	ps->AddSRV(SHADER_REG_PS_SRV_DIFFUSE, 1);
+	ps->AddSRV(SHADER_REG_PS_SRV_NORMAL, 1);
+	ps->WriteSRV(SHADER_REG_PS_SRV_DIFFUSE, diffSRV);
+	ps->WriteSRV(SHADER_REG_PS_SRV_NORMAL, normalSRV);
 
 	blendState = new BlendState(nullptr);
 	dsState = new DepthStencilState(nullptr);
@@ -97,6 +80,18 @@ Object::~Object()
 }
 
 void Object::Update()
+{
+	for (auto child : children)
+		child->UpdateBound();
+
+	if (!enabled)
+		return;
+
+	UpdateBound();
+
+}
+
+void Object::UpdateBound()
 {
 	XMFLOAT3 boundlMinPt;
 	XMFLOAT3 boundlMaxPt;
@@ -126,18 +121,19 @@ void Object::Render()const
 
 	shape->Apply();
 }
-void Object::Render(const Camera* camera, UINT sceneDepth) const
+void Object::Render(const XMMATRIX& parentWorld, const XMMATRIX& vp, UINT sceneDepth) const
 {
-	if (sceneDepth == 0)
-	{
-		int a = 0;
-	}
-	const SHADER_STD_TRANSF STransformation(transform->WorldMatrix(), camera->VMat() * camera->ProjMat(zOrder), XMMatrixIdentity());
+	XMMATRIX curWorld = transform->WorldMatrix()*parentWorld;
 
-	XMFLOAT3 eye = camera->transform->GetPos();
+	for (auto child : children)
+		child->Render(curWorld,vp, sceneDepth);
 
-	vs->WriteCB(0, (void*)(&STransformation));
-	ps->WriteCB(3, &XMFLOAT4(eye.x, eye.y, eye.z, 0));
+	if (!enabled || !show)
+		return;
+
+	const SHADER_STD_TRANSF STransformation(curWorld, vp);
+
+	vs->WriteCB(0, &STransformation);
 
 	Render();
 }
@@ -147,20 +143,30 @@ void Object::RenderGeom() const
 	shape->Apply();
 }
 
-bool Object::IsInsideFrustum(const Frustum* frustum) const
+bool Object::IsInsideFrustum(const Frustum& frustum) const
 {
 	return (
-		IntersectInPlaneSphere(frustum->sidePt, frustum->rN, bound) &&
-		IntersectInPlaneSphere(frustum->sidePt, frustum->lN, bound) &&
-		IntersectInPlaneSphere(frustum->sidePt, frustum->tN, bound) &&
-		IntersectInPlaneSphere(frustum->sidePt, frustum->bN, bound) &&
-		IntersectInPlaneSphere(frustum->fPt, frustum->fN, bound) &&
-		IntersectInPlaneSphere(frustum->nPt, frustum->nN, bound));
+		IntersectInPlaneSphere(frustum.front, bound) &&
+		IntersectInPlaneSphere(frustum.back, bound) &&
+		IntersectInPlaneSphere(frustum.right, bound) &&
+		IntersectInPlaneSphere(frustum.left, bound) &&
+		IntersectInPlaneSphere(frustum.top, bound) &&
+		IntersectInPlaneSphere(frustum.bottom, bound));
+}
+
+bool Object::IsPicking(const Geometrics::Ray ray) const
+{
+	return Geometrics::IntersectRaySphere(ray, bound);
 }
 
 void Object::Visualize()
 {
 	if(IsInsideFrustum(CameraMgr::Instance()->Main()->GetFrustum()))
 		Debugging::Instance()->Mark(bound.p, bound.rad, Colors::LightGreen);
+}
+
+void Object::AddChildren(Object* obj)
+{
+	children.insert(obj);
 }
 

@@ -40,9 +40,6 @@
     <Filter Include="Manager">
       <UniqueIdentifier>{8e1b4faf-b0f0-4c5d-a5ea-b6cfe5a31dc5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Shadow">
-      <UniqueIdentifier>{1c98553d-33ef-4798-a7b2-563b090cfda4}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Debugging.cpp">
@@ -64,9 +61,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Mouse.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Medium.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Camera.cpp">
@@ -123,9 +117,6 @@
     <ClCompile Include="DepthComplexity.cpp">
       <Filter>Tasks</Filter>
     </ClCompile>
-    <ClCompile Include="Billboard.cpp">
-      <Filter>Tasks</Filter>
-    </ClCompile>
     <ClCompile Include="RasterizerState.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -133,9 +124,6 @@
       <Filter>Tasks</Filter>
     </ClCompile>
     <ClCompile Include="Scene.cpp">
-      <Filter>Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="TestScene.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
     <ClCompile Include="CameraMgr.cpp">
@@ -150,9 +138,6 @@
     <ClCompile Include="DebuggingScene.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
-    <ClCompile Include="DCMScene.cpp">
-      <Filter>Scene</Filter>
-    </ClCompile>
     <ClCompile Include="DynamicCubeMap.cpp">
       <Filter>Object</Filter>
     </ClCompile>
@@ -162,22 +147,7 @@
     <ClCompile Include="Skybox.cpp">
       <Filter>Object</Filter>
     </ClCompile>
-    <ClCompile Include="DisplacementObject.cpp">
-      <Filter>Object</Filter>
-    </ClCompile>
-    <ClCompile Include="Mirror.cpp">
-      <Filter>Object</Filter>
-    </ClCompile>
-    <ClCompile Include="ShadowMap.cpp">
-      <Filter>Shadow</Filter>
-    </ClCompile>
-    <ClCompile Include="PT_Obj.cpp">
-      <Filter>Object</Filter>
-    </ClCompile>
     <ClCompile Include="ShadowObj.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="BindingTestScene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Texture.cpp">
@@ -186,14 +156,32 @@
     <ClCompile Include="MeshLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="nanosuit.cpp">
-      <Filter>Tasks</Filter>
-    </ClCompile>
-    <ClCompile Include="SSAO.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Glass.cpp">
       <Filter>Tasks</Filter>
+    </ClCompile>
+    <ClCompile Include="Lobby.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="GamePlayScene.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Token.cpp">
+      <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="PlaySpace.cpp">
+      <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Tile.cpp">
+      <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="ShadowMap.cpp">
+      <Filter>PBR</Filter>
+    </ClCompile>
+    <ClCompile Include="SSAOMap.cpp">
+      <Filter>PBR</Filter>
+    </ClCompile>
+    <ClCompile Include="Nonaga.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -219,9 +207,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Mouse.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Medium.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Geometrics.h">
@@ -287,22 +272,13 @@
     <ClInclude Include="DepthComplexity.h">
       <Filter>Tasks</Filter>
     </ClInclude>
-    <ClInclude Include="Billboard.h">
-      <Filter>Tasks</Filter>
-    </ClInclude>
     <ClInclude Include="RasterizerState.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="HDTester.h">
       <Filter>Tasks</Filter>
     </ClInclude>
-    <ClInclude Include="InputLayoutBuilder.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Scene.h">
-      <Filter>Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="TestScene.h">
       <Filter>Scene</Filter>
     </ClInclude>
     <ClInclude Include="CameraMgr.h">
@@ -317,9 +293,6 @@
     <ClInclude Include="DebuggingScene.h">
       <Filter>Scene</Filter>
     </ClInclude>
-    <ClInclude Include="DCMScene.h">
-      <Filter>Scene</Filter>
-    </ClInclude>
     <ClInclude Include="DynamicCubeMap.h">
       <Filter>Object</Filter>
     </ClInclude>
@@ -329,29 +302,11 @@
     <ClInclude Include="Skybox.h">
       <Filter>Object</Filter>
     </ClInclude>
-    <ClInclude Include="DisplacementObject.h">
-      <Filter>Object</Filter>
-    </ClInclude>
-    <ClInclude Include="Mirror.h">
-      <Filter>Object</Filter>
-    </ClInclude>
-    <ClInclude Include="ShadowMap.h">
-      <Filter>Shadow</Filter>
-    </ClInclude>
-    <ClInclude Include="PT_Obj.h">
-      <Filter>Object</Filter>
-    </ClInclude>
     <ClInclude Include="ShadowObj.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BindingTestScene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ShaderFormat.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ObjectPooling.h">
-      <Filter>DesignPattern</Filter>
     </ClInclude>
     <ClInclude Include="Texture.h">
       <Filter>Header Files</Filter>
@@ -359,13 +314,43 @@
     <ClInclude Include="MeshLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="nanosuit.h">
+    <ClInclude Include="Glass.h">
       <Filter>Tasks</Filter>
     </ClInclude>
-    <ClInclude Include="SSAO.h">
+    <ClInclude Include="ObserverDP.h">
+      <Filter>DesignPattern</Filter>
+    </ClInclude>
+    <ClInclude Include="Lobby.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="GamePlayScene.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Token.h">
+      <Filter>Object</Filter>
+    </ClInclude>
+    <ClInclude Include="PlaySpace.h">
+      <Filter>Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Tile.h">
+      <Filter>Object</Filter>
+    </ClInclude>
+    <ClInclude Include="TileSpaceInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Glass.h">
+    <ClInclude Include="ShadowMap.h">
+      <Filter>PBR</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderReg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SSAOMap.h">
+      <Filter>PBR</Filter>
+    </ClInclude>
+    <ClInclude Include="Nonaga.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="classTask.h">
       <Filter>Tasks</Filter>
     </ClInclude>
   </ItemGroup>
@@ -383,6 +368,9 @@
       <Filter>hlsl</Filter>
     </None>
     <None Include="ShaderInfo.cginc">
+      <Filter>hlsl</Filter>
+    </None>
+    <None Include="ShaderReg.cginc">
       <Filter>hlsl</Filter>
     </None>
   </ItemGroup>
@@ -411,20 +399,8 @@
     <FxCompile Include="ShadowVS.hlsl">
       <Filter>hlsl</Filter>
     </FxCompile>
-    <FxCompile Include="ShadowPS.hlsl">
-      <Filter>hlsl</Filter>
-    </FxCompile>
     <FxCompile Include="GS.hlsl">
       <Filter>hlsl</Filter>
-    </FxCompile>
-    <FxCompile Include="BillboardVS.hlsl">
-      <Filter>Tasks</Filter>
-    </FxCompile>
-    <FxCompile Include="BillboardGS.hlsl">
-      <Filter>Tasks</Filter>
-    </FxCompile>
-    <FxCompile Include="BillboardPS.hlsl">
-      <Filter>Tasks</Filter>
     </FxCompile>
     <FxCompile Include="DepthComplexUIPS.hlsl">
       <Filter>Tasks</Filter>
@@ -445,12 +421,6 @@
       <Filter>hlsl</Filter>
     </FxCompile>
     <FxCompile Include="CMVS.hlsl">
-      <Filter>hlsl</Filter>
-    </FxCompile>
-    <FxCompile Include="MirrorPS.hlsl">
-      <Filter>hlsl</Filter>
-    </FxCompile>
-    <FxCompile Include="MirrorVS.hlsl">
       <Filter>hlsl</Filter>
     </FxCompile>
     <FxCompile Include="CMGS.hlsl">
@@ -477,59 +447,29 @@
     <FxCompile Include="ProjectiveTexturePS.hlsl">
       <Filter>hlsl</Filter>
     </FxCompile>
-    <FxCompile Include="StdShadowVS.hlsl">
-      <Filter>Tasks</Filter>
-    </FxCompile>
-    <FxCompile Include="StdShadowPS.hlsl">
-      <Filter>Tasks</Filter>
-    </FxCompile>
-    <FxCompile Include="ShadowMapVS.hlsl">
-      <Filter>Tasks</Filter>
-    </FxCompile>
-    <FxCompile Include="BindingTestVS.hlsl">
-      <Filter>Tasks</Filter>
-    </FxCompile>
-    <FxCompile Include="BindingTestPS.hlsl">
-      <Filter>Tasks</Filter>
-    </FxCompile>
-    <FxCompile Include="BindingTest2VS.hlsl">
-      <Filter>Tasks</Filter>
-    </FxCompile>
-    <FxCompile Include="BindingTestHS.hlsl">
-      <Filter>Tasks</Filter>
-    </FxCompile>
-    <FxCompile Include="BindingTestDS.hlsl">
-      <Filter>Tasks</Filter>
-    </FxCompile>
-    <FxCompile Include="BindingTestGS.hlsl">
-      <Filter>Tasks</Filter>
-    </FxCompile>
-    <FxCompile Include="BindingTest2PS.hlsl">
-      <Filter>Tasks</Filter>
-    </FxCompile>
-    <FxCompile Include="SSAO_ND_VS.hlsl">
-      <Filter>Tasks</Filter>
-    </FxCompile>
-    <FxCompile Include="SSAO_ND_PS.hlsl">
-      <Filter>Tasks</Filter>
-    </FxCompile>
-    <FxCompile Include="SSAO_AcessVS.hlsl">
-      <Filter>Tasks</Filter>
-    </FxCompile>
-    <FxCompile Include="SSAO_AcessPS.hlsl">
-      <Filter>Tasks</Filter>
-    </FxCompile>
-    <FxCompile Include="SSAO_BlurPS.hlsl">
-      <Filter>Tasks</Filter>
-    </FxCompile>
-    <FxCompile Include="SSAO_BlurVS.hlsl">
-      <Filter>Tasks</Filter>
-    </FxCompile>
     <FxCompile Include="GlassVS.hlsl">
       <Filter>Tasks</Filter>
     </FxCompile>
     <FxCompile Include="GlassPS.hlsl">
       <Filter>Tasks</Filter>
+    </FxCompile>
+    <FxCompile Include="SSAO_ND_VS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="SSAO_AcessPS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="SSAO_AcessVS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="SSAO_BlurPS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="SSAO_BlurVS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="SSAO_ND_PS.hlsl">
+      <Filter>hlsl</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

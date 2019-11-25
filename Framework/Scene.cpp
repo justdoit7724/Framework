@@ -1,47 +1,40 @@
 #include "Scene.h"
-#include "SceneMgr.h"
 #include "Object.h"
 #include "Shader.h"
 #include "ShaderFormat.h"
 #include "Camera.h"
-
-Scene::Scene(std::string key)
-	:key(key)
-{
-	SceneMgr::Instance()->Add(this);
-}
+#include "Transform.h"
+#include "SceneMgr.h"
 
 Scene::~Scene()
 {
-	SceneMgr::Instance()->Remove(key);
+	for (auto obj : objs)
+		delete obj;
 }
 
 void Scene::Update(float elapsed, float spf)
 {
-	for (auto obj : drawObjs)
+	for (auto obj : objs)
 	{
 		obj->Update();
 	}
 }
 
-void Scene::Render(const Camera* camera, UINT sceneDepth) const
+void Scene::Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) const
 {
-	//use temp container because drawObjs is being changed in loop
-	std::vector<Object*>tempMemObjs(drawObjs);
-
-	for (auto obj : tempMemObjs)
+	for (auto obj : objs)
 	{
-		obj->Render(camera, sceneDepth);
+		if (obj->IsInsideFrustum(frustum))
+		{
+			obj->Render(XMMatrixIdentity(), vp, sceneDepth);
+		}
 	}
 }
 
-void Scene::FrustumCulling(const Camera* camera)
+const Object* Scene::GetObj(UINT id)const
 {
-	drawObjs.clear();
+	if (objs.size() <= id)
+		return nullptr;
 
-	for (auto obj : objs)
-	{
-		if(obj->IsInsideFrustum(camera->GetFrustum()))
-			drawObjs.push_back(obj);
-	}
+	return objs[id];
 }

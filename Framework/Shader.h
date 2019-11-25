@@ -12,9 +12,10 @@ public:
 	void AddCB(UINT slot, UINT arrayNum, UINT byteSize);
 	void AddSRV(UINT slot, UINT arrayNum);
 	void AddSamp(UINT slot, UINT arrayNum, D3D11_SAMPLER_DESC* desc);
-	void WriteCB(UINT slot, void* data);
+	void WriteCB(UINT slot, const void* data);
 	void WriteSRV(UINT slot, ID3D11ShaderResourceView* srv);
 	void RemoveCB(UINT slot);
+	bool CheckCBSlot(UINT slot);
 
 protected:
 	struct BindingCB 

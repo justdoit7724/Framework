@@ -33,7 +33,7 @@ Cylinder::Cylinder(const int sliceCount)
 
 	std::vector<UINT> indice;
 	int ringVertexCount = sliceCount + 1;
-	for (int i = 0; i < ringVertexCount; ++i)
+	for (int i = 0; i < sliceCount; ++i)
 	{
 		indice.push_back(i);
 		indice.push_back(ringVertexCount + i);
@@ -104,6 +104,28 @@ Cylinder::Cylinder(const int sliceCount)
 		indice.push_back(baseIdx + i + 1);
 	}
 #pragma endregion
+
+	int polySize = indice.size()/3;
+	for (UINT64 i=0; i< polySize; ++i)
+	{
+		XMFLOAT3 tangent;
+		Vertex v0 = vertice[indice[i * 3]];
+		Vertex v1 = vertice[indice[i * 3 + 1]];
+		Vertex v2 = vertice[indice[i * 3 + 2]];
+
+		CalculateTangent(
+			v0.pos,
+			v1.pos,
+			v2.pos,
+			v0.tex,
+			v1.tex,
+			v2.tex, &tangent);
+		tangent = Normalize(tangent);
+
+		vertice[indice[i * 3]].tangent = tangent;
+		vertice[indice[i * 3+1]].tangent = tangent;
+		vertice[indice[i * 3+2]].tangent = tangent;
+	}
 
 	Init(vertice.data(), sizeof(Vertex), vertice.size(), indice.data(), indice.size(), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }

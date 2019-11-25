@@ -8,10 +8,11 @@ struct DS_INPUT
 struct DS_OUTPUT
 {
     float4 pos : SV_POSITION;
-    float3 wPos : TEXCOORD0;
-    float3 normal : TEXCOORD1;
-    float2 tex : TEXCOORD2;
-    float3 tangent : TEXCOORD3;
+    float4 pPos : TEXCOORD0;
+    float3 wPos : TEXCOORD1;
+    float3 normal : TEXCOORD2;
+    float2 tex : TEXCOORD3;
+    float3 tangent : TEXCOORD4;
 };
 struct Patch
 {
@@ -55,7 +56,7 @@ DS_OUTPUT main(Patch patch, float3 bary : SV_DomainLocation, const OutputPatch<D
 
     float h = bump_tex.SampleLevel(samp, float3(output.tex, 0), 0).x;
     output.wPos += output.normal * (h - 1) * dp_scale;
-    output.pos = mul(vp_mat, float4(output.wPos, 1));
+    output.pPos = output.pos = mul(vp_mat, float4(output.wPos, 1));
 
     return output;
 }

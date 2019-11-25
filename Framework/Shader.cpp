@@ -23,11 +23,6 @@ Shader::~Shader()
 	{
 		delete cb.second.data;
 	}
-	for (auto srv : srvs)
-	{
-		if(srv.second.data)
-			srv.second.data->Release();
-	}
 	for (auto samp : samps)
 	{
 		if(samp.second.data)
@@ -71,7 +66,7 @@ void Shader::AddSamp(UINT slot, UINT arrayNum, D3D11_SAMPLER_DESC * desc)
 	}
 }
 
-void Shader::WriteCB(UINT slot, void * data)
+void Shader::WriteCB(UINT slot, const void * data)
 {
 	if (cbs.find(slot)!=cbs.end() && data)
 	{
@@ -96,6 +91,11 @@ void Shader::RemoveCB(UINT slot)
 	assert(cbs.find(slot) != cbs.end());
 
 	cbs.erase(slot);
+}
+
+bool Shader::CheckCBSlot(UINT slot)
+{
+	return cbs.count(slot);
 }
 
 

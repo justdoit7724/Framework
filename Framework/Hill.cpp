@@ -16,12 +16,13 @@ Hill::Hill(int n, int m, XMFLOAT2 heightRange, ID3D11ShaderResourceView *const* 
 	float du = 1.0f / (n - 1);
 	float dv = 1.0f / (m - 1);
 
-	std::vector<Vertex> vertice(m * n);
+	std::vector<Vertex> vertice;
+	vertice.resize(m * n);
 
-	for (UINT i = 0; i < m; ++i)
+	for (int i = 0; i < m; ++i)
 	{
 		float z = i * dz - 0.5f;
-		for (UINT j = 0; j < n; ++j)
+		for (int j = 0; j < n; ++j)
 		{
 			int idx = i*n + j;
 			float x = -0.5f + j * dx;
@@ -42,7 +43,7 @@ Hill::Hill(int n, int m, XMFLOAT2 heightRange, ID3D11ShaderResourceView *const* 
 	std::unique_ptr<Buffer> cbRange(new Buffer(sizeof(XMFLOAT2)));
 	cbRange->Write(&heightRange);
 	std::unique_ptr<Buffer> cbResol(new Buffer(sizeof(XMFLOAT2)));
-	cbResol->Write(&XMFLOAT2(n, m));
+	cbResol->Write(&XMFLOAT2((float)n, (float)m));
 	DX_DContext->CSSetConstantBuffers(0, 1, cbRange->GetAddress());
 	DX_DContext->CSSetConstantBuffers(1, 1, cbResol->GetAddress());
 
@@ -61,9 +62,9 @@ Hill::Hill(int n, int m, XMFLOAT2 heightRange, ID3D11ShaderResourceView *const* 
 	uavDesc.Texture2D.MipSlice = 0;
 	heightBuffer->SetupUAV(&uavDesc);
 	DX_DContext->CSSetUnorderedAccessViews(0, 1, heightBuffer->UAV(), nullptr);
-	DX_DContext->Dispatch(ceil(n/16.0f), ceil(m/16.0f), 1);
+	DX_DContext->Dispatch((UINT)ceil(n/16.0f), (UINT)ceil(m/16.0f), 1);
 	Resource::CSUnbindUAV(0, 1);
-
+	
 	Texture2D* outputBuffer = new Texture2D(
 		&CD3D11_TEXTURE2D_DESC(
 			DXGI_FORMAT_R32_FLOAT,
@@ -93,7 +94,8 @@ Hill::Hill(int n, int m, XMFLOAT2 heightRange, ID3D11ShaderResourceView *const* 
 
 #pragma region define index
 
-	std::vector<UINT> indice((n - 1)*(m - 1) * 2 * 3);
+	std::vector<UINT> indice;
+	indice.resize((n - 1) * (m - 1) * 2 * 3);
 
 	UINT k = 0; 
 	for(UINT i = 0; i < m-1; ++i) 

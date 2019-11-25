@@ -3,7 +3,7 @@
 
 TextureMgr::~TextureMgr()
 {
-	for (auto& e : SRVs) {
+	for (auto e : SRVs) {
 
 		e.second->Release();
 	}
@@ -15,19 +15,19 @@ int CalculateMaxMiplevel(int width, int height)
 }
 void TextureMgr::Load(std::string key, std::string fileName)
 {
-	ID3D11Resource* ori_resources;
+	ComPtr<ID3D11Resource> ori_resources;
 	D3D11_TEXTURE2D_DESC ori_desc;
 	r_assert(
 		DirectX::CreateWICTextureFromFile(
 			DX_Device,
 			std::wstring(fileName.begin(), fileName.end()).c_str(),
-			&ori_resources,
+			ori_resources.GetAddressOf(),
 			nullptr)
 	);
 
 	ComPtr<ID3D11Texture2D> ori_tex = nullptr;
 	r_assert(
-		ori_resources->QueryInterface(__uuidof(ID3D11Texture2D), (void**)ori_tex.GetAddressOf())
+		ori_resources.Get()->QueryInterface(__uuidof(ID3D11Texture2D), (void**)ori_tex.GetAddressOf())
 	);
 	ori_tex->GetDesc(&ori_desc);
 
@@ -95,7 +95,7 @@ void TextureMgr::LoadArray(std::string key,std::wstring folderName, std::vector<
 {
 	const UINT spriteCount = fileNames.size();
 
-	std::vector<ID3D11Resource*> ori_resources(spriteCount);
+	std::vector<ComPtr<ID3D11Resource>> ori_resources(spriteCount);
 	D3D11_TEXTURE2D_DESC ori_desc;
 	D3D11_TEXTURE2D_DESC prev_desc;
 	for (int i = 0; i < spriteCount; ++i)
@@ -154,7 +154,7 @@ void TextureMgr::LoadArray(std::string key,std::wstring folderName, std::vector<
 
 		// use staging texture to read and paste image
 		// because for copying, we should match miplevels between dest and src
-		DX_DContext->CopyResource(stagTex.Get(), ori_resources[i]);
+		DX_DContext->CopyResource(stagTex.Get(), ori_resources[i].Get());
 
 		D3D11_MAPPED_SUBRESOURCE mapped;
 		r_assert(DX_DContext->Map(stagTex.Get(), 0, D3D11_MAP_READ, 0, &mapped));
@@ -189,26 +189,24 @@ void TextureMgr::LoadArray(std::string key,std::wstring folderName, std::vector<
 
 }
 
-void TextureMgr::LoadCM(std::string key, std::vector<std::string> fileNames)
+void TextureMgr::LoadCM(std::string key, const std::vector<std::string>& fileNames)
 {
-	ID3D11Resource* ori_resources[6];
+	ComPtr<ID3D11Resource> ori_resources[6];
 	D3D11_TEXTURE2D_DESC ori_desc;
 	D3D11_TEXTURE2D_DESC prev_desc;
 	for (int i = 0; i < 6; ++i)
 	{
-		ID3D11Resource* newResource = nullptr;
 		r_assert(
 			DirectX::CreateWICTextureFromFile(
 				DX_Device,
 				std::wstring(fileNames[i].begin(), fileNames[i].end()).c_str(),
-				&newResource,
+				ori_resources[i].GetAddressOf(),
 				nullptr)
 		);
 
-		ori_resources[i] = newResource;
 		ID3D11Texture2D* newTex = nullptr;
 		r_assert(
-			newResource->QueryInterface(__uuidof(ID3D11Texture2D), (void**)& newTex)
+			ori_resources[i].Get()->QueryInterface(__uuidof(ID3D11Texture2D), (void**)& newTex)
 		);
 		newTex->GetDesc(&ori_desc);
 		if (i != 0)
@@ -242,7 +240,7 @@ void TextureMgr::LoadCM(std::string key, std::vector<std::string> fileNames)
 		DX_DContext->CopySubresourceRegion(
 			cmTex.Get(), i,
 			0,0,0,
-			ori_resources[i], 0,
+			ori_resources[i].Get(), 0,
 			nullptr);
 	}
 

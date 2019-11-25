@@ -3,8 +3,8 @@
 #include "DX_info.h"
 #include "Network.h"
 #include "Geometrics.h"
+#include <unordered_set>
 
-class Camera;
 struct Frustum;
 class Transform;
 class Shape;
@@ -17,6 +17,7 @@ class BlendState;
 class DepthStencilState;
 class RasterizerState;
 
+
 class Object : public IDebug
 {
 public:
@@ -25,10 +26,18 @@ public:
 	~Object();
 
 	virtual void Update();
-	virtual void Render(const Camera* camera, UINT sceneDepth) const;
-	void RenderGeom() const;
-	virtual bool IsInsideFrustum(const Frustum* frustum) const;
+	virtual void Render(const XMMATRIX& parentWorld, const XMMATRIX& vp, UINT sceneDepth) const;
+	virtual void RenderGeom() const;
+
+	virtual bool IsInsideFrustum(const Frustum& frustum) const;
+	virtual bool IsPicking(const Geometrics::Ray ray)const;
+	virtual void UpdateBound();
+
 	void Visualize() override;
+	void SetEnabled(bool e) { enabled = e; }
+	void SetShow(bool s) { show = s; }
+
+	void AddChildren(Object* obj);
 
 	//TODO
 	Transform* transform;
@@ -45,13 +54,20 @@ public:
 	const int zOrder;
 	Geometrics::Sphere Bound() { return bound; }
 
+
 protected:
 	Object();
 	void Render()const;
+
+	bool enabled = true;
+	bool show = true;
 
 	XMMATRIX worldMat;
 	XMMATRIX nMat;
 
 	Geometrics::Sphere bound;
+
+	std::unordered_set<Object*> children;
+private:
 };
 

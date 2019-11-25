@@ -2,26 +2,29 @@
 #include "DX_info.h"
 #include <vector>
 
-class Camera;
 class Object;
+class SceneMgr;
+struct Frustum;
 
-class Scene 
+class Scene
 {
 public:
-	Scene(std::string key);
-	~Scene();
+	virtual ~Scene();
 
 	virtual void Update(float elapsed, float spf);
-	virtual void Render(const Camera* camera, UINT sceneDepth)const;
-	void FrustumCulling(const Camera* camera);
+	virtual void Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth)const;
+	const Object* GetObj(UINT id)const;
+
+	virtual void Message(UINT msg) {};
+	bool Enabled() { return enabled; }
+	void SetEnabled(bool e) { enabled = e; }
 
 	const std::string key;
 protected:
 	void AddObj(Object* obj) { objs.push_back(obj); }
 
-	//debug move to private
-	std::vector<Object*> drawObjs;
-	std::vector<Object*> objs;
 private:
+	bool enabled=false;
+	std::vector<Object*> objs;
 };
 

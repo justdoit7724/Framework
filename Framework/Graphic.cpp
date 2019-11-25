@@ -129,6 +129,8 @@ Graphic::~Graphic()
 {
 	backBuffer->Release();
 	depthStencilBuffer->Release();
+	DX_DContext->Release();
+	DX_Device->Release();
 }
 
 void Graphic::Present()

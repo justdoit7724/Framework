@@ -15,13 +15,15 @@
 
 #include "Cube.h"
 #include "Sphere.h"
+#include "CameraMgr.h"
 
 Debugging::Debugging()
 {
 	debugCam = new Camera("DebugCamera", FRAME_KIND_PERSPECTIVE, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1f, 1000.0f, XM_PIDIV2, 1);
 	debugCam->transform->SetTranslation(XMFLOAT3(0, 10, -30));
 	debugCam->transform->SetRot(FORWARD, UP);
-	debugCam->SetMain();
+	if(CameraMgr::Instance()->GetMainKey()=="")
+		CameraMgr::Instance()->SetMain("DebugCamera");
 
 	markVS = new VShader("MarkVS.cso",
 		simple_ILayouts,
@@ -61,9 +63,13 @@ Debugging::~Debugging()
 	delete blendState;
 	delete dsState;
 	delete rsState;
+	delete markShape;
+	delete markTransform;
+	delete debugCam;
 
 	delete lineVB;
 	delete gridVB;
+	delete originVB;
 }
 
 const XMMATRIX textMat = XMMATRIX(
@@ -285,10 +291,8 @@ void Debugging::Update(float spf)
 	}
 }
 
-void Debugging::Render()
+void Debugging::Render(const XMMATRIX& vp)
 {
-	XMMATRIX vp_mat = debugCam->VMat() * debugCam->ProjMat(Z_ORDER_STANDARD);
-
 	DX_DContext->HSSetShader(nullptr, nullptr, 0);
 	DX_DContext->DSSetShader(nullptr, nullptr, 0);
 	DX_DContext->GSSetShader(nullptr, nullptr, 0);
@@ -304,7 +308,7 @@ void Debugging::Render()
 			continue;
 		markTransform->SetTranslation(marks[i].pos);
 		markTransform->SetScale(marks[i].rad);
-		markVS->WriteCB(0,&(markTransform->WorldMatrix() * vp_mat));
+		markVS->WriteCB(0,&(markTransform->WorldMatrix() * vp));
 		markPS->WriteCB(0,&(marks[i].color));
 		markVS->Apply();
 		markPS->Apply();
@@ -329,7 +333,7 @@ void Debugging::Render()
 		pVB[1] = l.p2;
 		DX_DContext->Unmap(lineVB->Get(), 0);
 		
-		markVS->WriteCB(0,&vp_mat);
+		markVS->WriteCB(0,&vp);
 		markPS->WriteCB(0,&(l.color));
 		markVS->Apply();
 		markPS->Apply();
@@ -343,7 +347,7 @@ void Debugging::Render()
 
 	if (gridVB)
 	{
-		markVS->WriteCB(0,&vp_mat);
+		markVS->WriteCB(0,&vp);
 		markPS->WriteCB(0,(void*)(&(Colors::Red)));
 		markVS->Apply();
 		markPS->Apply();
@@ -352,21 +356,21 @@ void Debugging::Render()
 		DX_DContext->IASetVertexBuffers(0, 1, originVB->GetAddress(), &stride, &offset);
 		DX_DContext->Draw(2, 0);
 
-		markVS->WriteCB(0,&vp_mat);
+		markVS->WriteCB(0,&vp);
 		markPS->WriteCB(0,(void*)(&(Colors::Green)));
 		markVS->Apply();
 		markPS->Apply();
 		DX_DContext->IASetVertexBuffers(0, 1, originVB->GetAddress(), &stride, &offset);
 		DX_DContext->Draw(2, 2);
 
-		markVS->WriteCB(0,&vp_mat);
+		markVS->WriteCB(0,&vp);
 		markPS->WriteCB(0,(void*)(&(Colors::Blue)));
 		markVS->Apply();
 		markPS->Apply();
 		DX_DContext->IASetVertexBuffers(0, 1, originVB->GetAddress(), &stride, &offset);
 		DX_DContext->Draw(2, 4);
 
-		markVS->WriteCB(0,&vp_mat);
+		markVS->WriteCB(0,&vp);
 		markPS->WriteCB(0,(void*)(&(Colors::Gray)));
 		markVS->Apply();
 		markPS->Apply();
@@ -385,7 +389,7 @@ void Debugging::Render()
 		XMFLOAT4 textPos = XMFLOAT4(text.pos.x, text.pos.y, text.pos.z,1);
 		if (text.is3D)
 		{
-			textPos = Multiply(textPos, vp_mat);
+			textPos = Multiply(textPos, vp);
 			textPos /= textPos.w;
 			textPos = Multiply(textPos, textMat);
 
