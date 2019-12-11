@@ -13,17 +13,62 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="hlsl">
+      <UniqueIdentifier>{3d5d3473-4635-4bdf-8dd2-65e0b626b9e6}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Components">
       <UniqueIdentifier>{a6b25dea-0e53-4097-b39b-b810bcef00a7}</UniqueIdentifier>
     </Filter>
     <Filter Include="DesignPattern">
       <UniqueIdentifier>{d8d73e40-602b-4fee-9329-fcf5bb469cb5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Object">
+      <UniqueIdentifier>{9bc5bc3c-dcc3-4d0f-994d-928c238c51ac}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Components\Shape">
       <UniqueIdentifier>{aa4a1df1-a7c5-479f-bd82-bb00d71d8704}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Scene">
+      <UniqueIdentifier>{e94ffcb7-f5d5-48ad-80da-b7ba08ffccb8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Manager">
+      <UniqueIdentifier>{8e1b4faf-b0f0-4c5d-a5ea-b6cfe5a31dc5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TextureMapping">
+      <UniqueIdentifier>{02737186-4e35-44bd-9a8f-c933fdba25fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hlsl\cginc">
+      <UniqueIdentifier>{9b554362-78c9-44a9-81c3-950dba4904b3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Graphic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Keyboard.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Timer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Window.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Mouse.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Light.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="DepthStencilState.cpp">
       <Filter>Components</Filter>
     </ClCompile>
@@ -36,14 +81,14 @@
     <ClCompile Include="Shader.cpp">
       <Filter>Components</Filter>
     </ClCompile>
-    <ClCompile Include="Cube.cpp">
-      <Filter>Components\Shape</Filter>
+    <ClCompile Include="Buffer.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Cylinder.cpp">
-      <Filter>Components\Shape</Filter>
+    <ClCompile Include="Resource.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Hill.cpp">
-      <Filter>Components\Shape</Filter>
+    <ClCompile Include="Object.cpp">
+      <Filter>Object</Filter>
     </ClCompile>
     <ClCompile Include="Quad.cpp">
       <Filter>Components\Shape</Filter>
@@ -54,11 +99,86 @@
     <ClCompile Include="Shape.cpp">
       <Filter>Components\Shape</Filter>
     </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraMgr.cpp">
+      <Filter>Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureMgr.cpp">
+      <Filter>Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneMgr.cpp">
+      <Filter>Manager</Filter>
+    </ClCompile>
     <ClCompile Include="Transform.cpp">
       <Filter>Components</Filter>
     </ClCompile>
+    <ClCompile Include="Skybox.cpp">
+      <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ShadowMap.cpp">
+      <Filter>TextureMapping</Filter>
+    </ClCompile>
+    <ClCompile Include="SSAOMap.cpp">
+      <Filter>TextureMapping</Filter>
+    </ClCompile>
+    <ClCompile Include="SoundMgr.cpp">
+      <Filter>Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RasterizerState.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Debugging.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="DebuggingScene.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DX_info.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Game_info.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Keyboard.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Timer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Window.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Mouse.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Geometrics.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="BlendState.h">
       <Filter>Components</Filter>
     </ClInclude>
@@ -71,8 +191,14 @@
     <ClInclude Include="Shader.h">
       <Filter>Components</Filter>
     </ClInclude>
+    <ClInclude Include="Buffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Singleton.h">
       <Filter>DesignPattern</Filter>
+    </ClInclude>
+    <ClInclude Include="Object.h">
+      <Filter>Object</Filter>
     </ClInclude>
     <ClInclude Include="Shape.h">
       <Filter>Components\Shape</Filter>
@@ -80,23 +206,187 @@
     <ClInclude Include="Sphere.h">
       <Filter>Components\Shape</Filter>
     </ClInclude>
-    <ClInclude Include="Hill.h">
-      <Filter>Components\Shape</Filter>
-    </ClInclude>
-    <ClInclude Include="Cube.h">
-      <Filter>Components\Shape</Filter>
-    </ClInclude>
-    <ClInclude Include="Cylinder.h">
-      <Filter>Components\Shape</Filter>
-    </ClInclude>
     <ClInclude Include="Quad.h">
       <Filter>Components\Shape</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraMgr.h">
+      <Filter>Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureMgr.h">
+      <Filter>Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneMgr.h">
+      <Filter>Manager</Filter>
     </ClInclude>
     <ClInclude Include="Transform.h">
       <Filter>Components</Filter>
     </ClInclude>
+    <ClInclude Include="Skybox.h">
+      <Filter>Object</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderFormat.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="ObserverDP.h">
       <Filter>DesignPattern</Filter>
     </ClInclude>
+    <ClInclude Include="ShadowMap.h">
+      <Filter>TextureMapping</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderReg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SSAOMap.h">
+      <Filter>TextureMapping</Filter>
+    </ClInclude>
+    <ClInclude Include="SoundMgr.h">
+      <Filter>Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RasterizerState.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Debugging.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="DebuggingScene.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Network.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="ShaderInfo.cginc">
+      <Filter>hlsl\cginc</Filter>
+    </None>
+    <None Include="ShaderLight.cginc">
+      <Filter>hlsl\cginc</Filter>
+    </None>
+    <None Include="ShaderReg.cginc">
+      <Filter>hlsl\cginc</Filter>
+    </None>
+    <None Include="ShaderShadow.cginc">
+      <Filter>hlsl\cginc</Filter>
+    </None>
+    <None Include="ShaderVertex.cginc">
+      <Filter>hlsl\cginc</Filter>
+    </None>
+    <None Include="ShaderSampPoint.cginc">
+      <Filter>hlsl\cginc</Filter>
+    </None>
+    <None Include="ShaderSampAniso.cginc">
+      <Filter>hlsl\cginc</Filter>
+    </None>
+    <None Include="ShaderSampCmpLinearPoint.cginc">
+      <Filter>hlsl\cginc</Filter>
+    </None>
+    <None Include="ShaderSampCmpPoint.cginc">
+      <Filter>hlsl\cginc</Filter>
+    </None>
+    <None Include="ShaderSampLinearPoint.cginc">
+      <Filter>hlsl\cginc</Filter>
+    </None>
+    <None Include="ShaderCM.cginc">
+      <Filter>hlsl\cginc</Filter>
+    </None>
+    <None Include="ShaderDCM.cginc">
+      <Filter>hlsl\cginc</Filter>
+    </None>
+    <None Include="ShaderSampLinear.cginc">
+      <Filter>hlsl\cginc</Filter>
+    </None>
+    <None Include="ShaderNormal.cginc">
+      <Filter>hlsl\cginc</Filter>
+    </None>
+    <None Include="ShaderSSAO.cginc">
+      <Filter>hlsl\cginc</Filter>
+    </None>
+    <None Include="ShaderRghMetal.cginc">
+      <Filter>hlsl\cginc</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="StandardVS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="StandardPS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="UIVS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="UIPS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="ShadowVS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="SkyboxVS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="SkyboxPS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="StdDisplacementVS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="StdDisplacementHS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="StdDisplacementDS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="SSAO_ND_VS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="SSAO_AcessPS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="SSAO_AcessVS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="SSAO_BlurPS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="SSAO_BlurVS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="SSAO_ND_PS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="ShadowTranspVS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="ShadowTranspPS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="StdDCMPS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="IndicatorVS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="IndicatorPS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="Std2PS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="MarkVS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="MarkPS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
