@@ -56,11 +56,10 @@ void ComputeDirectionalLight(float3 normal, float3 toEye, float roughness, out f
             continue;
         
         ambient += mAmbient.xyz * d_Ambient[i].xyz;
-        float diffuseFactor = max(0.0f, dot(-d_Dir[i].xyz, normal));
+        diffuse += max(0.0f, dot(-d_Dir[i].xyz, normal)) * mDiffuse.xyz * d_Diffuse[i].xyz;
     
         float3 v = reflect(d_Dir[i].xyz, normal);
         float specFactor = pow(saturate(dot(v, toEye)), (1 - roughness) * LIGHT_SPEC_POWER_MAX);
-        diffuse += diffuseFactor * mDiffuse.xyz * d_Diffuse[i].xyz;
         spec += specFactor * mSpecular.xyz * d_Specular[i].xyz;
     }
 }

@@ -21,7 +21,7 @@ class Object
 public:
 	Object(std::string name, std::shared_ptr<Shape> shape, std::shared_ptr<Shape> lodShape, std::string sVS, const D3D11_INPUT_ELEMENT_DESC* iLayouts, UINT layoutCount, std::string sHS, std::string sDS, std::string sGS, std::string sPS, int zOrder);
 	Object(std::string name, std::shared_ptr<Shape> shape, std::shared_ptr<Shape> lodShape, ID3D11ShaderResourceView* diffSRV, ID3D11ShaderResourceView* normalSRV);
-	~Object();
+	virtual ~Object();
 
 	virtual void Update();
 	virtual void Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) const;

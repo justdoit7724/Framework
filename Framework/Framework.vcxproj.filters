@@ -141,6 +141,9 @@
     <ClCompile Include="DebuggingScene.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
+    <ClCompile Include="TestScene.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DX_info.h">
@@ -262,6 +265,9 @@
     </ClInclude>
     <ClInclude Include="Network.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TestScene.h">
+      <Filter>Scene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -386,6 +392,9 @@
       <Filter>hlsl</Filter>
     </FxCompile>
     <FxCompile Include="MarkPS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="PBRTestPS.hlsl">
       <Filter>hlsl</Filter>
     </FxCompile>
   </ItemGroup>

@@ -9,6 +9,7 @@
 #include "Mouse.h"
 #include "TextureMgr.h"
 #include "DebuggingScene.h"
+#include "TestScene.h"
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 
@@ -16,9 +17,11 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	Window window(hInstance, "Low Level");
 	Graphic* graphic = new Graphic(window.Hwnd());
 
-	Scene* debugScene = new DebuggingScene();
-	SceneMgr::Instance()->Add("Debugging", debugScene);
+	SceneMgr::Instance()->Add("Debugging", new DebuggingScene());
 	SceneMgr::Instance()->SetEnabled("Debugging", true);
+
+	SceneMgr::Instance()->Add("Test", new TestScene());
+	SceneMgr::Instance()->SetEnabled("Test", true);
 
 	Timer* worldTimer = new Timer();
 
