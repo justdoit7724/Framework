@@ -144,7 +144,7 @@ bool Object::IsInsideFrustum(const Frustum& frustum) const
 		IntersectInPlaneSphere(frustum.back, bound));
 }
 
-bool Object::IsPicking(const Geometrics::Ray ray) const
+bool Object::IsPicking(const Math::Ray ray) const
 {
-	return Geometrics::IntersectRaySphere(ray, bound);
+	return Math::IntersectRaySphere(ray, bound);
 }

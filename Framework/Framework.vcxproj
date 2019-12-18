@@ -212,7 +212,7 @@
     <ClInclude Include="Game_info.h" />
     <ClInclude Include="Graphic.h" />
     <ClInclude Include="Keyboard.h" />
-    <ClInclude Include="Geometrics.h" />
+    <ClInclude Include="Math.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="Mouse.h" />
     <ClInclude Include="Object.h" />

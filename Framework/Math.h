@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef _MATH
-#define _MATH
+#ifndef _GEOMETRICS
+#define _GEOMETRICS
 
 namespace Math {
 	class Sphere {

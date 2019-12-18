@@ -69,7 +69,7 @@ private:
 	ID3D11ShaderResourceView*const hoverSRV;
 	ID3D11ShaderResourceView*const pressSRV;
 
-	Geometrics::Plane bound;
+	Math::Plane bound;
 
 	UINT triggerID;
 	const void* triggerData;

@@ -143,17 +143,17 @@ void Camera::Update()
 			-up * tri * f +
 			forward * f);
 
-		frustum.front = Geometrics::PlaneInf(p + forward * f, -forward);
-		frustum.back = Geometrics::PlaneInf(p + forward * n, forward);
-		frustum.left = Geometrics::PlaneInf(p, Cross(up, blDir));
-		frustum.right = Geometrics::PlaneInf(p, Cross(-up, trDir));
-		frustum.top = Geometrics::PlaneInf(p, Cross(right, trDir));
-		frustum.bottom = Geometrics::PlaneInf(p, Cross(blDir, right));
+		frustum.front = Math::PlaneInf(p + forward * f, -forward);
+		frustum.back = Math::PlaneInf(p + forward * n, forward);
+		frustum.left = Math::PlaneInf(p, Cross(up, blDir));
+		frustum.right = Math::PlaneInf(p, Cross(-up, trDir));
+		frustum.top = Math::PlaneInf(p, Cross(right, trDir));
+		frustum.bottom = Math::PlaneInf(p, Cross(blDir, right));
 	}
 
 	SetView();
 }
-void Camera::Pick(OUT Geometrics::Ray* ray)const
+void Camera::Pick(OUT Math::Ray* ray)const
 {
 	XMFLOAT2 scnPos = Mouse::Instance()->Pos();
 

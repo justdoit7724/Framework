@@ -27,7 +27,7 @@ public:
 	virtual void Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) const;
 	virtual void RenderGeom() const;
 
-	virtual bool IsPicking(const Geometrics::Ray ray)const;
+	virtual bool IsPicking(const Math::Ray ray)const;
 	virtual void UpdateBound();
 
 	void SetEnabled(bool e) { enabled = e; }
@@ -48,7 +48,7 @@ public:
 
 	const std::string name;
 	const int zOrder;
-	Geometrics::Sphere Bound() { return bound; }
+	Math::Sphere Bound() { return bound; }
 
 
 protected:
@@ -60,6 +60,6 @@ protected:
 	bool show = true;
 
 
-	Geometrics::Sphere bound;
+	Math::Sphere bound;
 };
 

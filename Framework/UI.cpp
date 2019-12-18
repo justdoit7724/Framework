@@ -106,7 +106,7 @@ UIButton::UIButton(UICanvas* canvas, UINT trigID, const void* trigData, XMFLOAT2
 	triggerID = trigID;
 	triggerData = trigData;
 
-	bound = Geometrics::Plane(transform->GetPos(),
+	bound = Math::Plane(transform->GetPos(),
 		transform->GetForward(),
 		transform->GetUp(),
 		size * 0.5f);
@@ -117,16 +117,16 @@ void UIButton::Update(const Camera* camera)
 {
 	srv = idleSRV;
 
-	bound = Geometrics::Plane(transform->GetPos(),
+	bound = Math::Plane(transform->GetPos(),
 		transform->GetForward(),
 		transform->GetUp(),
 		size * 0.5f);
 
-	Geometrics::Ray ray;
+	Math::Ray ray;
 	camera->Pick(&ray);
 
 	XMFLOAT3 itsPt;
-	if (Geometrics::IntersectRayPlane(ray, bound, &itsPt))
+	if (Math::IntersectRayPlane(ray, bound, &itsPt))
 	{
 		switch (Mouse::Instance()->LeftState())
 		{

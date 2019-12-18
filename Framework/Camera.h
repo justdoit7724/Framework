@@ -21,12 +21,12 @@ class Buffer;
 struct Frustum
 {
 	bool skip;
-	Geometrics::PlaneInf front;
-	Geometrics::PlaneInf back;
-	Geometrics::PlaneInf right;
-	Geometrics::PlaneInf left;
-	Geometrics::PlaneInf top;
-	Geometrics::PlaneInf bottom;
+	Math::PlaneInf front;
+	Math::PlaneInf back;
+	Math::PlaneInf right;
+	Math::PlaneInf left;
+	Math::PlaneInf top;
+	Math::PlaneInf bottom;
 
 	Frustum() {}
 };
@@ -44,7 +44,7 @@ public:
 	XMMATRIX VMat()const { return viewMat; }
 	XMMATRIX ProjMat(int zOrder)const {return projMats[zOrder];}
 	XMMATRIX StdProjMat()const { return stdProjMat; }
-	void Pick(OUT Geometrics::Ray* ray)const;
+	void Pick(OUT Math::Ray* ray)const;
 
 	const std::string key;
 
