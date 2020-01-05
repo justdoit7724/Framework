@@ -1,20 +1,21 @@
 #pragma once
 
-#include <wrl.h>
 #include <d3d11.h>
+#pragma comment(lib,"d3d11.lib")
 #include <d3dcompiler.h>
+#pragma comment(lib, "D3DCompiler.lib")
 
-#include "..\packages\directxtk_desktop_2015.2019.10.17.1\include\Audio.h"
-#include "..\packages\directxtk_desktop_2015.2019.10.17.1\include\SpriteBatch.h"
-#include "..\packages\directxtk_desktop_2015.2019.10.17.1\include\SpriteFont.h"
-#include "..\packages\directxtk_desktop_2015.2019.10.17.1\include\WICTextureLoader.h"
-#include "..\packages\directxtk_desktop_2015.2019.10.17.1\include\Audio.h"
+#include <directxtk_desktop_2015.2019.10.17.1/include/Audio.h>
+#include <directxtk_desktop_2015.2019.10.17.1/include/SpriteBatch.h>
+#include <directxtk_desktop_2015.2019.10.17.1/include/SpriteFont.h>
+#include <directxtk_desktop_2015.2019.10.17.1/include/WICTextureLoader.h>
 
 
-#include "..\packages\Assimp.3.0.0\build\native\include\assimp\postprocess.h"
-#include "..\packages\Assimp.3.0.0\build\native\include\assimp\Importer.hpp"
-#include "..\packages\Assimp.3.0.0\build\native\include\assimp\scene.h"
+#include <Assimp.3.0.0/build/native/include/assimp/postprocess.h>
+#include <Assimp.3.0.0/build/native/include/assimp/Importer.hpp>
+#include <Assimp.3.0.0/build/native/include/assimp/scene.h>
 
+#include <wrl.h>
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
