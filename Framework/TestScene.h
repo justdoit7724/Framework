@@ -1,8 +1,6 @@
 #pragma once
 #include "Scene.h"
 
-#define N 6
-
 class Buffer;
 class Object;
 class DirectionalLight;
@@ -15,7 +13,6 @@ public:
 
 	void Update(float elapsed, float spf)override;
 private:
-	Object* objs[N][N][N];
 	Buffer* cbEye;
 	DirectionalLight* dLight;
 };

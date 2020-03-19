@@ -27,6 +27,7 @@
 #include <DirectXColors.h>
 #include <limits>
 #include <memory>
+#include <fstream>
 
 using namespace DirectX;
 

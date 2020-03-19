@@ -40,38 +40,27 @@ TestScene::TestScene()
 	TextureMgr::Instance()->Load("t5", "Data\\Texture\\t5.png");
 	TextureMgr::Instance()->Load("t6", "Data\\Texture\\t6.png");
 
-
-	const float dist = 16;
-	const XMFLOAT3 scale = XMFLOAT3(7, 7, 7);
 	std::shared_ptr<Sphere> sphere = std::make_shared<Sphere>(4);
-	for (int z = 0; z < N; ++z) {
-		for (int y = 0; y < N; ++y) {
-			for (int x = 0; x < N; ++x) {
+	
+	Object* newObj = new Object("Obj", sphere, sphere,
+		TextureMgr::Instance()->Get("green"),
+		TextureMgr::Instance()->Get("normal"));
+	delete newObj->ps;
+	newObj->ps = new PShader("PBRTestPS.cso");
+	newObj->ps->AddCB(SHADER_REG_CB_MATERIAL, 1, sizeof(SHADER_MATERIAL));
+	newObj->ps->AddSRV(SHADER_REG_SRV_DIFFUSE, 1);
+	newObj->ps->AddSRV(SHADER_REG_SRV_NORMAL, 1);
+	newObj->ps->AddSRV(SHADER_REG_SRV_METALLIC, 1);
+	newObj->ps->AddSRV(SHADER_REG_SRV_ROUGHNESS, 1);
+	newObj->ps->WriteSRV(SHADER_REG_SRV_DIFFUSE, TextureMgr::Instance()->Get("green"));
+	newObj->ps->WriteSRV(SHADER_REG_SRV_NORMAL, TextureMgr::Instance()->Get("normal"));
+	newObj->ps->WriteSRV(SHADER_REG_SRV_METALLIC, TextureMgr::Instance()->Get("t1"));
+	newObj->ps->WriteSRV(SHADER_REG_SRV_ROUGHNESS, TextureMgr::Instance()->Get("t1"));
+	newObj->ps->WriteCB(SHADER_REG_CB_MATERIAL, &SHADER_MATERIAL(XMFLOAT3(0.7, 0.7, 0.7), 0.5f, XMFLOAT3(0.5, 0.5, 0.5), XMFLOAT3(0.8, 0.8, 0.8)));
 
-				Object* newObj = new Object("Obj", sphere, sphere,
-					TextureMgr::Instance()->Get("green"),
-					TextureMgr::Instance()->Get("normal"));
-				delete newObj->ps;
-				newObj->ps = new PShader("PBRTestPS.cso");
-				newObj->ps->AddCB(SHADER_REG_CB_MATERIAL, 1, sizeof(SHADER_MATERIAL));
-				newObj->ps->AddSRV(SHADER_REG_SRV_DIFFUSE, 1);
-				newObj->ps->AddSRV(SHADER_REG_SRV_NORMAL, 1);
-				newObj->ps->AddSRV(SHADER_REG_SRV_METALLIC, 1);
-				newObj->ps->AddSRV(SHADER_REG_SRV_ROUGHNESS, 1);
-				newObj->ps->WriteSRV(SHADER_REG_SRV_DIFFUSE, TextureMgr::Instance()->Get("green"));
-				newObj->ps->WriteSRV(SHADER_REG_SRV_NORMAL, TextureMgr::Instance()->Get("normal"));
-				newObj->ps->WriteSRV(SHADER_REG_SRV_METALLIC, TextureMgr::Instance()->Get("t" + std::to_string(y + 1)));
-				newObj->ps->WriteSRV(SHADER_REG_SRV_ROUGHNESS, TextureMgr::Instance()->Get("t" + std::to_string(x + 1)));
-				newObj->ps->WriteCB(SHADER_REG_CB_MATERIAL, &SHADER_MATERIAL(XMFLOAT3(0.7, 0.7, 0.7), z/float(N-1), XMFLOAT3(0.5, 0.5, 0.5), XMFLOAT3(0.8, 0.8, 0.8)));
-				
-				newObj->transform->SetScale(scale);
-				newObj->transform->SetTranslation(x * dist, y * dist, z * dist);
-				AddObj(newObj);
-			}
-		}
-	}
-
-
+	newObj->transform->SetScale(XMFLOAT3(10,10,10));
+	newObj->transform->SetTranslation(XMFLOAT3(0, 10, 0));
+	AddObj(newObj);
 
 	cbEye = new Buffer(sizeof(XMFLOAT4));
 }

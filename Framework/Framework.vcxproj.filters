@@ -144,6 +144,9 @@
     <ClCompile Include="TestScene.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
+    <ClCompile Include="Terrain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DX_info.h">
@@ -268,6 +271,9 @@
     </ClInclude>
     <ClInclude Include="Math.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Terrain.h">
+      <Filter>Object</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

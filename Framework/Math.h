@@ -4,6 +4,7 @@
 #define _GEOMETRICS
 
 namespace Math {
+
 	class Sphere {
 	public:
 		XMFLOAT3 p;
