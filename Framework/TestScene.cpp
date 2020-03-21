@@ -15,6 +15,7 @@
 
 TestScene::TestScene()
 {
+
 	dLight = new DirectionalLight(
 		XMFLOAT3(0.4, 0.4, 0.4),
 		XMFLOAT3(0.7, 0.7, 0.7),

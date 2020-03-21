@@ -403,5 +403,8 @@
     <FxCompile Include="PBRTestPS.hlsl">
       <Filter>hlsl</Filter>
     </FxCompile>
+    <FxCompile Include="TerrainVS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
