@@ -12,9 +12,9 @@ struct VS_OUTPUT
 
 cbuffer CB_VS_PROPERTY : register(b0)
 {
-    float4x4 WMat;
-    float4x4 VPMat;
-    float4x4 NMat;
+    column_major float4x4 WMat;
+    column_major float4x4 VPMat;
+    column_major float4x4 NMat;
 };
 
 VS_OUTPUT main(STD_VS_INPUT input)

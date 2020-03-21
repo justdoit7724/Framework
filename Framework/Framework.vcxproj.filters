@@ -406,5 +406,11 @@
     <FxCompile Include="TerrainVS.hlsl">
       <Filter>hlsl</Filter>
     </FxCompile>
+    <FxCompile Include="TerrainHS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="TerrainDS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

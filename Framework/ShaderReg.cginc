@@ -6,6 +6,12 @@
 #define SHADER_REG_CB_POINTLIGHT register(b1)
 #define SHADER_REG_CB_SPOTLIGHT register(b2)
 #define SHADER_REG_CB_EYE register(b3)
+//debug change
+#define TEST\
+cbuffer EYE : register(b3)\
+{\
+    float4 eyePos;\
+};
 #define SHADER_REG_CB_MATERIAL register(b4)
 #define SHADER_REG_CB_LIGHTVP register(b5)
 
