@@ -19,7 +19,6 @@ UI::UI(UICanvas* canvas, XMFLOAT2 pivot, XMFLOAT2 size, float zDepth, ID3D11Shad
 	assert(0 <= zDepth && zDepth <= 1);
 
 	canvas->Add(this);
-	enabled = true;
 
 	transp = 1;
 
@@ -66,13 +65,6 @@ UI::~UI()
 	delete ps;
 	delete dsState;
 	delete blendState;
-}
-
-void UI::Fade(float offset)
-{
-	transp += offset;
-	
-	transp = Clamp(0, 1, transp);
 }
 
 void UI::Update(const Camera* camera)
@@ -175,8 +167,7 @@ void UICanvas::Update(float spf)
 {
 	for (auto ui : UIs)
 	{
-		if(ui->Enabled())
-			ui->Update(camera);
+		ui->Update(camera);
 	}
 }
 
@@ -188,7 +179,6 @@ void UICanvas::Render(UINT sceneDepth)
 
 	for (auto ui : UIs)
 	{
-		if (ui->Enabled())
-			ui->Render(camera);
+		ui->Render(camera);
 	}
 }

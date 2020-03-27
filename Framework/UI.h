@@ -1,20 +1,11 @@
 #pragma once
 
-#include "DX_info.h"
 #include "ObserverDP.h"
-#include "Geometrics.h"
+#include "Object.h"
 
 class Transform;
 class Camera;
 class Quad;
-class VShader;
-class HShader;
-class DShader;
-class GShader;
-class PShader;
-class DepthStencilState;
-class BlendState;
-class RasterizerState;
 class UICanvas;
 
 struct SHADER_STD_TRANSF;
@@ -24,13 +15,7 @@ public:
 	UI(UICanvas* canvas, XMFLOAT2 pivot, XMFLOAT2 size, float zDepth, ID3D11ShaderResourceView * srv);
 	~UI();
 
-	void Fade(float offset);
-	bool Enabled() { return enabled; }
-	void SetEnabled(bool e) { enabled = e; }
-	float GetTransp() { return transp; }
-
 protected:
-	bool enabled;
 
 	Quad* quad;
 	Transform* transform;
@@ -42,7 +27,6 @@ protected:
 	ID3D11ShaderResourceView* srv;
 
 	XMFLOAT2 size;
-
 
 	friend class UICanvas;
 	virtual void Update(const Camera* camera);
