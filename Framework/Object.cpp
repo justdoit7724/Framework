@@ -14,8 +14,8 @@
 
 
 //fundamental elements
-Object::Object(std::string name, std::shared_ptr < Shape> shape, std::shared_ptr < Shape> lodShape, std::string sVS, const D3D11_INPUT_ELEMENT_DESC* iLayouts, UINT layoutCount, std::string sHS, std::string sDS, std::string sGS, std::string sPS,int zOrder)
-	:name(name), shape(shape),lodShape(lodShape), zOrder(zOrder)
+Object::Object(std::string name, std::shared_ptr < Shape> shape, std::string sVS, const D3D11_INPUT_ELEMENT_DESC* iLayouts, UINT layoutCount, std::string sHS, std::string sDS, std::string sGS, std::string sPS)
+	:name(name), shape(shape)
 {
 	transform = new Transform();
 	vs = new VShader(sVS, iLayouts, layoutCount);
@@ -30,15 +30,15 @@ Object::Object(std::string name, std::shared_ptr < Shape> shape, std::shared_ptr
 }
 
 //standard elements
-Object::Object(std::string name, std::shared_ptr < Shape> shape, std::shared_ptr < Shape> lodShape, ID3D11ShaderResourceView* diffSRV, ID3D11ShaderResourceView* normalSRV)
-	:name(name), zOrder(Z_ORDER_STANDARD), shape(shape), lodShape(lodShape)
+Object::Object(std::string name, std::shared_ptr < Shape> shape, ID3D11ShaderResourceView* diffSRV, ID3D11ShaderResourceView* normalSRV)
+	:name(name), shape(shape)
 {
 	transform = new Transform();
-	vs = new VShader("StandardVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
+	vs = new VShader("StdVS.cso", Adv_ILayouts, ARRAYSIZE(Adv_ILayouts));
 	hs = new HShader();
 	ds = new DShader();
 	gs = new GShader();
-	ps = new PShader("StandardPS.cso");
+	ps = new PShader("StdPS.cso");
 
 	vs->AddCB(0, 1, sizeof(SHADER_STD_TRANSF));
 	ps->AddCB(SHADER_REG_CB_MATERIAL, 1, sizeof(SHADER_MATERIAL));
@@ -89,7 +89,6 @@ void Object::UpdateBound()
 }
 
 Object::Object()
-	:zOrder(Z_ORDER_STANDARD)
 {
 }
 
@@ -127,7 +126,7 @@ void Object::RenderGeom() const
 	if (!enabled || !show)
 		return;
 
-	lodShape->Apply();
+	shape->Apply();
 }
 
 bool Object::IsInsideFrustum(const Frustum& frustum) const

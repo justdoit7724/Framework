@@ -36,7 +36,6 @@ Camera::~Camera()
 	CameraMgr::Instance()->Remove(key);
 
 	delete transform;
-	delete[] projMats;
 }
 void Camera::SetFrame(const FRAME_KIND fKind, XMFLOAT2 orthoSize, const float n, const float f, const float verticalViewRad, const float aspectRatio)
 {
@@ -49,7 +48,6 @@ void Camera::SetFrame(const FRAME_KIND fKind, XMFLOAT2 orthoSize, const float n,
 	this->verticalRadian = verticalViewRad;
 	this->aspectRatio = aspectRatio;
 
-	projMats = new XMMATRIX[5];
 	float interval = 1.0f / Z_ORDER_MAX;
 	assert(Z_ORDER_MAX >= 1);
 	switch (fKind)
@@ -58,20 +56,7 @@ void Camera::SetFrame(const FRAME_KIND fKind, XMFLOAT2 orthoSize, const float n,
 	{
 		float sX = 1.0f / (aspectRatio * tan(verticalViewRad * 0.5f));
 		float sY = 1.0f / tan(verticalViewRad * 0.5f);
-		for (int i = 0; i < Z_ORDER_MAX; ++i)
-		{
-			float minD = i * interval;
-			float maxD = (i + 1) * interval;
-			float A = maxD * f / (f - n) - minD * n / (f - n);
-			float B = n * (minD - A);
-
-			projMats[i] = XMMATRIX(
-				sX, 0, 0, 0,
-				0, sY, 0, 0,
-				0, 0, A, 1,
-				0, 0, B, 0);
-		}
-		stdProjMat = XMMATRIX(
+		projMat = XMMATRIX(
 			sX, 0, 0, 0,
 			0, sY, 0, 0,
 			0, 0, f / (f - n), 1,
@@ -82,19 +67,7 @@ void Camera::SetFrame(const FRAME_KIND fKind, XMFLOAT2 orthoSize, const float n,
 	{
 		float sX = 2.0f / size.x;
 		float sY = 2.0f / size.y;
-		for (int i = 0; i < Z_ORDER_MAX; ++i)
-		{
-			float sZ = interval / (f - n);
-			float M = (-n / (f - n) + i) * interval;
-
-			projMats[i] = XMMATRIX(
-				sX, 0, 0, 0,
-				0, sY, 0, 0,
-				0, 0, sZ, 0,
-				0, 0, M, 1
-			);
-		}
-		stdProjMat = XMMATRIX(
+		projMat = XMMATRIX(
 			sX, 0, 0, 0,
 			0, sY, 0, 0,
 			0, 0, 1.0f / (f - n), 0,

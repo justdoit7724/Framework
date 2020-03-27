@@ -8,12 +8,6 @@ enum FRAME_KIND {
 	FRAME_KIND_ORTHOGONAL
 };
 
-#define Z_ORDER_UI			0
-#define Z_ORDER_HIGHER		1
-#define Z_ORDER_STANDARD	2
-#define Z_ORDER_LOWER		3
-#define Z_ORDER_BACKGROUND	4
-
 class Transform;
 class Scene;
 class Buffer;
@@ -41,9 +35,8 @@ public:
 	void Update();
 	void SetView();
 
-	XMMATRIX VMat()const { return viewMat; }
-	XMMATRIX ProjMat(int zOrder)const {return projMats[zOrder];}
-	XMMATRIX StdProjMat()const { return stdProjMat; }
+	const XMMATRIX& VMat()const { return viewMat; }
+	const XMMATRIX& ProjMat()const {return projMat;}
 	void Pick(OUT Math::Ray* ray)const;
 
 	const std::string key;
@@ -60,8 +53,7 @@ public:
 	Transform* transform;
 
 private:
-	XMMATRIX stdProjMat;
-	XMMATRIX* projMats;
+	XMMATRIX projMat;
 	XMMATRIX viewMat;
 
 	FRAME_KIND curFrame;

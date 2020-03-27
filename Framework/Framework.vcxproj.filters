@@ -275,6 +275,9 @@
     <ClInclude Include="Terrain.h">
       <Filter>Object</Filter>
     </ClInclude>
+    <ClInclude Include="Algorithm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -328,12 +331,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="StandardVS.hlsl">
-      <Filter>hlsl</Filter>
-    </FxCompile>
-    <FxCompile Include="StandardPS.hlsl">
-      <Filter>hlsl</Filter>
-    </FxCompile>
     <FxCompile Include="UIVS.hlsl">
       <Filter>hlsl</Filter>
     </FxCompile>
@@ -410,6 +407,18 @@
       <Filter>hlsl</Filter>
     </FxCompile>
     <FxCompile Include="TerrainDS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="StdVS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="AdvVS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="AdvPS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="StdPS.hlsl">
       <Filter>hlsl</Filter>
     </FxCompile>
   </ItemGroup>

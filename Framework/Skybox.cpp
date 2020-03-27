@@ -12,10 +12,10 @@
 #include "ShaderReg.h"
 
 Skybox::Skybox()
-	:Object("Skybox", std::make_shared<Sphere>(0), nullptr,
-		"SkyboxVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts),
+	:Object("Skybox", std::make_shared<Sphere>(0),
+		"SkyboxVS.cso", Adv_ILayouts, ARRAYSIZE(Adv_ILayouts),
 		"", "", "",
-		"SkyboxPS.cso", Z_ORDER_STANDARD)
+		"SkyboxPS.cso")
 {
 	transform->SetScale(300, 300, 300);
 	

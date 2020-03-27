@@ -19,8 +19,8 @@ class RasterizerState;
 class Object
 {
 public:
-	Object(std::string name, std::shared_ptr<Shape> shape, std::shared_ptr<Shape> lodShape, std::string sVS, const D3D11_INPUT_ELEMENT_DESC* iLayouts, UINT layoutCount, std::string sHS, std::string sDS, std::string sGS, std::string sPS, int zOrder);
-	Object(std::string name, std::shared_ptr<Shape> shape, std::shared_ptr<Shape> lodShape, ID3D11ShaderResourceView* diffSRV, ID3D11ShaderResourceView* normalSRV);
+	Object(std::string name, std::shared_ptr<Shape> shape, std::string sVS, const D3D11_INPUT_ELEMENT_DESC* iLayouts, UINT layoutCount, std::string sHS, std::string sDS, std::string sGS, std::string sPS);
+	Object(std::string name, std::shared_ptr<Shape> shape, ID3D11ShaderResourceView* diffSRV, ID3D11ShaderResourceView* normalSRV);
 	virtual ~Object();
 
 	virtual void Update();
@@ -36,7 +36,6 @@ public:
 	//TODO
 	Transform* transform;
 	std::shared_ptr < Shape> shape;
-	std::shared_ptr < Shape> lodShape;
 	VShader* vs;
 	HShader* hs;
 	DShader* ds;
@@ -47,7 +46,6 @@ public:
 	RasterizerState* rsState = nullptr;
 
 	const std::string name;
-	const int zOrder;
 	Math::Sphere Bound() { return bound; }
 
 

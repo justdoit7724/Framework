@@ -12,10 +12,10 @@
 #include "CameraMgr.h"
 #include "ShaderFormat.h"
 #include "Light.h"
+#include "Algorithm.h"
 
 TestScene::TestScene()
 {
-
 	dLight = new DirectionalLight(
 		XMFLOAT3(0.4, 0.4, 0.4),
 		XMFLOAT3(0.7, 0.7, 0.7),
@@ -43,21 +43,9 @@ TestScene::TestScene()
 
 	std::shared_ptr<Sphere> sphere = std::make_shared<Sphere>(4);
 	
-	Object* newObj = new Object("Obj", sphere, sphere,
+	Object* newObj = new Object("Obj", sphere,
 		TextureMgr::Instance()->Get("green"),
 		TextureMgr::Instance()->Get("normal"));
-	delete newObj->ps;
-	newObj->ps = new PShader("PBRTestPS.cso");
-	newObj->ps->AddCB(SHADER_REG_CB_MATERIAL, 1, sizeof(SHADER_MATERIAL));
-	newObj->ps->AddSRV(SHADER_REG_SRV_DIFFUSE, 1);
-	newObj->ps->AddSRV(SHADER_REG_SRV_NORMAL, 1);
-	newObj->ps->AddSRV(SHADER_REG_SRV_METALLIC, 1);
-	newObj->ps->AddSRV(SHADER_REG_SRV_ROUGHNESS, 1);
-	newObj->ps->WriteSRV(SHADER_REG_SRV_DIFFUSE, TextureMgr::Instance()->Get("green"));
-	newObj->ps->WriteSRV(SHADER_REG_SRV_NORMAL, TextureMgr::Instance()->Get("normal"));
-	newObj->ps->WriteSRV(SHADER_REG_SRV_METALLIC, TextureMgr::Instance()->Get("t1"));
-	newObj->ps->WriteSRV(SHADER_REG_SRV_ROUGHNESS, TextureMgr::Instance()->Get("t1"));
-	newObj->ps->WriteCB(SHADER_REG_CB_MATERIAL, &SHADER_MATERIAL(XMFLOAT3(0.7, 0.7, 0.7), 0.5f, XMFLOAT3(0.5, 0.5, 0.5), XMFLOAT3(0.8, 0.8, 0.8)));
 
 	newObj->transform->SetScale(XMFLOAT3(10,10,10));
 	newObj->transform->SetTranslation(XMFLOAT3(0, 10, 0));

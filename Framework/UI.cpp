@@ -30,8 +30,8 @@ UI::UI(UICanvas* canvas, XMFLOAT2 pivot, XMFLOAT2 size, float zDepth, ID3D11Shad
 	transform->SetTranslation(pivot.x + size.x * 0.5f, (canvas->totalHeight -size.y * 0.5f) - pivot.y, zDepth);
 
 	vs = new VShader("UIVS.cso", 
-		Std_ILayouts,
-		ARRAYSIZE(Std_ILayouts));
+		Adv_ILayouts,
+		ARRAYSIZE(Adv_ILayouts));
 	ps = new PShader("UIPS.cso");
 	vs->AddCB(0, 1, sizeof(SHADER_STD_TRANSF));
 	ps->AddCB(0, 1, sizeof(float));
@@ -82,7 +82,7 @@ void UI::Update(const Camera* camera)
 
 void UI::Render(const Camera* camera)const
 {
-	XMMATRIX vp = camera->VMat() * camera->ProjMat(Z_ORDER_UI);
+	XMMATRIX vp = camera->VMat() * camera->ProjMat();
 
 	vs->WriteCB(0, &SHADER_STD_TRANSF(transform->WorldMatrix(), vp));
 	

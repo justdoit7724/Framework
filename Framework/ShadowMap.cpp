@@ -73,7 +73,7 @@ OpaqueShadowMap::OpaqueShadowMap(UINT resX, UINT resY, UINT width, UINT height, 
 	rsState = new RasterizerState(&rs_desc);
 	dsState = new DepthStencilState(nullptr);
 	blendState = new BlendState(nullptr);
-	mapVS = new VShader("ShadowVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
+	mapVS = new VShader("ShadowVS.cso", Adv_ILayouts, ARRAYSIZE(Adv_ILayouts));
 	mapVS->AddCB(0, 1, sizeof(XMMATRIX));
 
 	view = new Camera(FRAME_KIND_ORTHOGONAL, width, height, 0.1f, 400.0f, XM_PIDIV2, 1, true);
@@ -118,7 +118,7 @@ void OpaqueShadowMap::Mapping(const DirectionalLight* light)
 	view->transform->SetRot(lightDir);
 	view->transform->SetTranslation(-lightDir * 200);
 	view->Update();
-	XMMATRIX lightVP = view->VMat() * view->StdProjMat();
+	XMMATRIX lightVP = view->VMat() * view->ProjMat();
 	
 	for(auto t : drawObjs)
 	{
@@ -214,7 +214,7 @@ TranspShadowMap::TranspShadowMap(XMUINT2 res, XMUINT2 volume, const std::vector<
 		DX_Device->CreateDepthStencilView(dsTex.Get(),&dsv_desc, dsv.GetAddressOf())
 	);
 
-	mapVS = new VShader("ShadowTranspVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
+	mapVS = new VShader("ShadowTranspVS.cso", Adv_ILayouts, ARRAYSIZE(Adv_ILayouts));
 	mapVS->AddCB(0, 1, sizeof(XMMATRIX) * 2);
 	mapPS = new PShader("ShadowTranspPS.cso");
 	
@@ -260,7 +260,7 @@ void TranspShadowMap::Mapping(const DirectionalLight* dLight)
 	view->Update();
 
 	mapPS->Apply();
-	XMMATRIX vpMat = view->VMat() * view->StdProjMat();
+	XMMATRIX vpMat = view->VMat() * view->ProjMat();
 	XMMATRIX vpt = vpMat * XMMATRIX(
 		0.5f, 0, 0, 0,
 		0, -0.5f, 0, 0,

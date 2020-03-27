@@ -33,7 +33,8 @@ struct HS_Input
 struct HS_Output
 {
     float3 wPos : POSITION;
-    float2 tex : TEXCOORD;
+    float2 tex : TEXCOORD;
+
 };
 
 PatchTess ConstantHS(InputPatch<HS_Input, 4> patch, uint patchID:SV_PrimitiveID)
@@ -69,5 +70,6 @@ HS_Output main(InputPatch<HS_Input, 4> patch, uint i : SV_OutputControlPointID)
     output.wPos = patch[i].wPos;
     output.tex = patch[i].tex;
     return output;
-}
+}
+
 

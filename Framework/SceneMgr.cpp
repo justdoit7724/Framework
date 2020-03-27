@@ -52,7 +52,7 @@ void SceneMgr::Process(float wElapsed, float wSpf)
 			list[key]->Update(wElapsed, wSpf);
 
 			const Camera* mainCam = CameraMgr::Instance()->Main();
-			list[key]->Render(mainCam->VMat()*mainCam->StdProjMat(), mainCam->GetFrustum(), 0, nullptr);
+			list[key]->Render(mainCam->VMat()*mainCam->ProjMat(), mainCam->GetFrustum(), 0, nullptr);
 		}
 	}
 

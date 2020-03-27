@@ -124,7 +124,7 @@ SSAOMap::SSAOMap()
 	ScreenMapInit(blurRTV.GetAddressOf(), blurSRV.GetAddressOf());
 	ScreenMapInit(blur2RTV.GetAddressOf(), finalSRV.GetAddressOf());
 
-	ndVS = new VShader("SSAO_ND_VS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
+	ndVS = new VShader("SSAO_ND_VS.cso", Adv_ILayouts, ARRAYSIZE(Adv_ILayouts));
 	ndVS->AddCB(0, 1, sizeof(XMMATRIX) * 4);
 	static const D3D11_INPUT_ELEMENT_DESC iLayout[] = {
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },

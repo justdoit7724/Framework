@@ -3,6 +3,10 @@
 #ifndef _GEOMETRICS
 #define _GEOMETRICS
 
+#include "stdafx.h"
+#include <DirectXMath.h>
+using namespace DirectX;
+
 namespace Math {
 
 	class Sphere {
