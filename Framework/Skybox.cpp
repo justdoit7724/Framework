@@ -2,7 +2,7 @@
 #include "Skybox.h"
 #include "Shader.h"
 #include "Transform.h"
-#include "Sphere.h"
+#include "SphereMesh.h"
 #include "RasterizerState.h"
 #include "Camera.h"
 #include "DepthStencilState.h"
@@ -12,8 +12,8 @@
 #include "ShaderReg.h"
 
 Skybox::Skybox()
-	:Object("Skybox", std::make_shared<Sphere>(0),
-		"SkyboxVS.cso", Adv_ILayouts, ARRAYSIZE(Adv_ILayouts),
+	:Object("Skybox", std::make_shared<SphereMesh>(0), nullptr,
+		"SkyboxVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts),
 		"", "", "",
 		"SkyboxPS.cso")
 {

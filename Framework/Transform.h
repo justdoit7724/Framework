@@ -1,6 +1,5 @@
 #pragma once
 
-
 class Transform
 {
 public:
@@ -55,6 +54,7 @@ public:
 		up = _up;
 		right = _right;
 	}
+	void Rotate(XMFLOAT3 axis, float rad);
 	void SetScale(float x) {
 		scale = { x,x,x };
 	}

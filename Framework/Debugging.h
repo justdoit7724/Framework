@@ -6,7 +6,7 @@
 #include "Singleton.h"
 
 class Transform;
-class Shape;
+class Mesh;
 class VShader;
 class PShader;
 class Buffer;
@@ -35,6 +35,7 @@ public:
 	void Draw3D(float tex, const XMFLOAT3 _pos, XMVECTORF32 _color = Colors::White, float _scale = 1.5f);
 	void Draw3D(std::string title, XMFLOAT3 v, const XMFLOAT3 _pos, XMVECTORF32 _color = Colors::White, float _scale = 1.0f);
 	void Mark(XMFLOAT3 pos, float radius = 1.0f, XMVECTORF32 color = Colors::Red);
+	void MarkCube(XMFLOAT3 center, XMFLOAT3 forward, XMFLOAT3 up, XMFLOAT3 extent);
 	void PtLine(XMFLOAT3 p1, XMFLOAT3 p2, XMVECTORF32 color = Colors::White);
 	void DirLine(XMFLOAT3 p1, XMFLOAT3 dir, float dist, XMVECTORF32 color = Colors::White);
 
@@ -49,7 +50,7 @@ private:
 	Camera* debugCam;
 	void CameraMove(float spf);
 	void Update(float spf);
-	void Render(const XMMATRIX& vp);
+	void Render();
 
 	friend class Singleton<Debugging>;
 	Debugging();
@@ -78,7 +79,7 @@ private:
 	};
 	UINT curMarkIdx = 0;
 	Transform* markTransform;
-	Shape* markShape;
+	Mesh* markShape;
 	MarkInfo marks[MARK_MAX];
 
 	struct LineInfo {

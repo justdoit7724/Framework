@@ -3,7 +3,7 @@
 struct VS_OUTPUT
 {
     float4 pos : SV_POSITION;
-    float2 tex : TEXCOORD0;
+    float2 tex : TEXCOORD;
 };
 
 cbuffer CB_VS_PROPERTY : register(b0)

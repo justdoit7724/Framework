@@ -1,9 +1,9 @@
 #include "stdafx.h"
-#include "Quad.h"
+#include "QuadMesh.h"
 #include "ShaderFormat.h"
 
-Quad::Quad()
-	: Shape()
+QuadMesh::QuadMesh()
+	: Mesh()
 {
 	static Vertex OBJ_QUAD[4];
 

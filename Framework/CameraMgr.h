@@ -8,14 +8,16 @@ class CameraMgr :
 	public Singleton<CameraMgr>
 {
 public:
-	void Add(std::string key, const Camera* camera);
-	void Remove(std::string key);
-	void SetMain(std::string key);
-	const Camera* Main();
-	std::string GetMainKey() { return mainKey; }
+	void Add(const Camera* camera);
+	void Remove(const Camera* camera);
+	void SetMain(const Camera* camera) { mainCamera = camera; }
+	const Camera* Main() {
+		return mainCamera;
+	};
+	std::unordered_set<const Camera*>& Data() { return data; }
 
 private:
-	std::string mainKey="";
-	std::unordered_map<std::string, const Camera*> list;
+	const Camera* mainCamera=nullptr;
+	std::unordered_set<const Camera*> data;
 };
 

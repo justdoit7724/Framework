@@ -15,8 +15,6 @@ class SceneMgr :
 public:
 	~SceneMgr();
 	void BroadcastMessage(UINT msg);
-	void SafeDeleteScene(std::string key);
-	void SetEnabled(std::string key, bool e);
 	const Scene* Get(std::string key){return list[key];}
 	
 private:
@@ -26,6 +24,5 @@ private:
 	void Add(std::string key, Scene* scene);
 	std::unordered_map<std::string,Scene*> list;
 	std::vector<std::string> executeOrder;
-	std::vector<std::string> deleteList;
 };
 

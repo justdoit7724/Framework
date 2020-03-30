@@ -13,8 +13,8 @@
 #include "Keyboard.h"
 #include "Mouse.h"
 #include "Network.h"
-
-#include "Sphere.h"
+#include "LayerMask.h"
+#include "SphereMesh.h"
 #include "CameraMgr.h"
 
 Debugging::Debugging()
@@ -22,8 +22,7 @@ Debugging::Debugging()
 	debugCam = new Camera("DebugCamera", FRAME_KIND_PERSPECTIVE, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1f, 1000.0f, XM_PIDIV2, 1, false);
 	debugCam->transform->SetTranslation(XMFLOAT3(0, 10, -30));
 	debugCam->transform->SetRot(FORWARD, UP);
-	if (CameraMgr::Instance()->GetMainKey() == "")
-		CameraMgr::Instance()->SetMain("DebugCamera");
+	debugCam->SubtractLayer(LAYER_UI);
 
 	markVS = new VShader("MarkVS.cso",
 		simple_ILayouts,
@@ -52,7 +51,7 @@ Debugging::Debugging()
 	vb_desc.Usage = D3D11_USAGE_DYNAMIC;
 	lineVB = new Buffer(&vb_desc, nullptr);
 
-	markShape = new Sphere(1);
+	markShape = new SphereMesh(1);
 	markTransform = new Transform();
 }
 
@@ -155,6 +154,26 @@ void Debugging::Mark(XMFLOAT3 pos, float radius, XMVECTORF32 color)
 
 	MB("debug mark capacity overflow");
 #endif
+}
+
+void Debugging::MarkCube(XMFLOAT3 center, XMFLOAT3 forward, XMFLOAT3 up, XMFLOAT3 extent)
+{
+	XMFLOAT3 right = Cross(up, forward);
+
+	PtLine(center + right * extent.x + up * extent.y + forward * extent.z, center - right * extent.x + up * extent.y + forward * extent.z);
+	PtLine(center + right * extent.x + up * extent.y + forward * extent.z, center + right * extent.x + up * extent.y - forward * extent.z);
+	PtLine(center + right * extent.x + up * extent.y - forward * extent.z, center - right * extent.x + up * extent.y - forward * extent.z);
+	PtLine(center - right * extent.x + up * extent.y - forward * extent.z, center - right * extent.x + up * extent.y + forward * extent.z);
+
+	PtLine(center + right * extent.x - up * extent.y + forward * extent.z, center + right * extent.x + up * extent.y + forward * extent.z);
+	PtLine(center - right * extent.x - up * extent.y + forward * extent.z, center - right * extent.x + up * extent.y + forward * extent.z);
+	PtLine(center + right * extent.x - up * extent.y - forward * extent.z, center + right * extent.x + up * extent.y - forward * extent.z);
+	PtLine(center - right * extent.x - up * extent.y - forward * extent.z, center - right * extent.x + up * extent.y - forward * extent.z);
+
+	PtLine(center + right * extent.x - up * extent.y + forward * extent.z, center - right * extent.x - up * extent.y + forward * extent.z);
+	PtLine(center + right * extent.x - up * extent.y + forward * extent.z, center + right * extent.x - up * extent.y - forward * extent.z);
+	PtLine(center + right * extent.x - up * extent.y - forward * extent.z, center - right * extent.x - up * extent.y - forward * extent.z);
+	PtLine(center - right * extent.x - up * extent.y - forward * extent.z, center - right * extent.x - up * extent.y + forward * extent.z);
 }
 
 void Debugging::PtLine(XMFLOAT3 p1, XMFLOAT3 p2, XMVECTORF32 color)
@@ -291,8 +310,10 @@ void Debugging::Update(float spf)
 	}
 }
 
-void Debugging::Render(const XMMATRIX& vp)
+void Debugging::Render()
 {
+	XMMATRIX vp = debugCam->VMat() * debugCam->ProjMat();
+
 	DX_DContext->HSSetShader(nullptr, nullptr, 0);
 	DX_DContext->DSSetShader(nullptr, nullptr, 0);
 	DX_DContext->GSSetShader(nullptr, nullptr, 0);
@@ -307,7 +328,7 @@ void Debugging::Render(const XMMATRIX& vp)
 		if (!marks[i].isDraw)
 			continue;
 		markTransform->SetTranslation(marks[i].pos);
-		markTransform->SetScale(marks[i].rad);
+		markTransform->SetScale(marks[i].rad*2.0f);
 		markVS->WriteCB(0, &(markTransform->WorldMatrix() * vp));
 		markPS->WriteCB(0, &(marks[i].color));
 		markVS->Apply();

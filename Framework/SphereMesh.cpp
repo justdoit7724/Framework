@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "Sphere.h"
+#include "SphereMesh.h"
 #include "ShaderFormat.h"
 
 void Subdivide(std::vector<XMFLOAT3>& vertice, std::vector<UINT>& indice)
@@ -43,8 +43,8 @@ void Subdivide(std::vector<XMFLOAT3>& vertice, std::vector<UINT>& indice)
 	}
 }
 
-Sphere::Sphere(int numSubDivision)
-	:Shape()
+SphereMesh::SphereMesh(int numSubDivision)
+	:Mesh()
 {
 	// Put a cap on the number of subdivisions. 
 	numSubDivision = fminf(numSubDivision, 3u);
@@ -105,7 +105,7 @@ Sphere::Sphere(int numSubDivision)
 			-sinf(theta)
 		);
 		
-		vertice2.push_back(Vertex(pos, n, tex, tangent));
+		vertice2.push_back(Vertex(pos/2.0f, n, tex, tangent));
 	}
 
 	Vertex* verticeData = vertice2.data();

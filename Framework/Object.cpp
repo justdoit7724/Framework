@@ -9,14 +9,18 @@
 #include "BlendState.h"
 #include "DepthStencilState.h"
 #include "RasterizerState.h"
-#include "Shape.h"
+#include "Mesh.h"
 #include "CameraMgr.h"
-
+#include "ObjectMgr.h"
+#include "Debugging.h"
+#include "Collider.h"
 
 //fundamental elements
-Object::Object(std::string name, std::shared_ptr < Shape> shape, std::string sVS, const D3D11_INPUT_ELEMENT_DESC* iLayouts, UINT layoutCount, std::string sHS, std::string sDS, std::string sGS, std::string sPS)
-	:name(name), shape(shape)
+Object::Object(std::string name, std::shared_ptr <Mesh> mesh, std::shared_ptr<Collider> collider, std::string sVS, const D3D11_INPUT_ELEMENT_DESC* iLayouts, UINT layoutCount, std::string sHS, std::string sDS, std::string sGS, std::string sPS)
+	:name(name), mesh(mesh), collider(collider)
 {
+	ObjectMgr::Instance()->Register(this);
+
 	transform = new Transform();
 	vs = new VShader(sVS, iLayouts, layoutCount);
 	hs = new HShader(sHS);
@@ -30,11 +34,13 @@ Object::Object(std::string name, std::shared_ptr < Shape> shape, std::string sVS
 }
 
 //standard elements
-Object::Object(std::string name, std::shared_ptr < Shape> shape, ID3D11ShaderResourceView* diffSRV, ID3D11ShaderResourceView* normalSRV)
-	:name(name), shape(shape)
+Object::Object(std::string name, std::shared_ptr <Mesh> mesh, std::shared_ptr<Collider> collider, ID3D11ShaderResourceView* diffSRV, ID3D11ShaderResourceView* normalSRV)
+	: name(name), mesh(mesh), collider(collider)
 {
+	ObjectMgr::Instance()->Register(this);
+
 	transform = new Transform();
-	vs = new VShader("StdVS.cso", Adv_ILayouts, ARRAYSIZE(Adv_ILayouts));
+	vs = new VShader("StdVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
 	hs = new HShader();
 	ds = new DShader();
 	gs = new GShader();
@@ -47,7 +53,15 @@ Object::Object(std::string name, std::shared_ptr < Shape> shape, ID3D11ShaderRes
 	ps->AddSRV(SHADER_REG_SRV_DIFFUSE, 1);
 	ps->AddSRV(SHADER_REG_SRV_NORMAL, 1);
 	ps->WriteSRV(SHADER_REG_SRV_DIFFUSE, diffSRV);
-	ps->WriteSRV(SHADER_REG_SRV_NORMAL, normalSRV);
+	if (!normalSRV)
+	{
+		TextureMgr::Instance()->Load("normal", "Data\\Texture\\default_normal.png");
+		ps->WriteSRV(SHADER_REG_SRV_NORMAL, TextureMgr::Instance()->Get("normal"));
+	}
+	else
+	{
+		ps->WriteSRV(SHADER_REG_SRV_NORMAL, normalSRV);
+	}
 
 	blendState = new BlendState(nullptr);
 	dsState = new DepthStencilState(nullptr);
@@ -66,6 +80,8 @@ Object::~Object()
 	delete dsState;
 	delete blendState;
 	delete rsState;
+
+	ObjectMgr::Instance()->Remove(this);
 }
 
 void Object::Update()
@@ -74,18 +90,33 @@ void Object::Update()
 		return;
 
 	UpdateBound();
+	UpdateCollider();
 }
 
 void Object::UpdateBound()
 {
 	XMFLOAT3 boundlMinPt;
 	XMFLOAT3 boundlMaxPt;
-	shape->GetLBound(&boundlMinPt, &boundlMaxPt);
+	mesh->GetLBound(&boundlMinPt, &boundlMaxPt);
 	XMMATRIX world = transform->WorldMatrix();
 	XMFLOAT3 wMinPt = Multiply(boundlMinPt, world);
 	XMFLOAT3 wMaxPt = Multiply(boundlMaxPt, world);
 	bound.p = transform->GetPos();
 	bound.rad = Length(wMinPt - wMaxPt) * 0.5f;
+}
+
+void Object::UpdateCollider()
+{
+	collider->Translate(transform->GetPos());
+	collider->SetRotate(transform->GetForward(), transform->GetUp());
+	collider->SetScale(transform->GetScale());
+}
+
+void Object::Visualize()
+{
+
+	if (IsInsideFrustum(CameraMgr::Instance()->Main()->GetFrustum()))
+		Debugging::Instance()->Mark(bound.p, bound.rad, Colors::LightGreen);
 }
 
 Object::Object()
@@ -104,7 +135,7 @@ void Object::Render()const
 	blendState->Apply();
 	rsState->Apply();
 
-	shape->Apply();
+	mesh->Apply();
 }
 void Object::Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) const
 {
@@ -126,7 +157,7 @@ void Object::RenderGeom() const
 	if (!enabled || !show)
 		return;
 
-	shape->Apply();
+	mesh->Apply();
 }
 
 bool Object::IsInsideFrustum(const Frustum& frustum) const
@@ -143,7 +174,7 @@ bool Object::IsInsideFrustum(const Frustum& frustum) const
 		IntersectInPlaneSphere(frustum.back, bound));
 }
 
-bool Object::IsPicking(const Math::Ray ray) const
+bool Object::IsPicking(Ray ray) const
 {
-	return Math::IntersectRaySphere(ray, bound);
+	return IntersectRaySphere(ray, bound);
 }

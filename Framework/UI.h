@@ -5,55 +5,38 @@
 
 class Transform;
 class Camera;
-class Quad;
 class UICanvas;
 
 struct SHADER_STD_TRANSF;
-class UI
+class UI : public Object
 {
 public:
-	UI(UICanvas* canvas, XMFLOAT2 pivot, XMFLOAT2 size, float zDepth, ID3D11ShaderResourceView * srv);
+	UI(XMFLOAT2 pivot, XMFLOAT2 size, float zDepth, ID3D11ShaderResourceView * srv);
 	~UI();
+
+	virtual void Update(UICanvas* canvas);
 
 protected:
 
-	Quad* quad;
-	Transform* transform;
-	VShader* vs;
-	PShader* ps;
-	DepthStencilState* dsState;
-	BlendState* blendState;
-	RasterizerState* rsState;
 	ID3D11ShaderResourceView* srv;
 
 	XMFLOAT2 size;
-
-	friend class UICanvas;
-	virtual void Update(const Camera* camera);
-
-	virtual void Render(const Camera* camera)const;
-private:
-	float transp;
 };
 
 class UIButton : public UI, public Subject
 {
 public:
-	UIButton(UICanvas* canvas, UINT trigID, const void* trigData, XMFLOAT2 pivot, XMFLOAT2 size, ID3D11ShaderResourceView* idleSRV, ID3D11ShaderResourceView* hoverSRV, ID3D11ShaderResourceView* pressSRV);
+	UIButton(UINT trigID, const void* trigData, XMFLOAT2 pivot, XMFLOAT2 size, ID3D11ShaderResourceView* idleSRV, ID3D11ShaderResourceView* hoverSRV, ID3D11ShaderResourceView* pressSRV);
 
+	void Update(UICanvas* canvas) override;
 private:
-	friend class UICanvas;
-
-	void Update(const Camera* camera) override;
-
-	void Render(const Camera* camera)const override;
 
 
 	ID3D11ShaderResourceView*const idleSRV;
 	ID3D11ShaderResourceView*const hoverSRV;
 	ID3D11ShaderResourceView*const pressSRV;
 
-	Math::Plane bound;
+	Plane bound;
 
 	UINT triggerID;
 	const void* triggerData;
@@ -63,17 +46,14 @@ private:
 class UICanvas
 {
 public:
-	UICanvas(float width, float height);
+	UICanvas();
 	~UICanvas();
 
-	void Update(float spf);
-	void Render(UINT sceneDepth);
-
-	void Add(UI* ui);
 	const float totalWidth, totalHeight;
 
+	const Camera* GetCamera() { return camera; }
+
 private:
-	std::unordered_set<UI*> UIs;
 	Camera* camera;
 };
 

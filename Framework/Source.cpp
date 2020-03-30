@@ -10,18 +10,21 @@
 #include "TextureMgr.h"
 #include "DebuggingScene.h"
 #include "TestScene.h"
+#include "RenderScene.h"
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+
 
 	srand(time(NULL));
 	Window window(hInstance, "Low Level");
 	Graphic* graphic = new Graphic(window.Hwnd());
 
 	SceneMgr::Instance()->Add("Debugging", new DebuggingScene());
-	SceneMgr::Instance()->SetEnabled("Debugging", true);
 
 	SceneMgr::Instance()->Add("Test", new TestScene());
-	SceneMgr::Instance()->SetEnabled("Test", true);
+
+	SceneMgr::Instance()->Add("Render", new RenderScene());
 
 	Timer* worldTimer = new Timer();
 

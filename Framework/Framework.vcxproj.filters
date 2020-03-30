@@ -66,9 +66,6 @@
     <ClCompile Include="Light.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="UI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="DepthStencilState.cpp">
       <Filter>Components</Filter>
     </ClCompile>
@@ -89,15 +86,6 @@
     </ClCompile>
     <ClCompile Include="Object.cpp">
       <Filter>Object</Filter>
-    </ClCompile>
-    <ClCompile Include="Quad.cpp">
-      <Filter>Components\Shape</Filter>
-    </ClCompile>
-    <ClCompile Include="Sphere.cpp">
-      <Filter>Components\Shape</Filter>
-    </ClCompile>
-    <ClCompile Include="Shape.cpp">
-      <Filter>Components\Shape</Filter>
     </ClCompile>
     <ClCompile Include="Scene.cpp">
       <Filter>Scene</Filter>
@@ -120,12 +108,6 @@
     <ClCompile Include="MeshLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ShadowMap.cpp">
-      <Filter>TextureMapping</Filter>
-    </ClCompile>
-    <ClCompile Include="SSAOMap.cpp">
-      <Filter>TextureMapping</Filter>
-    </ClCompile>
     <ClCompile Include="SoundMgr.cpp">
       <Filter>Manager</Filter>
     </ClCompile>
@@ -145,6 +127,36 @@
       <Filter>Scene</Filter>
     </ClCompile>
     <ClCompile Include="Terrain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UI.cpp">
+      <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectMgr.cpp">
+      <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderScene.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Collider.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SphereCollider.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SphereMesh.cpp">
+      <Filter>Components\Shape</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Components\Shape</Filter>
+    </ClCompile>
+    <ClCompile Include="QuadMesh.cpp">
+      <Filter>Components\Shape</Filter>
+    </ClCompile>
+    <ClCompile Include="CubeCollider.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Physic.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -179,9 +191,6 @@
     <ClInclude Include="Resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="UI.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="BlendState.h">
       <Filter>Components</Filter>
     </ClInclude>
@@ -202,15 +211,6 @@
     </ClInclude>
     <ClInclude Include="Object.h">
       <Filter>Object</Filter>
-    </ClInclude>
-    <ClInclude Include="Shape.h">
-      <Filter>Components\Shape</Filter>
-    </ClInclude>
-    <ClInclude Include="Sphere.h">
-      <Filter>Components\Shape</Filter>
-    </ClInclude>
-    <ClInclude Include="Quad.h">
-      <Filter>Components\Shape</Filter>
     </ClInclude>
     <ClInclude Include="Scene.h">
       <Filter>Scene</Filter>
@@ -239,14 +239,8 @@
     <ClInclude Include="ObserverDP.h">
       <Filter>DesignPattern</Filter>
     </ClInclude>
-    <ClInclude Include="ShadowMap.h">
-      <Filter>TextureMapping</Filter>
-    </ClInclude>
     <ClInclude Include="ShaderReg.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SSAOMap.h">
-      <Filter>TextureMapping</Filter>
     </ClInclude>
     <ClInclude Include="SoundMgr.h">
       <Filter>Manager</Filter>
@@ -269,13 +263,43 @@
     <ClInclude Include="TestScene.h">
       <Filter>Scene</Filter>
     </ClInclude>
-    <ClInclude Include="Math.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Terrain.h">
       <Filter>Object</Filter>
     </ClInclude>
     <ClInclude Include="Algorithm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LayerMask.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UI.h">
+      <Filter>Object</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectMgr.h">
+      <Filter>Object</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderScene.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Collider.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SphereCollider.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SphereMesh.h">
+      <Filter>Components\Shape</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Components\Shape</Filter>
+    </ClInclude>
+    <ClInclude Include="QuadMesh.h">
+      <Filter>Components\Shape</Filter>
+    </ClInclude>
+    <ClInclude Include="CubeCollider.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Physic.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -288,9 +312,6 @@
       <Filter>hlsl\cginc</Filter>
     </None>
     <None Include="ShaderReg.cginc">
-      <Filter>hlsl\cginc</Filter>
-    </None>
-    <None Include="ShaderShadow.cginc">
       <Filter>hlsl\cginc</Filter>
     </None>
     <None Include="ShaderVertex.cginc">
@@ -314,16 +335,10 @@
     <None Include="ShaderCM.cginc">
       <Filter>hlsl\cginc</Filter>
     </None>
-    <None Include="ShaderDCM.cginc">
-      <Filter>hlsl\cginc</Filter>
-    </None>
     <None Include="ShaderSampLinear.cginc">
       <Filter>hlsl\cginc</Filter>
     </None>
     <None Include="ShaderNormal.cginc">
-      <Filter>hlsl\cginc</Filter>
-    </None>
-    <None Include="ShaderSSAO.cginc">
       <Filter>hlsl\cginc</Filter>
     </None>
     <None Include="ShaderRghMetal.cginc">
@@ -335,9 +350,6 @@
       <Filter>hlsl</Filter>
     </FxCompile>
     <FxCompile Include="UIPS.hlsl">
-      <Filter>hlsl</Filter>
-    </FxCompile>
-    <FxCompile Include="ShadowVS.hlsl">
       <Filter>hlsl</Filter>
     </FxCompile>
     <FxCompile Include="SkyboxVS.hlsl">
@@ -355,33 +367,6 @@
     <FxCompile Include="StdDisplacementDS.hlsl">
       <Filter>hlsl</Filter>
     </FxCompile>
-    <FxCompile Include="SSAO_ND_VS.hlsl">
-      <Filter>hlsl</Filter>
-    </FxCompile>
-    <FxCompile Include="SSAO_AcessPS.hlsl">
-      <Filter>hlsl</Filter>
-    </FxCompile>
-    <FxCompile Include="SSAO_AcessVS.hlsl">
-      <Filter>hlsl</Filter>
-    </FxCompile>
-    <FxCompile Include="SSAO_BlurPS.hlsl">
-      <Filter>hlsl</Filter>
-    </FxCompile>
-    <FxCompile Include="SSAO_BlurVS.hlsl">
-      <Filter>hlsl</Filter>
-    </FxCompile>
-    <FxCompile Include="SSAO_ND_PS.hlsl">
-      <Filter>hlsl</Filter>
-    </FxCompile>
-    <FxCompile Include="ShadowTranspVS.hlsl">
-      <Filter>hlsl</Filter>
-    </FxCompile>
-    <FxCompile Include="ShadowTranspPS.hlsl">
-      <Filter>hlsl</Filter>
-    </FxCompile>
-    <FxCompile Include="StdDCMPS.hlsl">
-      <Filter>hlsl</Filter>
-    </FxCompile>
     <FxCompile Include="IndicatorVS.hlsl">
       <Filter>hlsl</Filter>
     </FxCompile>
@@ -397,9 +382,6 @@
     <FxCompile Include="MarkPS.hlsl">
       <Filter>hlsl</Filter>
     </FxCompile>
-    <FxCompile Include="PBRTestPS.hlsl">
-      <Filter>hlsl</Filter>
-    </FxCompile>
     <FxCompile Include="TerrainVS.hlsl">
       <Filter>hlsl</Filter>
     </FxCompile>
@@ -410,12 +392,6 @@
       <Filter>hlsl</Filter>
     </FxCompile>
     <FxCompile Include="StdVS.hlsl">
-      <Filter>hlsl</Filter>
-    </FxCompile>
-    <FxCompile Include="AdvVS.hlsl">
-      <Filter>hlsl</Filter>
-    </FxCompile>
-    <FxCompile Include="AdvPS.hlsl">
       <Filter>hlsl</Filter>
     </FxCompile>
     <FxCompile Include="StdPS.hlsl">

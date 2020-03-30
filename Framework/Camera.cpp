@@ -11,7 +11,7 @@
 Camera::Camera(std::string key, FRAME_KIND frameKind, float orthoScnWidth, float orthoScnHeight, float n, float f, float verticalViewRad, float aspectRatio, bool skipFrustum)
 	:key(key)
 {
-	CameraMgr::Instance()->Add(key, this);
+	CameraMgr::Instance()->Add(this);
 
 	transform = new Transform();
 
@@ -33,7 +33,7 @@ Camera::Camera(FRAME_KIND frameKind, float orthoScnWidth, float orthoScnHeight, 
 
 Camera::~Camera()
 {
-	CameraMgr::Instance()->Remove(key);
+	CameraMgr::Instance()->Remove(this);
 
 	delete transform;
 }
@@ -116,17 +116,17 @@ void Camera::Update()
 			-up * tri * f +
 			forward * f);
 
-		frustum.front = Math::PlaneInf(p + forward * f, -forward);
-		frustum.back = Math::PlaneInf(p + forward * n, forward);
-		frustum.left = Math::PlaneInf(p, Cross(up, blDir));
-		frustum.right = Math::PlaneInf(p, Cross(-up, trDir));
-		frustum.top = Math::PlaneInf(p, Cross(right, trDir));
-		frustum.bottom = Math::PlaneInf(p, Cross(blDir, right));
+		frustum.front = PlaneInf(p + forward * f, -forward);
+		frustum.back = PlaneInf(p + forward * n, forward);
+		frustum.left = PlaneInf(p, Cross(up, blDir));
+		frustum.right = PlaneInf(p, Cross(-up, trDir));
+		frustum.top = PlaneInf(p, Cross(right, trDir));
+		frustum.bottom = PlaneInf(p, Cross(blDir, right));
 	}
 
 	SetView();
 }
-void Camera::Pick(OUT Math::Ray* ray)const
+void Camera::Pick(OUT Ray* ray)const
 {
 	XMFLOAT2 scnPos = Mouse::Instance()->Pos();
 

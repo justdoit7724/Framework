@@ -3,7 +3,6 @@
 #include "DX_info.h"
 
 class Object;
-class Shape;
 
 class MeshLoader
 {

@@ -1,7 +1,6 @@
 #pragma once
 #include "DX_info.h"
-#include "Geometrics.h"
-
+#include "LayerMask.h"
 
 enum FRAME_KIND {
 	FRAME_KIND_PERSPECTIVE,
@@ -15,12 +14,12 @@ class Buffer;
 struct Frustum
 {
 	bool skip;
-	Math::PlaneInf front;
-	Math::PlaneInf back;
-	Math::PlaneInf right;
-	Math::PlaneInf left;
-	Math::PlaneInf top;
-	Math::PlaneInf bottom;
+	PlaneInf front;
+	PlaneInf back;
+	PlaneInf right;
+	PlaneInf left;
+	PlaneInf top;
+	PlaneInf bottom;
 
 	Frustum() {}
 };
@@ -37,7 +36,7 @@ public:
 
 	const XMMATRIX& VMat()const { return viewMat; }
 	const XMMATRIX& ProjMat()const {return projMat;}
-	void Pick(OUT Math::Ray* ray)const;
+	void Pick(OUT Ray* ray)const;
 
 	const std::string key;
 
@@ -50,7 +49,22 @@ public:
 
 	const Frustum& GetFrustum()const { return frustum; }
 
+	void SetLayer(int i)
+	{
+		layer = i;
+	}
+	void AddLayer(int i)
+	{
+		layer |= i;
+	}
+	void SubtractLayer(int i)
+	{
+		layer ^= i;
+	}
+	int Layer()const { return layer; }
+
 	Transform* transform;
+
 
 private:
 	XMMATRIX projMat;
@@ -63,5 +77,6 @@ private:
 	float aspectRatio;
 
 	Frustum frustum;
+	int layer = INT_MAX ^ LAYER_UI;
 };
 

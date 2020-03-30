@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "MeshLoader.h"
 #include "ShaderFormat.h"
-#include "Shape.h"
+#include "Mesh.h"
 #include "Object.h"
 #include "TextureMgr.h"
 #include "Shader.h"
@@ -64,9 +64,9 @@ void ProcessNode(std::vector<Object*>& storage, std::string filepath, aiNode* no
 		TextureMgr::Instance()->Load(diffMtl, "Data\\Model\\" + filepath + "\\" + diffMtl);
 		TextureMgr::Instance()->Load(normalMtl, "Data\\Model\\" + filepath + "\\" + normalMtl);
 		
-		std::shared_ptr<Shape> curShape = std::make_shared<Shape>(vData, sizeof(Vertex), vertice.size(), iData, indice.size(), D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		std::shared_ptr<Mesh> curShape = std::make_shared<Mesh>(vData, sizeof(Vertex), vertice.size(), iData, indice.size(), D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		storage.push_back(new Object("Mesh",
-			curShape,
+			curShape,nullptr,
 			TextureMgr::Instance()->Get(diffMtl),
 			TextureMgr::Instance()->Get(normalMtl)));
 	}

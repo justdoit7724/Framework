@@ -1,11 +1,13 @@
 #pragma once
 
 #include "DX_info.h"
-#include "Geometrics.h"
+#include "LayerMask.h"
+#include "Network.h"
 
 struct Frustum;
 class Transform;
-class Shape;
+class Mesh;
+class Collider;
 class VShader;
 class HShader;
 class DShader;
@@ -15,27 +17,30 @@ class BlendState;
 class DepthStencilState;
 class RasterizerState;
 
-
-class Object
+class Object : public IDebug
 {
 public:
-	Object(std::string name, std::shared_ptr<Shape> shape, std::string sVS, const D3D11_INPUT_ELEMENT_DESC* iLayouts, UINT layoutCount, std::string sHS, std::string sDS, std::string sGS, std::string sPS);
-	Object(std::string name, std::shared_ptr<Shape> shape, ID3D11ShaderResourceView* diffSRV, ID3D11ShaderResourceView* normalSRV);
+	Object(std::string name, std::shared_ptr<Mesh> shape, std::shared_ptr<Collider> collider, std::string sVS, const D3D11_INPUT_ELEMENT_DESC* iLayouts, UINT layoutCount, std::string sHS, std::string sDS, std::string sGS, std::string sPS);
+	Object(std::string name, std::shared_ptr<Mesh> shape, std::shared_ptr<Collider> collider, ID3D11ShaderResourceView* diffSRV, ID3D11ShaderResourceView* normalSRV=nullptr);
 	virtual ~Object();
 
 	virtual void Update();
 	virtual void Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) const;
 	virtual void RenderGeom() const;
 
-	virtual bool IsPicking(const Math::Ray ray)const;
+	virtual bool IsPicking(Ray ray)const;
 	virtual void UpdateBound();
+	virtual void UpdateCollider();
 
 	void SetEnabled(bool e) { enabled = e; }
 	void SetShow(bool s) { show = s; }
 
-	//TODO
+	const std::string name;
+	Sphere Bound() { return bound; }
+	int Layer()const { return layer; }
 	Transform* transform;
-	std::shared_ptr < Shape> shape;
+	std::shared_ptr <Mesh> mesh;
+	std::shared_ptr <Collider> collider;
 	VShader* vs;
 	HShader* hs;
 	DShader* ds;
@@ -45,19 +50,18 @@ public:
 	DepthStencilState * dsState = nullptr;
 	RasterizerState* rsState = nullptr;
 
-	const std::string name;
-	Math::Sphere Bound() { return bound; }
-
+	void Visualize() override;
 
 protected:
 	Object();
 	void Render()const;
 	virtual bool IsInsideFrustum(const Frustum& frustum) const;
 
+
 	bool enabled = true;
 	bool show = true;
+	int layer = LAYER_STD;
 
-
-	Math::Sphere bound;
+	Sphere bound;
 };
 

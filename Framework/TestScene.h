@@ -4,6 +4,7 @@
 class Buffer;
 class Object;
 class DirectionalLight;
+class UICanvas;
 
 class TestScene : public Scene
 {
@@ -15,4 +16,5 @@ public:
 private:
 	Buffer* cbEye;
 	DirectionalLight* dLight;
+	UICanvas* canvas;
 };

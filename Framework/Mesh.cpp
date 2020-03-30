@@ -1,13 +1,13 @@
 #include "stdafx.h"
-#include "Shape.h"
+#include "Mesh.h"
 #include "ShaderFormat.h"
 
-Shape::Shape(Vertex* vertice, UINT vertByteSize, UINT vertCount, const UINT* indice, UINT idxCount, D3D_PRIMITIVE_TOPOLOGY primitiveType)
+Mesh::Mesh(Vertex* vertice, UINT vertByteSize, UINT vertCount, const UINT* indice, UINT idxCount, D3D_PRIMITIVE_TOPOLOGY primitiveType)
 {
 	Init(vertice, vertByteSize, vertCount, indice, idxCount, primitiveType);
 }
 
-void Shape::Init(Vertex* vertice, UINT vertByteSize, UINT vertCount, const UINT* indice, UINT idxCount, D3D_PRIMITIVE_TOPOLOGY primitiveType)
+void Mesh::Init(Vertex* vertice, UINT vertByteSize, UINT vertCount, const UINT* indice, UINT idxCount, D3D_PRIMITIVE_TOPOLOGY primitiveType)
 {
 	assert(vertexBuffer == nullptr);
 
@@ -76,7 +76,7 @@ void Shape::Init(Vertex* vertice, UINT vertByteSize, UINT vertCount, const UINT*
 }
 
 
-void Shape::CalculateTangent(XMFLOAT3 v0, XMFLOAT3 v1, XMFLOAT3 v2, XMFLOAT2 t0, XMFLOAT2 t1, XMFLOAT2 t2, OUT XMFLOAT3* tangent)
+void Mesh::CalculateTangent(XMFLOAT3 v0, XMFLOAT3 v1, XMFLOAT3 v2, XMFLOAT2 t0, XMFLOAT2 t1, XMFLOAT2 t2, OUT XMFLOAT3* tangent)
 {
 	XMFLOAT2 dt0 = t1 - t0;
 	XMFLOAT2 dt1 = t2 - t0;
@@ -86,13 +86,13 @@ void Shape::CalculateTangent(XMFLOAT3 v0, XMFLOAT3 v1, XMFLOAT3 v2, XMFLOAT2 t0,
 	*tangent = dv0*(dt1.y / determinant) - dv1*(dt0.y / determinant);
 }
 
-void Shape::GetLBound(OUT XMFLOAT3* minPt, OUT XMFLOAT3* maxPt)
+void Mesh::GetLBound(OUT XMFLOAT3* minPt, OUT XMFLOAT3* maxPt)
 {
 	*minPt = lMinPt;
 	*maxPt = lMaxPt;
 }
 
-void Shape::Apply()const
+void Mesh::Apply()const
 {
 	DX_DContext->IASetPrimitiveTopology(primitiveType);
 	UINT offset = 0;
