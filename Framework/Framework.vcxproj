@@ -171,6 +171,7 @@
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="ObjectMgr.cpp" />
     <ClCompile Include="Physic.cpp" />
+    <ClCompile Include="QuadCollider.cpp" />
     <ClCompile Include="RasterizerState.cpp" />
     <ClCompile Include="RenderScene.cpp" />
     <ClCompile Include="Resource.cpp" />
@@ -213,6 +214,7 @@
     <ClInclude Include="Network.h" />
     <ClInclude Include="ObjectMgr.h" />
     <ClInclude Include="Physic.h" />
+    <ClInclude Include="QuadCollider.h" />
     <ClInclude Include="RenderScene.h" />
     <ClInclude Include="SoundMgr.h" />
     <ClInclude Include="SphereCollider.h" />

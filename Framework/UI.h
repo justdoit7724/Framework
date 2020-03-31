@@ -26,7 +26,9 @@ protected:
 class UIButton : public UI, public Subject
 {
 public:
-	UIButton(UINT trigID, const void* trigData, XMFLOAT2 pivot, XMFLOAT2 size, ID3D11ShaderResourceView* idleSRV, ID3D11ShaderResourceView* hoverSRV, ID3D11ShaderResourceView* pressSRV);
+	typedef void BtnFunc(const void*);
+	
+	UIButton(BtnFunc* trigFunc, const void* trigData, XMFLOAT2 pivot, XMFLOAT2 size, ID3D11ShaderResourceView* idleSRV, ID3D11ShaderResourceView* hoverSRV, ID3D11ShaderResourceView* pressSRV);
 
 	void Update(UICanvas* canvas) override;
 private:
@@ -38,7 +40,7 @@ private:
 
 	Plane bound;
 
-	UINT triggerID;
+	BtnFunc* trigFunc;
 	const void* triggerData;
 };
 
@@ -48,6 +50,8 @@ class UICanvas
 public:
 	UICanvas();
 	~UICanvas();
+
+	void Update();
 
 	const float totalWidth, totalHeight;
 

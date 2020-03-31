@@ -321,5 +321,9 @@ inline bool IntersectRayPlane(Ray ray, Plane plane, XMFLOAT3* itsPt)
 	if (itsPt)
 		* itsPt = pt;
 
-	return (xDist < plane.rad.x) && (yDist < plane.rad.y);
+	return (
+		(Dot(ray.d, pt - ray.o)>0)&& // check if ray is ahead of plane
+		(xDist < plane.rad.x) &&  // check if hitPt is in x range
+		(yDist < plane.rad.y) // check if hitPt is in y range
+		);
 } 

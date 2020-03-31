@@ -159,6 +159,9 @@
     <ClCompile Include="Physic.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="QuadCollider.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DX_info.h">
@@ -301,6 +304,9 @@
     </ClInclude>
     <ClInclude Include="Physic.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="QuadCollider.h">
+      <Filter>Components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

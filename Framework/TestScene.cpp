@@ -17,6 +17,8 @@
 #include "Debugging.h"
 #include "SphereCollider.h"
 #include "CubeCollider.h"
+#include "QuadCollider.h"
+#include "Physic.h"
 
 UIButton* btn; Object* newObj;
 TestScene::TestScene()
@@ -34,7 +36,7 @@ TestScene::TestScene()
 	TextureMgr::Instance()->Load("blue", "Data\\Texture\\blue_light.png");
 	
 	std::shared_ptr<Mesh> sphere = std::make_shared<SphereMesh>(4);
-	std::shared_ptr<Collider> collider = std::make_shared<CubeCollider>();
+	std::shared_ptr<Collider> collider = std::make_shared<SphereCollider>();
 	newObj = new Object("Obj", sphere, collider,
 		TextureMgr::Instance()->Get("green"));
 
@@ -42,7 +44,7 @@ TestScene::TestScene()
 	Debugging::Instance()->Visualize(newObj->collider.get());
 
 	btn = new UIButton(0, nullptr, XMFLOAT2(100, 100), XMFLOAT2(400, 300), TextureMgr::Instance()->Get("green"), TextureMgr::Instance()->Get("blue"), TextureMgr::Instance()->Get("red"));
-	//Debugging::Instance()->Visualize(btn);
+	Debugging::Instance()->Visualize(btn);
 
 	cbEye = new Buffer(sizeof(XMFLOAT4));
 }
@@ -62,4 +64,11 @@ void TestScene::Update(float elapsed, float spf)
 
 	newObj->transform->Rotate(UP, spf);
 	newObj->Update();
+
+	Ray ray;
+	CameraMgr::Instance()->Main()->Pick(&ray);
+	if (Physic::Raycast(ray, LAYER_UI))
+	{
+		Debugging::Instance()->Draw("Detected",10,10);
+	}
 }

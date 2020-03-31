@@ -6,11 +6,12 @@
 #include "Game_info.h"
 #include "ShaderFormat.h"
 #include "ShaderReg.h"
-
+#include "QuadCollider.h"
 #include "Transform.h"
 #include "DepthStencilState.h"
 #include "RasterizerState.h"
 #include "BlendState.h"
+#include "ObjectMgr.h"
 #include "Mouse.h"
 
 UI::UI(XMFLOAT2 pivot, XMFLOAT2 size, float zDepth, ID3D11ShaderResourceView * srv)
@@ -19,12 +20,14 @@ UI::UI(XMFLOAT2 pivot, XMFLOAT2 size, float zDepth, ID3D11ShaderResourceView * s
 	size(size), srv(srv)
 {
 	mesh = std::make_shared<QuadMesh>();
+	XMFLOAT3 pos = XMFLOAT3(pivot.x + size.x * 0.5f, (SCREEN_HEIGHT - size.y * 0.5f) - pivot.y, FLT_MIN + zDepth);
+	collider = std::make_shared<QuadCollider>(pos);
 	
 	assert(0 <= zDepth && zDepth <= 1);
 
 	transform->SetScale(size.x, size.y, 1);
 	transform->SetRot(-FORWARD, UP);
-	transform->SetTranslation(pivot.x + size.x * 0.5f, (SCREEN_HEIGHT -size.y * 0.5f) - pivot.y, FLT_MIN+ zDepth);
+	transform->SetTranslation(pos);
 
 	vs->AddCB(0, 1, sizeof(SHADER_STD_TRANSF));
 	ps->AddSRV(SHADER_REG_SRV_DIFFUSE, 1);
@@ -43,12 +46,9 @@ void UI::Update(UICanvas* canvas)
 }
 
 
-UIButton::UIButton(UINT trigID, const void* trigData, XMFLOAT2 pivot, XMFLOAT2 size, ID3D11ShaderResourceView* idleSRV, ID3D11ShaderResourceView* hoverSRV, ID3D11ShaderResourceView* pressSRV)
-	:UI(pivot, size, 0, nullptr), idleSRV(idleSRV), hoverSRV(hoverSRV), pressSRV(pressSRV)
+UIButton::UIButton(BtnFunc* trigFunc, const void* trigParam, XMFLOAT2 pivot, XMFLOAT2 size, ID3D11ShaderResourceView* idleSRV, ID3D11ShaderResourceView* hoverSRV, ID3D11ShaderResourceView* pressSRV)
+	:UI(pivot, size, 0, nullptr), trigFunc(trigFunc), triggerData(trigParam), idleSRV(idleSRV), hoverSRV(hoverSRV), pressSRV(pressSRV)
 {
-	triggerID = trigID;
-	triggerData = trigData;
-
 	bound = Plane(transform->GetPos(),
 		transform->GetForward(),
 		transform->GetUp(),
@@ -58,18 +58,15 @@ UIButton::UIButton(UINT trigID, const void* trigData, XMFLOAT2 pivot, XMFLOAT2 s
 
 void UIButton::Update(UICanvas* canvas)
 {
-	srv = idleSRV;
+	Object::Update();
 
-	bound = Plane(transform->GetPos(),
-		transform->GetForward(),
-		transform->GetUp(),
-		size * 0.5f);
+	srv = idleSRV;
 
 	Ray ray;
 	canvas->GetCamera()->Pick(&ray);
 
-	XMFLOAT3 itsPt;
-	if (IntersectRayPlane(ray, bound, &itsPt))
+	XMFLOAT3 hitPt;
+	if (collider->IsHit(ray, &hitPt))
 	{
 		switch (Mouse::Instance()->LeftState())
 		{
@@ -81,13 +78,13 @@ void UIButton::Update(UICanvas* canvas)
 			srv = hoverSRV;
 			break;
 		case MOUSE_STATE_UP:
-		{
-			Notify(triggerID, triggerData);
-		}
+			if(trigFunc)
+				trigFunc(triggerData);
 			break;
 		}
 	}
 
+	ps->WriteSRV(SHADER_REG_SRV_DIFFUSE, srv);
 }
 UICanvas::UICanvas()
 	: totalWidth(SCREEN_WIDTH), totalHeight(SCREEN_HEIGHT)
@@ -102,5 +99,9 @@ UICanvas::UICanvas()
 UICanvas::~UICanvas()
 {
 	delete camera;
+}
+
+void UICanvas::Update()
+{
 }
 
