@@ -45,9 +45,15 @@ void UI::Update(UICanvas* canvas)
 
 }
 
+void UI::SetSRV(ID3D11ShaderResourceView* srv)
+{
+	this->srv = srv;
+	ps->WriteSRV(SHADER_REG_SRV_DIFFUSE, srv);
+}
 
-UIButton::UIButton(BtnFunc* trigFunc, const void* trigParam, XMFLOAT2 pivot, XMFLOAT2 size, ID3D11ShaderResourceView* idleSRV, ID3D11ShaderResourceView* hoverSRV, ID3D11ShaderResourceView* pressSRV)
-	:UI(pivot, size, 0, nullptr), trigFunc(trigFunc), triggerData(trigParam), idleSRV(idleSRV), hoverSRV(hoverSRV), pressSRV(pressSRV)
+
+UIButton::UIButton(XMFLOAT2 pivot, XMFLOAT2 size, ID3D11ShaderResourceView* idleSRV, ID3D11ShaderResourceView* hoverSRV, ID3D11ShaderResourceView* pressSRV)
+	:UI(pivot, size, 0, idleSRV), hoverSRV(hoverSRV), pressSRV(pressSRV)
 {
 	bound = Plane(transform->GetPos(),
 		transform->GetForward(),
@@ -60,7 +66,7 @@ void UIButton::Update(UICanvas* canvas)
 {
 	Object::Update();
 
-	srv = idleSRV;
+	ID3D11ShaderResourceView* tempSRV = srv;
 
 	Ray ray;
 	canvas->GetCamera()->Pick(&ray);
@@ -72,19 +78,18 @@ void UIButton::Update(UICanvas* canvas)
 		{
 		case MOUSE_STATE_DOWN:
 		case MOUSE_STATE_PRESSING:
-			srv = pressSRV;
+			tempSRV = pressSRV;
 			break;
 		case MOUSE_STATE_RELEASE:
-			srv = hoverSRV;
+			tempSRV = hoverSRV;
 			break;
 		case MOUSE_STATE_UP:
-			if(trigFunc)
-				trigFunc(triggerData);
+			Notify(notifyID, notifyData);
 			break;
 		}
 	}
 
-	ps->WriteSRV(SHADER_REG_SRV_DIFFUSE, srv);
+	ps->WriteSRV(SHADER_REG_SRV_DIFFUSE, tempSRV);
 }
 UICanvas::UICanvas()
 	: totalWidth(SCREEN_WIDTH), totalHeight(SCREEN_HEIGHT)

@@ -168,6 +168,7 @@
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="MeshLoader.cpp" />
     <ClCompile Include="Mouse.cpp" />
+    <ClCompile Include="PlayScene.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="ObjectMgr.cpp" />
     <ClCompile Include="Physic.cpp" />
@@ -192,8 +193,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Terrain.cpp" />
-    <ClCompile Include="TestScene.cpp" />
     <ClCompile Include="TextureMgr.cpp" />
+    <ClCompile Include="Tictactoe.cpp" />
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="UI.cpp" />
@@ -212,10 +213,12 @@
     <ClInclude Include="DebuggingScene.h" />
     <ClInclude Include="LayerMask.h" />
     <ClInclude Include="Network.h" />
+    <ClInclude Include="PlayScene.h" />
     <ClInclude Include="ObjectMgr.h" />
     <ClInclude Include="Physic.h" />
     <ClInclude Include="QuadCollider.h" />
     <ClInclude Include="RenderScene.h" />
+    <ClInclude Include="resource1.h" />
     <ClInclude Include="SoundMgr.h" />
     <ClInclude Include="SphereCollider.h" />
     <ClInclude Include="stdafx.h" />
@@ -242,8 +245,8 @@
     <ClInclude Include="Skybox.h" />
     <ClInclude Include="SphereMesh.h" />
     <ClInclude Include="Terrain.h" />
-    <ClInclude Include="TestScene.h" />
     <ClInclude Include="TextureMgr.h" />
+    <ClInclude Include="Tictactoe.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="UI.h" />
@@ -406,6 +409,9 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Framework.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

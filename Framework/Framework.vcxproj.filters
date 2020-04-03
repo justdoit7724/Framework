@@ -34,9 +34,6 @@
     <Filter Include="Manager">
       <UniqueIdentifier>{8e1b4faf-b0f0-4c5d-a5ea-b6cfe5a31dc5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="TextureMapping">
-      <UniqueIdentifier>{02737186-4e35-44bd-9a8f-c933fdba25fd}</UniqueIdentifier>
-    </Filter>
     <Filter Include="hlsl\cginc">
       <UniqueIdentifier>{9b554362-78c9-44a9-81c3-950dba4904b3}</UniqueIdentifier>
     </Filter>
@@ -123,9 +120,6 @@
     <ClCompile Include="DebuggingScene.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
-    <ClCompile Include="TestScene.cpp">
-      <Filter>Scene</Filter>
-    </ClCompile>
     <ClCompile Include="Terrain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -161,6 +155,12 @@
     </ClCompile>
     <ClCompile Include="QuadCollider.cpp">
       <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayScene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Tictactoe.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -263,9 +263,6 @@
     <ClInclude Include="Network.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TestScene.h">
-      <Filter>Scene</Filter>
-    </ClInclude>
     <ClInclude Include="Terrain.h">
       <Filter>Object</Filter>
     </ClInclude>
@@ -307,6 +304,15 @@
     </ClInclude>
     <ClInclude Include="QuadCollider.h">
       <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="resource1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayScene.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Tictactoe.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -403,5 +409,10 @@
     <FxCompile Include="StdPS.hlsl">
       <Filter>hlsl</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Framework.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

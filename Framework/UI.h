@@ -15,6 +15,7 @@ public:
 	~UI();
 
 	virtual void Update(UICanvas* canvas);
+	void SetSRV(ID3D11ShaderResourceView* srv);
 
 protected:
 
@@ -26,22 +27,22 @@ protected:
 class UIButton : public UI, public Subject
 {
 public:
-	typedef void BtnFunc(const void*);
-	
-	UIButton(BtnFunc* trigFunc, const void* trigData, XMFLOAT2 pivot, XMFLOAT2 size, ID3D11ShaderResourceView* idleSRV, ID3D11ShaderResourceView* hoverSRV, ID3D11ShaderResourceView* pressSRV);
+	UIButton(XMFLOAT2 pivot, XMFLOAT2 size, ID3D11ShaderResourceView* idleSRV, ID3D11ShaderResourceView* hoverSRV, ID3D11ShaderResourceView* pressSRV);
 
 	void Update(UICanvas* canvas) override;
+
+	void SetHoverSRV(ID3D11ShaderResourceView* srv) { hoverSRV = srv; }
+	void SetPressSRV(ID3D11ShaderResourceView* srv) { pressSRV = srv; }
+	void SetNotify(int id, const void* data) { notifyID = id; notifyData = data; }
+
 private:
 
-
-	ID3D11ShaderResourceView*const idleSRV;
-	ID3D11ShaderResourceView*const hoverSRV;
-	ID3D11ShaderResourceView*const pressSRV;
+	int notifyID=NOTIFY_NONE;
+	const void* notifyData=nullptr;
+	ID3D11ShaderResourceView* hoverSRV;
+	ID3D11ShaderResourceView* pressSRV;
 
 	Plane bound;
-
-	BtnFunc* trigFunc;
-	const void* triggerData;
 };
 
 
