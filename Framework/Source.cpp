@@ -11,6 +11,7 @@
 #include "DebuggingScene.h"
 #include "PlayScene.h"
 #include "RenderScene.h"
+#include "Keyboard.h"
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 
@@ -19,7 +20,6 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	srand(time(NULL));
 	Window window(hInstance, "Low Level");
 	Graphic* graphic = new Graphic(window.Hwnd());
-
 
 	SceneMgr::Instance()->Add("Play", new PlayScene());
 
@@ -50,6 +50,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 			window.SetTitle(std::to_string(worldTimer->FPS()));
 			worldTimer->Update();
+
+			Keyboard::Update();
 		}
 
 

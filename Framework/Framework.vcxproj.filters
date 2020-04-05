@@ -37,6 +37,9 @@
     <Filter Include="hlsl\cginc">
       <UniqueIdentifier>{9b554362-78c9-44a9-81c3-950dba4904b3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Tictactoe">
+      <UniqueIdentifier>{7e0ae730-6eb5-4dde-b6fa-b75b281ed063}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Graphic.cpp">
@@ -160,7 +163,16 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Tictactoe.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Tictactoe</Filter>
+    </ClCompile>
+    <ClCompile Include="TTTAI.cpp">
+      <Filter>Tictactoe</Filter>
+    </ClCompile>
+    <ClCompile Include="TTTRender.cpp">
+      <Filter>Tictactoe</Filter>
+    </ClCompile>
+    <ClCompile Include="SetupScene.cpp">
+      <Filter>Scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -312,7 +324,19 @@
       <Filter>Scene</Filter>
     </ClInclude>
     <ClInclude Include="Tictactoe.h">
-      <Filter>Header Files</Filter>
+      <Filter>Tictactoe</Filter>
+    </ClInclude>
+    <ClInclude Include="TTTAI.h">
+      <Filter>Tictactoe</Filter>
+    </ClInclude>
+    <ClInclude Include="TTTRender.h">
+      <Filter>Tictactoe</Filter>
+    </ClInclude>
+    <ClInclude Include="SetupScene.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="TurnController.h">
+      <Filter>Tictactoe</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

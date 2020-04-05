@@ -1,40 +1,49 @@
 #include "stdafx.h"
 #include "Keyboard.h"
 
-std::unordered_set<char> Keyboard::keys;
+std::unordered_map<char, KeyState> Keyboard::keys;
 
 void Keyboard::Press(const WPARAM wparam)
 {
 	const char c = static_cast<char>(wparam);
 
-	keys.insert(c);
+	keys.insert(std::pair<char, KeyState>(c,KeyState::KeyState_Down));
 }
 
 void Keyboard::Release(const WPARAM wparam)
 {
 	const char c = static_cast<char>(wparam);
 
-	auto i = keys.find(c);
-	if (i  != keys.end())
+	if (keys.find(c) != keys.end())
 	{
-		keys.erase(i);
+		keys[c] = KeyState::KeyState_Up;
 	}
 }
 
-bool Keyboard::IsPressing(const char c)
+KeyState Keyboard::GetKey(const char c)
 {
+	if (keys.find(c) == keys.end())
+	{
+		return KeyState::KeyState_Null;
+	}
 
-	return (keys.find(c) != keys.end());
+	return keys[c];
 }
 
-bool Keyboard::IsPressing(const std::string s)
+void Keyboard::Update()
 {
-	for (const char c : s) {
-
-		if (keys.find(c) != keys.end()) {
-			return true;
+	for (auto i = keys.begin(); i != keys.end();)
+	{
+		switch (i->second)
+		{
+		case KeyState::KeyState_Down:
+			i->second = KeyState::KeyState_Pressing;
+			return;
+		case KeyState::KeyState_Up:
+			keys.erase(i);
+			return;
 		}
-	}
 
-	return false;
+		i++;
+	}
 }

@@ -265,19 +265,19 @@ void Debugging::CameraMove(float spf) {
 	XMFLOAT3 right = debugCam->transform->GetRight();
 	XMFLOAT3 forward = debugCam->transform->GetForward();
 	const float speed = 50;
-	if (Keyboard::IsPressing('A')) {
+	if (Keyboard::GetKey('A')==KeyState::KeyState_Pressing) {
 
 		newPos += -right * speed * spf;
 	}
-	else if (Keyboard::IsPressing('D')) {
+	else if (Keyboard::GetKey('D') == KeyState::KeyState_Pressing) {
 
 		newPos += right * speed * spf;
 	}
-	if (Keyboard::IsPressing('S')) {
+	if (Keyboard::GetKey('S') == KeyState::KeyState_Pressing) {
 
 		newPos += -forward * speed * spf;
 	}
-	else if (Keyboard::IsPressing('W')) {
+	else if (Keyboard::GetKey('W') == KeyState::KeyState_Pressing) {
 
 		newPos += forward * speed * spf;
 	}
@@ -302,6 +302,9 @@ void Debugging::CameraMove(float spf) {
 }
 void Debugging::Update(float spf)
 {
+	if(!enabled)
+		return;
+
 	CameraMove(spf);
 
 	for (IDebug* obj : debugObjs)
@@ -312,6 +315,9 @@ void Debugging::Update(float spf)
 
 void Debugging::Render()
 {
+	if (!enabled)
+		return;
+
 	XMMATRIX vp = debugCam->VMat() * debugCam->ProjMat();
 
 	DX_DContext->HSSetShader(nullptr, nullptr, 0);

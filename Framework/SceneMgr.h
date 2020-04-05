@@ -13,6 +13,7 @@ class SceneMgr :
 	public Singleton<SceneMgr>
 {
 public:
+	SceneMgr();
 	~SceneMgr();
 	void BroadcastMessage(UINT msg);
 	const Scene* Get(std::string key){return list[key];}

@@ -180,6 +180,7 @@
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="QuadMesh.cpp" />
     <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="SetupScene.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Skybox.cpp" />
     <ClCompile Include="SoundMgr.cpp" />
@@ -197,6 +198,8 @@
     <ClCompile Include="Tictactoe.cpp" />
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="Transform.cpp" />
+    <ClCompile Include="TTTAI.cpp" />
+    <ClCompile Include="TTTRender.cpp" />
     <ClCompile Include="UI.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
@@ -219,6 +222,7 @@
     <ClInclude Include="QuadCollider.h" />
     <ClInclude Include="RenderScene.h" />
     <ClInclude Include="resource1.h" />
+    <ClInclude Include="SetupScene.h" />
     <ClInclude Include="SoundMgr.h" />
     <ClInclude Include="SphereCollider.h" />
     <ClInclude Include="stdafx.h" />
@@ -249,6 +253,9 @@
     <ClInclude Include="Tictactoe.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="Transform.h" />
+    <ClInclude Include="TTTAI.h" />
+    <ClInclude Include="TTTRender.h" />
+    <ClInclude Include="TurnController.h" />
     <ClInclude Include="UI.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>

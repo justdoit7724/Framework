@@ -46,11 +46,15 @@ public:
 
 	~Debugging();
 
+	void Enabled(bool b) { enabled = b; }
+
 private:
 	Camera* debugCam;
 	void CameraMove(float spf);
 	void Update(float spf);
 	void Render();
+
+	bool enabled = true;
 
 	friend class Singleton<Debugging>;
 	Debugging();
