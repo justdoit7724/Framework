@@ -5,6 +5,11 @@
 #include "Object.h"
 #include "TextureMgr.h"
 #include "Shader.h"
+
+#include <Assimp.3.0.0/build/native/include/assimp/postprocess.h>
+#include <Assimp.3.0.0/build/native/include/assimp/Importer.hpp>
+#include <Assimp.3.0.0/build/native/include/assimp/scene.h>
+
 #include <mutex>
 
 void ProcessNode(std::vector<Object*>& storage, std::string filepath, aiNode* node, const aiScene* scene)

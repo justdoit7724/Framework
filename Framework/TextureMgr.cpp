@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include "TextureMgr.h"
+#include <directxtk_desktop_2015.2019.12.17.1/include/WICTextureLoader.h>
+
 
 TextureMgr::~TextureMgr()
 {

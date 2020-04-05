@@ -4,6 +4,9 @@
 #include "DX_info.h"
 #include "Singleton.h"
 
+
+#include <directxtk_desktop_2015.2019.12.17.1/include/Audio.h>
+
 class SoundMgr : public Singleton<SoundMgr>
 {
 public:

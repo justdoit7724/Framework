@@ -3,6 +3,8 @@
 #include "Game_info.h"
 #include <unordered_set>
 #include <unordered_map>
+#include <directxtk_desktop_2015.2019.12.17.1/include/SpriteBatch.h>
+#include <directxtk_desktop_2015.2019.12.17.1/include/SpriteFont.h>
 #include "Singleton.h"
 
 class Transform;
