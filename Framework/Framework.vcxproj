@@ -212,6 +212,7 @@
     <ClInclude Include="Collider.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="CubeCollider.h" />
+    <ClInclude Include="CustomSTL.h" />
     <ClInclude Include="Debugging.h" />
     <ClInclude Include="DebuggingScene.h" />
     <ClInclude Include="LayerMask.h" />

@@ -7,7 +7,7 @@ class Tictactoe;
 class TTTRender;
 class TTTAI;
 
-
+#include <Nlohmann-JSON.3.7.3\build\native\include\nlohmann\json.hpp>
 
 class PlayScene : public Scene
 {
@@ -16,6 +16,7 @@ public:
 	void Update(float elapsed, float spf) override;
 
 private:
+
 	
 	Tictactoe* rule;
 	TTTRender* render;

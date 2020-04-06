@@ -10,11 +10,10 @@
 #include "TTTAI.h"
 #include "TTTRender.h"
 #include "Debugging.h"
-
+#include "CustomSTL.h"
 
 PlayScene::PlayScene()
 {
-
 	render = new TTTRender();
 	rule = new Tictactoe(&render);
 	ai = new TTTAI(&rule, &render);

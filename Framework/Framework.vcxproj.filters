@@ -338,6 +338,9 @@
     <ClInclude Include="TurnController.h">
       <Filter>Tictactoe</Filter>
     </ClInclude>
+    <ClInclude Include="CustomSTL.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
