@@ -40,6 +40,9 @@
     <Filter Include="Tictactoe">
       <UniqueIdentifier>{7e0ae730-6eb5-4dde-b6fa-b75b281ed063}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Algorithm">
+      <UniqueIdentifier>{9886fc88-3528-4d50-b7ca-c8d1c82574a9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Graphic.cpp">
@@ -278,9 +281,6 @@
     <ClInclude Include="Terrain.h">
       <Filter>Object</Filter>
     </ClInclude>
-    <ClInclude Include="Algorithm.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="LayerMask.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -338,8 +338,11 @@
     <ClInclude Include="TurnController.h">
       <Filter>Tictactoe</Filter>
     </ClInclude>
+    <ClInclude Include="Algorithm.h">
+      <Filter>Algorithm</Filter>
+    </ClInclude>
     <ClInclude Include="CustomSTL.h">
-      <Filter>Header Files</Filter>
+      <Filter>Algorithm</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
