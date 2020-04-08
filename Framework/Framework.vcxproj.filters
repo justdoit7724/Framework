@@ -37,9 +37,6 @@
     <Filter Include="hlsl\cginc">
       <UniqueIdentifier>{9b554362-78c9-44a9-81c3-950dba4904b3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Tictactoe">
-      <UniqueIdentifier>{7e0ae730-6eb5-4dde-b6fa-b75b281ed063}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Algorithm">
       <UniqueIdentifier>{9886fc88-3528-4d50-b7ca-c8d1c82574a9}</UniqueIdentifier>
     </Filter>
@@ -164,15 +161,6 @@
     </ClCompile>
     <ClCompile Include="PlayScene.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Tictactoe.cpp">
-      <Filter>Tictactoe</Filter>
-    </ClCompile>
-    <ClCompile Include="TTTAI.cpp">
-      <Filter>Tictactoe</Filter>
-    </ClCompile>
-    <ClCompile Include="TTTRender.cpp">
-      <Filter>Tictactoe</Filter>
     </ClCompile>
     <ClCompile Include="SetupScene.cpp">
       <Filter>Scene</Filter>
@@ -323,26 +311,17 @@
     <ClInclude Include="PlayScene.h">
       <Filter>Scene</Filter>
     </ClInclude>
-    <ClInclude Include="Tictactoe.h">
-      <Filter>Tictactoe</Filter>
-    </ClInclude>
-    <ClInclude Include="TTTAI.h">
-      <Filter>Tictactoe</Filter>
-    </ClInclude>
-    <ClInclude Include="TTTRender.h">
-      <Filter>Tictactoe</Filter>
-    </ClInclude>
     <ClInclude Include="SetupScene.h">
       <Filter>Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="TurnController.h">
-      <Filter>Tictactoe</Filter>
     </ClInclude>
     <ClInclude Include="Algorithm.h">
       <Filter>Algorithm</Filter>
     </ClInclude>
     <ClInclude Include="CustomSTL.h">
       <Filter>Algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="TurnController.h">
+      <Filter>DesignPattern</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
