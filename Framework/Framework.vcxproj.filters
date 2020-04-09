@@ -165,6 +165,9 @@
     <ClCompile Include="SetupScene.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
+    <ClCompile Include="AStar.cpp">
+      <Filter>Algorithm</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DX_info.h">
@@ -322,6 +325,9 @@
     </ClInclude>
     <ClInclude Include="TurnController.h">
       <Filter>DesignPattern</Filter>
+    </ClInclude>
+    <ClInclude Include="AStar.h">
+      <Filter>Algorithm</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

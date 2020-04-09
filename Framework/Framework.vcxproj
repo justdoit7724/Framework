@@ -153,6 +153,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AStar.cpp" />
     <ClCompile Include="BlendState.cpp" />
     <ClCompile Include="Buffer.cpp" />
     <ClCompile Include="Camera.cpp" />
@@ -202,6 +203,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Algorithm.h" />
+    <ClInclude Include="AStar.h" />
     <ClInclude Include="BlendState.h" />
     <ClInclude Include="Buffer.h" />
     <ClInclude Include="Camera.h" />
