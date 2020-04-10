@@ -218,24 +218,109 @@ namespace CustomSTL
 
 			SLNode<T>* curNode = head;
 
-			while (true)
+			while (idx < size)
 			{
 				if (curNode->data == item)
 				{
+					DeleteIdx(idx);
 					break;
 				}
 
 				curNode = curNode->next;
 				idx++;
 			}
-
-			DeleteIdx(idx);
 		}
 
 
 	private:
 		SLNode<T>* head=nullptr;
 		SLNode<T>* tail=nullptr;
+		int size = 0;
+	};
+
+	template<class T>
+	class DLList
+	{
+	public:
+		DLList() {}
+
+		void Insert(T item)
+		{
+			DLNode<T>* newNode = new DLNode<T>(item);
+
+			if (size==0)
+			{
+				head = newNode;
+				tail = newNode;
+			}
+			else
+			{
+				tail->next = newNode;
+				newNode->prev = tail;
+				tail = newNode; 
+			}
+
+			size++;
+		}
+		void DeleteIdx(int idx)
+		{
+			assert(idx < size);
+
+			if (size == 1)
+			{
+				delete head;
+
+				head = nullptr;
+				tail = nullptr;
+			}
+			else if (idx == 0)
+			{
+				head = head->next;
+				delete head->prev;
+				head->prev = nullptr;
+			}
+			else if (idx == size - 1)
+			{
+				tail = tail->prev;
+				delete tail->next;
+				tail->next = nullptr;
+			}
+			else
+			{
+				DLNode<T>* checkNode = head;
+				for (int i = 0; i < idx; ++i)
+				{
+					checkNode = checkNode->next;
+				}
+
+				DLNode<T>* delNode = checkNode;
+				checkNode->prev->next = checkNode->next;
+				checkNode->next->prev = checkNode->prev;
+
+				delete delNode;
+			}
+		}
+		void Delete(T item)
+		{
+			DLNode<T>* checkNode = head;
+			int idx = 0;
+
+			while (idx < size)
+			{
+				if (checkNode->data == item)
+				{
+					DeleteIdx(idx);
+					break;
+				}
+				checkNode = checkNode->next;
+				idx++;
+			}
+		}
+
+	private:
+		DLNode<T>* head;
+		DLNode<T>* tail;
+
 		int size = 0;
 	};
 };
