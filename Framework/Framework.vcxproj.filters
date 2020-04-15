@@ -329,6 +329,9 @@
     <ClInclude Include="AStar.h">
       <Filter>Algorithm</Filter>
     </ClInclude>
+    <ClInclude Include="ObjectPool.h">
+      <Filter>DesignPattern</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

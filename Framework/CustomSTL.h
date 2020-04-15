@@ -1,7 +1,5 @@
 #pragma once
-
-#ifndef _CUSTOMSTL
-#define _CUSTOMSTL
+#include <cstdlib>
 
 namespace CustomSTL
 {
@@ -149,16 +147,40 @@ namespace CustomSTL
 	{
 	public:
 		SLList() {}
+		~SLList() {
+			
+			while (head)
+			{
+				SLNode<T>* delNode = head;
+				head = head->next;
+				delete delNode;
+			}
+		}
 
-		void Insert(T item)
+		void InsertFront(T item)
 		{
+			SLNode<T>* newNode = new SLNode<T>(item);
 			if (!head)
 			{
-				tail = head = new SLNode<T>(item);
+				tail = head = newNode;
 			}
 			else
 			{
-				SLNode<T>* newNode = new SLNode<T>(item);
+				newNode->next = head;
+				head = newNode;
+			}
+
+			size++;
+		}
+		void InsertBack(T item)
+		{
+			SLNode<T>* newNode = new SLNode<T>(item);
+			if (!head)
+			{
+				tail = head = newNode;
+			}
+			else
+			{
 				tail->next = newNode;
 				tail = newNode;
 			}
@@ -231,6 +253,9 @@ namespace CustomSTL
 			}
 		}
 
+		SLNode<T>* Head() { return head; }
+		SLNode<T>* Tail() { return tail; }
+		int Size() { return size; }
 
 	private:
 		SLNode<T>* head=nullptr;
@@ -243,8 +268,27 @@ namespace CustomSTL
 	{
 	public:
 		DLList() {}
+		DLList(const DLList& list)
+		{
+			if (head)
+			{
+				int curSize = size;
+				for (int i = 0; i < curSize; ++i)
+				{
+					DeleteIdx(0);
+				}
+			}
 
-		void Insert(T item)
+			const CustomSTL::DLNode<T>* head = list.Head();
+
+			while(head)
+			{
+				InsertBack(head->data);
+				head = head->next;
+			}
+		}
+
+		void InsertFront(const T item)
 		{
 			DLNode<T>* newNode = new DLNode<T>(item);
 
@@ -255,13 +299,31 @@ namespace CustomSTL
 			}
 			else
 			{
-				tail->next = newNode;
-				newNode->prev = tail;
-				tail = newNode; 
+				newNode->next = head;
+				head = newNode;
 			}
 
 			size++;
 		}
+		void InsertBack(const T item)
+		{
+			DLNode<T>* newNode = new DLNode<T>(item);
+
+			if (size == 0)
+			{
+				head = newNode;
+				tail = newNode;
+			}
+			else
+			{
+				tail->next = newNode;
+				newNode->prev = tail;
+				tail = newNode;
+			}
+
+			size++;
+		}
+
 		void DeleteIdx(int idx)
 		{
 			assert(idx < size);
@@ -317,13 +379,15 @@ namespace CustomSTL
 			}
 		}
 
+		const DLNode<T>* Head()const { return head; }
+		const DLNode<T>* Tail()const { return tail; }
+		int Size()const { return size; }
+
 	private:
-		DLNode<T>* head;
-		DLNode<T>* tail;
+		DLNode<T>* head=nullptr;
+		DLNode<T>* tail=nullptr;
 
 		int size = 0;
 	};
 };
-
-#endif 
 

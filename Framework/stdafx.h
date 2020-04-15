@@ -17,9 +17,13 @@
 #include <DirectXColors.h>
 #include <limits>
 #include <memory>
+#include <queue>
 #include <fstream>
+#include "CustomSTL.h"
 
 using namespace DirectX;
+
+
 
 #define FORWARD XMFLOAT3(0,0,1)
 #define RIGHT XMFLOAT3(1,0,0)
@@ -317,3 +321,4 @@ inline bool IntersectRayPlane(Ray ray, Plane plane, XMFLOAT3* itsPt)
 		(yDist < plane.rad.y) // check if hitPt is in y range
 		);
 } 
+

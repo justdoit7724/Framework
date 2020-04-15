@@ -216,6 +216,7 @@
     <ClInclude Include="DebuggingScene.h" />
     <ClInclude Include="LayerMask.h" />
     <ClInclude Include="Network.h" />
+    <ClInclude Include="ObjectPool.h" />
     <ClInclude Include="PlayScene.h" />
     <ClInclude Include="ObjectMgr.h" />
     <ClInclude Include="Physic.h" />

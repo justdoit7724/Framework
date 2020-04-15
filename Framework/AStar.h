@@ -8,6 +8,7 @@ namespace Pathfinding
 	public:
 		XMFLOAT3 pos;
 		bool isBlock=false;
+		int idx;
 		std::vector<Path*> next;
 	};
 
@@ -17,12 +18,15 @@ namespace Pathfinding
 	public:
 		AStar(XMFLOAT3 firstPos, float interval, int widthCount, int depthCount);
 
-		void FindPath(OUT std::list<Path*>& paths);
+		CustomSTL::DLNode<Path*>* FindPath(Path* startPath, Path* destPath);
 
-		Path* const* GetPaths() { return paths; }
+		Path* GetPaths() { return paths; }
+
+		const int widthCount;
+		const int depthCount;
 
 	private:
-		Path** paths;
-
+		Path* paths;
+		bool* checkMem;
 	};
 }
