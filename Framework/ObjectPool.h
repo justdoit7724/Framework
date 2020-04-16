@@ -4,11 +4,10 @@
 
 class ObjectPool;
 
-
 class PoolResource
 {
 public:
-	PoolResource(void* data) :data(data){}
+	PoolResource(void* data) :data(data) {}
 
 	void* Get()
 	{
@@ -28,7 +27,6 @@ private:
 	bool isUsing = false;
 	void* data;
 };
-
 
 class ObjectPool
 {
@@ -53,7 +51,7 @@ public:
 			if (!curNode->data->isUsing)
 			{
 				auto temp = curNode;
-				curNode = curNode->next? curNode->next: pool.Head();
+				curNode = curNode->next ? curNode->next : pool.Head();
 				temp->data->isUsing = true;
 				return temp->data;
 			}
@@ -69,6 +67,14 @@ public:
 	}
 
 	int Size() { return pool.Size(); }
+	void RetrieveAll() {
+		CustomSTL::SLNode<PoolResource*>* checkNode = pool.Head();
+		while (checkNode)
+		{
+			checkNode->data->isUsing = false;
+			checkNode = checkNode->next;
+		}
+	}
 
 private:
 

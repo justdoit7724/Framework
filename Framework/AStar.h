@@ -1,5 +1,6 @@
 #pragma once
 
+class ObjectPool;
 
 namespace Pathfinding
 {
@@ -18,9 +19,9 @@ namespace Pathfinding
 	public:
 		AStar(XMFLOAT3 firstPos, float interval, int widthCount, int depthCount);
 
-		CustomSTL::DLNode<Path*>* FindPath(Path* startPath, Path* destPath);
-
-		Path* GetPaths() { return paths; }
+		bool FindPath(const Path* startPath, const Path* destPath, CustomSTL::SLNode<const Path*>** outWay)const;
+		void SetupPath();
+		const Path* GetPaths() { return paths; }
 
 		const int widthCount;
 		const int depthCount;
@@ -28,5 +29,6 @@ namespace Pathfinding
 	private:
 		Path* paths;
 		bool* checkMem;
+		ObjectPool* wayPool;
 	};
 }

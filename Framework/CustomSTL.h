@@ -127,6 +127,21 @@ namespace CustomSTL
 	{
 	public:
 		SLNode(T data) :data(data), next(nullptr) {}
+		void DeepCopy(SLNode<T>** outNode)
+		{
+			*outNode = new SLNode<T>(data);
+			SLNode<T>* curNode = *outNode;
+			SLNode<T>* iNode = next;
+
+			while (iNode)
+			{
+				SLNode<T>* newNode = new SLNode<T>(iNode->data);
+				curNode->next = newNode;
+				curNode = newNode;
+
+				iNode = iNode->next;
+			}
+		}
 
 		T data;
 		SLNode* next;
@@ -136,6 +151,22 @@ namespace CustomSTL
 	{
 	public:
 		DLNode(T data) :data(data), prev(nullptr), next(nullptr) {}
+		void DeepCopy(DLNode<T>** outNode)const
+		{
+			*outNode= new DLNode<T>(data);
+			DLNode<T>* curNode = *outNode;
+			DLNode<T>* iNode = next;
+
+			while (iNode)
+			{
+				DLNode<T>* newNode = new DLNode<T>(iNode->data);
+				newNode->prev = curNode;
+				curNode->next = newNode;
+				curNode = newNode;
+
+				iNode = iNode->next;
+			}
+		}
 
 		T data;
 		DLNode* prev = nullptr;
@@ -379,8 +410,8 @@ namespace CustomSTL
 			}
 		}
 
-		const DLNode<T>* Head()const { return head; }
-		const DLNode<T>* Tail()const { return tail; }
+		DLNode<T>* Head()const { return head; }
+		DLNode<T>* Tail()const { return tail; }
 		int Size()const { return size; }
 
 	private:

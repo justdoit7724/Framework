@@ -1,10 +1,12 @@
 #pragma once
 #include "Scene.h"
+#include "ObserverDP.h"
 
 class DirectionalLight;
 class Buffer;
+class UICanvas;
 
-class PlayScene : public Scene
+class PlayScene : public Scene, public Observer
 {
 public:
 	PlayScene();
@@ -14,4 +16,8 @@ private:
 
 	DirectionalLight* dLight;
 	Buffer* cbEye;
+	UICanvas* canvas;
+
+	// Inherited via Observer
+	virtual void Notify(int id, const void* data) override;
 };

@@ -77,6 +77,6 @@ private:
 	float aspectRatio;
 
 	Frustum frustum;
-	int layer = INT_MAX ^ LAYER_UI;
+	int layer = LAYER_ALL;
 };
 
