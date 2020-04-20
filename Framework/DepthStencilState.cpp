@@ -35,8 +35,6 @@ DepthStencilState::DepthStencilState(D3D11_DEPTH_STENCIL_DESC* desc)
 
 void DepthStencilState::Modify(D3D11_DEPTH_STENCIL_DESC * desc)
 {
-	state->Release();
-
 	r_assert(
 		DX_Device->CreateDepthStencilState(desc, state.ReleaseAndGetAddressOf())
 	);

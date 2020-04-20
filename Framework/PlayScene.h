@@ -5,6 +5,7 @@
 class DirectionalLight;
 class Buffer;
 class UICanvas;
+class UI;
 
 class PlayScene : public Scene, public Observer
 {
