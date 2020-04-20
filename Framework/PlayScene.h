@@ -20,13 +20,6 @@ private:
 	Buffer* cbEye;
 	UICanvas* canvas;
 
-	UI* uiBackground;
-	UI* mask;
-	UI* mainImage;
-	UIButton* moveModeBtn;
-	UIButton* shapeCircleModeBtn;
-	UIButton* shapeSquareModeBtn;
-
 	// Inherited via Observer
 	virtual void Notify(int id, const void* data) override;
 };
