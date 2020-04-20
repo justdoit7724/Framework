@@ -17,7 +17,8 @@
 UI::UI(XMFLOAT2 pivot, XMFLOAT2 size, float zDepth, ID3D11ShaderResourceView * srv)
 	:Object("UI", nullptr, nullptr, "UIVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts),
 		"","","","UIPS.cso"),
-	size(size), srv(srv)
+	size(size), srv(srv),
+	mulColor(XMFLOAT4(1,1,1,0))
 {
 	mesh = std::make_shared<QuadMesh>();
 	XMFLOAT3 pos = XMFLOAT3(pivot.x + size.x * 0.5f, (SCREEN_HEIGHT - size.y * 0.5f) - pivot.y, FLT_MIN + zDepth);
@@ -31,7 +32,9 @@ UI::UI(XMFLOAT2 pivot, XMFLOAT2 size, float zDepth, ID3D11ShaderResourceView * s
 
 	vs->AddCB(0, 1, sizeof(SHADER_STD_TRANSF));
 	ps->AddSRV(SHADER_REG_SRV_DIFFUSE, 1);
+	ps->AddCB(SHADER_REG_CB_MUL_COLOR, 1, sizeof(XMFLOAT4));
 	ps->WriteSRV(SHADER_REG_SRV_DIFFUSE, srv);
+	ps->WriteCB(SHADER_REG_CB_MUL_COLOR, &mulColor);
 
 	layer = LAYER_UI;
 }
@@ -51,9 +54,17 @@ void UI::SetSRV(ID3D11ShaderResourceView* srv)
 	ps->WriteSRV(SHADER_REG_SRV_DIFFUSE, srv);
 }
 
+void UI::SetMulColor(XMFLOAT3 c)
+{
+	mulColor.x = c.x;
+	mulColor.y = c.y;
+	mulColor.z = c.z;
 
-UIButton::UIButton(XMFLOAT2 pivot, XMFLOAT2 size, ID3D11ShaderResourceView* idleSRV, ID3D11ShaderResourceView* hoverSRV, ID3D11ShaderResourceView* pressSRV)
-	:UI(pivot, size, 0, idleSRV), hoverSRV(hoverSRV), pressSRV(pressSRV)
+	ps->WriteCB(SHADER_REG_CB_MUL_COLOR, &mulColor);
+}
+
+UIButton::UIButton(XMFLOAT2 pivot, XMFLOAT2 size, ID3D11ShaderResourceView* srv)
+	:UI(pivot, size, 0, srv)
 {
 	bound = Plane(transform->GetPos(),
 		transform->GetForward(),
@@ -66,10 +77,11 @@ void UIButton::Update(UICanvas* canvas)
 {
 	Object::Update();
 
-	ID3D11ShaderResourceView* tempSRV = srv;
-
 	Ray ray;
 	canvas->GetCamera()->Pick(&ray);
+
+
+	SetMulColor(XMFLOAT3(1.0f, 1.0f, 1.0f));
 
 	XMFLOAT3 hitPt;
 	if (collider->IsHit(ray, &hitPt))
@@ -78,18 +90,16 @@ void UIButton::Update(UICanvas* canvas)
 		{
 		case MOUSE_STATE_DOWN:
 		case MOUSE_STATE_PRESSING:
-			tempSRV = pressSRV;
+			SetMulColor(XMFLOAT3(0.5f, 0.5f, 0.5f));
 			break;
 		case MOUSE_STATE_RELEASE:
-			tempSRV = hoverSRV;
+			SetMulColor(XMFLOAT3(0.75f, 0.75f, 0.75f));
 			break;
 		case MOUSE_STATE_UP:
 			Notify(notifyID, notifyData);
 			break;
 		}
 	}
-
-	ps->WriteSRV(SHADER_REG_SRV_DIFFUSE, tempSRV);
 }
 UICanvas::UICanvas()
 	: totalWidth(SCREEN_WIDTH), totalHeight(SCREEN_HEIGHT)
