@@ -7,6 +7,7 @@ class Buffer;
 class UICanvas;
 class UI;
 class UIButton;
+class Camera;
 
 class PlayScene : public Scene, public Observer
 {
@@ -19,6 +20,7 @@ private:
 	DirectionalLight* dLight;
 	Buffer* cbEye;
 	UICanvas* canvas;
+
 
 	// Inherited via Observer
 	virtual void Notify(int id, const void* data) override;

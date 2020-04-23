@@ -14,6 +14,8 @@
 #include "TextureMgr.h"
 #include "DepthStencilState.h"
 #include "Timer.h"
+#include "Camera.h"
+#include "Debugging.h"
 
 PlayScene::PlayScene()
 {

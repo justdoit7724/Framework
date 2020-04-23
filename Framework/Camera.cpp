@@ -20,16 +20,6 @@ Camera::Camera(std::string key, FRAME_KIND frameKind, float orthoScnWidth, float
 
 	frustum.skip = skipFrustum;
 }
-Camera::Camera(FRAME_KIND frameKind, float orthoScnWidth, float orthoScnHeight, float n, float f, float verticalViewRad, float aspectRatio, bool skipFrustum)
-	:key(key)
-{
-	transform = new Transform();
-
-	SetView();
-	SetFrame(frameKind, XMFLOAT2(orthoScnWidth, orthoScnHeight), n, f, verticalViewRad, aspectRatio);
-
-	frustum.skip = skipFrustum;
-}
 
 Camera::~Camera()
 {
@@ -77,6 +67,11 @@ void Camera::SetFrame(const FRAME_KIND fKind, XMFLOAT2 orthoSize, const float n,
 		break;
 	}
 	
+}
+
+void Camera::SetMain()
+{
+	CameraMgr::Instance()->SetMain(this);
 }
 
 void Camera::SetView()
