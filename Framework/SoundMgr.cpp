@@ -3,8 +3,6 @@
 
 SoundMgr::SoundMgr()
 {
-	r_assert(
-		CoInitializeEx(nullptr, COINIT_MULTITHREADED));
 
 	AUDIO_ENGINE_FLAGS eflags = AudioEngine_Default;
 #ifdef _DEBUG

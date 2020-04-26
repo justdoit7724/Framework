@@ -17,6 +17,8 @@
 #include "Camera.h"
 #include "Debugging.h"
 
+#include "WICTexture.h"
+
 PlayScene::PlayScene()
 {
 	TextureMgr::Instance()->Load("red", "Data\\Texture\\red_light.png");

@@ -199,6 +199,7 @@
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="UI.cpp" />
+    <ClCompile Include="WICTexture.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -255,6 +256,7 @@
     <ClInclude Include="Transform.h" />
     <ClInclude Include="TurnController.h" />
     <ClInclude Include="UI.h" />
+    <ClInclude Include="WICTexture.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>

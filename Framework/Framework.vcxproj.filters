@@ -168,6 +168,9 @@
     <ClCompile Include="AStar.cpp">
       <Filter>Algorithm</Filter>
     </ClCompile>
+    <ClCompile Include="WICTexture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DX_info.h">
@@ -331,6 +334,9 @@
     </ClInclude>
     <ClInclude Include="ObjectPool.h">
       <Filter>DesignPattern</Filter>
+    </ClInclude>
+    <ClInclude Include="WICTexture.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
