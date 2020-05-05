@@ -9,13 +9,13 @@ static const wchar_t* ShaderPath() {
 #ifdef _WIN64
 	return L"DXFramework\\HLSL\\_x64\\_Debug\\";
 #else
-	return L"DXFramework\\HLSL\\_win32\\_Debug\\";
+	return L"DXFramework\\HLSL\\_Win32\\_Debug\\";
 #endif
 #else
 #ifdef _WIN64
 	return L"DXFramework\\HLSL\\_x64\\_Release\\";
 #else
-	return L"DXFramework\\HLSL\\_win32\\_Release\\";
+	return L"DXFramework\\HLSL\\_Win32\\_Release\\";
 #endif 
 #endif
 }

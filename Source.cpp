@@ -19,7 +19,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 	WNDCLASSEX wc = { 0 };
 	wc.style = CS_OWNDC;
-	wc.lpfnWndProc = HandleMsgSetup;
+	wc.lpfnWndProc = (WNDPROC)HandleMsgSetup;
 	wc.cbClsExtra = 0;
 	wc.cbWndExtra = 0;
 	wc.hInstance = hInstance;

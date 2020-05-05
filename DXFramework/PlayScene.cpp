@@ -177,7 +177,6 @@ void PlayScene::CreateModel(std::string filename)
 	MeshLoader::Load(&meshes, "DXFramework\\Data\\Model\\PLY\\", filename);
 
 	mainObj = new Object("Test Obj", std::shared_ptr<Mesh>(meshes[0]), nullptr, TextureMgr::Instance()->Get("white"));
-	mainObj->transform->SetScale(50, 50, 50);
 	mainObj->Update();
 }
 
