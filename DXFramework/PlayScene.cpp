@@ -118,10 +118,12 @@ PlayScene::PlayScene()
 	iCam = new Camera("interface Cam", FRAME_KIND_PERSPECTIVE, WND_WIDTH, WND_HEIGHT, 1.0f, 1000.0f, camViewRad, 1, false);
 	iCam->transform->SetTranslation(0, 0, -10);
 	iCam->SetLayer(LAYER_INTERFACE_CAMERA);
+
+	
 #pragma endregion
 
 	
-
+	toFrameKind = FRAME_KIND_PERSPECTIVE;
 	checkCam = new Camera("CheckCam", FRAME_KIND_PERSPECTIVE, NULL, NULL, 1.0f, 1000.0f, camViewRad, 1, true);
 	checkCam->transform->SetTranslation(0, 0, -camDist);
 	checkCam->SubtractLayer(LAYER_INTERFACE_CAMERA);
@@ -157,6 +159,14 @@ void PlayScene::Update(float elapsed, float spf)
 	else if (Keyboard::GetKey('D') == KeyState_Up)
 	{
 		Lerp2CamZ();
+	}
+	else if (Keyboard::GetKey('Q') == KeyState_Up)
+	{
+		Lerp2Orthogonal();
+	}
+	else if (Keyboard::GetKey('E') == KeyState_Up)
+	{
+		Lerp2Perspective();
 	}
 
 	CamMove(spf);
@@ -218,7 +228,9 @@ void PlayScene::Lerp2CamX()
 	if (isLerping)
 		return;
 	isLerping = true;
+	isFrame = false;
 	curLerpTime = 0;
+	lerpDuration = 0.4f;
 	startAngleX = camAngleX;
 	startAngleY = camAngleY;
 	lerpAngleX = 0;
@@ -235,7 +247,9 @@ void PlayScene::Lerp2CamY()
 	if (isLerping)
 		return;
 	isLerping = true;
+	isFrame = false;
 	curLerpTime = 0;
+	lerpDuration = 0.4f;
 	startAngleX = camAngleX;
 	startAngleY = camAngleY;
 	lerpAngleX = XM_PIDIV2*0.99f;
@@ -248,7 +262,9 @@ void PlayScene::Lerp2CamZ()
 	if (isLerping)
 		return;
 	isLerping = true;
+	isFrame = false;
 	curLerpTime = 0;
+	lerpDuration = 0.4f;
 	startAngleX = camAngleX;
 	startAngleY = camAngleY;
 	lerpAngleX = 0;
@@ -269,23 +285,37 @@ void PlayScene::Lerp2CamZ()
 
 void PlayScene::Lerp2Perspective()
 {
-	if (isLerping)
+	if (isLerping || toFrameKind == FRAME_KIND_PERSPECTIVE)
 		return;
 	isLerping = true;
 	curLerpTime = 0;
+	toFrameKind = FRAME_KIND_PERSPECTIVE;
+	isFrame = true;
+	lerpDuration = 1.0f;
+	startAngleX = camAngleX;
+	startAngleY = camAngleY;
+	lerpAngleX = camAngleX;
+	lerpAngleY = camAngleY;
 }
 
 void PlayScene::Lerp2Orthogonal()
 {
-	if (isLerping)
+	if (isLerping || toFrameKind == FRAME_KIND_ORTHOGONAL)
 		return;
 	isLerping = true;
 	curLerpTime = 0;
+	toFrameKind = FRAME_KIND_ORTHOGONAL;
+	isFrame = true;
+	lerpDuration = 1.0f;
+	startAngleX = camAngleX;
+	startAngleY = camAngleY;
+	lerpAngleX = camAngleX;
+	lerpAngleY = camAngleY;
 }
 
 void PlayScene::CamMove(float spf)
 {
-
+	float t=0;
 
 	if (!isLerping)
 	{
@@ -310,20 +340,30 @@ void PlayScene::CamMove(float spf)
 		prevMousePt.x = mPt.x;
 		prevMousePt.y = mPt.y;
 	}
-	else
+	else if(!isFrame)
 	{
 		curLerpTime += spf;
-		float t = min(curLerpTime / lerpDuration, 1);
+		t = curLerpTime / lerpDuration;
 
 		camAngleX = Lerp(startAngleX, lerpAngleX, t);
 		camAngleY = Lerp(startAngleY, lerpAngleY, t);
 
-		if (t >= 1)
+	}
+	else
+	{
+		curLerpTime += spf;
+		t = curLerpTime / lerpDuration;
+
+		switch (toFrameKind)
 		{
-			isLerping = false;
+		case FRAME_KIND_ORTHOGONAL:
+			t = 1 - pow(1 - t, 7);
+			break;
+		case FRAME_KIND_PERSPECTIVE:
+			t = pow(t, 7);
+			break;
 		}
 
-		
 	}
 
 	XMMATRIX rotY(
@@ -338,14 +378,69 @@ void PlayScene::CamMove(float spf)
 	XMFLOAT3 newRight = Normalize(Cross(UP, newForward));
 	XMFLOAT3 newUp = Cross(newForward, newRight);
 
-	checkCam->SetFrame(FRAME_KIND_PERSPECTIVE, XMFLOAT2(WND_WIDTH, WND_HEIGHT), checkCam->GetN(), checkCam->GetF(), camViewRad, checkCam->GetAspectRatio());
 	checkCam->transform->SetTranslation(newPos);
 	checkCam->transform->SetRot(newForward, newUp, newRight);
 	checkCam->Update();
-	iCam->SetFrame(FRAME_KIND_PERSPECTIVE, XMFLOAT2(WND_WIDTH, WND_HEIGHT), iCam->GetN(), iCam->GetF(), XM_PIDIV4*0.8f, iCam->GetAspectRatio());
 	iCam->transform->SetTranslation(newPos);
 	iCam->transform->SetRot(newForward, newUp, newRight);
 	iCam->Update();
+	
+	float n = 1.0f;
+	float f = 1000.0f;
+	float aspect = 1;
+
+	float mWidth = (camViewRad / XM_PI) * WND_WIDTH;
+	float mHeight= (camViewRad / XM_PI) * WND_HEIGHT;
+	
+
+	if(isFrame)
+	{
+		if (t >= 1)
+		{
+			t = 1;
+			isFrame = false;
+			isLerping = false;
+		}
+
+		XMMATRIX lerpMat;
+		switch (toFrameKind)
+		{
+		case FRAME_KIND_PERSPECTIVE:
+		{
+			lerpMat = XMMATRIX(
+				Lerp(2.0f/ mWidth, 1.0f / (aspect * tan(camViewRad * 0.5f)),t), 0, 0, 0,
+				0, Lerp(2.0f / mHeight, 1.0f / tan(camViewRad * 0.5f),t), 0, 0,
+				0, 0, Lerp(1.0f,f,t)/ (f - n), Lerp(0,1,t),
+				0, 0, -Lerp(1.0f, f,t)*n/(f-n), Lerp(1,0,t));
+		}
+		break;
+		case FRAME_KIND_ORTHOGONAL:
+		{
+			lerpMat = XMMATRIX(
+				Lerp(1.0f / (aspect * tan(camViewRad * 0.5f)), 2.0f / mWidth, t), 0, 0, 0,
+				0, Lerp(1.0f / tan(camViewRad * 0.5f), 2.0f / mHeight, t), 0, 0,
+				0, 0, Lerp(f, 1.0f, t) / (f - n), Lerp(1, 0, t),
+				0, 0, -Lerp(f, 1.0f, t) * n / (f - n), Lerp(0, 1, t));
+		}
+		break;
+		}
+
+		checkCam->SetProj(lerpMat);
+
+	}
+	else
+	{
+		if (t >= 1)
+		{
+			t = 1;
+			isFrame = false;
+			isLerping = false;
+		}
+
+		checkCam->SetFrame(toFrameKind, XMFLOAT2(mWidth, mHeight), n, f, camViewRad, aspect);
+		iCam->SetFrame(FRAME_KIND_PERSPECTIVE, XMFLOAT2(mWidth, mHeight), n, f, XM_PIDIV4 * 0.8f, 1);
+
+	}
 }
 
 void PlayScene::Render2Texture()

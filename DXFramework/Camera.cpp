@@ -86,6 +86,11 @@ void Camera::SetView()
 		x, y, z, 1);
 }
 
+void Camera::SetProj(XMMATRIX mat)
+{
+	projMat = mat;
+}
+
 void Camera::Update()
 {
 	if (!frustum.skip)

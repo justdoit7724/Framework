@@ -7,6 +7,7 @@ class Buffer;
 class Camera;
 class Object;
 class UICanvas;
+enum FRAME_KIND;
 
 class PlayScene : public Scene
 {
@@ -39,7 +40,8 @@ private:
 	const float camDist;
 	float camViewRad;
 	bool isLerping = false;
-	const float lerpDuration=0.4f;
+	bool isFrame = false;
+	float lerpDuration=0.4f;
 	float curLerpTime=0;
 	float camAngleX = 0;
 	float camAngleY = 0;
@@ -57,4 +59,5 @@ private:
 	ComPtr<ID3D11DepthStencilView> iDSV;
 	ComPtr<ID3D11ShaderResourceView> iSRV;
 	D3D11_VIEWPORT iVP;
+	FRAME_KIND toFrameKind;
 };

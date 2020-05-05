@@ -34,6 +34,7 @@ public:
 	void Update();
 	void Move(float spf);
 	void SetView();
+	void SetProj(XMMATRIX mat);
 
 	const XMMATRIX& VMat()const { return viewMat; }
 	const XMMATRIX& ProjMat()const {return projMat;}
