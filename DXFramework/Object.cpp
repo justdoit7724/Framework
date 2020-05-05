@@ -16,10 +16,11 @@
 #include "Collider.h"
 
 //fundamental elements
-Object::Object(std::string name, std::shared_ptr <Mesh> mesh, std::shared_ptr<Collider> collider, std::string sVS, const D3D11_INPUT_ELEMENT_DESC* iLayouts, UINT layoutCount, std::string sHS, std::string sDS, std::string sGS, std::string sPS)
+Object::Object(std::string name, std::shared_ptr <Mesh> mesh, std::shared_ptr<Collider> collider, std::string sVS, const D3D11_INPUT_ELEMENT_DESC* iLayouts, UINT layoutCount, std::string sHS, std::string sDS, std::string sGS, std::string sPS, bool directRender)
 	:name(name), mesh(mesh), collider(collider)
 {
-	ObjectMgr::Instance()->Register(this);
+	if(directRender)
+		ObjectMgr::Instance()->Register(this);
 
 	transform = new Transform();
 	vs = new VShader(sVS, iLayouts, layoutCount);
@@ -35,10 +36,11 @@ Object::Object(std::string name, std::shared_ptr <Mesh> mesh, std::shared_ptr<Co
 }
 
 //standard elements
-Object::Object(std::string name, std::shared_ptr <Mesh> mesh, std::shared_ptr<Collider> collider, ID3D11ShaderResourceView* diffSRV, ID3D11ShaderResourceView* normalSRV)
+Object::Object(std::string name, std::shared_ptr <Mesh> mesh, std::shared_ptr<Collider> collider, ID3D11ShaderResourceView* diffSRV, ID3D11ShaderResourceView* normalSRV, bool directRender)
 	: name(name), mesh(mesh), collider(collider)
 {
-	ObjectMgr::Instance()->Register(this);
+	if(directRender)
+		ObjectMgr::Instance()->Register(this);
 
 	transform = new Transform();
 	vs = new VShader("StdVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));

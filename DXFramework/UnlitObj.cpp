@@ -16,11 +16,12 @@
 #include "Collider.h"
 #include "UnlitObj.h"
 
-UnlitObj::UnlitObj(std::string name, std::shared_ptr<Mesh> shape, std::shared_ptr<Collider> collider, XMVECTOR color)
+UnlitObj::UnlitObj(std::string name, std::shared_ptr<Mesh> shape, std::shared_ptr<Collider> collider, XMVECTOR color, bool directRender)
 	:Object(name, shape, collider,
 		"MarkVS.cso", simple_ILayouts, ARRAYSIZE(simple_ILayouts),
 		"","","",
-		"MarkPS.cso"), color(color)
+		"MarkPS.cso",
+		directRender), color(color)
 {
 	vs->AddCB(0, 1, sizeof(XMMATRIX));
 	ps->AddCB(SHADER_REG_CB_COLOR, 1, sizeof(XMVECTOR));

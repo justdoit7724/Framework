@@ -147,6 +147,7 @@
     <ClCompile Include="DXFramework\Component.cpp" />
     <ClCompile Include="DXFramework\CubeCollider.cpp" />
     <ClCompile Include="DXFramework\CustomSTL.cpp" />
+    <ClCompile Include="DXFramework\CylinderMesh.cpp" />
     <ClCompile Include="DXFramework\Debugging.cpp" />
     <ClCompile Include="DXFramework\DebuggingScene.cpp" />
     <ClCompile Include="DXFramework\DepthStencilState.cpp" />
@@ -192,6 +193,7 @@
     <ClInclude Include="DXFramework\Component.h" />
     <ClInclude Include="DXFramework\CubeCollider.h" />
     <ClInclude Include="DXFramework\CustomSTL.h" />
+    <ClInclude Include="DXFramework\CylinderMesh.h" />
     <ClInclude Include="DXFramework\Debugging.h" />
     <ClInclude Include="DXFramework\DebuggingScene.h" />
     <ClInclude Include="DXFramework\DepthStencilState.h" />

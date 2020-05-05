@@ -24,7 +24,9 @@ public:
 	void Lerp2Perspective();
 	void Lerp2Orthogonal();
 	void CamMove(float spf);
+	
 private:
+	void Render2Texture();
 
 	UICanvas* canvas;
 	Object* mainObj=nullptr;
@@ -48,4 +50,11 @@ private:
 
 	//interface camera
 	Camera* iCam;
+	Object* iXBar;
+	Object* iYBar;
+	Object* iZBar;
+	ComPtr<ID3D11RenderTargetView> iRTV;
+	ComPtr<ID3D11DepthStencilView> iDSV;
+	ComPtr<ID3D11ShaderResourceView> iSRV;
+	D3D11_VIEWPORT iVP;
 };

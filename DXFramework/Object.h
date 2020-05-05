@@ -21,8 +21,8 @@ class RasterizerState;
 class Object : public IDebug
 {
 public:
-	Object(std::string name, std::shared_ptr<Mesh> shape, std::shared_ptr<Collider> collider, std::string sVS, const D3D11_INPUT_ELEMENT_DESC* iLayouts, UINT layoutCount, std::string sHS, std::string sDS, std::string sGS, std::string sPS);
-	Object(std::string name, std::shared_ptr<Mesh> shape, std::shared_ptr<Collider> collider, ID3D11ShaderResourceView* diffSRV, ID3D11ShaderResourceView* normalSRV=nullptr);
+	Object(std::string name, std::shared_ptr<Mesh> shape, std::shared_ptr<Collider> collider, std::string sVS, const D3D11_INPUT_ELEMENT_DESC* iLayouts, UINT layoutCount, std::string sHS, std::string sDS, std::string sGS, std::string sPS, bool directRender=true);
+	Object(std::string name, std::shared_ptr<Mesh> shape, std::shared_ptr<Collider> collider, ID3D11ShaderResourceView* diffSRV, ID3D11ShaderResourceView* normalSRV=nullptr, bool directRender=true);
 	virtual ~Object();
 
 	virtual void Update();
@@ -39,6 +39,7 @@ public:
 	const std::string name;
 	Geometrics::Sphere Bound() { return bound; }
 	int Layer()const { return layer; }
+	void SetLayer(int l) { layer = l; }
 	Transform* transform;
 	std::shared_ptr <Mesh> mesh;
 	std::shared_ptr <Collider> collider;

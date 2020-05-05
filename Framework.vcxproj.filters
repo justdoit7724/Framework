@@ -153,6 +153,9 @@
     <ClCompile Include="DXFramework\CustomSTL.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DXFramework\CylinderMesh.cpp">
+      <Filter>Mesh</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DXFramework\LineMesh.h">
@@ -316,6 +319,9 @@
     </ClInclude>
     <ClInclude Include="DXFramework\TurnController.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DXFramework\CylinderMesh.h">
+      <Filter>Mesh</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

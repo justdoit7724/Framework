@@ -1,6 +1,7 @@
 #include "PlayScene.h"
 #include "Object.h"
 #include "SphereMesh.h"
+#include "CylinderMesh.h"
 #include "TextureMgr.h"
 #include "Transform.h"
 #include "Light.h"
@@ -28,11 +29,106 @@ PlayScene::PlayScene()
 		Normalize(XMFLOAT3(-1,-0.5f,-1))
 	);
 
+#pragma region dir interface
+
+	auto barMesh = std::make_shared<CylinderMesh>(12);
+	iXBar = new UnlitObj("I x bar", barMesh, nullptr, Colors::Red, false);
+	iYBar = new UnlitObj("I y bar", barMesh, nullptr, Colors::Green, false);
+	iZBar = new UnlitObj("I z bar", barMesh, nullptr, Colors::Blue, false);
+	iXBar->transform->SetTranslation(40, 0, 0);
+	iYBar->transform->SetTranslation(0, 40, 0);
+	iZBar->transform->SetTranslation(0, 0, 40);
+	iXBar->transform->SetRot(UP, RIGHT);
+	iYBar->transform->SetRot(FORWARD, UP);
+	iZBar->transform->SetRot(UP, FORWARD);
+	iXBar->transform->SetScale(10, 80, 10);
+	iYBar->transform->SetScale(10, 80, 10);
+	iZBar->transform->SetScale(10, 80, 10);
+	iXBar->SetLayer(LAYER_INTERFACE_CAMERA);
+	iYBar->SetLayer(LAYER_INTERFACE_CAMERA);
+	iZBar->SetLayer(LAYER_INTERFACE_CAMERA);
+
+	iVP.TopLeftX = 0;
+	iVP.TopLeftY = 0;
+	iVP.Width = 130;
+	iVP.Height = 130;
+	iVP.MinDepth = 0;
+	iVP.MaxDepth = 1;
+	D3D11_TEXTURE2D_DESC itex_desc;
+	itex_desc.Width = iVP.Width;
+	itex_desc.Height = iVP.Height;
+	itex_desc.MipLevels = 1;
+	itex_desc.ArraySize = 1;
+	itex_desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	itex_desc.SampleDesc = { 1,0 };
+	itex_desc.Usage = D3D11_USAGE_DEFAULT;
+	itex_desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+	itex_desc.CPUAccessFlags = 0;
+	itex_desc.MiscFlags = 0;
+	ComPtr<ID3D11Texture2D> iTex;
+	HRESULT hr = DX_Device->CreateTexture2D(&itex_desc, nullptr, iTex.GetAddressOf());
+	r_assert(hr);
+	D3D11_RENDER_TARGET_VIEW_DESC rtv_desc;
+	rtv_desc.Format = itex_desc.Format;
+	rtv_desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+	rtv_desc.Texture2D.MipSlice = 0;
+	hr = DX_Device->CreateRenderTargetView(iTex.Get(), &rtv_desc, iRTV.GetAddressOf());
+	r_assert(hr);
+	D3D11_SHADER_RESOURCE_VIEW_DESC srv_desc;
+	srv_desc.Format = itex_desc.Format;
+	srv_desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srv_desc.Texture2D.MipLevels = 1;
+	srv_desc.Texture2D.MostDetailedMip = 0;
+	hr = DX_Device->CreateShaderResourceView(iTex.Get(), &srv_desc, iSRV.GetAddressOf());
+	r_assert(hr);
+	D3D11_TEXTURE2D_DESC ds_desc;
+	ds_desc.Width = iVP.Width;
+	ds_desc.Height = iVP.Height;
+	ds_desc.MipLevels = 1;
+	ds_desc.ArraySize = 1;
+	ds_desc.Format = DXGI_FORMAT_R24G8_TYPELESS;
+	ds_desc.SampleDesc.Count = 1;
+	ds_desc.SampleDesc.Quality = 0;
+	ds_desc.Usage = D3D11_USAGE_DEFAULT;
+	ds_desc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	ds_desc.CPUAccessFlags = 0;
+	ds_desc.MiscFlags = 0;
+	ComPtr<ID3D11Texture2D> iDTex;
+	hr = DX_Device->CreateTexture2D(
+		&ds_desc,
+		nullptr,
+		&iDTex);
+	r_assert(hr);
+
+	D3D11_DEPTH_STENCIL_VIEW_DESC dsv_desc;
+	ZeroMemory(&dsv_desc, sizeof(D3D11_DEPTH_STENCIL_VIEW_DESC));
+	dsv_desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	dsv_desc.Flags = 0;
+	dsv_desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	dsv_desc.Texture2D.MipSlice = 0;
+	hr = DX_Device->CreateDepthStencilView(
+		iDTex.Get(),
+		&dsv_desc,
+		iDSV.GetAddressOf());
+	r_assert(hr);
+
+	canvas = new UICanvas();
+	new UI(XMFLOAT2(0, 0), XMFLOAT2(iVP.Width, iVP.Height), 0, iSRV.Get());
+
+	iCam = new Camera("interface Cam", FRAME_KIND_PERSPECTIVE, WND_WIDTH, WND_HEIGHT, 1.0f, 1000.0f, camViewRad, 1, false);
+	iCam->transform->SetTranslation(0, 0, -10);
+	iCam->SetLayer(LAYER_INTERFACE_CAMERA);
+#pragma endregion
+
+	
+
 	checkCam = new Camera("CheckCam", FRAME_KIND_PERSPECTIVE, NULL, NULL, 1.0f, 1000.0f, camViewRad, 1, true);
 	checkCam->transform->SetTranslation(0, 0, -camDist);
+	checkCam->SubtractLayer(LAYER_INTERFACE_CAMERA);
 	checkCam->SubtractLayer(LAYER_UI);
 	CameraMgr::Instance()->SetMain(checkCam);
 	Debugging::Instance()->SetCamera(checkCam);
+
 
 	cbEye = new Buffer(sizeof(XMFLOAT4));
 
@@ -47,11 +143,8 @@ PlayScene::PlayScene()
 void PlayScene::Update(float elapsed, float spf)
 {
 	XMFLOAT3 eye = CameraMgr::Instance()->Main()->transform->GetPos();
-	cbEye->Write(&eye);
-	DX_DContext->PSSetConstantBuffers(SHADER_REG_CB_EYE, 1, cbEye->GetAddress());
-	dLight->Apply();
+	dLight->SetDir(Normalize(XMFLOAT3(cos(elapsed/10.0f), -0.35f, sin(elapsed/10.0f))));
 
-	mainObj->transform->SetRot(XMFLOAT3(cos(elapsed/10.0f), 0, sin(elapsed/10.0f)), UP);
 
 	if (Keyboard::GetKey('A')==KeyState_Up)
 	{
@@ -67,6 +160,12 @@ void PlayScene::Update(float elapsed, float spf)
 	}
 
 	CamMove(spf);
+
+	Render2Texture();
+
+	cbEye->Write(&eye);
+	DX_DContext->PSSetConstantBuffers(SHADER_REG_CB_EYE, 1, cbEye->GetAddress());
+	dLight->Apply();
 }
 
 void PlayScene::CreateModel(std::string filename)
@@ -74,12 +173,10 @@ void PlayScene::CreateModel(std::string filename)
 	if (mainObj)
 		delete mainObj;
 
-	/*std::vector<Mesh*> meshes;
-	MeshLoader::Load(&meshes, "DXFramework\\Data\\Model\\PLY\\", filename);*/
+	std::vector<Mesh*> meshes;
+	MeshLoader::Load(&meshes, "DXFramework\\Data\\Model\\PLY\\", filename);
 
-	//mainObj = new Object("Test Obj", std::shared_ptr<Mesh>(meshes[0]), nullptr, TextureMgr::Instance()->Get("white"));
-
-	mainObj = new Object("Test Obj", std::make_shared<SphereMesh>(0), nullptr, TextureMgr::Instance()->Get("white"));
+	mainObj = new Object("Test Obj", std::shared_ptr<Mesh>(meshes[0]), nullptr, TextureMgr::Instance()->Get("white"));
 	mainObj->transform->SetScale(50, 50, 50);
 	mainObj->Update();
 }
@@ -114,7 +211,7 @@ void PlayScene::CreateGrid()
 		lineMesh->Add(p1, p2);
 	}
 	lineMesh->Generate();
-	grid3D = new UnlitObj("3D grid", lineMesh, nullptr, Colors::White);
+	grid3D = new UnlitObj("3D grid", lineMesh, nullptr, Colors::White,true);
 }
 
 void PlayScene::Lerp2CamX()
@@ -246,4 +343,35 @@ void PlayScene::CamMove(float spf)
 	checkCam->transform->SetTranslation(newPos);
 	checkCam->transform->SetRot(newForward, newUp, newRight);
 	checkCam->Update();
+	iCam->SetFrame(FRAME_KIND_PERSPECTIVE, XMFLOAT2(WND_WIDTH, WND_HEIGHT), iCam->GetN(), iCam->GetF(), XM_PIDIV4*0.8f, iCam->GetAspectRatio());
+	iCam->transform->SetTranslation(newPos);
+	iCam->transform->SetRot(newForward, newUp, newRight);
+	iCam->Update();
+}
+
+void PlayScene::Render2Texture()
+{
+	ID3D11RenderTargetView* oriRTV=nullptr;
+	ID3D11DepthStencilView* oriDSV=nullptr;
+	D3D11_VIEWPORT oriVP;
+	UINT num=1;
+	DX_DContext->RSGetViewports(&num, &oriVP);
+	DX_DContext->OMGetRenderTargets(1, &oriRTV, &oriDSV);
+
+	DX_DContext->RSSetViewports(1, &iVP);
+
+
+	DX_DContext->ClearRenderTargetView(iRTV.Get(), Colors::Black);
+	DX_DContext->ClearDepthStencilView(iDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, NULL);
+	ID3D11ShaderResourceView* nullSRV = nullptr;
+	DX_DContext->PSSetShaderResources(SHADER_REG_SRV_DIFFUSE, 0, &nullSRV);
+	DX_DContext->OMSetRenderTargets(1, iRTV.GetAddressOf(), iDSV.Get());
+
+	XMMATRIX vp = iCam->VMat()* iCam->ProjMat();
+	iXBar->Render(vp, iCam->GetFrustum(), 0);
+	iYBar->Render(vp, iCam->GetFrustum(), 0);
+	iZBar->Render(vp, iCam->GetFrustum(), 0);
+
+	DX_DContext->RSSetViewports(1, &oriVP);
+	DX_DContext->OMSetRenderTargets(1, &oriRTV, oriDSV);
 }

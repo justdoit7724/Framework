@@ -5,6 +5,11 @@
 #define	LAYER_DEBUG 2
 #define	LAYER_BACKGROUND 4
 #define	LAYER_STD 8
+
+////custom layer//////
+#define LAYER_INTERFACE_CAMERA 0x10
+//////////////////////
+
 #define LAYER_ALL 0xff
 
 inline bool LayerCheck(int bit, int layer)

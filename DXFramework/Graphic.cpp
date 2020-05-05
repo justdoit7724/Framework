@@ -40,7 +40,7 @@ Graphic::Graphic(HWND _hwnd, float resX, float resY)
 		NULL,
 		D3D_DRIVER_TYPE_HARDWARE,
 		NULL,
-		0,
+		D3D11_CREATE_DEVICE_DEBUG,
 		NULL,
 		0,
 		D3D11_SDK_VERSION,
