@@ -8,6 +8,7 @@ class Mesh : public Component
 {
 public:
 	Mesh(Vertex* vertice, UINT vertByteSize, UINT vertexCount, const UINT* indice, UINT idxCount, D3D_PRIMITIVE_TOPOLOGY primitiveType);
+	~Mesh();
 	virtual void Apply()const;
 
 	void CalculateTangent(XMFLOAT3 v0, XMFLOAT3 v1, XMFLOAT3 v2, XMFLOAT2 t0, XMFLOAT2 t1, XMFLOAT2 t2, OUT XMFLOAT3* tangent);
@@ -23,8 +24,8 @@ protected:
 private:
 
 	XMFLOAT3 lMinPt, lMaxPt;
-	ComPtr<ID3D11Buffer> vertexBuffer=nullptr;
-	ComPtr<ID3D11Buffer> indexBuffer=nullptr;
+	ID3D11Buffer* vertexBuffer=nullptr;
+	ID3D11Buffer* indexBuffer=nullptr;
 	UINT vertByteSize;
 	D3D11_PRIMITIVE_TOPOLOGY primitiveType;
 };

@@ -14,7 +14,7 @@
 SHADER_DIRECTIONAL_LIGHT DirectionalLight::data;
 SHADER_POINT_LIGHT PointLight::data;
 SHADER_SPOT_LIGHT SpotLight::data;
-ComPtr<ID3D11Buffer> DirectionalLight::cb=nullptr;
+ID3D11Buffer* DirectionalLight::cb=nullptr;
 ID3D11Buffer* PointLight::cb = nullptr;
 ID3D11Buffer* SpotLight::cb = nullptr;
 
@@ -44,6 +44,11 @@ DirectionalLight::DirectionalLight(XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, XMFLOAT3 
 	SetDir(dir);
 	Enable(ENABLED);
 
+}
+
+DirectionalLight::~DirectionalLight()
+{
+	cb->Release();
 }
 
 void DirectionalLight::SetAmbient(const XMFLOAT3 & a)
@@ -93,19 +98,19 @@ void DirectionalLight::Apply()
 		cb_desc.MiscFlags = 0;
 		cb_desc.StructureByteStride = 0;
 		cb_desc.Usage = D3D11_USAGE_DYNAMIC;
-		HRESULT hr = DX_Device->CreateBuffer(&cb_desc, nullptr, cb.GetAddressOf());
+		HRESULT hr = DX_Device->CreateBuffer(&cb_desc, nullptr, &cb);
 		r_assert(hr);
 	}
 
 	D3D11_MAPPED_SUBRESOURCE mappedData;
 	ZeroMemory(&mappedData, sizeof(D3D11_MAPPED_SUBRESOURCE));
 
-	HRESULT hr = DX_DContext->Map(cb.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
+	HRESULT hr = DX_DContext->Map(cb, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
 	r_assert(hr);
 	CopyMemory(mappedData.pData, &data, sizeof(SHADER_DIRECTIONAL_LIGHT));
-	DX_DContext->Unmap(cb.Get(), 0);
+	DX_DContext->Unmap(cb, 0);
 
-	DX_DContext->PSSetConstantBuffers(SHADER_REG_CB_DIRECTIONAL_LIGHT, 1, cb.GetAddressOf());
+	DX_DContext->PSSetConstantBuffers(SHADER_REG_CB_DIRECTIONAL_LIGHT, 1, &cb);
 }
 
 

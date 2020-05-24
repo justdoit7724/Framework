@@ -4,7 +4,7 @@
 #include "Object.h"
 #include "TextureMgr.h"
 #include "Shader.h"
-#include "Shape.h"
+#include "Mesh.h"
 #include <mutex>
 
 #include "_Packages\Assimp.3.0.0\include\postprocess.h"

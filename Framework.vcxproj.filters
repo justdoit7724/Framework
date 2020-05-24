@@ -281,9 +281,6 @@
     <ClInclude Include="DXFramework\ShaderReg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DXFramework\Shape.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="DXFramework\Singleton.h">
       <Filter>Header Files</Filter>
     </ClInclude>

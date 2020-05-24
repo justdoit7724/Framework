@@ -22,7 +22,7 @@ void TextureMgr::Load(std::string key, std::string fileName)
 	if (SRVs.count(key))
 		return;
 
-	ComPtr<ID3D11Resource> ori_resources;
+	ID3D11Resource* ori_resources;
 	D3D11_TEXTURE2D_DESC ori_desc;
 
 	HRESULT hr = CreateWICTextureFromFile(
@@ -32,9 +32,10 @@ void TextureMgr::Load(std::string key, std::string fileName)
 			nullptr);
 	r_assert(hr);
 
-	ComPtr<ID3D11Texture2D> ori_tex = nullptr;
-	hr = ori_resources.Get()->QueryInterface(__uuidof(ID3D11Texture2D), (void**)ori_tex.GetAddressOf());
+	ID3D11Texture2D* ori_tex = nullptr;
+	hr = ori_resources->QueryInterface(__uuidof(ID3D11Texture2D), (void**)&ori_tex);
 	r_assert(hr);
+
 	ori_tex->GetDesc(&ori_desc);
 
 	UINT miplevel = CalculateMaxMiplevel(ori_desc.Width, ori_desc.Height);
@@ -52,12 +53,12 @@ void TextureMgr::Load(std::string key, std::string fileName)
 	newTex_desc.SampleDesc.Quality = 0;
 	newTex_desc.Usage = D3D11_USAGE_DEFAULT;
 
-	ComPtr<ID3D11Texture2D> newTex;
+	ID3D11Texture2D* newTex;
 	hr = DX_Device->CreateTexture2D(
-			&newTex_desc, nullptr, newTex.GetAddressOf());
+			&newTex_desc, nullptr, &newTex);
 	r_assert(hr);
 
-	ComPtr<ID3D11Texture2D> stagTex;
+	ID3D11Texture2D* stagTex;
 	D3D11_TEXTURE2D_DESC stagDesc = ori_desc;
 	stagDesc.BindFlags = 0;
 	stagDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
@@ -65,23 +66,26 @@ void TextureMgr::Load(std::string key, std::string fileName)
 	hr = DX_Device->CreateTexture2D(&stagDesc, nullptr, &stagTex);
 	r_assert(hr);
 
-	DX_DContext->CopyResource(stagTex.Get(), ori_tex.Get());
+	DX_DContext->CopyResource(stagTex, ori_tex);
 
 	D3D11_MAPPED_SUBRESOURCE mapped;
 	ZeroMemory(&mapped, sizeof(D3D11_MAPPED_SUBRESOURCE));
-	hr = DX_DContext->Map(stagTex.Get(), 0, D3D11_MAP_READ, 0, &mapped);
+	hr = DX_DContext->Map(stagTex, 0, D3D11_MAP_READ, 0, &mapped);
 	r_assert(hr);
 	// use 'UINT' because format of images from file is one of 8888
 	UINT* arr = new UINT[(mapped.RowPitch / sizeof(UINT)) * ori_desc.Height];
 	ZeroMemory(arr, mapped.RowPitch * ori_desc.Height);
 	CopyMemory(arr, mapped.pData, mapped.RowPitch * ori_desc.Height);
-	DX_DContext->Unmap(stagTex.Get(), 0);
+	DX_DContext->Unmap(stagTex, 0);
 
 	DX_DContext->UpdateSubresource(
-		newTex.Get(), 0,
+		newTex, 0,
 		nullptr,
 		arr,
 		mapped.RowPitch, mapped.DepthPitch);
+	ori_resources->Release();
+	ori_tex->Release();
+	stagTex->Release();
 	delete[] arr;
 	
 
@@ -92,7 +96,7 @@ void TextureMgr::Load(std::string key, std::string fileName)
 	srvDesc.Texture2D.MipLevels = miplevel;
 	srvDesc.Texture2D.MostDetailedMip = 0;
 	ID3D11ShaderResourceView* newSRV = nullptr;
-	hr = DX_Device->CreateShaderResourceView(newTex.Get(), &srvDesc, &newSRV);
+	hr = DX_Device->CreateShaderResourceView(newTex, &srvDesc, &newSRV);
 	r_assert(hr);
 	DX_DContext->GenerateMips(newSRV);
 
@@ -104,7 +108,7 @@ void TextureMgr::LoadArray(std::string key,std::wstring folderName, std::vector<
 {
 	const UINT spriteCount = fileNames.size();
 	HRESULT hr;
-	std::vector<ComPtr<ID3D11Resource>> ori_resources(spriteCount);
+	std::vector<ID3D11Resource*> ori_resources(spriteCount);
 	D3D11_TEXTURE2D_DESC ori_desc;
 	D3D11_TEXTURE2D_DESC prev_desc;
 	for (int i = 0; i < spriteCount; ++i)
@@ -122,6 +126,8 @@ void TextureMgr::LoadArray(std::string key,std::wstring folderName, std::vector<
 		hr = newResource->QueryInterface(__uuidof(ID3D11Texture2D), (void**)&newTex);
 		r_assert(hr);
 		newTex->GetDesc(&ori_desc);
+		newTex->Release();
+		newResource->Release();
 		if (i!=0)
 		{
 			assert(ori_desc.Width == prev_desc.Width && ori_desc.Height == prev_desc.Height);
@@ -144,41 +150,41 @@ void TextureMgr::LoadArray(std::string key,std::wstring folderName, std::vector<
 	arr_desc.SampleDesc.Quality = 0;
 	arr_desc.Usage = D3D11_USAGE_DEFAULT;
 
-	ComPtr<ID3D11Texture2D> arrTex;
+	ID3D11Texture2D* arrTex;
 	hr = DX_Device->CreateTexture2D(
-			&arr_desc, nullptr, arrTex.GetAddressOf());
+			&arr_desc, nullptr, &arrTex);
 	r_assert(hr);
 
+	ID3D11Texture2D* stagTex;
+	D3D11_TEXTURE2D_DESC stagDesc = ori_desc;
+	stagDesc.BindFlags = 0;
+	stagDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+	stagDesc.Usage = D3D11_USAGE_STAGING;
+	hr = DX_Device->CreateTexture2D(&stagDesc, nullptr, &stagTex);
+	r_assert(hr);
 	for (int i = 0; i < spriteCount; ++i)
 	{
-		ComPtr<ID3D11Texture2D> stagTex;
-		D3D11_TEXTURE2D_DESC stagDesc = ori_desc;
-		stagDesc.BindFlags = 0;
-		stagDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
-		stagDesc.Usage = D3D11_USAGE_STAGING;
-		hr = DX_Device->CreateTexture2D(&stagDesc, nullptr, &stagTex);
-		r_assert(hr);
-
 		// use staging texture to read and paste image
 		// because for copying, we should match miplevels between dest and src
-		DX_DContext->CopyResource(stagTex.Get(), ori_resources[i].Get());
+		DX_DContext->CopyResource(stagTex, ori_resources[i]);
 
 		D3D11_MAPPED_SUBRESOURCE mapped;
-		hr = DX_DContext->Map(stagTex.Get(), 0, D3D11_MAP_READ, 0, &mapped);
+		hr = DX_DContext->Map(stagTex, 0, D3D11_MAP_READ, 0, &mapped);
 		r_assert(hr);
 		// use 'UINT' because format of images from file is one of 8888
 		UINT* arr = new UINT[(mapped.RowPitch/sizeof(UINT)) * ori_desc.Height];
 		ZeroMemory(arr, mapped.RowPitch * ori_desc.Height);
 		CopyMemory(arr, mapped.pData, mapped.RowPitch * ori_desc.Height);
-		DX_DContext->Unmap(stagTex.Get(), 0);
+		DX_DContext->Unmap(stagTex, 0);
 		
 		DX_DContext->UpdateSubresource(
-			arrTex.Get(), D3D11CalcSubresource(0, i, miplevel), 
+			arrTex, D3D11CalcSubresource(0, i, miplevel), 
 			nullptr, 
 			arr, 
 			mapped.RowPitch, mapped.DepthPitch);
 		delete[] arr;
 	}
+	stagTex->Release();
 
 	
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
@@ -189,10 +195,11 @@ void TextureMgr::LoadArray(std::string key,std::wstring folderName, std::vector<
 	srvDesc.Texture2DArray.MipLevels = miplevel;
 	srvDesc.Texture2DArray.MostDetailedMip = 0;
 	ID3D11ShaderResourceView* integratedSRV = nullptr;
-	hr = DX_Device->CreateShaderResourceView(arrTex.Get(), &srvDesc, &integratedSRV);
+	hr = DX_Device->CreateShaderResourceView(arrTex, &srvDesc, &integratedSRV);
 	r_assert(hr);
 	DX_DContext->GenerateMips(integratedSRV);
 	
+	arrTex->Release();
 
 	SRVs.insert(std::pair<std::string, ID3D11ShaderResourceView*>(key, integratedSRV));
 
@@ -201,7 +208,7 @@ void TextureMgr::LoadArray(std::string key,std::wstring folderName, std::vector<
 void TextureMgr::LoadCM(std::string key, const std::vector<std::string>& fileNames)
 {
 	HRESULT hr;
-	ComPtr<ID3D11Resource> ori_resources[6];
+	ID3D11Resource* ori_resources[6];
 	D3D11_TEXTURE2D_DESC ori_desc;
 	D3D11_TEXTURE2D_DESC prev_desc;
 	for (int i = 0; i < 6; ++i)
@@ -209,14 +216,15 @@ void TextureMgr::LoadCM(std::string key, const std::vector<std::string>& fileNam
 		hr = DirectX::CreateWICTextureFromFile(
 				DX_Device,
 				std::wstring(fileNames[i].begin(), fileNames[i].end()).c_str(),
-				ori_resources[i].GetAddressOf(),
+				&ori_resources[i],
 				nullptr);
 		r_assert(hr);
 
 		ID3D11Texture2D* newTex = nullptr;
-		hr = ori_resources[i].Get()->QueryInterface(__uuidof(ID3D11Texture2D), (void**)& newTex);
+		hr = ori_resources[i]->QueryInterface(__uuidof(ID3D11Texture2D), (void**)& newTex);
 		r_assert(hr);
 		newTex->GetDesc(&ori_desc);
+		newTex->Release();
 		if (i != 0)
 		{
 			assert(ori_desc.Width == prev_desc.Width && ori_desc.Height == prev_desc.Height);
@@ -238,17 +246,17 @@ void TextureMgr::LoadCM(std::string key, const std::vector<std::string>& fileNam
 	cm_desc.SampleDesc.Quality = 0;
 	cm_desc.Usage = D3D11_USAGE_DEFAULT;
 
-	ComPtr<ID3D11Texture2D> cmTex;
+	ID3D11Texture2D* cmTex;
 	hr = DX_Device->CreateTexture2D(
-			&cm_desc, nullptr, cmTex.GetAddressOf());
+			&cm_desc, nullptr, &cmTex);
 	r_assert(hr);
 
 	for (int i = 0; i < 6; ++i)
 	{
 		DX_DContext->CopySubresourceRegion(
-			cmTex.Get(), D3D11CalcSubresource(0,i,8),
+			cmTex, D3D11CalcSubresource(0,i,8),
 			0,0,0,
-			ori_resources[i].Get(), 0,
+			ori_resources[i], 0,
 			nullptr);
 	}
 
@@ -258,8 +266,13 @@ void TextureMgr::LoadCM(std::string key, const std::vector<std::string>& fileNam
 	srvDesc.TextureCube.MipLevels = -1;
 	srvDesc.TextureCube.MostDetailedMip = 0;
 	ID3D11ShaderResourceView* integratedSRV = nullptr;
-	hr = DX_Device->CreateShaderResourceView(cmTex.Get(), &srvDesc, &integratedSRV);
+	hr = DX_Device->CreateShaderResourceView(cmTex, &srvDesc, &integratedSRV);
 	r_assert(hr);
+	cmTex->Release();
+	for (int i = 0; i < 6; ++i)
+	{
+		ori_resources[i]->Release();
+	}
 	
 	//debug remove
 	DX_DContext->GenerateMips(integratedSRV);

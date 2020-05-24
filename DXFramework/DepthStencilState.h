@@ -7,7 +7,7 @@ class DepthStencilState :
 {
 private:
 
-	ComPtr<ID3D11DepthStencilState> state;
+	ID3D11DepthStencilState* state;
 
 	UINT refValue;
 

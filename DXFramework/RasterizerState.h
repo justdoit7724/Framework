@@ -6,11 +6,11 @@ class RasterizerState :
 {
 public:
 	RasterizerState(D3D11_RASTERIZER_DESC* desc);
-
+	~RasterizerState();
 
 	void Apply()const override;
 
 private:
-	ComPtr<ID3D11RasterizerState> state;
+	ID3D11RasterizerState* state;
 };
 

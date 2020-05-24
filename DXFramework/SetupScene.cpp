@@ -15,10 +15,11 @@ void SetupSamp(int reg, D3D11_FILTER filter)
 	sampDesc.BorderColor[2] = 0;
 	sampDesc.BorderColor[3] = 1;
 	sampDesc.Filter = filter;
-	ComPtr<ID3D11SamplerState> samp;
-	HRESULT hr = DX_Device->CreateSamplerState(&sampDesc, samp.GetAddressOf());
+	ID3D11SamplerState* samp;
+	HRESULT hr = DX_Device->CreateSamplerState(&sampDesc, &samp);
 	r_assert(hr);
-	DX_DContext->PSSetSamplers(reg, 1, samp.GetAddressOf());
+	DX_DContext->PSSetSamplers(reg, 1, &samp);
+	samp->Release();
 }
 
 SetupScene::SetupScene()

@@ -22,19 +22,26 @@ BlendState::BlendState(D3D11_BLEND_DESC * desc)
 
 	HRESULT hr = DX_Device->CreateBlendState(
 		&(this->desc),
-		state.GetAddressOf());
+		&state);
 	r_assert(hr);
+}
+
+BlendState::~BlendState()
+{
+	state->Release();
 }
 
 void BlendState::Modify(D3D11_BLEND_DESC * desc)
 {
-	HRESULT hr = DX_Device->CreateBlendState(desc, state.ReleaseAndGetAddressOf());
+	state->Release();
+
+	HRESULT hr = DX_Device->CreateBlendState(desc, &state);
 	r_assert(hr);
 }
 
 void BlendState::Apply() const
 {
 	float blendFactors[] = { 0.0f, 0.0f, 0.0f, 0.0f };
-	DX_DContext->OMSetBlendState(state.Get(), blendFactors, 0xffffffff);
+	DX_DContext->OMSetBlendState(state, blendFactors, 0xffffffff);
 }
 

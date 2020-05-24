@@ -17,10 +17,14 @@ RasterizerState::RasterizerState(D3D11_RASTERIZER_DESC* desc)
 		curDesc = *desc;
 	}
 
-	HRESULT hr = DX_Device->CreateRasterizerState(&curDesc, state.GetAddressOf());
+	HRESULT hr = DX_Device->CreateRasterizerState(&curDesc, &state);
 	r_assert(hr);
+}
+RasterizerState::~RasterizerState()
+{
+	state->Release();
 }
 void RasterizerState::Apply()const
 {
-	DX_DContext->RSSetState(state.Get());
+	DX_DContext->RSSetState(state);
 }

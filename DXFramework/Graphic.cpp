@@ -45,7 +45,7 @@ Graphic::Graphic(HWND _hwnd, float resX, float resY)
 		0,
 		D3D11_SDK_VERSION,
 		&scd,
-		swapchain.GetAddressOf(),
+		&swapchain,
 		&DX_Device,
 		NULL,
 		&DX_DContext);
@@ -60,7 +60,7 @@ Graphic::Graphic(HWND _hwnd, float resX, float resY)
 	hr = DX_Device->CreateRenderTargetView(
 			backBuffer,
 			nullptr,
-			rtv.GetAddressOf());
+			&rtv);
 	r_assert(hr);
 
 #pragma endregion
@@ -73,7 +73,7 @@ Graphic::Graphic(HWND _hwnd, float resX, float resY)
 	hr = DX_Device->CreateRenderTargetView(
 		backBuffer,
 		nullptr,
-		rtv.GetAddressOf());
+		&rtv);
 	r_assert(hr);
 
 #pragma endregion
@@ -108,9 +108,9 @@ Graphic::Graphic(HWND _hwnd, float resX, float resY)
 	hr = DX_Device->CreateDepthStencilView(
 			depthStencilBuffer,
 			&dsv_desc,
-			dsView.GetAddressOf());
+			&dsView);
 	r_assert(hr);
-	DX_DContext->OMSetRenderTargets(1, rtv.GetAddressOf(), dsView.Get());
+	DX_DContext->OMSetRenderTargets(1, &rtv, dsView);
 
 #pragma endregion
 
@@ -132,9 +132,9 @@ Graphic::Graphic(HWND _hwnd, float resX, float resY)
 	ZeroMemory(&rs_desc, sizeof(D3D11_RASTERIZER_DESC));
 	rs_desc.FillMode = D3D11_FILL_SOLID;
 	rs_desc.CullMode = D3D11_CULL_BACK;
-	hr = DX_Device->CreateRasterizerState(&rs_desc, rasterizerState.GetAddressOf());
+	hr = DX_Device->CreateRasterizerState(&rs_desc, &rasterizerState);
 	r_assert(hr);
-	DX_DContext->RSSetState(rasterizerState.Get());
+	DX_DContext->RSSetState(rasterizerState);
 #pragma endregion
 
 }
@@ -145,6 +145,11 @@ Graphic::~Graphic()
 	depthStencilBuffer->Release();
 	DX_DContext->Release();
 	DX_Device->Release();
+
+	swapchain->Release();
+	rtv->Release();
+	dsView->Release();
+	rasterizerState->Release();
 }
 
 void Graphic::Present()
@@ -152,8 +157,8 @@ void Graphic::Present()
 	swapchain->Present(1, 0);
 
 	const float black[4] = { 0.1,0.1,0.1,1 };
-	DX_DContext->ClearRenderTargetView(rtv.Get(), black);
-	DX_DContext->ClearDepthStencilView(dsView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	DX_DContext->ClearRenderTargetView(rtv, black);
+	DX_DContext->ClearDepthStencilView(dsView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
 
 	

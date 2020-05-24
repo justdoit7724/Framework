@@ -65,22 +65,23 @@ PlayScene::PlayScene()
 	itex_desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 	itex_desc.CPUAccessFlags = 0;
 	itex_desc.MiscFlags = 0;
-	ComPtr<ID3D11Texture2D> iTex;
-	HRESULT hr = DX_Device->CreateTexture2D(&itex_desc, nullptr, iTex.GetAddressOf());
+	ID3D11Texture2D* iTex;
+	HRESULT hr = DX_Device->CreateTexture2D(&itex_desc, nullptr, &iTex);
 	r_assert(hr);
 	D3D11_RENDER_TARGET_VIEW_DESC rtv_desc;
 	rtv_desc.Format = itex_desc.Format;
 	rtv_desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 	rtv_desc.Texture2D.MipSlice = 0;
-	hr = DX_Device->CreateRenderTargetView(iTex.Get(), &rtv_desc, iRTV.GetAddressOf());
+	hr = DX_Device->CreateRenderTargetView(iTex, &rtv_desc, &iRTV);
 	r_assert(hr);
 	D3D11_SHADER_RESOURCE_VIEW_DESC srv_desc;
 	srv_desc.Format = itex_desc.Format;
 	srv_desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	srv_desc.Texture2D.MipLevels = 1;
 	srv_desc.Texture2D.MostDetailedMip = 0;
-	hr = DX_Device->CreateShaderResourceView(iTex.Get(), &srv_desc, iSRV.GetAddressOf());
+	hr = DX_Device->CreateShaderResourceView(iTex, &srv_desc, &iSRV);
 	r_assert(hr);
+	iTex->Release();
 	D3D11_TEXTURE2D_DESC ds_desc;
 	ds_desc.Width = iVP.Width;
 	ds_desc.Height = iVP.Height;
@@ -93,7 +94,7 @@ PlayScene::PlayScene()
 	ds_desc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 	ds_desc.CPUAccessFlags = 0;
 	ds_desc.MiscFlags = 0;
-	ComPtr<ID3D11Texture2D> iDTex;
+	ID3D11Texture2D* iDTex;
 	hr = DX_Device->CreateTexture2D(
 		&ds_desc,
 		nullptr,
@@ -107,13 +108,14 @@ PlayScene::PlayScene()
 	dsv_desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	dsv_desc.Texture2D.MipSlice = 0;
 	hr = DX_Device->CreateDepthStencilView(
-		iDTex.Get(),
+		iDTex,
 		&dsv_desc,
-		iDSV.GetAddressOf());
+		&iDSV);
 	r_assert(hr);
+	iDTex->Release();
 
 	canvas = new UICanvas();
-	new UI(XMFLOAT2(0, 0), XMFLOAT2(iVP.Width, iVP.Height), 0, iSRV.Get());
+	new UI(XMFLOAT2(0, 0), XMFLOAT2(iVP.Width, iVP.Height), 0, iSRV);
 
 	iCam = new Camera("interface Cam", FRAME_KIND_PERSPECTIVE, WND_WIDTH, WND_HEIGHT, 1.0f, 1000.0f, camViewRad, 1, false);
 	iCam->transform->SetTranslation(0, 0, -10);
@@ -140,6 +142,23 @@ PlayScene::PlayScene()
 
 	CreateModel("Hand.ply");
 	CreateGrid();
+}
+
+PlayScene::~PlayScene()
+{
+	delete canvas;
+	delete mainObj;
+	delete grid3D;
+	delete dLight;
+	delete cbEye;
+	delete iCam;
+	delete iXBar;
+	delete iYBar;
+	delete iZBar;
+	delete checkCam;
+	iRTV->Release();
+	iDSV->Release();
+	iSRV->Release();
 }
 
 void PlayScene::Update(float elapsed, float spf)
@@ -455,11 +474,11 @@ void PlayScene::Render2Texture()
 	DX_DContext->RSSetViewports(1, &iVP);
 
 
-	DX_DContext->ClearRenderTargetView(iRTV.Get(), Colors::Black);
-	DX_DContext->ClearDepthStencilView(iDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, NULL);
+	DX_DContext->ClearRenderTargetView(iRTV, Colors::Black);
+	DX_DContext->ClearDepthStencilView(iDSV, D3D11_CLEAR_DEPTH, 1.0f, NULL);
 	ID3D11ShaderResourceView* nullSRV = nullptr;
 	DX_DContext->PSSetShaderResources(SHADER_REG_SRV_DIFFUSE, 0, &nullSRV);
-	DX_DContext->OMSetRenderTargets(1, iRTV.GetAddressOf(), iDSV.Get());
+	DX_DContext->OMSetRenderTargets(1, &iRTV, iDSV);
 
 	XMMATRIX vp = iCam->VMat()* iCam->ProjMat();
 	iXBar->Render(vp, iCam->GetFrustum(), 0);

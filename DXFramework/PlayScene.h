@@ -13,6 +13,7 @@ class PlayScene : public Scene
 {
 public:
 	PlayScene();
+	~PlayScene();
 
 	virtual void Update(float elapsed, float spf) override;
 
@@ -55,9 +56,9 @@ private:
 	Object* iXBar;
 	Object* iYBar;
 	Object* iZBar;
-	ComPtr<ID3D11RenderTargetView> iRTV;
-	ComPtr<ID3D11DepthStencilView> iDSV;
-	ComPtr<ID3D11ShaderResourceView> iSRV;
+	ID3D11RenderTargetView* iRTV;
+	ID3D11DepthStencilView* iDSV;
+	ID3D11ShaderResourceView* iSRV;
 	D3D11_VIEWPORT iVP;
 	FRAME_KIND toFrameKind;
 };

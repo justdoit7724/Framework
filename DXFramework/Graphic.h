@@ -18,9 +18,9 @@ private:
 	ID3D11Texture2D* backBuffer;
 	ID3D11Texture2D* depthStencilBuffer;
 	D3D11_VIEWPORT viewport;
-	ComPtr<IDXGISwapChain> swapchain;
-	ComPtr<ID3D11RenderTargetView> rtv;
-	ComPtr<ID3D11DepthStencilView> dsView;
-	ComPtr<ID3D11RasterizerState> rasterizerState;
+	IDXGISwapChain* swapchain;
+	ID3D11RenderTargetView* rtv;
+	ID3D11DepthStencilView* dsView;
+	ID3D11RasterizerState* rasterizerState;
 };
 

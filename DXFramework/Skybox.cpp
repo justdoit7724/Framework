@@ -29,6 +29,14 @@ Skybox::Skybox()
 	rsState = new RasterizerState(&rs_desc);
 }
 
+Skybox::~Skybox()
+{
+	blur1SRV->Release();
+	blur2SRV->Release();
+	blur1RTV->Release();
+	blur2RTV->Release();
+}
+
 void Skybox::Mapping()const
 {
 	ID3D11ShaderResourceView* cmSRV = TextureMgr::Instance()->Get("cm");

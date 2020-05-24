@@ -42,10 +42,11 @@ class DirectionalLight : public Light
 {
 private:
 	static SHADER_DIRECTIONAL_LIGHT data;
-	static ComPtr<ID3D11Buffer> cb;
+	static ID3D11Buffer* cb;
 
 public:
 	DirectionalLight(XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, XMFLOAT3 dir);
+	~DirectionalLight();
 	void SetAmbient(const XMFLOAT3& a) override;
 	void SetDiffuse(const XMFLOAT3& d) override;
 	void SetSpecular(const XMFLOAT3& s) override;

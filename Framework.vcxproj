@@ -226,7 +226,6 @@
     <ClInclude Include="DXFramework\Shader.h" />
     <ClInclude Include="DXFramework\ShaderFormat.h" />
     <ClInclude Include="DXFramework\ShaderReg.h" />
-    <ClInclude Include="DXFramework\Shape.h" />
     <ClInclude Include="DXFramework\Singleton.h" />
     <ClInclude Include="DXFramework\Skybox.h" />
     <ClInclude Include="DXFramework\SphereCollider.h" />

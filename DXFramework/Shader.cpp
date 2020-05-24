@@ -107,16 +107,16 @@ bool Shader::CheckCBSlot(UINT slot)
 VShader::VShader(std::string fileName, const D3D11_INPUT_ELEMENT_DESC * layoutDesc, UINT layoutNum)
 {
 	std::wstring wVS(fileName.begin(), fileName.end());
-	ComPtr<ID3DBlob> vsBlob;
+	ID3DBlob* vsBlob;
 	HRESULT hr = D3DReadFileToBlob(
 		(ShaderPath() + wVS).c_str(),
-			vsBlob.GetAddressOf());
+			&vsBlob);
 	r_assert(hr);
 	hr = DX_Device->CreateVertexShader(
 		vsBlob->GetBufferPointer(),
 		vsBlob->GetBufferSize(),
 		nullptr,
-		vs.GetAddressOf());
+		&vs);
 	r_assert(hr);
 
 	hr = DX_Device->CreateInputLayout(
@@ -124,16 +124,23 @@ VShader::VShader(std::string fileName, const D3D11_INPUT_ELEMENT_DESC * layoutDe
 			layoutNum,
 			vsBlob->GetBufferPointer(),
 			vsBlob->GetBufferSize(),
-			iLayout.GetAddressOf());
+			&iLayout);
 	r_assert(hr);
+	vsBlob->Release();
 
+}
+
+VShader::~VShader()
+{
+	iLayout->Release();
+	vs->Release();
 }
 
 
 void VShader::Apply()const
 {
-	DX_DContext->IASetInputLayout(iLayout.Get());
-	DX_DContext->VSSetShader(vs.Get(), nullptr, 0);
+	DX_DContext->IASetInputLayout(iLayout);
+	DX_DContext->VSSetShader(vs, nullptr, 0);
 
 	for (auto i = cbs.begin(); i != cbs.end(); ++i)
 	{
@@ -163,26 +170,31 @@ GShader::GShader(std::string fileName)
 	if (fileName != "")
 	{
 		std::wstring wGS(fileName.begin(), fileName.end());
-		ComPtr<ID3DBlob> blob;
+		ID3DBlob* blob;
 
 		HRESULT hr = D3DReadFileToBlob(
 			(ShaderPath() + wGS).c_str(),
-				blob.GetAddressOf());
+				&blob);
 		r_assert(hr);
 		hr = DX_Device->CreateGeometryShader(
 				blob->GetBufferPointer(),
 				blob->GetBufferSize(),
 				nullptr,
-				gs.GetAddressOf());
+				&gs);
 		r_assert(hr);
 	}
+}
+
+GShader::~GShader()
+{
+	gs->Release();
 }
 
 void GShader::Apply()const
 {
 	if (gs)
 	{
-		DX_DContext->GSSetShader(gs.Get(), nullptr, 0);
+		DX_DContext->GSSetShader(gs, nullptr, 0);
 
 		for (auto i = cbs.begin(); i != cbs.end(); ++i)
 		{
@@ -216,22 +228,27 @@ PShader::PShader(std::string fileName)
 	if (fileName != "")
 	{
 		std::wstring wPS(fileName.begin(), fileName.end());
-		ComPtr<ID3DBlob> psBlob;
+		ID3DBlob* psBlob;
 		HRESULT hr = D3DReadFileToBlob(
 			(ShaderPath() + wPS).c_str(),
-			psBlob.GetAddressOf());
+			&psBlob);
 		r_assert(hr);
 		hr = DX_Device->CreatePixelShader(
 				psBlob->GetBufferPointer(),
 				psBlob->GetBufferSize(),
 				nullptr,
-				ps.GetAddressOf());
+				&ps);
 		r_assert(hr);
+		psBlob->Release();
 	}
+}
+PShader::~PShader()
+{
+	ps->Release();
 }
 void PShader::Apply()const
 {
-	DX_DContext->PSSetShader(ps.Get(), nullptr, 0);
+	DX_DContext->PSSetShader(ps, nullptr, 0);
 
 	for (auto i = cbs.begin(); i != cbs.end(); ++i)
 	{
@@ -258,23 +275,29 @@ void PShader::Apply()const
 CShader::CShader(const std::string CSfileName)
 {
 	std::wstring wCS(CSfileName.begin(), CSfileName.end());
-	ComPtr<ID3DBlob> csBlob;
+	ID3DBlob* csBlob;
 
 	HRESULT hr=	D3DReadFileToBlob(
 		(ShaderPath() + wCS).c_str(),
-			csBlob.GetAddressOf());
+			&csBlob);
 	r_assert(hr);
 	hr = DX_Device->CreateComputeShader(
 			csBlob->GetBufferPointer(),
 			csBlob->GetBufferSize(),
 			nullptr,
-			cs.GetAddressOf());
+			&cs);
 	r_assert(hr);
+	csBlob->Release();
+}
+
+CShader::~CShader()
+{
+	cs->Release();
 }
 
 void CShader::Apply()const
 {
-	DX_DContext->CSSetShader(cs.Get(), nullptr, 0);
+	DX_DContext->CSSetShader(cs, nullptr, 0);
 
 	for (auto i = cbs.begin(); i != cbs.end(); ++i)
 	{
@@ -304,24 +327,29 @@ HShader::HShader(std::string fileName)
 		return;
 
 	std::wstring wCS(fileName.begin(), fileName.end());
-	ComPtr<ID3DBlob> blob;
+	ID3DBlob* blob;
 
 	HRESULT hr =D3DReadFileToBlob(
 		(ShaderPath() + wCS).c_str(),
-			blob.GetAddressOf());
+			&blob);
 	r_assert(hr);
 
 	hr=DX_Device->CreateHullShader(
 			blob->GetBufferPointer(),
 			blob->GetBufferSize(),
 			nullptr,
-			hs.GetAddressOf());
+			&hs);
 	r_assert(hr);
+}
+
+HShader::~HShader()
+{
+	hs->Release();
 }
 
 void HShader::Apply()const
 {
-	DX_DContext->HSSetShader(hs.Get(), nullptr, 0);
+	DX_DContext->HSSetShader(hs, nullptr, 0);
 
 	for (auto i = cbs.begin(); i != cbs.end(); ++i)
 	{
@@ -351,24 +379,30 @@ DShader::DShader(std::string fileName)
 		return;
 
 	std::wstring wCS(fileName.begin(), fileName.end());
-	ComPtr<ID3DBlob> blob;
+	ID3DBlob* blob;
 
 	HRESULT hr = D3DReadFileToBlob(
 		(ShaderPath() + wCS).c_str(),
-			blob.GetAddressOf());
+			&blob);
 	r_assert(hr);
 
 	hr = DX_Device->CreateDomainShader(
 			blob->GetBufferPointer(),
 			blob->GetBufferSize(),
 			nullptr,
-			ds.GetAddressOf());
+			&ds);
 	r_assert(hr);
+	blob->Release();
+}
+
+DShader::~DShader()
+{
+	ds->Release();
 }
 
 void DShader::Apply()const
 {
-	DX_DContext->DSSetShader(ds.Get(), nullptr, 0);
+	DX_DContext->DSSetShader(ds, nullptr, 0);
 
 	for (auto i = cbs.begin(); i != cbs.end(); ++i)
 	{

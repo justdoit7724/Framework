@@ -7,6 +7,12 @@ Mesh::Mesh(Vertex* vertice, UINT vertByteSize, UINT vertCount, const UINT* indic
 	Init(vertice, vertByteSize, vertCount, indice, idxCount, primitiveType);
 }
 
+Mesh::~Mesh()
+{
+	vertexBuffer->Release();
+	indexBuffer->Release();
+}
+
 void Mesh::Init(Vertex* vertice, UINT vertByteSize, UINT vertCount, const UINT* indice, UINT idxCount, D3D_PRIMITIVE_TOPOLOGY primitiveType)
 {
 	assert(vertexBuffer == nullptr);
@@ -57,7 +63,7 @@ void Mesh::Init(Vertex* vertice, UINT vertByteSize, UINT vertCount, const UINT* 
 	HRESULT hr = DX_Device->CreateBuffer(
 			&vb_desc,
 			&vb_data,
-			vertexBuffer.GetAddressOf());
+			&vertexBuffer);
 	r_assert(hr);
 
 	D3D11_BUFFER_DESC ibd;
@@ -69,7 +75,7 @@ void Mesh::Init(Vertex* vertice, UINT vertByteSize, UINT vertCount, const UINT* 
 	ibd.StructureByteStride = 0;
 	D3D11_SUBRESOURCE_DATA iinitData;
 	iinitData.pSysMem = indice;
-	hr = DX_Device->CreateBuffer(&ibd, &iinitData, indexBuffer.GetAddressOf());
+	hr = DX_Device->CreateBuffer(&ibd, &iinitData, &indexBuffer);
 	r_assert(hr);
 }
 
@@ -94,8 +100,8 @@ void Mesh::Apply()const
 {
 	DX_DContext->IASetPrimitiveTopology(primitiveType);
 	UINT offset = 0;
-	DX_DContext->IASetVertexBuffers(0, 1, vertexBuffer.GetAddressOf(), &vertByteSize, &offset);
-	DX_DContext->IASetIndexBuffer(indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+	DX_DContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertByteSize, &offset);
+	DX_DContext->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
 	DX_DContext->DrawIndexed(idxCount, 0, 0);
 

@@ -5,6 +5,7 @@ class BlendState : public Component
 {
 public:
 	BlendState(D3D11_BLEND_DESC * desc);
+	~BlendState();
 
 	void Modify(D3D11_BLEND_DESC* desc);
 	void Apply()const override ;
@@ -12,6 +13,6 @@ public:
 
 private:
 	D3D11_BLEND_DESC desc;
-	ComPtr<ID3D11BlendState> state;
+	ID3D11BlendState* state;
 };
 

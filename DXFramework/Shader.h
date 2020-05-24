@@ -55,41 +55,45 @@ class VShader : public Shader
 {
 public:
 	VShader(std::string fileName, const D3D11_INPUT_ELEMENT_DESC* layoutDesc, UINT layoutNum);
+	~VShader();
 
 	void Apply()const override;
 
 private:
-	ComPtr<ID3D11InputLayout> iLayout = nullptr;
-	ComPtr<ID3D11VertexShader> vs = nullptr;
+	ID3D11InputLayout* iLayout = nullptr;
+	ID3D11VertexShader* vs = nullptr;
 };
 
 class GShader : public Shader
 {
 public:
 	GShader(std::string fileName = "");
+	~GShader();
 
 	void Apply()const override;
 private:
-	ComPtr<ID3D11GeometryShader> gs = nullptr;
+	ID3D11GeometryShader* gs = nullptr;
 };
 
 class HShader : public Shader
 {
 public:
 	HShader(std::string fileName="");
+	~HShader();
 
 	void Apply()const override;
 private:
-	ComPtr<ID3D11HullShader> hs = nullptr;
+	ID3D11HullShader* hs = nullptr;
 };
 class DShader : public Shader
 {
 public:
 	DShader(std::string fileName = "");
+	~DShader();
 
 	void Apply()const override;
 private:
-	ComPtr<ID3D11DomainShader> ds = nullptr;
+	ID3D11DomainShader* ds = nullptr;
 };
 
 
@@ -97,11 +101,12 @@ class PShader : public Shader
 {
 public:
 	PShader(std::string fileName="");
+	~PShader();
 
 	void Apply()const override;
 
 private:
-	ComPtr<ID3D11PixelShader> ps = nullptr;
+	ID3D11PixelShader* ps = nullptr;
 };
 
 
@@ -109,9 +114,10 @@ class CShader : public Shader
 {
 public:
 	CShader(const std::string CSfileName);
+	~CShader();
 
 	void Apply()const override;
 
 private:
-	ComPtr<ID3D11ComputeShader> cs = nullptr;
+	ID3D11ComputeShader* cs = nullptr;
 };
