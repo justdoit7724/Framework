@@ -11,8 +11,10 @@ WndDX::WndDX(HWND hwnd) {
 	GetClientRect(hwnd, &rect);
 
 	m_pEnv = new DX::Graphic(hwnd, rect.right - rect.left, rect.bottom - rect.top);
+	m_device = m_pEnv->Device();
+	m_dContext = m_pEnv->DContext();
 
-	startScene = new StartScene();
+	startScene = new StartScene(m_device, m_dContext, L"Start");
 
 	SceneMgr::Instance()->Add(L"startScene", startScene);
 }

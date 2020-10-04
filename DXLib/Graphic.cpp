@@ -3,26 +3,38 @@
 #include "pch.h"
 
 #include "Graphic.h"
+#include "Math.h"
 
 namespace DX {
 
-	ID3D11Device* DX_Device = nullptr;
-	ID3D11DeviceContext* DX_DContext = nullptr;
-	float WND_WIDTH = -1.0f;
-	float WND_HEIGHT = -1.0f;
-
 	Graphic::Graphic(HWND _hwnd, float resX, float resY)
 	{
-		hwnd = _hwnd;
+		XMFLOAT4 p(1, 1, 1, 1);
+		const float n = 10;
+		const float f = 100;
+		XMMATRIX m1(
+			n, 0.0f, 0.0f, 0.0f,
+			0.0f, n, 0.0f, 0.0f,
+			0, 0, (f + n) / (f - n), 1,
+			0, 0, -2 * f * n / (f - n), 0
+		); 
+		XMMATRIX m2(
+			n, 0, 0, 0,
+			0, n, 0, 0,
+			0, 0, 1, 1,
+			0, 0, -2 * n, 0
+		);
 
-		WND_WIDTH = resX;
-		WND_HEIGHT = resY;
+		auto r1 = Multiply(p, m1);
+		auto r2 = Multiply(p, m2);
+
+		hwnd = _hwnd;
 
 		DXGI_SWAP_CHAIN_DESC scd;
 		ZeroMemory(&scd, sizeof(DXGI_SWAP_CHAIN_DESC));
 
-		scd.BufferDesc.Width = WND_WIDTH;
-		scd.BufferDesc.Height = WND_HEIGHT;
+		scd.BufferDesc.Width = resX;
+		scd.BufferDesc.Height = resY;
 		scd.BufferDesc.RefreshRate.Numerator = 60;
 		scd.BufferDesc.RefreshRate.Denominator = 1;
 		scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -49,9 +61,9 @@ namespace DX {
 			D3D11_SDK_VERSION,
 			&scd,
 			&swapchain,
-			&DX_Device,
+			&m_device,
 			NULL,
-			&DX_DContext);
+			&m_dContext);
 		r_assert(hr);
 
 		hr = swapchain->GetBuffer(
@@ -60,7 +72,7 @@ namespace DX {
 			reinterpret_cast<void**>(&backBuffer));
 		r_assert(hr);
 
-		hr = DX_Device->CreateRenderTargetView(
+		hr = m_device->CreateRenderTargetView(
 			backBuffer,
 			nullptr,
 			&rtv);
@@ -73,7 +85,7 @@ namespace DX {
 			__uuidof(ID3D11Texture2D),
 			reinterpret_cast<void**>(&backBuffer));
 		r_assert(hr);
-		hr = DX_Device->CreateRenderTargetView(
+		hr = m_device->CreateRenderTargetView(
 			backBuffer,
 			nullptr,
 			&rtv);
@@ -96,7 +108,7 @@ namespace DX {
 		ds_desc.CPUAccessFlags = 0;
 		ds_desc.MiscFlags = 0;
 
-		hr = DX_Device->CreateTexture2D(
+		hr = m_device->CreateTexture2D(
 			&ds_desc,
 			nullptr,
 			&depthStencilBuffer);
@@ -108,12 +120,12 @@ namespace DX {
 		dsv_desc.Flags = 0;
 		dsv_desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
 		dsv_desc.Texture2D.MipSlice = 0;
-		hr = DX_Device->CreateDepthStencilView(
+		hr = m_device->CreateDepthStencilView(
 			depthStencilBuffer,
 			&dsv_desc,
 			&dsView);
 		r_assert(hr);
-		DX_DContext->OMSetRenderTargets(1, &rtv, dsView);
+		m_dContext->OMSetRenderTargets(1, &rtv, dsView);
 
 #pragma endregion
 
@@ -127,7 +139,7 @@ namespace DX {
 		viewport.MinDepth = 0.0f;
 		viewport.MaxDepth = 1.0f;
 
-		DX_DContext->RSSetViewports(1, &viewport);
+		m_dContext->RSSetViewports(1, &viewport);
 #pragma endregion
 
 #pragma region Rasterizer
@@ -135,9 +147,9 @@ namespace DX {
 		ZeroMemory(&rs_desc, sizeof(D3D11_RASTERIZER_DESC));
 		rs_desc.FillMode = D3D11_FILL_SOLID;
 		rs_desc.CullMode = D3D11_CULL_BACK;
-		hr = DX_Device->CreateRasterizerState(&rs_desc, &rasterizerState);
+		hr = m_device->CreateRasterizerState(&rs_desc, &rasterizerState);
 		r_assert(hr);
-		DX_DContext->RSSetState(rasterizerState);
+		m_dContext->RSSetState(rasterizerState);
 #pragma endregion
 
 	}
@@ -146,8 +158,8 @@ namespace DX {
 	{
 		backBuffer->Release();
 		depthStencilBuffer->Release();
-		DX_DContext->Release();
-		DX_Device->Release();
+		m_dContext->Release();
+		m_device->Release();
 
 		swapchain->Release();
 		rtv->Release();
@@ -160,8 +172,16 @@ namespace DX {
 		swapchain->Present(1, 0);
 
 		const float black[4] = { 0.1,0.1,0.1,1 };
-		DX_DContext->ClearRenderTargetView(rtv, black);
-		DX_DContext->ClearDepthStencilView(dsView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+		m_dContext->ClearRenderTargetView(rtv, black);
+		m_dContext->ClearDepthStencilView(dsView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	}
+	ID3D11Device* Graphic::Device()
+	{
+		return m_device;
+	}
+	ID3D11DeviceContext* Graphic::DContext()
+	{
+		return m_dContext;
 	}
 }
 	

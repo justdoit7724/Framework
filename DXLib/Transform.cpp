@@ -2,10 +2,14 @@
 #include "pch.h"
 
 #include "Transform.h"
-#include "Camera.h"
-#include "Debugging.h"
+#include "Math.h"
 
 using namespace DX;
+
+DX::Transform::Transform()
+	:pos(0,0,0),right(RIGHT),up(UP),forward(FORWARD),scale(1,1,1)
+{
+}
 
 XMMATRIX Transform::WorldMatrix()const
 {
@@ -33,6 +37,33 @@ XMMATRIX Transform::R()const
 XMMATRIX Transform::T()const
 {
 	return XMMatrixTranslation(pos.x, pos.y, pos.z);
+}
+
+void DX::Transform::SetRot(XMFLOAT3 _forward)
+{
+	forward = _forward;
+	XMFLOAT3 tempUP = (forward == UP) ? -FORWARD : UP;
+	right = Cross(tempUP, forward);
+	up = Cross(forward, right);
+}
+
+void DX::Transform::SetRot(XMFLOAT3 _forward, XMFLOAT3 _up)
+{
+	forward = _forward;
+	up = _up;
+
+	float l1 = Length(forward);
+	float l2 = Length(up);
+	if (l1 < 0.9f || l1 > 1.1f || l2 < 0.9f || l2 > 1.1f)
+		int a = 0;
+	right = Cross(_up, _forward);
+}
+
+void DX::Transform::SetRot(XMFLOAT3 _forward, XMFLOAT3 _up, XMFLOAT3 _right)
+{
+	forward = _forward;
+	up = _up;
+	right = _right;
 }
 
 void Transform::Rotate(XMFLOAT3 axis, float rad)

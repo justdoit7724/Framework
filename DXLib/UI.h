@@ -15,12 +15,12 @@ namespace DX {
 	class UI : public Object
 	{
 	public:
-		UI(XMFLOAT2 pivot, XMFLOAT2 size, float zDepth, ID3D11ShaderResourceView* srv);
+		UI(ID3D11Device* device, ID3D11DeviceContext* dContext, int iScnHeight, XMFLOAT2 pivot, XMFLOAT2 size, float zDepth, ID3D11ShaderResourceView* srv);
 		~UI();
 
-		virtual void Update(UICanvas* canvas);
+		virtual void Update(ID3D11DeviceContext* dContext, int iScnWidth, int iScnHeight, XMFLOAT2 mousePos, UICanvas* canvas);
 		void SetSRV(ID3D11ShaderResourceView* srv);
-		void SetMulColor(XMFLOAT3 c);
+		void SetMulColor(ID3D11DeviceContext* dContext, XMFLOAT3 c);
 
 	protected:
 
@@ -33,9 +33,9 @@ namespace DX {
 	class UIButton : public UI, public Subject
 	{
 	public:
-		UIButton(XMFLOAT2 pivot, XMFLOAT2 size, ID3D11ShaderResourceView* idleSRV);
+		UIButton(ID3D11Device* device, ID3D11DeviceContext* dContext, int iScnHeight, XMFLOAT2 pivot, XMFLOAT2 size, ID3D11ShaderResourceView* idleSRV);
 
-		void Update(UICanvas* canvas) override;
+		void Update(ID3D11DeviceContext* dContext, int iScnWidth, int iScnHeight, XMFLOAT2 mousePos, UICanvas* canvas) override;
 
 		void SetNotify(int id, const void* data) { notifyID = id; notifyData = data; }
 
@@ -51,7 +51,7 @@ namespace DX {
 	class UICanvas
 	{
 	public:
-		UICanvas();
+		UICanvas(int iScnWidth, int iScnHeight);
 		~UICanvas();
 
 		const float totalWidth, totalHeight;

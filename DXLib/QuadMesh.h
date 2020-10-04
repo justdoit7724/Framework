@@ -3,11 +3,11 @@
 #include "Mesh.h"
 
 namespace DX {
-	class QuadMesh :
+	class DXLIB_DLL QuadMesh :
 		public Mesh
 	{
 	public:
-		QuadMesh();
+		QuadMesh(ID3D11Device* device);
 	};
 }
 

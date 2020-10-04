@@ -2,10 +2,11 @@
 #include "pch.h"
 #include "CylinderMesh.h"
 #include "ShaderFormat.h"
+#include "Math.h"
 
 using namespace DX;
 
-CylinderMesh::CylinderMesh(int sliceCount)
+CylinderMesh::CylinderMesh(ID3D11Device* device, int sliceCount)
 {
 	assert(sliceCount >= 3);
 
@@ -109,5 +110,5 @@ CylinderMesh::CylinderMesh(int sliceCount)
 	}
 #pragma endregion
 
-	Init(vertice.data(), sizeof(Vertex), vertice.size(), indice.data(), indice.size(), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	Init(device,vertice.data(), sizeof(Vertex), vertice.size(), indice.data(), indice.size(), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }

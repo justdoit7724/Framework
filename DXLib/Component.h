@@ -3,12 +3,12 @@
 
 namespace DX
 {
-	class Component
+	class DXLIB_DLL Component
 	{
 	public:
 		Component();
 
-		virtual void Apply()const = 0;
+		virtual void Apply(ID3D11DeviceContext* dContext)const = 0;
 	};
 }
 

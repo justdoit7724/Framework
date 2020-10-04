@@ -120,7 +120,8 @@ namespace DX {
 	};
 	struct SHADER_POINT_LIGHT {
 
-		SHADER_POINT_LIGHT() {
+		SHADER_POINT_LIGHT() 
+		{
 			for (int i = 0; i < LIGHT_MAX_EACH; ++i)
 			{
 				info[i].x = LIGHT_DISABLED;
@@ -136,7 +137,16 @@ namespace DX {
 	};
 	struct SHADER_SPOT_LIGHT {
 
-		SHADER_SPOT_LIGHT() {
+		SHADER_SPOT_LIGHT() 
+		{
+			ZeroMemory(ambient, sizeof(XMFLOAT4) * LIGHT_MAX_EACH);
+			ZeroMemory(diffuse, sizeof(XMFLOAT4) * LIGHT_MAX_EACH);
+			ZeroMemory(specular, sizeof(XMFLOAT4) * LIGHT_MAX_EACH);
+			ZeroMemory(pos, sizeof(XMFLOAT4) * LIGHT_MAX_EACH);
+			ZeroMemory(info, sizeof(XMFLOAT4) * LIGHT_MAX_EACH);
+			ZeroMemory(dir, sizeof(XMFLOAT4) * LIGHT_MAX_EACH);
+			ZeroMemory(att, sizeof(XMFLOAT4) * LIGHT_MAX_EACH);
+
 			for (int i = 0; i < LIGHT_MAX_EACH; ++i)
 			{
 				info[i].x = LIGHT_DISABLED;

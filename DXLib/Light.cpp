@@ -91,7 +91,7 @@ XMFLOAT3 DirectionalLight::GetDir()const
 	return XMFLOAT3(dir.x, dir.y, dir.z);
 }
 
-void DirectionalLight::Apply()
+void DirectionalLight::Apply(ID3D11Device* device, ID3D11DeviceContext* dContext)
 {
 	if (cb == nullptr)
 	{
@@ -102,19 +102,19 @@ void DirectionalLight::Apply()
 		cb_desc.MiscFlags = 0;
 		cb_desc.StructureByteStride = 0;
 		cb_desc.Usage = D3D11_USAGE_DYNAMIC;
-		HRESULT hr = DX_Device->CreateBuffer(&cb_desc, nullptr, &cb);
+		HRESULT hr = device->CreateBuffer(&cb_desc, nullptr, &cb);
 		r_assert(hr);
 	}
 
 	D3D11_MAPPED_SUBRESOURCE mappedData;
 	ZeroMemory(&mappedData, sizeof(D3D11_MAPPED_SUBRESOURCE));
 
-	HRESULT hr = DX_DContext->Map(cb, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
+	HRESULT hr = dContext->Map(cb, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
 	r_assert(hr);
 	CopyMemory(mappedData.pData, &data, sizeof(SHADER_DIRECTIONAL_LIGHT));
-	DX_DContext->Unmap(cb, 0);
+	dContext->Unmap(cb, 0);
 
-	DX_DContext->PSSetConstantBuffers(SHADER_REG_CB_DIRECTIONAL_LIGHT, 1, &cb);
+	dContext->PSSetConstantBuffers(SHADER_REG_CB_DIRECTIONAL_LIGHT, 1, &cb);
 }
 
 
@@ -189,7 +189,7 @@ void PointLight::Enable(STATE enable)
 	data.info[id].x = enable;
 }
 
-void PointLight::Apply()
+void PointLight::Apply(ID3D11Device* device, ID3D11DeviceContext* dContext)
 {
 	HRESULT hr;
 
@@ -202,18 +202,18 @@ void PointLight::Apply()
 		cb_desc.MiscFlags = 0;
 		cb_desc.StructureByteStride = 0;
 		cb_desc.Usage = D3D11_USAGE_DYNAMIC;
-		hr = DX_Device->CreateBuffer(&cb_desc, nullptr, &cb);
+		hr = device->CreateBuffer(&cb_desc, nullptr, &cb);
 		r_assert(hr);
 	}
 
 	D3D11_MAPPED_SUBRESOURCE mappedData;
 
-	hr = DX_DContext->Map(cb, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
+	hr = dContext->Map(cb, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
 	r_assert(hr);
 	CopyMemory(mappedData.pData, &data, sizeof(SHADER_POINT_LIGHT));
-	DX_DContext->Unmap(cb, 0);
+	dContext->Unmap(cb, 0);
 
-	DX_DContext->PSSetConstantBuffers(SHADER_REG_CB_POINT_LIGHT, 1, &cb);
+	dContext->PSSetConstantBuffers(SHADER_REG_CB_POINT_LIGHT, 1, &cb);
 }
 
 SpotLight::SpotLight(XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, float r, float spot, float rad, XMFLOAT3 att, XMFLOAT3 pos, XMFLOAT3 dir)
@@ -307,7 +307,7 @@ void SpotLight::Enable(STATE enable)
 }
 
 
-void SpotLight::Apply()
+void SpotLight::Apply(ID3D11Device* device, ID3D11DeviceContext* dContext)
 {
 	HRESULT hr;
 
@@ -320,17 +320,17 @@ void SpotLight::Apply()
 		cb_desc.MiscFlags = 0;
 		cb_desc.StructureByteStride = 0;
 		cb_desc.Usage = D3D11_USAGE_DYNAMIC;
-		hr = DX_Device->CreateBuffer(&cb_desc, nullptr, &cb);
+		hr = device->CreateBuffer(&cb_desc, nullptr, &cb);
 		r_assert(hr);
 	}
 
 	D3D11_MAPPED_SUBRESOURCE mappedData;
 
-	hr = DX_DContext->Map(cb, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
+	hr = dContext->Map(cb, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
 	r_assert(hr);
 	CopyMemory(mappedData.pData, &data, sizeof(SHADER_SPOT_LIGHT));
-	DX_DContext->Unmap(cb, 0);
+	dContext->Unmap(cb, 0);
 
-	DX_DContext->PSSetConstantBuffers(SHADER_REG_CB_SPOT_LIGHT, 1, &cb);
+	dContext->PSSetConstantBuffers(SHADER_REG_CB_SPOT_LIGHT, 1, &cb);
 }
 

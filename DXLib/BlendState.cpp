@@ -4,7 +4,7 @@
 
 using namespace DX;
 
-BlendState::BlendState(D3D11_BLEND_DESC * desc)
+BlendState::BlendState(ID3D11Device* device, D3D11_BLEND_DESC * desc)
 {
 	if (desc)
 	{
@@ -23,7 +23,7 @@ BlendState::BlendState(D3D11_BLEND_DESC * desc)
 		this->desc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 	}
 
-	HRESULT hr = DX_Device->CreateBlendState(
+	HRESULT hr = device->CreateBlendState(
 		&(this->desc),
 		&state);
 	r_assert(hr);
@@ -34,17 +34,17 @@ BlendState::~BlendState()
 	state->Release();
 }
 
-void BlendState::Modify(D3D11_BLEND_DESC * desc)
+void BlendState::Modify(ID3D11Device* device, D3D11_BLEND_DESC * desc)
 {
 	state->Release();
 
-	HRESULT hr = DX_Device->CreateBlendState(desc, &state);
+	HRESULT hr = device->CreateBlendState(desc, &state);
 	r_assert(hr);
 }
 
-void BlendState::Apply() const
+void BlendState::Apply(ID3D11DeviceContext* dContext) const
 {
 	float blendFactors[] = { 0.0f, 0.0f, 0.0f, 0.0f };
-	DX_DContext->OMSetBlendState(state, blendFactors, 0xffffffff);
+	dContext->OMSetBlendState(state, blendFactors, 0xffffffff);
 }
 

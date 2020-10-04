@@ -3,6 +3,7 @@
 
 #include "SphereMesh.h"
 #include "ShaderFormat.h"
+#include "Math.h"
 
 using namespace DX;
 
@@ -47,7 +48,7 @@ void Subdivide(std::vector<XMFLOAT3>& vertice, std::vector<UINT>& indice)
 	}
 }
 
-SphereMesh::SphereMesh(int numSubDivision)
+SphereMesh::SphereMesh(ID3D11Device* device, int numSubDivision)
 	:Mesh()
 {
 	// Put a cap on the number of subdivisions. 
@@ -116,7 +117,7 @@ SphereMesh::SphereMesh(int numSubDivision)
 	UINT* indiceData = indice.data();
 
 
-	Init(verticeData, sizeof(Vertex), vertice2.size(), indiceData, indice.size(), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	Init(device, verticeData, sizeof(Vertex), vertice2.size(), indiceData, indice.size(), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 

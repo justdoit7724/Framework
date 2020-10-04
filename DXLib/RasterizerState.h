@@ -7,10 +7,10 @@ namespace DX {
 		public Component
 	{
 	public:
-		RasterizerState(D3D11_RASTERIZER_DESC* desc);
+		RasterizerState(ID3D11Device* device, D3D11_RASTERIZER_DESC* desc);
 		~RasterizerState();
 
-		void Apply()const override;
+		void Apply(ID3D11DeviceContext* dContext)const override;
 
 	private:
 		ID3D11RasterizerState* state;

@@ -18,30 +18,29 @@
 #include "Network.h"
 #include "LayerMask.h"
 #include "SphereMesh.h"
-#include "CameraMgr.h"
 #include "ShaderReg.h"
 
 using namespace DX;
 
-Debugging::Debugging()
+Debugging::Debugging(ID3D11Device* device, ID3D11DeviceContext* dContext)
 {
-	markVS = new VShader("MarkVS.cso",
+	markVS = new VShader(device, "MarkVS.cso",
 		simple_ILayouts,
 		ARRAYSIZE(simple_ILayouts));
-	markPS = new PShader("MarkPS.cso");
-	markVS->AddCB(0, 1, sizeof(XMMATRIX));
-	markPS->AddCB(SHADER_REG_CB_COLOR, 1, sizeof(XMVECTOR));
+	markPS = new PShader(device, "MarkPS.cso");
+	markVS->AddCB(device, 0, 1, sizeof(XMMATRIX));
+	markPS->AddCB(device, SHADER_REG_CB_COLOR, 1, sizeof(XMVECTOR));
 
-	blendState = new BlendState(nullptr);
-	dsState = new DepthStencilState(nullptr);
+	blendState = new BlendState(device, nullptr);
+	dsState = new DepthStencilState(device, nullptr);
 	D3D11_RASTERIZER_DESC wrs_desc;
 	ZeroMemory(&wrs_desc, sizeof(D3D11_RASTERIZER_DESC));
 	wrs_desc.FillMode = D3D11_FILL_WIREFRAME;
 	wrs_desc.CullMode = D3D11_CULL_BACK;
-	rsState = new RasterizerState(&wrs_desc);
+	rsState = new RasterizerState(device , &wrs_desc);
 
-	spriteBatch = std::make_unique<DirectX::SpriteBatch>(DX_DContext);
-	spriteFont = std::make_unique<DirectX::SpriteFont>(DX_Device, L"Font\\Font.spritefont");
+	spriteBatch = std::make_unique<DirectX::SpriteBatch>(dContext);
+	spriteFont = std::make_unique<DirectX::SpriteFont>(device, L"Font\\Font.spritefont");
 
 	D3D11_BUFFER_DESC vb_desc;
 	vb_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
@@ -50,9 +49,9 @@ Debugging::Debugging()
 	vb_desc.MiscFlags = 0;
 	vb_desc.StructureByteStride = 0;
 	vb_desc.Usage = D3D11_USAGE_DYNAMIC;
-	lineVB = new Buffer(&vb_desc, nullptr);
+	lineVB = new Buffer(device ,&vb_desc, nullptr);
 
-	markShape = new SphereMesh(1);
+	markShape = new SphereMesh(device, 1);
 	markTransform = new Transform();
 }
 
@@ -77,11 +76,6 @@ void Debugging::SetCamera(const Camera * cam)
 }
 
 
-const XMMATRIX textMat = XMMATRIX(
-	WND_WIDTH / 2.0f, 0, 0, 0,
-	0, -WND_HEIGHT / 2.0f, 0, 0,
-	0, 0, 1, 0,
-	WND_WIDTH / 2.0f, WND_HEIGHT / 2.0f, 0, 1);
 void Debugging::Draw(const std::string tex, const float x, const float y, const XMVECTORF32 _color, const float _scale)
 {
 #ifdef _DEBUG
@@ -194,7 +188,7 @@ void Debugging::DirLine(XMFLOAT3 p1, XMFLOAT3 dir, float dist, XMVECTORF32 color
 	PtLine(p1, p2, color);
 }
 
-void Debugging::EnableGrid(float interval, int num)
+void Debugging::EnableGrid(ID3D11Device* device, float interval, int num)
 {
 	assert(num % 2 == 0);
 
@@ -236,7 +230,7 @@ void Debugging::EnableGrid(float interval, int num)
 	originVB_desc.Usage = D3D11_USAGE_IMMUTABLE;
 	if (originVB)
 		delete originVB;
-	originVB = new Buffer(&originVB_desc, originVertice.data());
+	originVB = new Buffer(device, &originVB_desc, originVertice.data());
 
 	D3D11_BUFFER_DESC gridVB_desc;
 	gridVB_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
@@ -247,7 +241,7 @@ void Debugging::EnableGrid(float interval, int num)
 	gridVB_desc.Usage = D3D11_USAGE_IMMUTABLE;
 	if (gridVB)
 		delete gridVB;
-	gridVB = new Buffer(&gridVB_desc, gridVertice.data());
+	gridVB = new Buffer(device, &gridVB_desc, gridVertice.data());
 }
 
 void Debugging::DisableGrid()
@@ -276,19 +270,19 @@ void Debugging::Update(float spf)
 	}
 }
 
-void Debugging::Render()
+void Debugging::Render(ID3D11DeviceContext* dContext, int iScnWidth, int iScnHeight)
 {
 	if (!enabled || !debugCam)
 		return;
 
 	XMMATRIX vp = debugCam->VMat() * debugCam->ProjMat();
 
-	DX_DContext->HSSetShader(nullptr, nullptr, 0);
-	DX_DContext->DSSetShader(nullptr, nullptr, 0);
-	DX_DContext->GSSetShader(nullptr, nullptr, 0);
-	blendState->Apply();
-	dsState->Apply();
-	rsState->Apply();
+	dContext->HSSetShader(nullptr, nullptr, 0);
+	dContext->DSSetShader(nullptr, nullptr, 0);
+	dContext->GSSetShader(nullptr, nullptr, 0);
+	blendState->Apply(dContext);
+	dsState->Apply(dContext);
+	rsState->Apply(dContext);
 
 #pragma region Marks
 
@@ -298,11 +292,11 @@ void Debugging::Render()
 			continue;
 		markTransform->SetTranslation(marks[i].pos);
 		markTransform->SetScale(marks[i].rad*2.0f);
-		markVS->WriteCB(0, &(markTransform->WorldMatrix() * vp));
-		markPS->WriteCB(SHADER_REG_CB_COLOR, &(marks[i].color));
-		markVS->Apply();
-		markPS->Apply();
-		markShape->Apply();
+		markVS->WriteCB(dContext, 0, &(markTransform->WorldMatrix() * vp));
+		markPS->WriteCB(dContext,SHADER_REG_CB_COLOR, &(marks[i].color));
+		markVS->Apply(dContext);
+		markPS->Apply(dContext);
+		markShape->Apply(dContext);
 		marks[i].isDraw = false;
 	}
 #pragma endregion
@@ -311,68 +305,74 @@ void Debugging::Render()
 
 
 
-	DX_DContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+	dContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 	for (auto& l : lines)
 	{
 		D3D11_MAPPED_SUBRESOURCE mapped;
 		ZeroMemory(&mapped, sizeof(D3D11_MAPPED_SUBRESOURCE));
-		HRESULT hr = DX_DContext->Map(
+		HRESULT hr = dContext->Map(
 				lineVB->Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
 		r_assert(hr);
 		XMFLOAT3* pVB = reinterpret_cast<XMFLOAT3*>(mapped.pData);
 		pVB[0] = l.p1;
 		pVB[1] = l.p2;
-		DX_DContext->Unmap(lineVB->Get(), 0);
+		dContext->Unmap(lineVB->Get(), 0);
 
-		markVS->WriteCB(0, &vp);
-		markPS->WriteCB(SHADER_REG_CB_COLOR, &(l.color));
-		markVS->Apply();
-		markPS->Apply();
+		markVS->WriteCB(dContext,0, &vp);
+		markPS->WriteCB(dContext,SHADER_REG_CB_COLOR, &(l.color));
+		markVS->Apply(dContext);
+		markPS->Apply(dContext);
 
 		UINT stride = sizeof(XMFLOAT3);
 		UINT offset = 0;
-		DX_DContext->IASetVertexBuffers(0, 1, lineVB->GetAddress(), &stride, &offset);
-		DX_DContext->Draw(2, 0);
+		dContext->IASetVertexBuffers(0, 1, lineVB->GetAddress(), &stride, &offset);
+		dContext->Draw(2, 0);
 	}
 	lines.clear();
 
 	if (gridVB)
 	{
-		markVS->WriteCB(0, &vp);
-		markPS->WriteCB(SHADER_REG_CB_COLOR, (void*)(&(Colors::Red)));
-		markVS->Apply();
-		markPS->Apply();
+		markVS->WriteCB(dContext, 0, &vp);
+		markPS->WriteCB(dContext, SHADER_REG_CB_COLOR, (void*)(&(Colors::Red)));
+		markVS->Apply(dContext);
+		markPS->Apply(dContext);
 		UINT stride = sizeof(XMFLOAT3);
 		UINT offset = 0;
-		DX_DContext->IASetVertexBuffers(0, 1, originVB->GetAddress(), &stride, &offset);
-		DX_DContext->Draw(2, 0);
+		dContext->IASetVertexBuffers(0, 1, originVB->GetAddress(), &stride, &offset);
+		dContext->Draw(2, 0);
 
-		markVS->WriteCB(0, &vp);
-		markPS->WriteCB(SHADER_REG_CB_COLOR, (void*)(&(Colors::Green)));
-		markVS->Apply();
-		markPS->Apply();
-		DX_DContext->IASetVertexBuffers(0, 1, originVB->GetAddress(), &stride, &offset);
-		DX_DContext->Draw(2, 2);
+		markVS->WriteCB(dContext, 0, &vp);
+		markPS->WriteCB(dContext, SHADER_REG_CB_COLOR, (void*)(&(Colors::Green)));
+		markVS->Apply(dContext);
+		markPS->Apply(dContext);
+		dContext->IASetVertexBuffers(0, 1, originVB->GetAddress(), &stride, &offset);
+		dContext->Draw(2, 2);
 
-		markVS->WriteCB(0, &vp);
-		markPS->WriteCB(SHADER_REG_CB_COLOR, (void*)(&(Colors::Blue)));
-		markVS->Apply();
-		markPS->Apply();
-		DX_DContext->IASetVertexBuffers(0, 1, originVB->GetAddress(), &stride, &offset);
-		DX_DContext->Draw(2, 4);
+		markVS->WriteCB(dContext, 0, &vp);
+		markPS->WriteCB(dContext, SHADER_REG_CB_COLOR, (void*)(&(Colors::Blue)));
+		markVS->Apply(dContext);
+		markPS->Apply(dContext);
+		dContext->IASetVertexBuffers(0, 1, originVB->GetAddress(), &stride, &offset);
+		dContext->Draw(2, 4);
 
-		markVS->WriteCB(0, &vp);
-		markPS->WriteCB(SHADER_REG_CB_COLOR, (void*)(&(Colors::Gray)));
-		markVS->Apply();
-		markPS->Apply();
-		DX_DContext->IASetVertexBuffers(0, 1, gridVB->GetAddress(), &stride, &offset);
-		DX_DContext->Draw(gridVerticeCount, 0);
+		markVS->WriteCB(dContext, 0, &vp);
+		markPS->WriteCB(dContext,SHADER_REG_CB_COLOR, (void*)(&(Colors::Gray)));
+		markVS->Apply(dContext);
+		markPS->Apply(dContext);
+		dContext->IASetVertexBuffers(0, 1, gridVB->GetAddress(), &stride, &offset);
+		dContext->Draw(gridVerticeCount, 0);
 	}
 
 #pragma endregion
 
 #pragma region Texts
 
+
+	const XMMATRIX textMat = XMMATRIX(
+		iScnWidth / 2.0f, 0, 0, 0,
+		0, -iScnHeight / 2.0f, 0, 0,
+		0, 0, 1, 0,
+		iScnWidth / 2.0f, iScnHeight / 2.0f, 0, 1);
 
 	spriteBatch->Begin();
 	for (auto& text : texts)

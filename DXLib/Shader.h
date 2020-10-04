@@ -10,10 +10,10 @@ class Buffer;
 	{
 	public:
 		~Shader();
-		void AddCB(UINT slot, UINT arrayNum, UINT byteSize);
+		void AddCB(ID3D11Device* device, UINT slot, UINT arrayNum, UINT byteSize);
 		void AddSRV(UINT slot, UINT arrayNum);
-		void AddSamp(UINT slot, UINT arrayNum, D3D11_SAMPLER_DESC* desc);
-		void WriteCB(UINT slot, const void* data);
+		void AddSamp(ID3D11Device* device, UINT slot, UINT arrayNum, D3D11_SAMPLER_DESC* desc);
+		void WriteCB(ID3D11DeviceContext* dContext, UINT slot, const void* data);
 		void WriteSRV(UINT slot, ID3D11ShaderResourceView* srv);
 		void RemoveCB(UINT slot);
 		bool CheckCBSlot(UINT slot);
@@ -55,10 +55,10 @@ class Buffer;
 	class VShader : public Shader
 	{
 	public:
-		VShader(std::string fileName, const D3D11_INPUT_ELEMENT_DESC* layoutDesc, UINT layoutNum);
+		VShader(ID3D11Device* device, std::string fileName, const D3D11_INPUT_ELEMENT_DESC* layoutDesc, UINT layoutNum);
 		~VShader();
 
-		void Apply()const override;
+		void Apply(ID3D11DeviceContext* dContext)const override;
 
 	private:
 		ID3D11InputLayout* iLayout = nullptr;
@@ -68,10 +68,10 @@ class Buffer;
 	class GShader : public Shader
 	{
 	public:
-		GShader(std::string fileName = "");
+		GShader(ID3D11Device* device, std::string fileName = "");
 		~GShader();
 
-		void Apply()const override;
+		void Apply(ID3D11DeviceContext* dContext)const override;
 	private:
 		ID3D11GeometryShader* gs = nullptr;
 	};
@@ -79,20 +79,20 @@ class Buffer;
 	class HShader : public Shader
 	{
 	public:
-		HShader(std::string fileName = "");
+		HShader(ID3D11Device* device, std::string fileName = "");
 		~HShader();
 
-		void Apply()const override;
+		void Apply(ID3D11DeviceContext* dContext)const override;
 	private:
 		ID3D11HullShader* hs = nullptr;
 	};
 	class DShader : public Shader
 	{
 	public:
-		DShader(std::string fileName = "");
+		DShader(ID3D11Device* device, std::string fileName = "");
 		~DShader();
 
-		void Apply()const override;
+		void Apply(ID3D11DeviceContext* dContext)const override;
 	private:
 		ID3D11DomainShader* ds = nullptr;
 	};
@@ -101,10 +101,10 @@ class Buffer;
 	class PShader : public Shader
 	{
 	public:
-		PShader(std::string fileName = "");
+		PShader(ID3D11Device* device, std::string fileName = "");
 		~PShader();
 
-		void Apply()const override;
+		void Apply(ID3D11DeviceContext* dContext)const override;
 
 	private:
 		ID3D11PixelShader* ps = nullptr;
@@ -114,10 +114,10 @@ class Buffer;
 	class CShader : public Shader
 	{
 	public:
-		CShader(const std::string CSfileName);
+		CShader(ID3D11Device* device, const std::string CSfileName);
 		~CShader();
 
-		void Apply()const override;
+		void Apply(ID3D11DeviceContext* dContext)const override;
 
 	private:
 		ID3D11ComputeShader* cs = nullptr;

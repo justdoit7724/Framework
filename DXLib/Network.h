@@ -3,7 +3,7 @@
 #include <vector>
 
 namespace DX {
-	class IGraphic
+	class DXLIB_DLL IGraphic
 	{
 	public:
 		virtual ID3D11Texture2D* BackBuffer() = 0;
@@ -14,7 +14,7 @@ namespace DX {
 		virtual void RestoreRTV() = 0;
 	};
 
-	class IDebug
+	class DXLIB_DLL IDebug
 	{
 	public:
 		virtual void Visualize() = 0;

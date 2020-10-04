@@ -14,7 +14,7 @@ struct SHADER_DIRECTIONAL_LIGHT;
 struct SHADER_POINT_LIGHT;
 struct SHADER_SPOT_LIGHT;
 
-	class Light
+	class DXLIB_DLL Light
 	{
 	protected:
 		Light();
@@ -40,7 +40,7 @@ struct SHADER_SPOT_LIGHT;
 		virtual void Enable(STATE enable) = 0;
 	};
 
-	class DirectionalLight : public Light
+	class DXLIB_DLL DirectionalLight : public Light
 	{
 	private:
 		static SHADER_DIRECTIONAL_LIGHT data;
@@ -57,10 +57,10 @@ struct SHADER_SPOT_LIGHT;
 
 		XMFLOAT3 GetDir()const;
 
-		static void Apply();
+		static void Apply(ID3D11Device* device, ID3D11DeviceContext* dContext);
 	};
 
-	class PointLight : public Light
+	class DXLIB_DLL PointLight : public Light
 	{
 	private:
 		float range;
@@ -80,10 +80,10 @@ struct SHADER_SPOT_LIGHT;
 		void SetAtt(XMFLOAT3 at);
 		void Enable(STATE enable) override;
 
-		static void Apply();
+		static void Apply(ID3D11Device* device, ID3D11DeviceContext* dContext);
 	};
 
-	class SpotLight : public Light
+	class DXLIB_DLL SpotLight : public Light
 	{
 	private:
 		static SHADER_SPOT_LIGHT data;
@@ -108,7 +108,7 @@ struct SHADER_SPOT_LIGHT;
 		void SetAtt(XMFLOAT3 at);
 		void Enable(STATE enable);
 
-		static void Apply();
+		static void Apply(ID3D11Device* device, ID3D11DeviceContext* dContext);
 	};
 
 }

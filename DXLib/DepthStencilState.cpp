@@ -7,7 +7,7 @@
 using namespace DX;
 
 
-DepthStencilState::DepthStencilState(D3D11_DEPTH_STENCIL_DESC* desc)
+DepthStencilState::DepthStencilState(ID3D11Device* device, D3D11_DEPTH_STENCIL_DESC* desc)
 	:refValue(0)
 {
 	D3D11_DEPTH_STENCIL_DESC firstDesc;
@@ -32,20 +32,20 @@ DepthStencilState::DepthStencilState(D3D11_DEPTH_STENCIL_DESC* desc)
 		firstDesc.BackFace= oDesc;*/
 	}
 
-	HRESULT hr = DX_Device->CreateDepthStencilState(&firstDesc, &state);
+	HRESULT hr = device->CreateDepthStencilState(&firstDesc, &state);
 	r_assert(hr);
 }
 
-void DepthStencilState::Modify(D3D11_DEPTH_STENCIL_DESC * desc)
+void DepthStencilState::Modify(ID3D11Device* device, D3D11_DEPTH_STENCIL_DESC * desc)
 {
 	state->Release();
-	HRESULT hr = DX_Device->CreateDepthStencilState(desc, &state);
+	HRESULT hr = device->CreateDepthStencilState(desc, &state);
 	r_assert(hr);
 }
 
-void DepthStencilState::Apply() const
+void DepthStencilState::Apply(ID3D11DeviceContext* dContext) const
 {
-	DX_DContext->OMSetDepthStencilState(state, refValue);
+	dContext->OMSetDepthStencilState(state, refValue);
 }
 
 void DepthStencilState::SetRefValue(UINT v)

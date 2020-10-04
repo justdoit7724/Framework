@@ -8,13 +8,13 @@ namespace DX {
 	class Skybox : public Object
 	{
 	public:
-		Skybox();
+		Skybox(ID3D11Device* device, ID3D11DeviceContext* dContext);
 		~Skybox();
 
-		void Mapping()const;
+		void Mapping(ID3D11DeviceContext* dContext, ID3D11ShaderResourceView* cmSRV)const;
 		void Update() override {};
-		void Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth)const override;
-		void RenderGeom() const override {};
+		void Render(ID3D11DeviceContext* dContext, const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth)const override;
+		void RenderGeom(ID3D11DeviceContext* dContext) const override {};
 
 	private:
 		void Blur()const;

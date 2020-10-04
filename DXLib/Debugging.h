@@ -1,8 +1,5 @@
 #pragma once
 
-#include "Singleton.h"
-
-
 #include "_Packages\directxtk_desktop_2015.2019.12.17.1\include\SpriteBatch.h"
 #include "_Packages\directxtk_desktop_2015.2019.12.17.1\include\SpriteFont.h"
 
@@ -20,13 +17,13 @@ class DepthStencilState;
 class BlendState;
 class RasterizerState;
 class Camera;
-class DebuggingScene;
 class IDebug;
 struct SHADER_STD_TRANSF;
-	class Debugging : public Singleton<Debugging>
+	class Debugging
 	{
 	public:
-		friend class DebuggingScene;
+		Debugging(ID3D11Device* device, ID3D11DeviceContext* dContext);
+
 
 		void Draw(const std::string tex, const float x, const float y, const XMVECTORF32 _color = Colors::White, const float _scale = 1.5f);
 		void Draw(const int tex, const float x, const float y, const XMVECTORF32 _color = Colors::White, const float _scale = 1.5f);
@@ -42,7 +39,7 @@ struct SHADER_STD_TRANSF;
 		void PtLine(XMFLOAT3 p1, XMFLOAT3 p2, XMVECTORF32 color = Colors::White);
 		void DirLine(XMFLOAT3 p1, XMFLOAT3 dir, float dist, XMVECTORF32 color = Colors::White);
 
-		void EnableGrid(float interval, int num = 100);
+		void EnableGrid(ID3D11Device* device, float interval, int num = 100);
 		void DisableGrid();
 
 		void Visualize(IDebug* obj);
@@ -55,12 +52,9 @@ struct SHADER_STD_TRANSF;
 	private:
 		const Camera* debugCam = nullptr;
 		void Update(float spf);
-		void Render();
+		void Render(ID3D11DeviceContext* dContext, int iScnWidth, int iScnHeight);
 
 		bool enabled = true;
-
-		friend class Singleton<Debugging>;
-		Debugging();
 
 		std::unique_ptr<DirectX::SpriteBatch> spriteBatch;
 		std::unique_ptr<DirectX::SpriteFont> spriteFont;

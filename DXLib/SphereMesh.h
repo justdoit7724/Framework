@@ -3,11 +3,11 @@
 #include "Mesh.h"
 
 namespace DX {
-	class SphereMesh :
+	class DXLIB_DLL SphereMesh :
 		public Mesh
 	{
 	public:
-		SphereMesh(const int numSubDivision);
+		SphereMesh(ID3D11Device* device, const int numSubDivision);
 	};
 }
 

@@ -3,6 +3,7 @@
 #ifndef _GEOMETRICS
 #define _GEOMETRICS
 
+#include "Math.h"
 
 namespace DX {
 

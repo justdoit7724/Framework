@@ -8,7 +8,7 @@ class Object;
 	class Physic
 	{
 	public:
-		static Object* Raycast(Geometrics::Ray ray, int mask);
+		static Object* Raycast(const std::vector<Object*>& objs, Geometrics::Ray ray, int mask);
 	};
 }
 

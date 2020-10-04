@@ -20,7 +20,7 @@ void LineMesh::Add(XMFLOAT3 a, XMFLOAT3 b)
 	lines.push_back(newLine);
 }
 
-void LineMesh::Generate()
+void LineMesh::Generate(ID3D11Device* device)
 {
 	isGenerated = true;
 
@@ -36,7 +36,7 @@ void LineMesh::Generate()
 		indice.push_back(i * 2+1);
 	}
 
-	Mesh::Init(vertice.data(), sizeof(Vertex), vertice.size(), indice.data(), indice.size(), D3D_PRIMITIVE_TOPOLOGY_LINELIST);
+	Mesh::Init(device, vertice.data(), sizeof(Vertex), vertice.size(), indice.data(), indice.size(), D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 }
 
 void LineMesh::Clear()
@@ -44,7 +44,7 @@ void LineMesh::Clear()
 	lines.clear();
 }
 
-void LineMesh::Apply() const
+void LineMesh::Apply(ID3D11DeviceContext* dContext) const
 {
-	Mesh::Apply();
+	Mesh::Apply(dContext);
 }

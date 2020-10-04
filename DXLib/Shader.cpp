@@ -37,11 +37,11 @@ Shader::~Shader()
 	}
 }
 
-void Shader::AddCB(UINT slot, UINT arrayNum, UINT byteSize)
+void Shader::AddCB(ID3D11Device* device, UINT slot, UINT arrayNum, UINT byteSize)
 {
 	if (cbs.find(slot) == cbs.end())
 	{
-		cbs.insert(std::pair<UINT, BindingCB>(slot, BindingCB(new Buffer(byteSize), arrayNum)));
+		cbs.insert(std::pair<UINT, BindingCB>(slot, BindingCB(new Buffer(device,byteSize), arrayNum)));
 	}
 	else
 	{
@@ -57,12 +57,12 @@ void Shader::AddSRV(UINT slot, UINT arrayNum)
 	srvs.insert(std::pair<UINT, BindingSRV>(slot, BindingSRV(nullptr, arrayNum)));
 }
 
-void Shader::AddSamp(UINT slot, UINT arrayNum, D3D11_SAMPLER_DESC * desc)
+void Shader::AddSamp(ID3D11Device* device, UINT slot, UINT arrayNum, D3D11_SAMPLER_DESC * desc)
 {
 	if (samps.find(slot) == samps.end())
 	{
 		ID3D11SamplerState* newSampler=nullptr;
-		DX_Device->CreateSamplerState(desc, &newSampler);
+		device->CreateSamplerState(desc, &newSampler);
 
 		samps.insert(std::pair<UINT, BindingSamp>(slot, BindingSamp(newSampler, arrayNum)));
 	}
@@ -73,11 +73,11 @@ void Shader::AddSamp(UINT slot, UINT arrayNum, D3D11_SAMPLER_DESC * desc)
 	}
 }
 
-void Shader::WriteCB(UINT slot, const void * data)
+void Shader::WriteCB(ID3D11DeviceContext* dContext, UINT slot, const void * data)
 {
 	if (cbs.find(slot)!=cbs.end() && data)
 	{
-		cbs[slot].data->Write(data);
+		cbs[slot].data->Write(dContext, data);
 	}
 	else
 	{
@@ -108,7 +108,7 @@ bool Shader::CheckCBSlot(UINT slot)
 
 
 
-VShader::VShader(std::string fileName, const D3D11_INPUT_ELEMENT_DESC * layoutDesc, UINT layoutNum)
+VShader::VShader(ID3D11Device* device, std::string fileName, const D3D11_INPUT_ELEMENT_DESC * layoutDesc, UINT layoutNum)
 {
 	std::wstring wVS(fileName.begin(), fileName.end());
 	ID3DBlob* vsBlob;
@@ -116,14 +116,14 @@ VShader::VShader(std::string fileName, const D3D11_INPUT_ELEMENT_DESC * layoutDe
 		(ShaderPath() + wVS).c_str(),
 			&vsBlob);
 	r_assert(hr);
-	hr = DX_Device->CreateVertexShader(
+	hr = device->CreateVertexShader(
 		vsBlob->GetBufferPointer(),
 		vsBlob->GetBufferSize(),
 		nullptr,
 		&vs);
 	r_assert(hr);
 
-	hr = DX_Device->CreateInputLayout(
+	hr = device->CreateInputLayout(
 			layoutDesc,
 			layoutNum,
 			vsBlob->GetBufferPointer(),
@@ -141,14 +141,14 @@ VShader::~VShader()
 }
 
 
-void VShader::Apply()const
+void VShader::Apply(ID3D11DeviceContext* dContext)const
 {
-	DX_DContext->IASetInputLayout(iLayout);
-	DX_DContext->VSSetShader(vs, nullptr, 0);
+	dContext->IASetInputLayout(iLayout);
+	dContext->VSSetShader(vs, nullptr, 0);
 
 	for (auto i = cbs.begin(); i != cbs.end(); ++i)
 	{
-		DX_DContext->VSSetConstantBuffers(i->first, i->second.arrayNum, i->second.data->GetAddress());
+		dContext->VSSetConstantBuffers(i->first, i->second.arrayNum, i->second.data->GetAddress());
 	}
 	for (auto i = srvs.begin(); i != srvs.end(); ++i)
 	{
@@ -156,7 +156,7 @@ void VShader::Apply()const
 		UINT arrayNum = i->second.arrayNum;
 		ID3D11ShaderResourceView* srv = i->second.data;
 
-		DX_DContext->VSSetShaderResources(slot, arrayNum, &srv);
+		dContext->VSSetShaderResources(slot, arrayNum, &srv);
 	}
 	for (auto i = samps.begin(); i != samps.end(); ++i)
 	{
@@ -164,12 +164,12 @@ void VShader::Apply()const
 		UINT arrayNum = i->second.arrayNum;
 		ID3D11SamplerState* samp = i->second.data;
 
-		DX_DContext->VSSetSamplers(slot, arrayNum, &samp);
+		dContext->VSSetSamplers(slot, arrayNum, &samp);
 	}
 }
 
 
-GShader::GShader(std::string fileName)
+GShader::GShader(ID3D11Device* device, std::string fileName)
 {
 	if (fileName != "")
 	{
@@ -180,7 +180,7 @@ GShader::GShader(std::string fileName)
 			(ShaderPath() + wGS).c_str(),
 				&blob);
 		r_assert(hr);
-		hr = DX_Device->CreateGeometryShader(
+		hr = device->CreateGeometryShader(
 				blob->GetBufferPointer(),
 				blob->GetBufferSize(),
 				nullptr,
@@ -194,15 +194,15 @@ GShader::~GShader()
 	gs->Release();
 }
 
-void GShader::Apply()const
+void GShader::Apply(ID3D11DeviceContext* dContext)const
 {
 	if (gs)
 	{
-		DX_DContext->GSSetShader(gs, nullptr, 0);
+		dContext->GSSetShader(gs, nullptr, 0);
 
 		for (auto i = cbs.begin(); i != cbs.end(); ++i)
 		{
-			DX_DContext->GSSetConstantBuffers(i->first, i->second.arrayNum, i->second.data->GetAddress());
+			dContext->GSSetConstantBuffers(i->first, i->second.arrayNum, i->second.data->GetAddress());
 		}
 		for (auto i = srvs.begin(); i != srvs.end(); ++i)
 		{
@@ -210,7 +210,7 @@ void GShader::Apply()const
 			UINT arrayNum = i->second.arrayNum;
 			ID3D11ShaderResourceView* srv = i->second.data;
 
-			DX_DContext->GSSetShaderResources(slot, arrayNum, &srv);
+			dContext->GSSetShaderResources(slot, arrayNum, &srv);
 		}
 		for (auto i = samps.begin(); i != samps.end(); ++i)
 		{
@@ -218,16 +218,16 @@ void GShader::Apply()const
 			UINT arrayNum = i->second.arrayNum;
 			ID3D11SamplerState* samp = i->second.data;
 
-			DX_DContext->GSSetSamplers(slot, arrayNum, &samp);
+			dContext->GSSetSamplers(slot, arrayNum, &samp);
 		}
 	}
 	else
 	{
-		DX_DContext->GSSetShader(nullptr, nullptr, 0);
+		dContext->GSSetShader(nullptr, nullptr, 0);
 	}
 }
 
-PShader::PShader(std::string fileName)
+PShader::PShader(ID3D11Device* device, std::string fileName)
 {
 	if (fileName != "")
 	{
@@ -237,7 +237,7 @@ PShader::PShader(std::string fileName)
 			(ShaderPath() + wPS).c_str(),
 			&psBlob);
 		r_assert(hr);
-		hr = DX_Device->CreatePixelShader(
+		hr = device->CreatePixelShader(
 				psBlob->GetBufferPointer(),
 				psBlob->GetBufferSize(),
 				nullptr,
@@ -250,13 +250,13 @@ PShader::~PShader()
 {
 	ps->Release();
 }
-void PShader::Apply()const
+void PShader::Apply(ID3D11DeviceContext* dContext)const
 {
-	DX_DContext->PSSetShader(ps, nullptr, 0);
+	dContext->PSSetShader(ps, nullptr, 0);
 
 	for (auto i = cbs.begin(); i != cbs.end(); ++i)
 	{
-		DX_DContext->PSSetConstantBuffers(i->first, i->second.arrayNum, i->second.data->GetAddress());
+		dContext->PSSetConstantBuffers(i->first, i->second.arrayNum, i->second.data->GetAddress());
 	}
 	for (auto i = srvs.begin(); i != srvs.end(); ++i)
 	{
@@ -264,7 +264,7 @@ void PShader::Apply()const
 		UINT arrayNum = i->second.arrayNum;
 		ID3D11ShaderResourceView* srv = i->second.data;
 
-		DX_DContext->PSSetShaderResources(slot, arrayNum, &srv);
+		dContext->PSSetShaderResources(slot, arrayNum, &srv);
 	}
 	for (auto i = samps.begin(); i != samps.end(); ++i)
 	{
@@ -272,11 +272,11 @@ void PShader::Apply()const
 		UINT arrayNum = i->second.arrayNum;
 		ID3D11SamplerState* samp = i->second.data;
 
-		DX_DContext->PSSetSamplers(slot, arrayNum, &samp);
+		dContext->PSSetSamplers(slot, arrayNum, &samp);
 	}
 }
 
-CShader::CShader(const std::string CSfileName)
+CShader::CShader(ID3D11Device* device, const std::string CSfileName)
 {
 	std::wstring wCS(CSfileName.begin(), CSfileName.end());
 	ID3DBlob* csBlob;
@@ -285,7 +285,7 @@ CShader::CShader(const std::string CSfileName)
 		(ShaderPath() + wCS).c_str(),
 			&csBlob);
 	r_assert(hr);
-	hr = DX_Device->CreateComputeShader(
+	hr = device->CreateComputeShader(
 			csBlob->GetBufferPointer(),
 			csBlob->GetBufferSize(),
 			nullptr,
@@ -299,13 +299,13 @@ CShader::~CShader()
 	cs->Release();
 }
 
-void CShader::Apply()const
+void CShader::Apply(ID3D11DeviceContext* dContext)const
 {
-	DX_DContext->CSSetShader(cs, nullptr, 0);
+	dContext->CSSetShader(cs, nullptr, 0);
 
 	for (auto i = cbs.begin(); i != cbs.end(); ++i)
 	{
-		DX_DContext->CSSetConstantBuffers(i->first, i->second.arrayNum, i->second.data->GetAddress());
+		dContext->CSSetConstantBuffers(i->first, i->second.arrayNum, i->second.data->GetAddress());
 	}
 	for (auto i = srvs.begin(); i != srvs.end(); ++i)
 	{
@@ -313,7 +313,7 @@ void CShader::Apply()const
 		UINT arrayNum = i->second.arrayNum;
 		ID3D11ShaderResourceView* srv = i->second.data;
 
-		DX_DContext->CSSetShaderResources(slot, arrayNum, &srv);
+		dContext->CSSetShaderResources(slot, arrayNum, &srv);
 	}
 	for (auto i = samps.begin(); i != samps.end(); ++i)
 	{
@@ -321,11 +321,11 @@ void CShader::Apply()const
 		UINT arrayNum = i->second.arrayNum;
 		ID3D11SamplerState* samp = i->second.data;
 
-		DX_DContext->CSSetSamplers(slot, arrayNum, &samp);
+		dContext->CSSetSamplers(slot, arrayNum, &samp);
 	}
 }
 
-HShader::HShader(std::string fileName)
+HShader::HShader(ID3D11Device* device, std::string fileName)
 {
 	if (fileName == "")
 		return;
@@ -338,7 +338,7 @@ HShader::HShader(std::string fileName)
 			&blob);
 	r_assert(hr);
 
-	hr=DX_Device->CreateHullShader(
+	hr=device->CreateHullShader(
 			blob->GetBufferPointer(),
 			blob->GetBufferSize(),
 			nullptr,
@@ -351,13 +351,13 @@ HShader::~HShader()
 	hs->Release();
 }
 
-void HShader::Apply()const
+void HShader::Apply(ID3D11DeviceContext* dContext)const
 {
-	DX_DContext->HSSetShader(hs, nullptr, 0);
+	dContext->HSSetShader(hs, nullptr, 0);
 
 	for (auto i = cbs.begin(); i != cbs.end(); ++i)
 	{
-		DX_DContext->HSSetConstantBuffers(i->first, i->second.arrayNum, i->second.data->GetAddress());
+		dContext->HSSetConstantBuffers(i->first, i->second.arrayNum, i->second.data->GetAddress());
 	}
 	for (auto i = srvs.begin(); i != srvs.end(); ++i)
 	{
@@ -365,7 +365,7 @@ void HShader::Apply()const
 		UINT arrayNum = i->second.arrayNum;
 		ID3D11ShaderResourceView* srv = i->second.data;
 
-		DX_DContext->HSSetShaderResources(slot, arrayNum, &srv);
+		dContext->HSSetShaderResources(slot, arrayNum, &srv);
 	}
 	for (auto i = samps.begin(); i != samps.end(); ++i)
 	{
@@ -373,11 +373,11 @@ void HShader::Apply()const
 		UINT arrayNum = i->second.arrayNum;
 		ID3D11SamplerState* samp = i->second.data;
 
-		DX_DContext->HSSetSamplers(slot, arrayNum, &samp);
+		dContext->HSSetSamplers(slot, arrayNum, &samp);
 	}
 }
 
-DShader::DShader(std::string fileName)
+DShader::DShader(ID3D11Device* device, std::string fileName)
 {
 	if (fileName == "")
 		return;
@@ -390,7 +390,7 @@ DShader::DShader(std::string fileName)
 			&blob);
 	r_assert(hr);
 
-	hr = DX_Device->CreateDomainShader(
+	hr = device->CreateDomainShader(
 			blob->GetBufferPointer(),
 			blob->GetBufferSize(),
 			nullptr,
@@ -404,13 +404,13 @@ DShader::~DShader()
 	ds->Release();
 }
 
-void DShader::Apply()const
+void DShader::Apply(ID3D11DeviceContext* dContext)const
 {
-	DX_DContext->DSSetShader(ds, nullptr, 0);
+	dContext->DSSetShader(ds, nullptr, 0);
 
 	for (auto i = cbs.begin(); i != cbs.end(); ++i)
 	{
-		DX_DContext->DSSetConstantBuffers(i->first, i->second.arrayNum, i->second.data->GetAddress());
+		dContext->DSSetConstantBuffers(i->first, i->second.arrayNum, i->second.data->GetAddress());
 	}
 	for (auto i = srvs.begin(); i != srvs.end(); ++i)
 	{
@@ -418,7 +418,7 @@ void DShader::Apply()const
 		UINT arrayNum = i->second.arrayNum;
 		ID3D11ShaderResourceView* srv = i->second.data;
 
-		DX_DContext->DSSetShaderResources(slot, arrayNum, &srv);
+		dContext->DSSetShaderResources(slot, arrayNum, &srv);
 	}
 	for (auto i = samps.begin(); i != samps.end(); ++i)
 	{
@@ -426,6 +426,6 @@ void DShader::Apply()const
 		UINT arrayNum = i->second.arrayNum;
 		ID3D11SamplerState* samp = i->second.data;
 
-		DX_DContext->DSSetSamplers(slot, arrayNum, &samp);
+		dContext->DSSetSamplers(slot, arrayNum, &samp);
 	}
 }

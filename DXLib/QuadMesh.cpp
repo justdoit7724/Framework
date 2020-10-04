@@ -3,10 +3,11 @@
 
 #include "QuadMesh.h"
 #include "ShaderFormat.h"
+#include "Math.h"
 
 using namespace DX;
 
-QuadMesh::QuadMesh()
+QuadMesh::QuadMesh(ID3D11Device* device)
 	: Mesh()
 {
 	static Vertex OBJ_QUAD[4];
@@ -36,6 +37,6 @@ QuadMesh::QuadMesh()
 
 
 
-	Init(&OBJ_QUAD[0], sizeof(Vertex), ARRAYSIZE(OBJ_QUAD), OBJ_QUAD_INDICE, ARRAYSIZE(OBJ_QUAD_INDICE), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	Init(device, &OBJ_QUAD[0], sizeof(Vertex), ARRAYSIZE(OBJ_QUAD), OBJ_QUAD_INDICE, ARRAYSIZE(OBJ_QUAD_INDICE), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 

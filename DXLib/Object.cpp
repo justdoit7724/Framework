@@ -5,74 +5,58 @@
 #include "ShaderFormat.h"
 #include "Camera.h"
 #include "ShaderReg.h"
-#include "TextureMgr.h"
 #include "Transform.h"
 #include "Shader.h"
 #include "BlendState.h"
 #include "DepthStencilState.h"
 #include "RasterizerState.h"
 #include "Mesh.h"
-#include "CameraMgr.h"
-#include "ObjectMgr.h"
 #include "Debugging.h"
+#include "LayerMask.h"
 #include "Collider.h"
 
 using namespace DX;
 
 //fundamental elements
-Object::Object(std::string name, std::shared_ptr <Mesh> mesh, std::shared_ptr<Collider> collider, std::string sVS, const D3D11_INPUT_ELEMENT_DESC* iLayouts, UINT layoutCount, std::string sHS, std::string sDS, std::string sGS, std::string sPS, bool directRender)
-	:name(name), mesh(mesh), collider(collider)
+Object::Object(ID3D11Device* device, ID3D11DeviceContext* dContext, std::string name, std::shared_ptr <Mesh> mesh, std::shared_ptr<Collider> collider, std::string sVS, const D3D11_INPUT_ELEMENT_DESC* iLayouts, UINT layoutCount, std::string sHS, std::string sDS, std::string sGS, std::string sPS, bool bDirectRender)
+	:name(name), mesh(mesh), collider(collider), layer(LAYER_STD)
 {
-	if(directRender)
-		ObjectMgr::Instance()->Register(this);
-
 	transform = new Transform();
-	vs = new VShader(sVS, iLayouts, layoutCount);
-	hs = new HShader(sHS);
-	ds = new DShader(sDS);
-	gs = new GShader(sGS);
-	ps = new PShader(sPS);
+	vs = new VShader(device,sVS, iLayouts, layoutCount);
+	hs = new HShader(device,sHS);
+	ds = new DShader(device,sDS);
+	gs = new GShader(device,sGS);
+	ps = new PShader(device,sPS);
 
-	blendState = new BlendState(nullptr);
-	dsState = new DepthStencilState(nullptr);
-	rsState = new RasterizerState(nullptr);
+	blendState = new BlendState(device,nullptr);
+	dsState = new DepthStencilState(device, nullptr);
+	rsState = new RasterizerState(device,nullptr);
 
 }
 
 //standard elements
-Object::Object(std::string name, std::shared_ptr <Mesh> mesh, std::shared_ptr<Collider> collider, ID3D11ShaderResourceView* diffSRV, ID3D11ShaderResourceView* normalSRV, bool directRender)
-	: name(name), mesh(mesh), collider(collider)
+Object::Object(ID3D11Device* device, ID3D11DeviceContext* dContext, std::string name, std::shared_ptr <Mesh> mesh, std::shared_ptr<Collider> collider, ID3D11ShaderResourceView* diffSRV, ID3D11ShaderResourceView* normalSRV, bool directRender)
+	: name(name), mesh(mesh), collider(collider), layer(LAYER_STD)
 {
-	if(directRender)
-		ObjectMgr::Instance()->Register(this);
-
 	transform = new Transform();
-	vs = new VShader("StdVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
-	hs = new HShader();
-	ds = new DShader();
-	gs = new GShader();
-	ps = new PShader("StdPS.cso");
+	vs = new VShader(device,"StdVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
+	hs = new HShader(device);
+	ds = new DShader(device);
+	gs = new GShader(device);
+	ps = new PShader(device,"StdPS.cso");
 
-	vs->AddCB(0, 1, sizeof(SHADER_STD_TRANSF));
-	ps->AddCB(SHADER_REG_CB_MATERIAL, 1, sizeof(SHADER_MATERIAL));
-	ps->WriteCB(SHADER_REG_CB_MATERIAL,&SHADER_MATERIAL(XMFLOAT3(0.7,0.7,0.7), 0.2, XMFLOAT3(0.6, 0.6, 0.6), XMFLOAT3(0.5, 0.5, 0.5)));
+	vs->AddCB(device, 0, 1, sizeof(SHADER_STD_TRANSF));
+	ps->AddCB(device, SHADER_REG_CB_MATERIAL, 1, sizeof(SHADER_MATERIAL));
+	ps->WriteCB(dContext, SHADER_REG_CB_MATERIAL,&SHADER_MATERIAL(XMFLOAT3(0.7,0.7,0.7), 0.2, XMFLOAT3(0.6, 0.6, 0.6), XMFLOAT3(0.5, 0.5, 0.5)));
 	
 	ps->AddSRV(SHADER_REG_SRV_DIFFUSE, 1);
 	ps->AddSRV(SHADER_REG_SRV_NORMAL, 1);
 	ps->WriteSRV(SHADER_REG_SRV_DIFFUSE, diffSRV);
-	if (!normalSRV)
-	{
-		TextureMgr::Instance()->Load("normal", "DXFramework\\Data\\Texture\\default_normal.png");
-		ps->WriteSRV(SHADER_REG_SRV_NORMAL, TextureMgr::Instance()->Get("normal"));
-	}
-	else
-	{
-		ps->WriteSRV(SHADER_REG_SRV_NORMAL, normalSRV);
-	}
+	ps->WriteSRV(SHADER_REG_SRV_NORMAL, normalSRV);
 
-	blendState = new BlendState(nullptr);
-	dsState = new DepthStencilState(nullptr);
-	rsState = new RasterizerState(nullptr);
+	blendState = new BlendState(device, nullptr);
+	dsState = new DepthStencilState(device, nullptr);
+	rsState = new RasterizerState(device, nullptr);
 
 }
 
@@ -88,8 +72,6 @@ Object::~Object()
 	delete dsState;
 	delete blendState;
 	delete rsState;
-
-	ObjectMgr::Instance()->Remove(this);
 }
 
 void Object::Update()
@@ -137,21 +119,21 @@ Object::Object()
 {
 }
 
-void Object::Render()const
+void Object::Render(ID3D11DeviceContext* dContext)const
 {
-	vs->Apply();
-	hs->Apply();
-	ds->Apply();
-	gs->Apply();
-	ps->Apply();
+	vs->Apply(dContext);
+	hs->Apply(dContext);
+	ds->Apply(dContext);
+	gs->Apply(dContext);
+	ps->Apply(dContext);
 
-	dsState->Apply();
-	blendState->Apply();
-	rsState->Apply();
+	dsState->Apply(dContext);
+	blendState->Apply(dContext);
+	rsState->Apply(dContext);
 
-	mesh->Apply();
+	mesh->Apply(dContext);
 }
-void Object::Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) const
+void Object::Render(ID3D11DeviceContext* dContext, const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) const
 {
 	if (!enabled || !show)
 		return;
@@ -160,18 +142,18 @@ void Object::Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth)
 	{
 		const SHADER_STD_TRANSF STransformation(transform->WorldMatrix(), vp);
 
-		vs->WriteCB(0, &STransformation);
+		vs->WriteCB(dContext,0, &STransformation);
 
-		Render();
+		Render(dContext);
 	}
 }
 
-void Object::RenderGeom() const
+void Object::RenderGeom(ID3D11DeviceContext* dContext) const
 {
 	if (!enabled || !show)
 		return;
 
-	mesh->Apply();
+	mesh->Apply(dContext);
 }
 
 bool Object::IsInsideFrustum(const Frustum& frustum) const

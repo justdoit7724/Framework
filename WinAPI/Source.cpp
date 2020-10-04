@@ -9,6 +9,8 @@
 
 int APIENTRY main(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 
+	CoInitialize(NULL);
+
 
 	srand(time(NULL));
 

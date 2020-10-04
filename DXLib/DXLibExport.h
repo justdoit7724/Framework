@@ -11,4 +11,16 @@
 #include <d3d11.h>
 
 #include "Graphic.h"
-#include "Scene.h"
+#include "Math.h"
+#include "Light.h"
+#include "Buffer.h"
+#include "Camera.h"
+#include "Transform.h"
+#include "ShaderReg.h"
+#include "Object.h"
+#include "Mesh.h"
+#include "CylinderMesh.h"
+#include "LineMesh.h"
+#include "QuadMesh.h"
+#include "SphereMesh.h"
+#include "TextureLoad.h"

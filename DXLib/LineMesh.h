@@ -3,15 +3,15 @@
 #include "Mesh.h"
 
 namespace DX {
-	class LineMesh : public Mesh
+	class DXLIB_DLL LineMesh : public Mesh
 	{
 	public:
 		LineMesh();
 
 		void Add(XMFLOAT3 a, XMFLOAT3 b);
-		void Generate();
+		void Generate(ID3D11Device* device);
 		void Clear();
-		void Apply() const override;
+		void Apply(ID3D11DeviceContext* dContext) const override;
 
 	private:
 

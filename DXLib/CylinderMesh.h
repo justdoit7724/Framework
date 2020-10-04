@@ -4,9 +4,9 @@
 
 namespace DX
 {
-	class CylinderMesh : public Mesh
+	class DXLIB_DLL CylinderMesh : public Mesh
 	{
 	public:
-		CylinderMesh(int sCount);
+		CylinderMesh(ID3D11Device* device, int sCount);
 	};
 }

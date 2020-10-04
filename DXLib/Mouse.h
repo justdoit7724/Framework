@@ -1,5 +1,4 @@
 #pragma once
-#include "Singleton.h"
 
 namespace DX {
 	enum MOUSE_STATE
@@ -11,7 +10,7 @@ namespace DX {
 	};
 
 
-	class Mouse : public Singleton<Mouse>
+	class Mouse
 	{
 	public:
 

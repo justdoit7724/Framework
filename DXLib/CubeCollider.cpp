@@ -1,7 +1,6 @@
 
 #include "pch.h"
 #include "CubeCollider.h"
-#include "Debugging.h"
 
 using namespace DX;
 

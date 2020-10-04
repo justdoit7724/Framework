@@ -6,11 +6,11 @@ namespace DX
 	class BlendState : public Component
 	{
 	public:
-		BlendState(D3D11_BLEND_DESC* desc);
+		BlendState(ID3D11Device* device, D3D11_BLEND_DESC* desc);
 		~BlendState();
 
-		void Modify(D3D11_BLEND_DESC* desc);
-		void Apply()const override;
+		void Modify(ID3D11Device* device, D3D11_BLEND_DESC* desc);
+		void Apply(ID3D11DeviceContext* dContext)const override;
 
 
 	private:

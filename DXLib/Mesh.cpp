@@ -3,12 +3,13 @@
 
 #include "Mesh.h"
 #include "ShaderFormat.h"
+#include "Math.h"
 
 using namespace DX;
 
-Mesh::Mesh(Vertex* vertice, UINT vertByteSize, UINT vertCount, const UINT* indice, UINT idxCount, D3D_PRIMITIVE_TOPOLOGY primitiveType)
+Mesh::Mesh(ID3D11Device* device, Vertex* vertice, UINT vertByteSize, UINT vertCount, const UINT* indice, UINT idxCount, D3D_PRIMITIVE_TOPOLOGY primitiveType)
 {
-	Init(vertice, vertByteSize, vertCount, indice, idxCount, primitiveType);
+	Init(device, vertice, vertByteSize, vertCount, indice, idxCount, primitiveType);
 }
 
 Mesh::~Mesh()
@@ -17,7 +18,7 @@ Mesh::~Mesh()
 	indexBuffer->Release();
 }
 
-void Mesh::Init(Vertex* vertice, UINT vertByteSize, UINT vertCount, const UINT* indice, UINT idxCount, D3D_PRIMITIVE_TOPOLOGY primitiveType)
+void Mesh::Init(ID3D11Device* device, Vertex* vertice, UINT vertByteSize, UINT vertCount, const UINT* indice, UINT idxCount, D3D_PRIMITIVE_TOPOLOGY primitiveType)
 {
 	assert(vertexBuffer == nullptr);
 
@@ -64,7 +65,7 @@ void Mesh::Init(Vertex* vertice, UINT vertByteSize, UINT vertCount, const UINT* 
 	vb_desc.StructureByteStride = 0;
 	D3D11_SUBRESOURCE_DATA vb_data;
 	vb_data.pSysMem = vertice;
-	HRESULT hr = DX_Device->CreateBuffer(
+	HRESULT hr = device->CreateBuffer(
 			&vb_desc,
 			&vb_data,
 			&vertexBuffer);
@@ -79,7 +80,7 @@ void Mesh::Init(Vertex* vertice, UINT vertByteSize, UINT vertCount, const UINT* 
 	ibd.StructureByteStride = 0;
 	D3D11_SUBRESOURCE_DATA iinitData;
 	iinitData.pSysMem = indice;
-	hr = DX_Device->CreateBuffer(&ibd, &iinitData, &indexBuffer);
+	hr = device->CreateBuffer(&ibd, &iinitData, &indexBuffer);
 	r_assert(hr);
 }
 
@@ -100,13 +101,13 @@ void Mesh::GetLBound(OUT XMFLOAT3* minPt, OUT XMFLOAT3* maxPt)
 	*maxPt = lMaxPt;
 }
 
-void Mesh::Apply()const
+void Mesh::Apply(ID3D11DeviceContext* dContext)const
 {
-	DX_DContext->IASetPrimitiveTopology(primitiveType);
+	dContext->IASetPrimitiveTopology(primitiveType);
 	UINT offset = 0;
-	DX_DContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertByteSize, &offset);
-	DX_DContext->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+	dContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertByteSize, &offset);
+	dContext->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
-	DX_DContext->DrawIndexed(idxCount, 0, 0);
+	dContext->DrawIndexed(idxCount, 0, 0);
 
 }

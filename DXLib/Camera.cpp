@@ -2,8 +2,6 @@
 #include "pch.h"
 #include "Camera.h"
 #include "Transform.h"
-#include "CameraMgr.h"
-#include "Scene.h"
 #include "Mouse.h"
 #include "Keyboard.h"
 
@@ -13,8 +11,6 @@ using namespace DX;
 Camera::Camera(std::string key, FRAME_KIND frameKind, float orthoScnWidth, float orthoScnHeight, float n, float f, float verticalViewRad, float aspectRatio, bool skipFrustum)
 	:key(key)
 {
-	CameraMgr::Instance()->Add(this);
-
 	transform = new Transform();
 
 	SetView();
@@ -24,8 +20,6 @@ Camera::Camera(std::string key, FRAME_KIND frameKind, float orthoScnWidth, float
 }
 Camera::~Camera()
 {
-	CameraMgr::Instance()->Remove(this);
-
 	delete transform;
 }
 void Camera::SetFrame(const FRAME_KIND fKind, XMFLOAT2 orthoSize, const float n, const float f, const float verticalViewRad, const float aspectRatio)
@@ -61,8 +55,8 @@ void Camera::SetFrame(const FRAME_KIND fKind, XMFLOAT2 orthoSize, const float n,
 		projMat = XMMATRIX(
 			sX, 0, 0, 0,
 			0, sY, 0, 0,
-			0, 0, 1.0f / (f - n), 0,
-			0, 0, -n / (f - n), 1
+			0, 0, 1.0f/(f-n), -n/(f-n),
+			0, 0, 0, 1
 		);
 	}
 		break;
@@ -122,7 +116,7 @@ void Camera::Update()
 
 	SetView();
 }
-void Camera::Move(float spf)
+void Camera::Move(XMFLOAT2 scnPos, float spf)
 {
 	XMFLOAT3 newPos = transform->GetPos();
 	XMFLOAT3 right = transform->GetRight();
@@ -148,14 +142,13 @@ void Camera::Move(float spf)
 	static float angleY = 0;
 	static XMFLOAT2 prevMousePt;
 	const float angleSpeed = 3.141592f * 0.2f;
-	XMFLOAT2 mPt = Mouse::Instance()->Pos();
-	if (Mouse::Instance()->RightState() == MOUSE_STATE_PRESSING)
+	/*if (Mouse::Instance()->RightState() == MOUSE_STATE_PRESSING)
 	{
-		angleY += angleSpeed * spf * (mPt.x - prevMousePt.x);
-		angleX += angleSpeed * spf * (mPt.y - prevMousePt.y);
-	}
-	prevMousePt.x = mPt.x;
-	prevMousePt.y = mPt.y;
+		angleY += angleSpeed * spf * (scnPos.x - prevMousePt.x);
+		angleX += angleSpeed * spf * (scnPos.y - prevMousePt.y);
+	}*/
+	prevMousePt.x = scnPos.x;
+	prevMousePt.y = scnPos.y;
 	const XMMATRIX rotMat = XMMatrixRotationX(angleX) * XMMatrixRotationY(angleY);
 	transform->SetTranslation(newPos);
 	XMFLOAT3 f = MultiplyDir(FORWARD, rotMat);
@@ -163,13 +156,11 @@ void Camera::Move(float spf)
 	transform->SetRot(f, u);
 	Update();
 }
-void Camera::Pick(OUT Geometrics::Ray* ray)const
+void Camera::Pick(int iScnWidth, int iScnHeight, XMFLOAT2 scnPos, OUT Geometrics::Ray* ray)const
 {
-	XMFLOAT2 scnPos = Mouse::Instance()->Pos();
-
 	XMFLOAT2 pPos = XMFLOAT2(
-		((scnPos.x * 2) / (float)WND_WIDTH - 1),
-		-(scnPos.y * 2) / (float)WND_HEIGHT + 1);
+		((scnPos.x * 2) / (float)iScnWidth - 1),
+		-(scnPos.y * 2) / (float)iScnHeight + 1);
 	XMFLOAT3 vDir = XMFLOAT3(NULL,NULL,NULL);
 
 	const XMFLOAT3 forward = transform->GetForward();

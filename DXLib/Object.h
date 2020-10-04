@@ -1,9 +1,8 @@
 #pragma once
 
-
-#include "LayerMask.h"
 #include "Network.h"
 #include "Geometrics.h"
+#include <memory>
 
 namespace DX {
 
@@ -20,16 +19,16 @@ class BlendState;
 class DepthStencilState;
 class RasterizerState;
 
-	class Object : public IDebug
+	class DXLIB_DLL Object : public IDebug
 	{
 	public:
-		Object(std::string name, std::shared_ptr<Mesh> shape, std::shared_ptr<Collider> collider, std::string sVS, const D3D11_INPUT_ELEMENT_DESC* iLayouts, UINT layoutCount, std::string sHS, std::string sDS, std::string sGS, std::string sPS, bool directRender = true);
-		Object(std::string name, std::shared_ptr<Mesh> shape, std::shared_ptr<Collider> collider, ID3D11ShaderResourceView* diffSRV, ID3D11ShaderResourceView* normalSRV = nullptr, bool directRender = true);
+		Object(ID3D11Device* device, ID3D11DeviceContext* dContext,  std::string name, std::shared_ptr<Mesh> shape, std::shared_ptr<Collider> collider, std::string sVS, const D3D11_INPUT_ELEMENT_DESC* iLayouts, UINT layoutCount, std::string sHS, std::string sDS, std::string sGS, std::string sPS, bool directRender = true);
+		Object(ID3D11Device* device, ID3D11DeviceContext* dContext,  std::string name, std::shared_ptr<Mesh> shape, std::shared_ptr<Collider> collider, ID3D11ShaderResourceView* diffSRV, ID3D11ShaderResourceView* normalSRV = nullptr, bool directRender = true);
 		virtual ~Object();
 
 		virtual void Update();
-		virtual void Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) const;
-		virtual void RenderGeom() const;
+		virtual void Render(ID3D11DeviceContext* dContext, const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) const;
+		virtual void RenderGeom(ID3D11DeviceContext* dContext) const;
 
 		virtual bool IsPicking(Geometrics::Ray ray)const;
 		virtual void UpdateBound();
@@ -58,13 +57,13 @@ class RasterizerState;
 
 	protected:
 		Object();
-		void Render()const;
+		void Render(ID3D11DeviceContext* dContext)const;
 		virtual bool IsInsideFrustum(const Frustum& frustum) const;
 
 
 		bool enabled = true;
 		bool show = true;
-		int layer = LAYER_STD;
+		int layer;
 
 		Geometrics::Sphere bound;
 	};

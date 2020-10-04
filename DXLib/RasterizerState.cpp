@@ -5,7 +5,7 @@
 
 using namespace DX;
 
-RasterizerState::RasterizerState(D3D11_RASTERIZER_DESC* desc)
+RasterizerState::RasterizerState(ID3D11Device* device, D3D11_RASTERIZER_DESC* desc)
 {
 	D3D11_RASTERIZER_DESC curDesc;
 
@@ -21,14 +21,14 @@ RasterizerState::RasterizerState(D3D11_RASTERIZER_DESC* desc)
 		curDesc = *desc;
 	}
 
-	HRESULT hr = DX_Device->CreateRasterizerState(&curDesc, &state);
+	HRESULT hr = device->CreateRasterizerState(&curDesc, &state);
 	r_assert(hr);
 }
 RasterizerState::~RasterizerState()
 {
 	state->Release();
 }
-void RasterizerState::Apply()const
+void RasterizerState::Apply(ID3D11DeviceContext* dContext)const
 {
-	DX_DContext->RSSetState(state);
+	dContext->RSSetState(state);
 }

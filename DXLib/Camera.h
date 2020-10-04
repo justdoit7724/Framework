@@ -27,20 +27,20 @@ namespace DX
 		Frustum() {}
 	};
 
-	class Camera
+	class DXLIB_DLL Camera
 	{
 	public:
 		Camera(std::string key, FRAME_KIND frameKind, float screenWidth, float screenHeight, float nearPlane, float farPlane, float verticalViewRad, float aspectRatio, bool skipFrustum);
 		~Camera();
 		void SetFrame(const FRAME_KIND fKind, XMFLOAT2 orthoSize, const float nearPlane, const float farPlane, const float verticalViewAngle, const float aspectRatio);
 		void Update();
-		void Move(float spf);
+		void Move(XMFLOAT2 scnPos, float spf);
 		void SetView();
 		void SetProj(XMMATRIX mat);
 
 		const XMMATRIX& VMat()const { return viewMat; }
 		const XMMATRIX& ProjMat()const { return projMat; }
-		void Pick(OUT Geometrics::Ray* ray)const;
+		void Pick(int iScnWidth, int iScnHeight, XMFLOAT2 scnPos, OUT Geometrics::Ray* ray)const;
 
 		const std::string key;
 
