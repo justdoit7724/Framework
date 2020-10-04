@@ -27,12 +27,12 @@ float4 main(PS_INPUT input) : SV_Target
 {
 	input.normal = normalize(input.normal);
 
-    float3 look = normalize(input.wPos - eyePos.xyz);
+    float3 view = normalize(eyePos.xyz - input.wPos);
     
     float3 ambient = 0;
     float3 diffuse = 0;
     float3 specular = 0;
-    ComputeDirectionalLight(input.normal, -look, ambient, diffuse, specular);
+    ComputeDirectionalLight(input.normal, view, ambient, diffuse, specular);
     
     float3 tex = diffuseTex.Sample(pointSamp, input.tex).xyz;
     

@@ -50,18 +50,23 @@ namespace DX {
 	struct SHADER_STD_TRANSF
 	{
 		XMMATRIX w;
-		XMMATRIX vp;
+		XMMATRIX v;
+		XMMATRIX p;
 		XMMATRIX n;
+		float fNear;
+		float fFar;
+		float fAspect;
+		float fRatio;
 
-		SHADER_STD_TRANSF(const XMMATRIX& vp)
-			:vp(vp)
+		SHADER_STD_TRANSF(XMMATRIX v, XMMATRIX p, float fNear, float fFar, float fAspect, float fRatio)
+			:v(v), p(p), fNear(fNear), fFar(fFar), fAspect(fAspect), fRatio(fRatio)
 		{
 			const XMMATRIX& mId = DirectX::XMMatrixIdentity();
 			w = mId;
 			n = mId;
 		}
-		SHADER_STD_TRANSF(const XMMATRIX& world, const XMMATRIX& vp)
-			:w(world), vp(vp)
+		SHADER_STD_TRANSF(XMMATRIX world, XMMATRIX v, XMMATRIX p, float fNear, float fFar, float fAspect, float fRatio)
+			:w(world), v(v), p(p), fNear(fNear), fFar(fFar), fAspect(fAspect), fRatio(fRatio)
 		{
 			XMVECTOR det = DirectX::XMMatrixDeterminant(world);
 			n = DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(&det, world));
@@ -120,7 +125,7 @@ namespace DX {
 	};
 	struct SHADER_POINT_LIGHT {
 
-		SHADER_POINT_LIGHT() 
+		SHADER_POINT_LIGHT()
 		{
 			for (int i = 0; i < LIGHT_MAX_EACH; ++i)
 			{
@@ -137,7 +142,7 @@ namespace DX {
 	};
 	struct SHADER_SPOT_LIGHT {
 
-		SHADER_SPOT_LIGHT() 
+		SHADER_SPOT_LIGHT()
 		{
 			ZeroMemory(ambient, sizeof(XMFLOAT4) * LIGHT_MAX_EACH);
 			ZeroMemory(diffuse, sizeof(XMFLOAT4) * LIGHT_MAX_EACH);

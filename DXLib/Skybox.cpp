@@ -43,7 +43,7 @@ void Skybox::Mapping(ID3D11DeviceContext* dContext, ID3D11ShaderResourceView* cm
 {
 	dContext->PSSetShaderResources(SHADER_REG_SRV_CM, 1, &cmSRV);
 }
-void Skybox::Render(ID3D11DeviceContext* dContext, const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) const
+void Skybox::Render(ID3D11DeviceContext* dContext, const XMMATRIX& v, const XMMATRIX& p, const Frustum& frustum, UINT sceneDepth) const
 {
 	if (sceneDepth != 0)
 		return;
@@ -53,7 +53,7 @@ void Skybox::Render(ID3D11DeviceContext* dContext, const XMMATRIX& vp, const Fru
 
 	if (IsInsideFrustum(frustum))
 	{
-		XMMATRIX wvp = transform->WorldMatrix() * vp;
+		XMMATRIX wvp = transform->WorldMatrix() * v * p;
 		vs->WriteCB(dContext, 0, &wvp);
 
 		Object::Render(dContext);

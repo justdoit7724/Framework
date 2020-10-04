@@ -133,14 +133,14 @@ void Object::Render(ID3D11DeviceContext* dContext)const
 
 	mesh->Apply(dContext);
 }
-void Object::Render(ID3D11DeviceContext* dContext, const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) const
+void Object::Render(ID3D11DeviceContext* dContext, const XMMATRIX& v, const XMMATRIX& p, const Frustum& frustum, UINT sceneDepth) const
 {
 	if (!enabled || !show)
 		return;
 
 	if (IsInsideFrustum(frustum))
 	{
-		const SHADER_STD_TRANSF STransformation(transform->WorldMatrix(), vp);
+		const SHADER_STD_TRANSF STransformation(transform->WorldMatrix(), v, p, 1,1000,XM_PIDIV2,1);
 
 		vs->WriteCB(dContext,0, &STransformation);
 

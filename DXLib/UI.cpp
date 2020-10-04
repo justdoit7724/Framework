@@ -13,7 +13,6 @@
 #include "DepthStencilState.h"
 #include "RasterizerState.h"
 #include "BlendState.h"
-#include "Mouse.h"
 
 using namespace DX;
 

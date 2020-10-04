@@ -29,14 +29,14 @@ UnlitObj::UnlitObj(ID3D11Device* device, ID3D11DeviceContext* dContext, std::str
 	ps->AddCB(device,SHADER_REG_CB_COLOR, 1, sizeof(XMVECTOR));
 }
 
-void UnlitObj::Render(ID3D11DeviceContext* dContext, const XMMATRIX & vp, const Frustum & frustum, UINT sceneDepth) const
+void UnlitObj::Render(ID3D11DeviceContext* dContext, const XMMATRIX & v, const XMMATRIX& p, const Frustum & frustum, UINT sceneDepth) const
 {
 	if (!enabled || !show)
 		return;
 
 	if (IsInsideFrustum(frustum))
 	{
-		XMMATRIX wvp = transform->WorldMatrix() * vp;
+		XMMATRIX wvp = transform->WorldMatrix() * v*p;
 
 		vs->WriteCB(dContext, 0, &wvp);
 		ps->WriteCB(dContext, SHADER_REG_CB_COLOR, &color);

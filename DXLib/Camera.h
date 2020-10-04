@@ -34,7 +34,6 @@ namespace DX
 		~Camera();
 		void SetFrame(const FRAME_KIND fKind, XMFLOAT2 orthoSize, const float nearPlane, const float farPlane, const float verticalViewAngle, const float aspectRatio);
 		void Update();
-		void Move(XMFLOAT2 scnPos, float spf);
 		void SetView();
 		void SetProj(XMMATRIX mat);
 

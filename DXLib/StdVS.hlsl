@@ -11,9 +11,14 @@ struct VS_OUTPUT
 
 cbuffer CB_VS_PROPERTY : register(b0)
 {
-    column_major float4x4 WMat;
-    column_major float4x4 VPMat;
-    column_major float4x4 NMat;
+    float4x4 WMat;
+    float4x4 VMat;
+    float4x4 PMat;
+    float4x4 NMat;
+    float near;
+    float far;
+    float aspect;
+    float scnRatio;
 };
 
 VS_OUTPUT main(STD_VS_INPUT input)
@@ -22,7 +27,11 @@ VS_OUTPUT main(STD_VS_INPUT input)
     
     float4 wPos = mul(WMat, float4(input.pos, 1));
     output.wPos = wPos.xyz;
-    output.pos = mul(VPMat, float4(output.wPos, 1));
+    float4 vPos = mul(VMat, wPos);
+    
+    float4 pPos = mul(PMat, vPos);
+   
+    output.pos = pPos;
     output.normal = mul((float3x3) NMat, input.normal);
     output.tex = input.tex;
     output.tangent = mul((float3x3) WMat, input.tangent);

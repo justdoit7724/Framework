@@ -13,8 +13,6 @@
 #include "Transform.h"
 #include "Camera.h"
 
-#include "Keyboard.h"
-#include "Mouse.h"
 #include "Network.h"
 #include "LayerMask.h"
 #include "SphereMesh.h"

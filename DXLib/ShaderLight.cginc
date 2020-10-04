@@ -44,7 +44,7 @@ cbuffer MATERIAL : register(b4)
     float4 mAmbient;
     float4 mSpecular;
 };
-void ComputeDirectionalLight(float3 normal, float3 toEye, out float3 ambient, out float3 diffuse, out float3 spec)
+void ComputeDirectionalLight(float3 normal, float3 view, out float3 ambient, out float3 diffuse, out float3 spec)
 {
     ambient = float3(0.0f, 0.0f, 0.0f);
     diffuse = float3(0.0f, 0.0f, 0.0f);
@@ -59,13 +59,13 @@ void ComputeDirectionalLight(float3 normal, float3 toEye, out float3 ambient, ou
         diffuse += saturate(dot(-d_Dir[i].xyz, normal)) * mDiffuse.xyz * d_Diffuse[i].xyz;
     
         float3 v = reflect(d_Dir[i].xyz, normal);
-        float specFactor = pow(saturate(dot(v, toEye)), LIGHT_SPEC_POWER_MAX);
+        float specFactor = pow(saturate(dot(v, view)), LIGHT_SPEC_POWER_MAX);
         spec += specFactor * mSpecular.xyz * d_Specular[i].xyz;
     }
 }
 
 // not used in the project
-void ComputePointLight(float3 pos, float3 normal, float3 toEye, out float3 ambient, out float3 diffuse, out float3 spec)
+void ComputePointLight(float3 pos, float3 normal, float3 view, out float3 ambient, out float3 diffuse, out float3 spec)
 {
     ambient = float3(0.0f, 0.0f, 0.0f);
     diffuse = float3(0.0f, 0.0f, 0.0f);
@@ -85,7 +85,7 @@ void ComputePointLight(float3 pos, float3 normal, float3 toEye, out float3 ambie
         lightVec /= d; // normalize
         float diffuseFactor = max(0.0f, dot(lightVec, normal));
         
-        float3 hVec = normalize(toEye + lightVec);
+        float3 hVec = normalize(view + lightVec);
         float specFactor = pow(saturate(dot(hVec, normal)), mSpecular.w);
         float att = 1.0f / dot(p_Att[i].xyz, float3(1.0f, d, d * d));
         
@@ -97,7 +97,7 @@ void ComputePointLight(float3 pos, float3 normal, float3 toEye, out float3 ambie
         spec += tmpS;
     }
 }
-void ComputeSpotLight(float3 pos, float3 normal, float3 toEye, out float3 ambient, out float3 diffuse, out float3 spec)
+void ComputeSpotLight(float3 pos, float3 normal, float3 view, out float3 ambient, out float3 diffuse, out float3 spec)
 {
     ambient = float3(0.0f, 0.0f, 0.0f);
     diffuse = float3(0.0f, 0.0f, 0.0f);
@@ -122,7 +122,7 @@ void ComputeSpotLight(float3 pos, float3 normal, float3 toEye, out float3 ambien
         float diffuseFactor = saturate(dot(lightVec, normal));
         
         float3 v = reflect(-lightVec, normal);
-        float specFactor = pow(saturate(dot(v, toEye)), mSpecular.w);
+        float specFactor = pow(saturate(dot(v, view)), mSpecular.w);
         float spot = pow(saturate(dot(-lightVec, s_Dir[i].xyz)), s_info[i].w);
         float att = spot / dot(s_Att[i].xyz, float3(1.0f, d, d * d));
         tmpD = diffuseFactor * mDiffuse.xyz * s_Diffuse[i].xyz * att;

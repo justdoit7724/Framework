@@ -35,8 +35,8 @@ void SceneMgr::BroadcastMessage(unsigned int msg)
 
 void SceneMgr::Process(float wElapsed, float wSpf)
 {
-	for (auto key : executeOrder)
+	for (auto curScene : list)
 	{
-		list[key]->Update(wElapsed, wSpf);
+		curScene.second->Update(wElapsed, wSpf);
 	}
 }

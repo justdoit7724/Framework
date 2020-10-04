@@ -27,7 +27,7 @@ class RasterizerState;
 		virtual ~Object();
 
 		virtual void Update();
-		virtual void Render(ID3D11DeviceContext* dContext, const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) const;
+		virtual void Render(ID3D11DeviceContext* dContext, const XMMATRIX& v, const XMMATRIX& p, const Frustum& frustum, UINT sceneDepth) const;
 		virtual void RenderGeom(ID3D11DeviceContext* dContext) const;
 
 		virtual bool IsPicking(Geometrics::Ray ray)const;

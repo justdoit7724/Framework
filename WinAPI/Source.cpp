@@ -28,8 +28,6 @@ int APIENTRY main(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine,
 	//WndTest* test = new WndTest();
 	//testWindow->SetWndProcPt(test);
 
-#pragma region loop operation
-
 	MSG msg;
 	ZeroMemory(&msg, sizeof(MSG));
 
@@ -47,10 +45,7 @@ int APIENTRY main(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine,
 		{
 			dx->Update();
 		}
-
-
 	}
-#pragma endregion
 
 	delete dx;
 

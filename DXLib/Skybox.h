@@ -13,7 +13,7 @@ namespace DX {
 
 		void Mapping(ID3D11DeviceContext* dContext, ID3D11ShaderResourceView* cmSRV)const;
 		void Update() override {};
-		void Render(ID3D11DeviceContext* dContext, const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth)const override;
+		void Render(ID3D11DeviceContext* dContext, const XMMATRIX& v, const XMMATRIX& p, const Frustum& frustum, UINT sceneDepth)const override;
 		void RenderGeom(ID3D11DeviceContext* dContext) const override {};
 
 	private:

@@ -2,8 +2,6 @@
 #include "pch.h"
 #include "Camera.h"
 #include "Transform.h"
-#include "Mouse.h"
-#include "Keyboard.h"
 
 #define Z_ORDER_MAX 5
 using namespace DX;
@@ -115,46 +113,6 @@ void Camera::Update()
 	}
 
 	SetView();
-}
-void Camera::Move(XMFLOAT2 scnPos, float spf)
-{
-	XMFLOAT3 newPos = transform->GetPos();
-	XMFLOAT3 right = transform->GetRight();
-	XMFLOAT3 forward = transform->GetForward();
-	const float speed = 50;
-	if (Keyboard::GetKey('A') == KeyState::KeyState_Pressing) {
-
-		newPos += -right * speed * spf;
-	}
-	else if (Keyboard::GetKey('D') == KeyState::KeyState_Pressing) {
-
-		newPos += right * speed * spf;
-	}
-	if (Keyboard::GetKey('S') == KeyState::KeyState_Pressing) {
-
-		newPos += -forward * speed * spf;
-	}
-	else if (Keyboard::GetKey('W') == KeyState::KeyState_Pressing) {
-
-		newPos += forward * speed * spf;
-	}
-	static float angleX = 0;
-	static float angleY = 0;
-	static XMFLOAT2 prevMousePt;
-	const float angleSpeed = 3.141592f * 0.2f;
-	/*if (Mouse::Instance()->RightState() == MOUSE_STATE_PRESSING)
-	{
-		angleY += angleSpeed * spf * (scnPos.x - prevMousePt.x);
-		angleX += angleSpeed * spf * (scnPos.y - prevMousePt.y);
-	}*/
-	prevMousePt.x = scnPos.x;
-	prevMousePt.y = scnPos.y;
-	const XMMATRIX rotMat = XMMatrixRotationX(angleX) * XMMatrixRotationY(angleY);
-	transform->SetTranslation(newPos);
-	XMFLOAT3 f = MultiplyDir(FORWARD, rotMat);
-	XMFLOAT3 u = MultiplyDir(UP, rotMat);
-	transform->SetRot(f, u);
-	Update();
 }
 void Camera::Pick(int iScnWidth, int iScnHeight, XMFLOAT2 scnPos, OUT Geometrics::Ray* ray)const
 {

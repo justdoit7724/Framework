@@ -2,10 +2,13 @@
 #include "WndDX.h"
 #include "Window.h"
 #include "SceneMgr.h"
+#include "Timer.h"
 
 #include "StartScene.h"
 
 WndDX::WndDX(HWND hwnd) {
+
+	m_timer = new Timer();
 
 	RECT rect;
 	GetClientRect(hwnd, &rect);
@@ -22,45 +25,16 @@ WndDX::WndDX(HWND hwnd) {
 WndDX::~WndDX()
 {
 	delete m_pEnv;
+	delete m_timer;
 }
 
 void WndDX::Update()
 {
-	startScene->Update(0, 0);
+	m_timer->Update();
+
+	SceneMgr::Instance()->Process(m_timer->Elapsed(), m_timer->SPF());
 
 	m_pEnv->Present();
-}
-
-void WndDX::ReleaseKey(WPARAM wparam)
-{
-}
-
-void WndDX::PressKey(WPARAM wparam)
-{
-}
-
-void WndDX::Mouse_LBtnDown()
-{
-}
-
-void WndDX::Mouse_LBtnUp()
-{
-}
-
-void WndDX::Mouse_RBtnDown()
-{
-}
-
-void WndDX::Mouse_RBtnUp()
-{
-}
-
-void WndDX::Mouse_UpdatePt(LPARAM lparam)
-{
-}
-
-void WndDX::Mouse_Wheel(WPARAM wparam)
-{
 }
 
 void WndDX::WndProc(unsigned int msg, unsigned long long wparam, long long lparam)
@@ -68,28 +42,28 @@ void WndDX::WndProc(unsigned int msg, unsigned long long wparam, long long lpara
 	switch (msg)
 	{
 	case WM_KEYUP:
-		ReleaseKey(wparam);
+		startScene->ReleaseKey(wparam);
 		break;
 	case WM_KEYDOWN:
-		PressKey(wparam);
+		startScene->PressKey(wparam);
 		break;
 	case WM_LBUTTONDOWN:
-		Mouse_LBtnDown();
+		startScene->Mouse_LBtnDown();
 		break;
 	case WM_LBUTTONUP:
-		Mouse_LBtnUp();
+		startScene->Mouse_LBtnUp();
 		break;
 	case WM_RBUTTONDOWN:
-		Mouse_RBtnDown();
+		startScene->Mouse_RBtnDown();
 		break;
 	case WM_RBUTTONUP:
-		Mouse_RBtnUp();
+		startScene->Mouse_RBtnUp();
 		break;
 	case WM_MOUSEMOVE:
-		Mouse_UpdatePt(lparam);
+		startScene->Mouse_UpdatePt(lparam);
 		break;
 	case WM_MOUSEWHEEL:
-		Mouse_Wheel(wparam);
+		startScene->Mouse_Wheel(wparam);
 		break;
 	default:
 		break;
