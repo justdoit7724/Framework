@@ -14,24 +14,15 @@ int APIENTRY main(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine,
 
 	srand(time(NULL));
 
+	Window* mainWnd = new Window(hInstance, 50,50, 1000, 700, "Main", WindowType::Frame);
+	Window* dxWnd = new Window(hInstance, 50,50, 600, 600, "DX_display", WindowType::Popup);
+	mainWnd->AddChild(std::move(dxWnd));
 
-	const int SCN_WIDTH = 700;
-	const int SCN_HEIGHT = 700;
-
-	Window* mainWindow = new Window(hInstance, 50,50, SCN_WIDTH, SCN_HEIGHT, "Main");
-	//Window* testWindow = new Window(hInstance, 600, 50, 300, 400, "Test");
-
-	WndDX* dx = new WndDX(mainWindow->HWnd());
-	mainWindow->SetWndProcPt(dx);
-	mainWindow->ShowWindow();
-	//testWindow->ShowWindow();
-	//WndTest* test = new WndTest();
-	//testWindow->SetWndProcPt(test);
+	WndDX* dx = new WndDX(dxWnd->HWnd());
+	dxWnd->SetWndProcPt(dx);
 
 	MSG msg;
 	ZeroMemory(&msg, sizeof(MSG));
-
-	
 
 	while (msg.message != WM_QUIT) {
 

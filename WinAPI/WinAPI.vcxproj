@@ -156,6 +156,7 @@
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="Window.cpp" />
     <ClCompile Include="WndDX.cpp" />
+    <ClCompile Include="WndMain.cpp" />
     <ClCompile Include="WndTest.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -169,6 +170,7 @@
     <ClInclude Include="Timer.h" />
     <ClInclude Include="Window.h" />
     <ClInclude Include="WndDX.h" />
+    <ClInclude Include="WndMain.h" />
     <ClInclude Include="WndTest.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

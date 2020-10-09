@@ -4,7 +4,8 @@
 
 LRESULT HandleMsg(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
-Window::Window(HINSTANCE hInstance, int x, int y, int width, int height, std::string className)
+Window::Window(HINSTANCE hInstance, int x, int y, int width, int height, std::string className, WindowType type)
+	:m_hWnd(nullptr), m_hInstance(hInstance), m_strName(className)
 {
 	WNDCLASSEX wc = { 0 };
 	wc.style = CS_OWNDC;
@@ -18,16 +19,27 @@ Window::Window(HINSTANCE hInstance, int x, int y, int width, int height, std::st
 	wc.hbrBackground = NULL;
 	wc.lpszMenuName = NULL;
 	std::wstring wstrClassName;
-	wstrClassName.assign(className.begin(), className.end());
+	wstrClassName.assign(m_strName.begin(), m_strName.end());
 	wc.lpszClassName = wstrClassName.c_str();
 	wc.cbSize = sizeof(WNDCLASSEX);
 	RegisterClassEx(&wc);
 
+	DWORD dwStyle= WS_OVERLAPPED;
+	switch (type)
+	{
+	case WindowType::Frame:
+		dwStyle = WS_OVERLAPPED | WS_SYSMENU;
+		break;
+	case WindowType::Popup:
+		dwStyle = WS_POPUP | WS_BORDER;
+		break;
+	}
+
 	m_hWnd = CreateWindowEx(
 		0,
-		wc.lpszClassName,
-		L"dx",
-		WS_OVERLAPPED | WS_SYSMENU,
+		wstrClassName.c_str(),
+		wstrClassName.c_str(),
+		dwStyle,
 		x, y,
 		width, height,
 		NULL,
@@ -42,16 +54,25 @@ Window::Window(HINSTANCE hInstance, int x, int y, int width, int height, std::st
 	offset.x = width - clientRect.right;
 	offset.y = height - clientRect.bottom;
 	MoveWindow(m_hWnd, x, y, width + offset.x, height + offset.y, FALSE);
+
+	ShowWindow();
+}
+
+Window::Window(Window*&& wnd)
+	:m_hWnd(wnd->m_hWnd), m_hInstance(wnd->m_hInstance), m_strName(wnd->m_strName)
+{
+	wnd->m_hWnd = nullptr;
 }
 
 Window::~Window()
 {
-	DestroyWindow(m_hWnd);
+	if(m_hWnd)
+		DestroyWindow(m_hWnd);
 }
 
-void Window::SetWndProcPt(void* pData)
+void Window::SetWndProcPt(IWindow* iWnd)
 {
-	SetWindowLongPtr(m_hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pData));
+	SetWindowLongPtr(m_hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(iWnd));
 }
 
 void Window::ShowWindow()
@@ -59,6 +80,56 @@ void Window::ShowWindow()
 	::ShowWindow(m_hWnd, SW_SHOW);
 	SetForegroundWindow(m_hWnd);
 	SetFocus(m_hWnd);
+}
+
+void Window::AddChild(Window* CWnd)
+{
+	SetParent(CWnd->m_hWnd, m_hWnd);
+}
+
+int Window::GetX()
+{
+	RECT rc;
+
+	if (GetClientRect(m_hWnd, &rc))
+		return rc.left;
+
+	return -1;
+}
+
+int Window::GetY()
+{
+	RECT rc;
+
+	if (GetClientRect(m_hWnd, &rc))
+		return rc.top;
+
+	return -1;
+}
+
+int Window::GetWidth()
+{
+	RECT rc;
+
+	if (GetClientRect(m_hWnd, &rc))
+		return (rc.right-rc.left);
+
+	return -1;
+}
+
+int Window::GetHeight()
+{
+	RECT rc;
+
+	if (GetClientRect(m_hWnd, &rc))
+		return (rc.bottom - rc.top);
+
+	return -1;
+}
+
+std::string Window::GetName()
+{
+	return m_strName;
 }
 
 HWND Window::HWnd()const
