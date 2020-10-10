@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "StartScene.h"
 #include "Keyboard.h"
+#include "Timer.h"
 
 using namespace DX;
 
@@ -26,68 +27,54 @@ StartScene::StartScene(ID3D11Device* device, ID3D11DeviceContext* dContext, cons
 	samp->Release();
 
 	m_dLight = new DX::DirectionalLight(
-		XMFLOAT3(0.5, 0.5, 0.5),
+		XMFLOAT3(0.25, 0.25, 0.25),
 		XMFLOAT3(0.8, 0.8, 0.8),
-		XMFLOAT3(0.4, 0.4, 0.4),
+		XMFLOAT3(1.0, 1.0, 1.0),
 		DX::Normalize(XMFLOAT3(-1, -0.5f, -1))
 	);
 
 	m_camera = new DX::Camera("cam", DX::FRAME_KIND_PERSPECTIVE, NULL, NULL, 1.0f, 1000.0f, XM_PIDIV2, 1, false);
+	m_camera->transform->SetTranslation(0, 0, -50);
 
 	m_cbEye = new DX::Buffer(device, sizeof(XMFLOAT4));
 
-	std::shared_ptr<DX::Mesh> pMesh = std::make_shared<DX::SphereMesh>(m_device, 5);
+	std::shared_ptr<DX::Mesh> pSphereMesh = std::make_shared<DX::SphereMesh>(m_device,4);
+	std::shared_ptr<DX::Mesh> pCubeMesh = std::make_shared<DX::CubeMesh>(m_device);
+	std::shared_ptr<DX::Mesh> pFloorMesh = std::make_shared<DX::QuadMesh>(m_device);
 
-	ID3D11ShaderResourceView* diffSRV;
+
+	ID3D11ShaderResourceView* redSRV;
+	ID3D11ShaderResourceView* blueSRV;
+	ID3D11ShaderResourceView* greenSRV;
+	ID3D11ShaderResourceView* whiteSRV;
 	ID3D11ShaderResourceView* normSRV;
-	DX::LoadTexture(m_device, m_dContext, "C:\\Users\\Jun\\source\\repos\\Framework\\Data\\Texture\\sample.jpg", &diffSRV);
+	DX::LoadTexture(m_device, m_dContext, "C:\\Users\\Jun\\source\\repos\\Framework\\Data\\Texture\\red_light.png", &redSRV);
+	DX::LoadTexture(m_device, m_dContext, "C:\\Users\\Jun\\source\\repos\\Framework\\Data\\Texture\\green_light.png", &greenSRV);
+	DX::LoadTexture(m_device, m_dContext, "C:\\Users\\Jun\\source\\repos\\Framework\\Data\\Texture\\blue_light.png", &blueSRV);
+	DX::LoadTexture(m_device, m_dContext, "C:\\Users\\Jun\\source\\repos\\Framework\\Data\\Texture\\white.png", &whiteSRV);
 	DX::LoadTexture(m_device, m_dContext, "C:\\Users\\Jun\\source\\repos\\Framework\\Data\\Texture\\default_normal.png", &normSRV);
 
 
-	auto obj = new DX::Object(m_device, m_dContext, "obj", pMesh, nullptr, diffSRV, normSRV);
-	obj->transform->SetScale(20, 20, 20);
-	obj->transform->SetTranslation(0,0,50);
-	m_vObj.push_back(obj);
+	m_dxBlueBox = new DX::Object(m_device, m_dContext, "obj", pCubeMesh, nullptr, redSRV, normSRV);
+	m_dxBlueBox->transform->SetScale(40, 40, 20);
+	m_dxBlueBox->transform->SetTranslation(0,20,50);
+	m_vObj.push_back(m_dxBlueBox);
 
-	obj = new DX::Object(m_device, m_dContext, "obj", pMesh, nullptr, diffSRV, normSRV);
-	obj->transform->SetScale(20, 20, 20);
-	obj->transform->SetTranslation(40,0,50);
-	m_vObj.push_back(obj);
+	m_dxBlueBox = new DX::Object(m_device, m_dContext, "obj", pSphereMesh, nullptr, greenSRV, normSRV);
+	m_dxBlueBox->transform->SetScale(20, 20, 20);
+	m_dxBlueBox->transform->SetTranslation(40,40,50);
+	m_vObj.push_back(m_dxBlueBox);
 
-	obj = new DX::Object(m_device, m_dContext, "obj", pMesh, nullptr, diffSRV, normSRV);
-	obj->transform->SetScale(20, 20, 20);
-	obj->transform->SetTranslation(-40,0,50);
-	m_vObj.push_back(obj);
+	m_dxBlueBox = new DX::Object(m_device, m_dContext, "obj", pCubeMesh, nullptr, blueSRV, normSRV);
+	m_dxBlueBox->transform->SetScale(30, 20, 30);
+	m_dxBlueBox->transform->SetTranslation(-40,30,50);
+	m_vObj.push_back(m_dxBlueBox);
 
-	obj = new DX::Object(m_device, m_dContext, "obj", pMesh, nullptr, diffSRV, normSRV);
-	obj->transform->SetScale(20, 20, 20);
-	obj->transform->SetTranslation(0,40,50);
-	m_vObj.push_back(obj);
+	DX::Object* dxFloor = new DX::Object(m_device, m_dContext, "obj", pFloorMesh, nullptr, whiteSRV, normSRV);
+	dxFloor->transform->SetScale(200, 200, 1);
+	dxFloor->transform->SetRot(UP);
+	m_vObj.push_back(dxFloor);
 
-	obj = new DX::Object(m_device, m_dContext, "obj", pMesh, nullptr, diffSRV, normSRV);
-	obj->transform->SetScale(20, 20, 20);
-	obj->transform->SetTranslation(0,-40,50);
-	m_vObj.push_back(obj);
-
-	obj = new DX::Object(m_device, m_dContext, "obj", pMesh, nullptr, diffSRV, normSRV);
-	obj->transform->SetScale(20, 20, 20);
-	obj->transform->SetTranslation(40, 40, 50);
-	m_vObj.push_back(obj);
-
-	obj = new DX::Object(m_device, m_dContext, "obj", pMesh, nullptr, diffSRV, normSRV);
-	obj->transform->SetScale(20, 20, 20);
-	obj->transform->SetTranslation(-40, 40, 50);
-	m_vObj.push_back(obj);
-
-	obj = new DX::Object(m_device, m_dContext, "obj", pMesh, nullptr, diffSRV, normSRV);
-	obj->transform->SetScale(20, 20, 20);
-	obj->transform->SetTranslation(-40, -40, 50);
-	m_vObj.push_back(obj);
-
-	obj = new DX::Object(m_device, m_dContext, "obj", pMesh, nullptr, diffSRV, normSRV);
-	obj->transform->SetScale(20, 20, 20);
-	obj->transform->SetTranslation(40, -40, 50);
-	m_vObj.push_back(obj);
 
 	/*
 	TextureMgr::Instance()->Load("white", "DXFramework\\Data\\Texture\\white.png");
@@ -167,46 +154,41 @@ void StartScene::Update(float elapsed, float spf)
 
 }
 
-void StartScene::Mouse_LBtnDown()
+void StartScene::WndProc(UINT MSG, WPARAM wparam, LPARAM lparam)
 {
-	Scene::Mouse_LBtnDown();
-}
+	switch (MSG)
+	{
+	case WM_COMMAND:
+	{
+		Timer* timer = (Timer*)lparam;
 
-void StartScene::Mouse_LBtnUp()
-{
-	Scene::Mouse_LBtnUp();
-}
-
-void StartScene::Mouse_RBtnDown()
-{
-	Scene::Mouse_RBtnDown();
-}
-
-void StartScene::Mouse_RBtnUp()
-{
-	Scene::Mouse_RBtnUp();
-}
-
-void StartScene::ReleaseKey(WPARAM wparam)
-{
-	Scene::ReleaseKey(wparam);
-
-
-}
-
-void StartScene::PressKey(WPARAM wparam)
-{
-	Scene::PressKey(wparam);
-
-
-}
-
-void StartScene::Mouse_UpdatePt(LPARAM lparam)
-{
-	Scene::Mouse_UpdatePt(lparam);
-}
-
-void StartScene::Mouse_Wheel(WPARAM wparam)
-{
-	Scene::Mouse_Wheel(wparam);
+		Update(timer->Elapsed(), timer->SPF());
+	}
+		break;
+	case WM_MOUSEMOVE:
+	{
+		POINTS p = MAKEPOINTS(lparam);
+		m_scnMousePos.x = p.x;
+		m_scnMousePos.y = p.y;
+	}
+		break;
+	case WM_LBUTTONDOWN:
+		m_bPressingLMouse = true;
+		break;
+	case WM_LBUTTONUP:
+		m_bPressingLMouse = false;
+		break;
+	case WM_RBUTTONDOWN:
+		m_bPressingRMouse = true;
+		break;
+	case WM_RBUTTONUP:
+		m_bPressingRMouse = false;
+		break;
+	case WM_KEYDOWN:
+		m_keyboard->Press(wparam);
+		break;
+	case WM_KEYUP:
+		m_keyboard->Release(wparam);
+		break;
+	}
 }

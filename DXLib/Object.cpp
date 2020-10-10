@@ -47,7 +47,7 @@ Object::Object(ID3D11Device* device, ID3D11DeviceContext* dContext, std::string 
 
 	vs->AddCB(device, 0, 1, sizeof(SHADER_STD_TRANSF));
 	ps->AddCB(device, SHADER_REG_CB_MATERIAL, 1, sizeof(SHADER_MATERIAL));
-	ps->WriteCB(dContext, SHADER_REG_CB_MATERIAL,&SHADER_MATERIAL(XMFLOAT3(0.7,0.7,0.7), 0.2, XMFLOAT3(0.6, 0.6, 0.6), XMFLOAT3(0.5, 0.5, 0.5)));
+	ps->WriteCB(dContext, SHADER_REG_CB_MATERIAL,&SHADER_MATERIAL(XMFLOAT3(0.6,0.6,0.6), 0.2, XMFLOAT3(0.6, 0.6, 0.6), XMFLOAT3(1.0, 1.0, 1.0)));
 	
 	ps->AddSRV(SHADER_REG_SRV_DIFFUSE, 1);
 	ps->AddSRV(SHADER_REG_SRV_NORMAL, 1);

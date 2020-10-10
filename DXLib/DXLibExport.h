@@ -23,4 +23,5 @@
 #include "LineMesh.h"
 #include "QuadMesh.h"
 #include "SphereMesh.h"
+#include "CubeMesh.h"
 #include "TextureLoad.h"

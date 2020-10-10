@@ -24,16 +24,10 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="WndDX.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="SceneMgr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Scene.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="WndTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="StartScene.cpp">
@@ -51,15 +45,12 @@
     <ClCompile Include="WndMain.cpp">
       <Filter>Window</Filter>
     </ClCompile>
+    <ClCompile Include="WndDXDisplay.cpp">
+      <Filter>Window</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="WndDX.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="IWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Singleton.h">
@@ -69,9 +60,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Scene.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="WndTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="StartScene.h">
@@ -87,6 +75,12 @@
       <Filter>Window</Filter>
     </ClInclude>
     <ClInclude Include="WndMain.h">
+      <Filter>Window</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowDef.h">
+      <Filter>Window</Filter>
+    </ClInclude>
+    <ClInclude Include="WndDXDisplay.h">
       <Filter>Window</Filter>
     </ClInclude>
   </ItemGroup>

@@ -11,7 +11,6 @@ namespace DX
 	};
 
 	class Transform;
-	class Scene;
 	class Buffer;
 
 	struct Frustum

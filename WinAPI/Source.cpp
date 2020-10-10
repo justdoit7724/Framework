@@ -1,11 +1,8 @@
 #include "stdafx.h"
-#include "Window.h"
-#include "WndDX.h"
+#include "WndMain.h"
+#include "WndDXDisplay.h"
 
-#include "WndTest.h"
-
-//TODO dx lib in dll vs normal project
-//for now, the path to normal project was included (properties -> c/c++ path setting)
+#include "Timer.h"
 
 int APIENTRY main(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 
@@ -14,12 +11,10 @@ int APIENTRY main(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine,
 
 	srand(time(NULL));
 
-	Window* mainWnd = new Window(hInstance, 50,50, 1000, 700, "Main", WindowType::Frame);
-	Window* dxWnd = new Window(hInstance, 50,50, 600, 600, "DX_display", WindowType::Popup);
-	mainWnd->AddChild(std::move(dxWnd));
+	Window* mainWnd = new WndMain(hInstance, 50,50, 1000, 700);
+	mainWnd->ShowWindow();
 
-	WndDX* dx = new WndDX(dxWnd->HWnd());
-	dxWnd->SetWndProcPt(dx);
+	Timer timer;
 
 	MSG msg;
 	ZeroMemory(&msg, sizeof(MSG));
@@ -34,11 +29,11 @@ int APIENTRY main(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine,
 		}
 		else
 		{
-			dx->Update();
+			timer.Update();
+
+			SendMessage(mainWnd->HWnd(), WM_COMMAND, ID_COMMAND_UPDATE, (LPARAM)&timer);
 		}
 	}
-
-	delete dx;
 
 	return 0;
 }

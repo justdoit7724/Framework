@@ -10,14 +10,7 @@ public:
 
 	virtual void Message(UINT msg) {};
 
-	virtual void ReleaseKey(WPARAM wparam);
-	virtual void PressKey(WPARAM wparam);
-	virtual void Mouse_LBtnDown();
-	virtual void Mouse_LBtnUp();
-	virtual void Mouse_RBtnDown();
-	virtual void Mouse_RBtnUp();
-	virtual void Mouse_UpdatePt(LPARAM lparam);
-	virtual void Mouse_Wheel(WPARAM wparam);
+	virtual void WndProc(UINT MSG, WPARAM wparam, LPARAM lparam) = 0;
 
 	const wchar_t* m_key;
 protected:

@@ -155,12 +155,10 @@
     </ClCompile>
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="Window.cpp" />
-    <ClCompile Include="WndDX.cpp" />
+    <ClCompile Include="WndDXDisplay.cpp" />
     <ClCompile Include="WndMain.cpp" />
-    <ClCompile Include="WndTest.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="IWindow.h" />
     <ClInclude Include="Keyboard.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneMgr.h" />
@@ -169,9 +167,9 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="Window.h" />
-    <ClInclude Include="WndDX.h" />
+    <ClInclude Include="WindowDef.h" />
+    <ClInclude Include="WndDXDisplay.h" />
     <ClInclude Include="WndMain.h" />
-    <ClInclude Include="WndTest.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
