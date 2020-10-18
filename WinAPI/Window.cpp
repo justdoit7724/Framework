@@ -115,7 +115,6 @@ LRESULT CALLBACK WndDefaultProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lpara
 	{
  		Window* pWnd = (Window*)((LPCREATESTRUCT)lparam)->lpCreateParams;
 		SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pWnd));
-
 	}
 
 	auto pWnd = (Window*)GetWindowLongPtr(hwnd, GWLP_USERDATA);

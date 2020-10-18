@@ -1,7 +1,7 @@
 #pragma once
 #include "Window.h"
 
-class Scene;
+class StartScene;
 
 class WndDXDisplay :
 	public Window
@@ -15,6 +15,6 @@ public:
 private:
 	
 	DX::Graphic* m_dxGraphic;
-	Scene* m_scene;
+	StartScene* m_scene;
 };
 

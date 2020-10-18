@@ -43,3 +43,4 @@ private:
 	Window* operator=(const Window*&&) = delete;
 };
 
+

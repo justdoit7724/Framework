@@ -2,7 +2,7 @@
 #ifndef _SHADER_INFO
 #define _SHADER_INFO
 
-#define EPSILON 0.000001f
+#define EPSILON 0.0000001
 
 float2 Lerp(float2 a, float2 b, float t)
 {

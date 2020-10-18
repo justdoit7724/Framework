@@ -21,6 +21,7 @@ WndDXDisplay::WndDXDisplay(HINSTANCE hInstance, HWND parent, int x, int y, int w
 	m_dxGraphic = new DX::Graphic(m_hWnd, GetWidth(), GetHeight());
 
 	m_scene = new StartScene(m_dxGraphic->Device(), m_dxGraphic->DContext(), L"start");
+
 }
 
 WndDXDisplay::~WndDXDisplay()
@@ -29,9 +30,6 @@ WndDXDisplay::~WndDXDisplay()
 
 void WndDXDisplay::WndProc(UINT msg, WPARAM wparam, LPARAM lparam)
 {
-	if (m_scene)
-		m_scene->WndProc(msg, wparam, lparam);
-
 	switch (msg)
 	{
 	case WM_CREATE:
@@ -41,19 +39,60 @@ void WndDXDisplay::WndProc(UINT msg, WPARAM wparam, LPARAM lparam)
 
 		switch (LOWORD(wparam))
 		{
-		case ID_COMMAND_UPDATE:
+		case ID_COMMAND_REALTIME_UPDATE:
 		{
+			Timer* timer = (Timer*)lparam;
+
+			m_scene->Update(timer->Elapsed(), timer->SPF());
+
 			m_dxGraphic->Present();
 		}
 			break;
-		case ID_RADIO_MAIN_DIRECTIONAL_LIGHT:
+		case ID_CHECK_MAIN_DIRECTIONAL_LIGHT:
+		{
+			bool bCheck = lparam;
+
+			m_scene->EnableDLight(bCheck);
+		}
 			break;
-		case ID_RADIO_MAIN_POINT_LIGHT:
-			break;
-		case ID_RADIO_MAIN_SPOT_LIGHT:
+		case ID_CHECK_MAIN_POINT_LIGHT:
+		{
+			bool bCheck = lparam;
+
+			m_scene->EnablePLight(bCheck);
 			break;
 		}
+		case ID_CHECK_MAIN_SPOT_LIGHT:
+		{
+			bool bCheck = lparam;
 
+			m_scene->EnableSLight(bCheck);
+			break;
+		}
+		}
+
+		break;
+
+	case WM_MOUSEMOVE:
+		m_scene->MouseMove(lparam);
+		break;
+	case WM_LBUTTONDOWN:
+		SetFocus(m_hWnd);
+		break;
+	case WM_LBUTTONUP:
+		break;
+	case WM_RBUTTONDOWN:
+		SetFocus(m_hWnd);
+		m_scene->RButtonDown();
+		break;
+	case WM_RBUTTONUP:
+		m_scene->RButtonUp();
+		break;
+	case WM_KEYDOWN:
+		m_scene->KeyDown(wparam);
+		break;
+	case WM_KEYUP:
+		m_scene->KeyUp(wparam);
 		break;
 	}
 

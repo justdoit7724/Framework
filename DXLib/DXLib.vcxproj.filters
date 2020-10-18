@@ -271,10 +271,10 @@
     <FxCompile Include="SkyboxPS.hlsl">
       <Filter>HLSL</Filter>
     </FxCompile>
-    <FxCompile Include="MarkPS.hlsl">
+    <FxCompile Include="UnlitVS.hlsl">
       <Filter>HLSL</Filter>
     </FxCompile>
-    <FxCompile Include="MarkVS.hlsl">
+    <FxCompile Include="UnlitPS.hlsl">
       <Filter>HLSL</Filter>
     </FxCompile>
   </ItemGroup>

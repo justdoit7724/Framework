@@ -25,10 +25,6 @@ struct SHADER_SPOT_LIGHT;
 		XMFLOAT3 specular;
 
 	public:
-		enum STATE {
-			ENABLED = 1,
-			DISABLED = 0
-		};
 
 		int ID() { return id; }
 		const XMFLOAT3& GetAmbient() { return ambient; }
@@ -37,7 +33,8 @@ struct SHADER_SPOT_LIGHT;
 		virtual void SetAmbient(const XMFLOAT3& a) = 0;
 		virtual void SetDiffuse(const XMFLOAT3& d) = 0;
 		virtual void SetSpecular(const XMFLOAT3& s) = 0;
-		virtual void Enable(STATE enable) = 0;
+		virtual void SetIntensity(float i) = 0;
+		virtual void Enable(bool enable) = 0;
 	};
 
 	class DXLIB_DLL DirectionalLight : public Light
@@ -47,14 +44,15 @@ struct SHADER_SPOT_LIGHT;
 		static ID3D11Buffer* cb;
 
 	public:
-		DirectionalLight(XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, XMFLOAT3 dir);
+		DirectionalLight(XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, float intensity, XMFLOAT3 dir);
 		~DirectionalLight();
 		void SetAmbient(const XMFLOAT3& a) override;
 		void SetDiffuse(const XMFLOAT3& d) override;
 		void SetSpecular(const XMFLOAT3& s) override;
-		void SetDir(XMFLOAT3 d);
-		void Enable(STATE enable) override;
+		void SetIntensity(float i) override;
+		void Enable(bool enable) override;
 
+		void SetDir(XMFLOAT3 d);
 		XMFLOAT3 GetDir()const;
 
 		static void Apply(ID3D11Device* device, ID3D11DeviceContext* dContext);
@@ -70,15 +68,17 @@ struct SHADER_SPOT_LIGHT;
 		static ID3D11Buffer* cb;
 
 	public:
-		PointLight(XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, float range, XMFLOAT3 att, XMFLOAT3 pos);
+		PointLight(XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, float intensity, XMFLOAT3 att, XMFLOAT3 pos);
 		~PointLight();
 		void SetAmbient(const XMFLOAT3& a) override;
 		void SetDiffuse(const XMFLOAT3& d) override;
 		void SetSpecular(const XMFLOAT3& s) override;
+		void SetIntensity(float i) override;
 		void SetPos(XMFLOAT3 p);
-		void SetRange(float r);
 		void SetAtt(XMFLOAT3 at);
-		void Enable(STATE enable) override;
+		void Enable(bool enable) override;
+
+		XMFLOAT3 GetPos();
 
 		static void Apply(ID3D11Device* device, ID3D11DeviceContext* dContext);
 	};
@@ -95,18 +95,23 @@ struct SHADER_SPOT_LIGHT;
 		XMFLOAT3 att;
 
 	public:
-		SpotLight(XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, float range, float spot, float rad, XMFLOAT3 att, XMFLOAT3 pos, XMFLOAT3 dir);
+		SpotLight(XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, float range, float spot, float intensity, float rad, XMFLOAT3 att, XMFLOAT3 pos, XMFLOAT3 dir);
 		~SpotLight();
 		void SetAmbient(const XMFLOAT3& a) override;
 		void SetDiffuse(const XMFLOAT3& d) override;
 		void SetSpecular(const XMFLOAT3& s) override;
+		void SetIntensity(float i) override;
 		void SetPos(XMFLOAT3 p);
 		void SetDir(XMFLOAT3 d);
 		void SetRange(float r);
 		void SetRad(float r);
 		void SetSpot(float s);
 		void SetAtt(XMFLOAT3 at);
-		void Enable(STATE enable);
+		void Enable(bool enable);
+
+
+		XMFLOAT3 GetPos();
+
 
 		static void Apply(ID3D11Device* device, ID3D11DeviceContext* dContext);
 	};

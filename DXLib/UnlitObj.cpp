@@ -20,9 +20,9 @@ using namespace DX;
 
 UnlitObj::UnlitObj(ID3D11Device* device, ID3D11DeviceContext* dContext, std::string name, std::shared_ptr<Mesh> shape, std::shared_ptr<Collider> collider, XMVECTOR color, bool directRender)
 	:Object(device, dContext, name, shape, collider,
-		"MarkVS.cso", simple_ILayouts, ARRAYSIZE(simple_ILayouts),
+		"UnlitVS.cso", simple_ILayouts, ARRAYSIZE(simple_ILayouts),
 		"","","",
-		"MarkPS.cso",
+		"UnlitPS.cso",
 		directRender), color(color)
 {
 	vs->AddCB(device, 0, 1, sizeof(XMMATRIX));

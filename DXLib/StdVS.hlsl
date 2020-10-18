@@ -15,6 +15,8 @@ cbuffer CB_VS_PROPERTY : register(b0)
     float4x4 VMat;
     float4x4 PMat;
     float4x4 NMat;
+    
+    //not use
     float near;
     float far;
     float aspect;
@@ -26,11 +28,10 @@ VS_OUTPUT main(STD_VS_INPUT input)
     VS_OUTPUT output;
     
     float4 wPos = mul(WMat, float4(input.pos, 1));
-    output.wPos = wPos.xyz;
     float4 vPos = mul(VMat, wPos);
-    
     float4 pPos = mul(PMat, vPos);
    
+    output.wPos = wPos.xyz;
     output.pos = pPos;
     output.normal = mul((float3x3) NMat, input.normal);
     output.tex = input.tex;

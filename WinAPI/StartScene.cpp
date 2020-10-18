@@ -2,6 +2,7 @@
 #include "StartScene.h"
 #include "Keyboard.h"
 #include "Timer.h"
+#include "WindowDef.h"
 
 using namespace DX;
 
@@ -29,12 +30,33 @@ StartScene::StartScene(ID3D11Device* device, ID3D11DeviceContext* dContext, cons
 	m_dLight = new DX::DirectionalLight(
 		XMFLOAT3(0.25, 0.25, 0.25),
 		XMFLOAT3(0.8, 0.8, 0.8),
-		XMFLOAT3(1.0, 1.0, 1.0),
+		XMFLOAT3(0.7, 0.7, 0.7),
+		0.7f,
 		DX::Normalize(XMFLOAT3(-1, -0.5f, -1))
 	);
+	m_dLight->Enable(false);
+	m_pLight = new DX::PointLight(
+		XMFLOAT3(0.25, 0.25, 0.25),
+		XMFLOAT3(0.8, 0.8, 0.8),
+		XMFLOAT3(0.5, 0.5, 0.5),
+		300,
+		XMFLOAT3(0.01f, 0.01f, 0.01f),
+		XMFLOAT3(0, 30, 0)
+	);
+	m_pLight->Enable(false);
+	m_sLight = new DX::SpotLight(
+		XMFLOAT3(0.25, 0.25, 0.25),
+		XMFLOAT3(0.8, 0.8, 0.8),
+		XMFLOAT3(0.7, 0.7, 0.7),
+		60,2,1000,XM_PIDIV4,
+		XMFLOAT3(2,2,2),
+		XMFLOAT3(0,20,0),
+		FORWARD
+	);
+	m_sLight->Enable(false);
 
 	m_camera = new DX::Camera("cam", DX::FRAME_KIND_PERSPECTIVE, NULL, NULL, 1.0f, 1000.0f, XM_PIDIV2, 1, false);
-	m_camera->transform->SetTranslation(0, 0, -50);
+	m_camera->transform->SetTranslation(0, 5, -50);
 
 	m_cbEye = new DX::Buffer(device, sizeof(XMFLOAT4));
 
@@ -57,7 +79,7 @@ StartScene::StartScene(ID3D11Device* device, ID3D11DeviceContext* dContext, cons
 
 	m_dxBlueBox = new DX::Object(m_device, m_dContext, "obj", pCubeMesh, nullptr, redSRV, normSRV);
 	m_dxBlueBox->transform->SetScale(40, 40, 20);
-	m_dxBlueBox->transform->SetTranslation(0,20,50);
+	m_dxBlueBox->transform->SetTranslation(0,20,80);
 	m_vObj.push_back(m_dxBlueBox);
 
 	m_dxBlueBox = new DX::Object(m_device, m_dContext, "obj", pSphereMesh, nullptr, greenSRV, normSRV);
@@ -67,11 +89,22 @@ StartScene::StartScene(ID3D11Device* device, ID3D11DeviceContext* dContext, cons
 
 	m_dxBlueBox = new DX::Object(m_device, m_dContext, "obj", pCubeMesh, nullptr, blueSRV, normSRV);
 	m_dxBlueBox->transform->SetScale(30, 20, 30);
-	m_dxBlueBox->transform->SetTranslation(-40,30,50);
+	m_dxBlueBox->transform->SetTranslation(0,30,0);
 	m_vObj.push_back(m_dxBlueBox);
 
+	m_dxPLightBlub = new DX::UnlitObj(m_device, m_dContext, "plightBulb", pSphereMesh, nullptr, XMVectorSet(1,1,1,1));
+	m_dxPLightBlub->transform->SetTranslation(m_pLight->GetPos());
+	m_dxPLightBlub->transform->SetScale(5,5,5);
+	m_dxPLightBlub->SetEnabled(false);
+	m_vObj.push_back(m_dxPLightBlub);
+	m_dxSLightBlub = new DX::UnlitObj(m_device, m_dContext, "slightBulb", pSphereMesh, nullptr, XMVectorSet(1, 1, 1, 1));
+	m_dxSLightBlub->transform->SetTranslation(m_sLight->GetPos());
+	m_dxSLightBlub->transform->SetScale(5, 5, 5);
+	m_dxSLightBlub->SetEnabled(false);
+	m_vObj.push_back(m_dxSLightBlub);
+
 	DX::Object* dxFloor = new DX::Object(m_device, m_dContext, "obj", pFloorMesh, nullptr, whiteSRV, normSRV);
-	dxFloor->transform->SetScale(200, 200, 1);
+	dxFloor->transform->SetScale(300, 300, 1);
 	dxFloor->transform->SetRot(UP);
 	m_vObj.push_back(dxFloor);
 
@@ -92,12 +125,18 @@ StartScene::~StartScene()
 
 void StartScene::Update(float elapsed, float spf)
 {
-	XMFLOAT3 eye = m_camera->transform->GetPos();
-
-	m_cbEye->Write(m_dContext, &eye);
-	m_dContext->PSSetConstantBuffers(SHADER_REG_CB_EYE, 1, m_cbEye->GetAddress());
+	const float lightMoveRad = 50;
+	const float lightMoveSpeed = 10;
+	const float mElapsed = elapsed / 5;
+	XMFLOAT3 pLightPos = (RIGHT * cos(mElapsed) + FORWARD * sin(mElapsed)) * lightMoveRad + UP * 25;
+	XMFLOAT3 sLightPos = (RIGHT * cos(mElapsed*1.3) + FORWARD * sin(mElapsed*1.3)) * lightMoveRad + UP * 20;
+	m_pLight->SetPos(pLightPos);
+	m_dxPLightBlub->transform->SetTranslation(pLightPos);
+	m_sLight->SetPos(sLightPos);
+	m_dxSLightBlub->transform->SetTranslation(sLightPos);
 	m_dLight->Apply(m_device,m_dContext);
-	
+	m_pLight->Apply(m_device,m_dContext);
+	m_sLight->Apply(m_device,m_dContext);
 
 	XMFLOAT3 newPos = m_camera->transform->GetPos();
 	XMFLOAT3 right = m_camera->transform->GetRight();
@@ -139,6 +178,11 @@ void StartScene::Update(float elapsed, float spf)
 	m_camera->transform->SetRot(f, u);
 	m_camera->Update();
 
+	XMFLOAT3 eye = m_camera->transform->GetPos();
+
+	m_cbEye->Write(m_dContext, &eye);
+	m_dContext->PSSetConstantBuffers(SHADER_REG_CB_EYE, 1, m_cbEye->GetAddress());
+
 
 	for (auto obj : m_vObj)
 	{
@@ -154,41 +198,46 @@ void StartScene::Update(float elapsed, float spf)
 
 }
 
-void StartScene::WndProc(UINT MSG, WPARAM wparam, LPARAM lparam)
+void StartScene::EnableDLight(bool b)
 {
-	switch (MSG)
-	{
-	case WM_COMMAND:
-	{
-		Timer* timer = (Timer*)lparam;
+	m_dLight->Enable(b);
+}
 
-		Update(timer->Elapsed(), timer->SPF());
-	}
-		break;
-	case WM_MOUSEMOVE:
-	{
-		POINTS p = MAKEPOINTS(lparam);
-		m_scnMousePos.x = p.x;
-		m_scnMousePos.y = p.y;
-	}
-		break;
-	case WM_LBUTTONDOWN:
-		m_bPressingLMouse = true;
-		break;
-	case WM_LBUTTONUP:
-		m_bPressingLMouse = false;
-		break;
-	case WM_RBUTTONDOWN:
-		m_bPressingRMouse = true;
-		break;
-	case WM_RBUTTONUP:
-		m_bPressingRMouse = false;
-		break;
-	case WM_KEYDOWN:
-		m_keyboard->Press(wparam);
-		break;
-	case WM_KEYUP:
-		m_keyboard->Release(wparam);
-		break;
-	}
+void StartScene::EnablePLight(bool b)
+{
+	m_pLight->Enable(b);
+	m_dxPLightBlub->SetEnabled(b);
+}
+
+void StartScene::EnableSLight(bool b)
+{
+	m_sLight->Enable(b);
+	m_dxSLightBlub->SetEnabled(b);
+}
+
+void StartScene::RButtonDown()
+{
+	m_bPressingRMouse = true;
+}
+
+void StartScene::RButtonUp()
+{
+	m_bPressingRMouse = false;
+}
+
+void StartScene::KeyDown(WPARAM wparam)
+{
+	m_keyboard->Press(wparam);
+}
+
+void StartScene::KeyUp(WPARAM wparam)
+{
+	m_keyboard->Release(wparam);
+}
+
+void StartScene::MouseMove(LPARAM lparam)
+{
+	POINTS p = MAKEPOINTS(lparam);
+	m_scnMousePos.x = p.x;
+	m_scnMousePos.y = p.y;
 }

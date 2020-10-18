@@ -22,10 +22,10 @@ using namespace DX;
 
 Debugging::Debugging(ID3D11Device* device, ID3D11DeviceContext* dContext)
 {
-	markVS = new VShader(device, "MarkVS.cso",
+	markVS = new VShader(device, "UnlitVS.cso",
 		simple_ILayouts,
 		ARRAYSIZE(simple_ILayouts));
-	markPS = new PShader(device, "MarkPS.cso");
+	markPS = new PShader(device, "UnlitPS.cso");
 	markVS->AddCB(device, 0, 1, sizeof(XMMATRIX));
 	markPS->AddCB(device, SHADER_REG_CB_COLOR, 1, sizeof(XMVECTOR));
 

@@ -3,7 +3,7 @@
 
 #define LIGHT_ENABLED 1
 #define LIGHT_DISABLED 0
-#define LIGHT_MAX_EACH 1
+#define LIGHT_MAX_EACH 3
 
 namespace DX {
 	static const D3D11_INPUT_ELEMENT_DESC simple_ILayouts[1] =
@@ -107,13 +107,18 @@ namespace DX {
 	struct SHADER_DIRECTIONAL_LIGHT {
 
 		SHADER_DIRECTIONAL_LIGHT() {
+
+
+			ZeroMemory(ambient, sizeof(XMFLOAT4) * LIGHT_MAX_EACH);
+			ZeroMemory(diffuse, sizeof(XMFLOAT4) * LIGHT_MAX_EACH);
+			ZeroMemory(specular, sizeof(XMFLOAT4) * LIGHT_MAX_EACH);
+			ZeroMemory(dir, sizeof(XMFLOAT4) * LIGHT_MAX_EACH);
+			ZeroMemory(enabled, sizeof(XMFLOAT4) * LIGHT_MAX_EACH);
+			ZeroMemory(intensity, sizeof(XMFLOAT4) * LIGHT_MAX_EACH);
+
 			for (int i = 0; i < LIGHT_MAX_EACH; ++i)
 			{
-				enabled[i] = XMFLOAT4(LIGHT_DISABLED, LIGHT_DISABLED, LIGHT_DISABLED, LIGHT_DISABLED);
-				ambient[i] = XMFLOAT4(0, 0, 0, 0);
-				diffuse[i] = XMFLOAT4(0, 0, 0, 0);
-				specular[i] = XMFLOAT4(0, 0, 0, 0);
-				dir[i] = XMFLOAT4(0, 0, 0, 0);
+				enabled[i] = XMFLOAT4(LIGHT_DISABLED, 0, 0, 0);
 			}
 		}
 
@@ -121,12 +126,23 @@ namespace DX {
 		XMFLOAT4 diffuse[LIGHT_MAX_EACH];
 		XMFLOAT4 specular[LIGHT_MAX_EACH];
 		XMFLOAT4 dir[LIGHT_MAX_EACH];
-		XMFLOAT4 enabled[LIGHT_MAX_EACH];
+		XMFLOAT4 enabled[LIGHT_MAX_EACH]; // enable
+		XMFLOAT4 intensity[LIGHT_MAX_EACH];
+
 	};
 	struct SHADER_POINT_LIGHT {
 
 		SHADER_POINT_LIGHT()
 		{
+
+			ZeroMemory(ambient, sizeof(XMFLOAT4) * LIGHT_MAX_EACH);
+			ZeroMemory(diffuse, sizeof(XMFLOAT4) * LIGHT_MAX_EACH);
+			ZeroMemory(specular, sizeof(XMFLOAT4) * LIGHT_MAX_EACH);
+			ZeroMemory(pos, sizeof(XMFLOAT4) * LIGHT_MAX_EACH);
+			ZeroMemory(info, sizeof(XMFLOAT4) * LIGHT_MAX_EACH);
+			ZeroMemory(att, sizeof(XMFLOAT4) * LIGHT_MAX_EACH);
+			ZeroMemory(intensity, sizeof(XMFLOAT4) * LIGHT_MAX_EACH);
+
 			for (int i = 0; i < LIGHT_MAX_EACH; ++i)
 			{
 				info[i].x = LIGHT_DISABLED;
@@ -137,8 +153,10 @@ namespace DX {
 		XMFLOAT4 diffuse[LIGHT_MAX_EACH];
 		XMFLOAT4 specular[LIGHT_MAX_EACH];
 		XMFLOAT4 pos[LIGHT_MAX_EACH];
-		XMFLOAT4 info[LIGHT_MAX_EACH]; // enable,range
+		XMFLOAT4 info[LIGHT_MAX_EACH]; // enable
 		XMFLOAT4 att[LIGHT_MAX_EACH];
+		XMFLOAT4 intensity[LIGHT_MAX_EACH];
+
 	};
 	struct SHADER_SPOT_LIGHT {
 
@@ -151,6 +169,7 @@ namespace DX {
 			ZeroMemory(info, sizeof(XMFLOAT4) * LIGHT_MAX_EACH);
 			ZeroMemory(dir, sizeof(XMFLOAT4) * LIGHT_MAX_EACH);
 			ZeroMemory(att, sizeof(XMFLOAT4) * LIGHT_MAX_EACH);
+			ZeroMemory(intensity, sizeof(XMFLOAT4) * LIGHT_MAX_EACH);
 
 			for (int i = 0; i < LIGHT_MAX_EACH; ++i)
 			{
@@ -165,6 +184,7 @@ namespace DX {
 		XMFLOAT4 info[LIGHT_MAX_EACH]; // enabled,range,rad,spot
 		XMFLOAT4 dir[LIGHT_MAX_EACH];
 		XMFLOAT4 att[LIGHT_MAX_EACH];
+		XMFLOAT4 intensity[LIGHT_MAX_EACH];
 	};
 
 	struct SHADER_MATERIAL

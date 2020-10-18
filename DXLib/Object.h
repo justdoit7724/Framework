@@ -23,7 +23,7 @@ class RasterizerState;
 	{
 	public:
 		Object(ID3D11Device* device, ID3D11DeviceContext* dContext,  std::string name, std::shared_ptr<Mesh> shape, std::shared_ptr<Collider> collider, std::string sVS, const D3D11_INPUT_ELEMENT_DESC* iLayouts, UINT layoutCount, std::string sHS, std::string sDS, std::string sGS, std::string sPS, bool directRender = true);
-		Object(ID3D11Device* device, ID3D11DeviceContext* dContext,  std::string name, std::shared_ptr<Mesh> shape, std::shared_ptr<Collider> collider, ID3D11ShaderResourceView* diffSRV, ID3D11ShaderResourceView* normalSRV = nullptr, bool directRender = true);
+		Object(ID3D11Device* device, ID3D11DeviceContext* dContext,  std::string name, std::shared_ptr<Mesh> shape, std::shared_ptr<Collider> collider, ID3D11ShaderResourceView* diffSRV, ID3D11ShaderResourceView* normalSRV, bool directRender = true);
 		virtual ~Object();
 
 		virtual void Update();

@@ -10,7 +10,13 @@ public:
 
 	virtual void Message(UINT msg) {};
 
-	virtual void WndProc(UINT MSG, WPARAM wparam, LPARAM lparam) = 0;
+	virtual void RButtonDown() {};
+	virtual void RButtonUp() {};
+	virtual void LButtonDown() {};
+	virtual void LButtonUp() {};
+	virtual void KeyDown(WPARAM wparam) {};
+	virtual void KeyUp(WPARAM wparam) {};
+	virtual void MouseMove(LPARAM lparam) {};
 
 	const wchar_t* m_key;
 protected:

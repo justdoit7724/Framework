@@ -18,6 +18,7 @@
 #include "Transform.h"
 #include "ShaderReg.h"
 #include "Object.h"
+#include "UnlitObj.h"
 #include "Mesh.h"
 #include "CylinderMesh.h"
 #include "LineMesh.h"

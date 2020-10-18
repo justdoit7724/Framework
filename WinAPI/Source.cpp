@@ -31,7 +31,7 @@ int APIENTRY main(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine,
 		{
 			timer.Update();
 
-			SendMessage(mainWnd->HWnd(), WM_COMMAND, ID_COMMAND_UPDATE, (LPARAM)&timer);
+			SendMessage(mainWnd->HWnd(), WM_COMMAND, ID_COMMAND_REALTIME_UPDATE, (LPARAM)&timer);
 		}
 	}
 
