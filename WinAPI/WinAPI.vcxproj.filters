@@ -16,9 +16,6 @@
     <Filter Include="Window">
       <UniqueIdentifier>{1209bf06-f6bf-4a5a-89b4-976b858505ad}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Tutorial">
-      <UniqueIdentifier>{b91a2b1a-507a-46e3-a002-45b22ebe57db}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source.cpp">

@@ -33,8 +33,8 @@ namespace DX {
 		DXGI_SWAP_CHAIN_DESC scd;
 		ZeroMemory(&scd, sizeof(DXGI_SWAP_CHAIN_DESC));
 
-		scd.BufferDesc.Width = resX;
-		scd.BufferDesc.Height = resY;
+		scd.BufferDesc.Width = (UINT)resX;
+		scd.BufferDesc.Height = (UINT)resY;
 		scd.BufferDesc.RefreshRate.Numerator = 60;
 		scd.BufferDesc.RefreshRate.Denominator = 1;
 		scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
