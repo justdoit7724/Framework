@@ -1,12 +1,12 @@
 #include "stdafx.h"
-#include "StartScene.h"
+#include "PlayScene.h"
 #include "Keyboard.h"
 #include "Timer.h"
 #include "WindowDef.h"
 
 using namespace DX;
 
-StartScene::StartScene(ID3D11Device* device, ID3D11DeviceContext* dContext, const wchar_t* key)
+PlayScene::PlayScene(ID3D11Device* device, ID3D11DeviceContext* dContext, const wchar_t* key)
 	:Scene(device, dContext, key)
 {
 	m_keyboard = new Keyboard();
@@ -48,9 +48,9 @@ StartScene::StartScene(ID3D11Device* device, ID3D11DeviceContext* dContext, cons
 		XMFLOAT3(0.25, 0.25, 0.25),
 		XMFLOAT3(0.8, 0.8, 0.8),
 		XMFLOAT3(0.7, 0.7, 0.7),
-		60,2,1000,XM_PIDIV4,
-		XMFLOAT3(2,2,2),
-		XMFLOAT3(0,20,0),
+		60, 2, 1000, XM_PIDIV4,
+		XMFLOAT3(2, 2, 2),
+		XMFLOAT3(0, 20, 0),
 		FORWARD
 	);
 	m_sLight->Enable(false);
@@ -60,7 +60,7 @@ StartScene::StartScene(ID3D11Device* device, ID3D11DeviceContext* dContext, cons
 
 	m_cbEye = new DX::Buffer(device, sizeof(XMFLOAT4));
 
-	std::shared_ptr<DX::Mesh> pSphereMesh = std::make_shared<DX::SphereMesh>(m_device,4);
+	std::shared_ptr<DX::Mesh> pSphereMesh = std::make_shared<DX::SphereMesh>(m_device, 4);
 	std::shared_ptr<DX::Mesh> pCubeMesh = std::make_shared<DX::CubeMesh>(m_device);
 	std::shared_ptr<DX::Mesh> pFloorMesh = std::make_shared<DX::QuadMesh>(m_device);
 
@@ -79,22 +79,22 @@ StartScene::StartScene(ID3D11Device* device, ID3D11DeviceContext* dContext, cons
 
 	m_dxBlueBox = new DX::Object(m_device, m_dContext, "obj", pCubeMesh, nullptr, redSRV, normSRV);
 	m_dxBlueBox->transform->SetScale(40, 40, 20);
-	m_dxBlueBox->transform->SetTranslation(0,20,80);
+	m_dxBlueBox->transform->SetTranslation(0, 20, 80);
 	m_vObj.push_back(m_dxBlueBox);
 
 	m_dxBlueBox = new DX::Object(m_device, m_dContext, "obj", pSphereMesh, nullptr, greenSRV, normSRV);
 	m_dxBlueBox->transform->SetScale(20, 20, 20);
-	m_dxBlueBox->transform->SetTranslation(40,40,50);
+	m_dxBlueBox->transform->SetTranslation(40, 40, 50);
 	m_vObj.push_back(m_dxBlueBox);
 
 	m_dxBlueBox = new DX::Object(m_device, m_dContext, "obj", pCubeMesh, nullptr, blueSRV, normSRV);
 	m_dxBlueBox->transform->SetScale(30, 20, 30);
-	m_dxBlueBox->transform->SetTranslation(0,30,0);
+	m_dxBlueBox->transform->SetTranslation(0, 30, 0);
 	m_vObj.push_back(m_dxBlueBox);
 
-	m_dxPLightBlub = new DX::UnlitObj(m_device, m_dContext, "plightBulb", pSphereMesh, nullptr, XMVectorSet(1,1,1,1));
+	m_dxPLightBlub = new DX::UnlitObj(m_device, m_dContext, "plightBulb", pSphereMesh, nullptr, XMVectorSet(1, 1, 1, 1));
 	m_dxPLightBlub->transform->SetTranslation(m_pLight->GetPos());
-	m_dxPLightBlub->transform->SetScale(5,5,5);
+	m_dxPLightBlub->transform->SetScale(5, 5, 5);
 	m_dxPLightBlub->SetEnabled(false);
 	m_vObj.push_back(m_dxPLightBlub);
 	m_dxSLightBlub = new DX::UnlitObj(m_device, m_dContext, "slightBulb", pSphereMesh, nullptr, XMVectorSet(1, 1, 1, 1));
@@ -109,13 +109,12 @@ StartScene::StartScene(ID3D11Device* device, ID3D11DeviceContext* dContext, cons
 	m_vObj.push_back(dxFloor);
 
 
-	/*
-	TextureMgr::Instance()->Load("white", "DXFramework\\Data\\Texture\\white.png");
-	TextureMgr::Instance()->Load("green", "DXFramework\\Data\\Texture\\green_light.png");
-	TextureMgr::Instance()->Load("sample", "DXFramework\\Data\\Texture\\sample.jpg");*/
+	EnableDLight(true);
+	EnablePLight(true);
+	EnableSLight(true);
 }
 
-StartScene::~StartScene()
+PlayScene::~PlayScene()
 {
 	delete m_dLight;
 	delete m_camera;
@@ -123,27 +122,27 @@ StartScene::~StartScene()
 	delete m_keyboard;
 }
 
-void StartScene::Update(float elapsed, float spf)
+void PlayScene::Update(float elapsed, float spf)
 {
 	const float lightMoveRad = 50;
 	const float lightMoveSpeed = 10;
 	const float mElapsed = elapsed / 5;
 	XMFLOAT3 pLightPos = (RIGHT * cos(mElapsed) + FORWARD * sin(mElapsed)) * lightMoveRad + UP * 25;
-	XMFLOAT3 sLightPos = (RIGHT * cos(mElapsed*1.3) + FORWARD * sin(mElapsed*1.3)) * lightMoveRad + UP * 20;
+	XMFLOAT3 sLightPos = (RIGHT * cos(mElapsed * 1.3) + FORWARD * sin(mElapsed * 1.3)) * lightMoveRad + UP * 20;
 	m_pLight->SetPos(pLightPos);
 	m_dxPLightBlub->transform->SetTranslation(pLightPos);
 	m_sLight->SetPos(sLightPos);
 	m_dxSLightBlub->transform->SetTranslation(sLightPos);
-	m_dLight->Apply(m_device,m_dContext);
-	m_pLight->Apply(m_device,m_dContext);
-	m_sLight->Apply(m_device,m_dContext);
+	m_dLight->Apply(m_device, m_dContext);
+	m_pLight->Apply(m_device, m_dContext);
+	m_sLight->Apply(m_device, m_dContext);
 
 	XMFLOAT3 newPos = m_camera->transform->GetPos();
 	XMFLOAT3 right = m_camera->transform->GetRight();
 	XMFLOAT3 forward = m_camera->transform->GetForward();
 	const float speed = 50;
 
-	
+
 	if (m_keyboard->IsPressing('A')) {
 
 		newPos += -right * speed * spf;
@@ -198,44 +197,44 @@ void StartScene::Update(float elapsed, float spf)
 
 }
 
-void StartScene::EnableDLight(bool b)
+void PlayScene::EnableDLight(bool b)
 {
 	m_dLight->Enable(b);
 }
 
-void StartScene::EnablePLight(bool b)
+void PlayScene::EnablePLight(bool b)
 {
 	m_pLight->Enable(b);
 	m_dxPLightBlub->SetEnabled(b);
 }
 
-void StartScene::EnableSLight(bool b)
+void PlayScene::EnableSLight(bool b)
 {
 	m_sLight->Enable(b);
 	m_dxSLightBlub->SetEnabled(b);
 }
 
-void StartScene::RButtonDown()
+void PlayScene::WM_RButtonDown()
 {
 	m_bPressingRMouse = true;
 }
 
-void StartScene::RButtonUp()
+void PlayScene::WM_RButtonUp()
 {
 	m_bPressingRMouse = false;
 }
 
-void StartScene::KeyDown(WPARAM wparam)
+void PlayScene::WM_KeyDown(WPARAM wparam)
 {
 	m_keyboard->Press(wparam);
 }
 
-void StartScene::KeyUp(WPARAM wparam)
+void PlayScene::WM_KeyUp(WPARAM wparam)
 {
 	m_keyboard->Release(wparam);
 }
 
-void StartScene::MouseMove(LPARAM lparam)
+void PlayScene::WM_MouseMove(LPARAM lparam)
 {
 	POINTS p = MAKEPOINTS(lparam);
 	m_scnMousePos.x = p.x;

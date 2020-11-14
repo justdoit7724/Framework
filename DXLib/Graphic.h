@@ -5,7 +5,7 @@ namespace DX
 	class DXLIB_DLL Graphic
 	{
 	public:
-		Graphic(HWND _hwnd, float resX, float resY);
+		Graphic(HWND _hwnd);
 		~Graphic();
 
 		void Present();

@@ -33,17 +33,16 @@ namespace DX
 		~Camera();
 		void SetFrame(const FRAME_KIND fKind, XMFLOAT2 orthoSize, const float nearPlane, const float farPlane, const float verticalViewAngle, const float aspectRatio);
 		void Update();
-		void SetView();
 		void SetProj(XMMATRIX mat);
 
 		const XMMATRIX& VMat()const { return viewMat; }
 		const XMMATRIX& ProjMat()const { return projMat; }
-		void Pick(int iScnWidth, int iScnHeight, XMFLOAT2 scnPos, OUT Geometrics::Ray* ray)const;
+		void Pick(XMFLOAT2 scnPos, OUT Geometrics::Ray* ray)const;
 
 		const std::string key;
 
 		FRAME_KIND GetFrame()const { return curFrame; }
-		XMFLOAT2 GetSize()const { return size; }
+		XMFLOAT2 GetSize()const { return m_size; }
 		float GetN()const { return n; }
 		float GetF()const { return f; }
 		float GetVRad()const { return verticalRadian; }
@@ -69,11 +68,12 @@ namespace DX
 
 
 	private:
+		void SetView();
 		XMMATRIX projMat;
 		XMMATRIX viewMat;
 
 		FRAME_KIND curFrame;
-		XMFLOAT2 size;
+		XMFLOAT2 m_size;
 		float n, f;
 		float verticalRadian;
 		float aspectRatio;

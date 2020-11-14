@@ -1,10 +1,11 @@
 #include "stdafx.h"
 #include "WndDXDisplay.h"
-#include "StartScene.h"
+#include "VisualAAScene.h"
+#include "PlayScene.h"
 #include "Timer.h"
 
 WndDXDisplay::WndDXDisplay(HINSTANCE hInstance, HWND parent, int x, int y, int width, int height)
-	:Window(hInstance, x,y,width,height, L"DX display")
+	:Window(hInstance, L"DX display"), m_curScene(nullptr)
 {
 	m_hWnd = CreateWindowEx(
 		0,
@@ -16,11 +17,13 @@ WndDXDisplay::WndDXDisplay(HINSTANCE hInstance, HWND parent, int x, int y, int w
 		parent,
 		NULL,
 		hInstance,
-		this);
+		nullptr);
+	SetWindowLongPtr(m_hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
 
-	m_dxGraphic = new DX::Graphic(m_hWnd, GetWidth(), GetHeight());
+	m_dxGraphic = new DX::Graphic(m_hWnd);
 
-	m_scene = new StartScene(m_dxGraphic->Device(), m_dxGraphic->DContext(), L"start");
+	m_visualAAScene = new VisualAAScene(m_dxGraphic->Device(), m_dxGraphic->DContext(), L"Visual");
+	m_playScene = new PlayScene(m_dxGraphic->Device(), m_dxGraphic->DContext(), L"Play");
 
 }
 
@@ -28,13 +31,10 @@ WndDXDisplay::~WndDXDisplay()
 {
 }
 
-void WndDXDisplay::WndProc(UINT msg, WPARAM wparam, LPARAM lparam)
+void WndDXDisplay::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	switch (msg)
 	{
-	case WM_CREATE:
-
-		break;
 	case WM_COMMAND:
 
 		switch (LOWORD(wparam))
@@ -43,38 +43,27 @@ void WndDXDisplay::WndProc(UINT msg, WPARAM wparam, LPARAM lparam)
 		{
 			Timer* timer = (Timer*)lparam;
 
-			m_scene->Update(timer->Elapsed(), timer->SPF());
+			if(m_curScene)
+				m_curScene->Update(timer->Elapsed(), timer->SPF());
 
 			m_dxGraphic->Present();
 		}
 			break;
-		case ID_CHECK_MAIN_DIRECTIONAL_LIGHT:
-		{
-			bool bCheck = lparam;
-
-			m_scene->EnableDLight(bCheck);
-		}
+		case ID_CONTROL_MAIN_VISUAL:
+			m_curScene = m_visualAAScene;
+			m_curScene->WM_Resize(GetWidth(), GetHeight());
 			break;
-		case ID_CHECK_MAIN_POINT_LIGHT:
-		{
-			bool bCheck = lparam;
-
-			m_scene->EnablePLight(bCheck);
+		case ID_CONTROL_MAIN_PLAY:
+			m_curScene = m_playScene;
+			m_curScene->WM_Resize(GetWidth(), GetHeight());
 			break;
-		}
-		case ID_CHECK_MAIN_SPOT_LIGHT:
-		{
-			bool bCheck = lparam;
-
-			m_scene->EnableSLight(bCheck);
-			break;
-		}
 		}
 
 		break;
 
 	case WM_MOUSEMOVE:
-		m_scene->MouseMove(lparam);
+		if (m_curScene)
+		m_curScene->WM_MouseMove(lparam);
 		break;
 	case WM_LBUTTONDOWN:
 		SetFocus(m_hWnd);
@@ -83,17 +72,22 @@ void WndDXDisplay::WndProc(UINT msg, WPARAM wparam, LPARAM lparam)
 		break;
 	case WM_RBUTTONDOWN:
 		SetFocus(m_hWnd);
-		m_scene->RButtonDown();
+		if (m_curScene)
+		m_curScene->WM_RButtonDown();
 		break;
 	case WM_RBUTTONUP:
-		m_scene->RButtonUp();
+		if (m_curScene)
+		m_curScene->WM_RButtonUp();
 		break;
 	case WM_KEYDOWN:
-		m_scene->KeyDown(wparam);
+		if (m_curScene)
+		m_curScene->WM_KeyDown(wparam);
 		break;
 	case WM_KEYUP:
-		m_scene->KeyUp(wparam);
+		if (m_curScene)
+		m_curScene->WM_KeyUp(wparam);
 		break;
+	break;
 	}
 
 }

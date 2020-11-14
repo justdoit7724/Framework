@@ -17,6 +17,6 @@ VS_OUTPUT main(VS_INPUT input)
     VS_OUTPUT output;
     
     output.pos = mul(wvp_mat, float4(input.pos, 1));
-
+    
     return output;
 }

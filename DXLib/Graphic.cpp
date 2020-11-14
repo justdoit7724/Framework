@@ -7,8 +7,16 @@
 
 namespace DX {
 
-	Graphic::Graphic(HWND _hwnd, float resX, float resY)
+	Graphic::Graphic(HWND _hwnd)
 	{
+		RECT rc;
+		if (!GetClientRect(_hwnd, &rc))
+		{
+			return;
+		}
+		int iWidth = rc.right - rc.left;
+		int iHeight = rc.bottom - rc.top;
+
 		XMFLOAT4 p(1, 1, 1, 1);
 		const float n = 10;
 		const float f = 100;
@@ -33,8 +41,8 @@ namespace DX {
 		DXGI_SWAP_CHAIN_DESC scd;
 		ZeroMemory(&scd, sizeof(DXGI_SWAP_CHAIN_DESC));
 
-		scd.BufferDesc.Width = (UINT)resX;
-		scd.BufferDesc.Height = (UINT)resY;
+		scd.BufferDesc.Width = (UINT)iWidth;
+		scd.BufferDesc.Height = (UINT)iHeight;
 		scd.BufferDesc.RefreshRate.Numerator = 60;
 		scd.BufferDesc.RefreshRate.Denominator = 1;
 		scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -119,7 +127,6 @@ namespace DX {
 		dsv_desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 		dsv_desc.Flags = 0;
 		dsv_desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
-		dsv_desc.Texture2D.MipSlice = 0;
 		hr = m_device->CreateDepthStencilView(
 			depthStencilBuffer,
 			&dsv_desc,
@@ -131,11 +138,12 @@ namespace DX {
 
 #pragma region Viewport
 
+		//map vertex positions in clip space into render target positions
 		ZeroMemory(&viewport, sizeof(D3D11_VIEWPORT));
+		viewport.Width = scd.BufferDesc.Width;
+		viewport.Height = scd.BufferDesc.Height;
 		viewport.TopLeftX = 0;
 		viewport.TopLeftY = 0;
-		viewport.Width = resX;
-		viewport.Height = resY;
 		viewport.MinDepth = 0.0f;
 		viewport.MaxDepth = 1.0f;
 

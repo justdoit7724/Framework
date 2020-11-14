@@ -3,12 +3,12 @@
 
 class Object;
 
-class StartScene :
+class PlayScene :
 	public Scene
 {
 public:
-	StartScene(ID3D11Device* device, ID3D11DeviceContext* dContext, const wchar_t* key);
-	~StartScene();
+	PlayScene(ID3D11Device* device, ID3D11DeviceContext* dContext, const wchar_t* key);
+	~PlayScene();
 
 	void Update(float elapsed, float spf) override;
 
@@ -16,11 +16,11 @@ public:
 	void EnablePLight(bool b);
 	void EnableSLight(bool b);
 
-	void RButtonDown()override;
-	void RButtonUp()override;
-	void KeyDown(WPARAM wparam)override;
-	void KeyUp(WPARAM wparam)override;
-	void MouseMove(LPARAM lparam)override;
+	void WM_RButtonDown()override;
+	void WM_RButtonUp()override;
+	void WM_KeyDown(WPARAM wparam)override;
+	void WM_KeyUp(WPARAM wparam)override;
+	void WM_MouseMove(LPARAM lparam)override;
 
 private:
 
@@ -39,4 +39,5 @@ private:
 	std::vector<DX::Object*> m_vObj;
 
 };
+
 

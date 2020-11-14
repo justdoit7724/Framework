@@ -16,6 +16,9 @@
     <Filter Include="HLSL">
       <UniqueIdentifier>{b519ef85-4d9c-4eaa-a586-23bce7c78df2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Object">
+      <UniqueIdentifier>{0169cd75-e37d-4bcc-a1b2-302314b52204}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -81,9 +84,6 @@
     <ClInclude Include="Network.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Object.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ObjectObsInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -129,12 +129,6 @@
     <ClInclude Include="TurnController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="UI.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="UnlitObj.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Light.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -149,6 +143,21 @@
     </ClInclude>
     <ClInclude Include="CubeMesh.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PostProcessing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UnlitObj.h">
+      <Filter>Object</Filter>
+    </ClInclude>
+    <ClInclude Include="UI.h">
+      <Filter>Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Object.h">
+      <Filter>Object</Filter>
+    </ClInclude>
+    <ClInclude Include="SamplingDraw.h">
+      <Filter>Object</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -206,9 +215,6 @@
     <ClCompile Include="MeshLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Object.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Physic.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -236,12 +242,6 @@
     <ClCompile Include="Transform.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="UI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="UnlitObj.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Math.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -250,6 +250,21 @@
     </ClCompile>
     <ClCompile Include="CubeMesh.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PostProcessing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UI.cpp">
+      <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="UnlitObj.cpp">
+      <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Object.cpp">
+      <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="SamplingDraw.cpp">
+      <Filter>Object</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -275,6 +290,12 @@
       <Filter>HLSL</Filter>
     </FxCompile>
     <FxCompile Include="UnlitPS.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="EF_V_Sampling.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="EF_P_Sampling.hlsl">
       <Filter>HLSL</Filter>
     </FxCompile>
   </ItemGroup>
@@ -313,6 +334,9 @@
       <Filter>HLSL</Filter>
     </None>
     <None Include="ShaderCM.cginc">
+      <Filter>HLSL</Filter>
+    </None>
+    <None Include="Geometrics.cginc">
       <Filter>HLSL</Filter>
     </None>
   </ItemGroup>

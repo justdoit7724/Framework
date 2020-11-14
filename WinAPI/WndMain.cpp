@@ -10,8 +10,9 @@ LRESULT WndDefaultProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
 
 WndMain::WndMain(HINSTANCE hInstance, int x, int y, int width, int height)
-	:Window(hInstance, x, y, width, height, L"main"),
-	m_hCheckDLight(nullptr), m_hCheckPLight(nullptr), m_hCheckSLight(nullptr),
+	:Window(hInstance, L"main"),
+	m_hRadioVisualVersion(nullptr), m_hRadioPlayVersion(nullptr),
+	m_hComboResolution(nullptr),
 	m_DXDisplay(nullptr)
 {
 	m_hWnd = CreateWindowEx(
@@ -21,33 +22,43 @@ WndMain::WndMain(HINSTANCE hInstance, int x, int y, int width, int height)
 		(DWORD)WindowType::Frame,
 		x, y,
 		width, height,
-		NULL,
+		nullptr,
 		NULL,
 		hInstance,
-		this);
+		nullptr);
+	SetWindowLongPtr(m_hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
 
-	/*RECT clientRect;
-	GetClientRect(m_hWnd, &clientRect);
-	POINT offset;
-	offset.x = width - clientRect.right;
-	offset.y = height - clientRect.bottom;
-	MoveWindow(m_hWnd, x, y, width + offset.x, height + offset.y, FALSE);*/
+	m_hRadioVisualVersion = CreateWindow(
+		L"button",
+		L"Test visualization",
+		WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON | WS_GROUP,
+		700, 20, 100, 30,
+		m_hWnd,
+		(HMENU)ID_CONTROL_MAIN_VISUAL,
+		m_hInstance,
+		NULL
+	);
+	m_hRadioPlayVersion = CreateWindow(
+		L"button",
+		L"Practical play",
+		WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
+		700, 50, 100, 30,
+		m_hWnd,
+		(HMENU)ID_CONTROL_MAIN_PLAY,
+		m_hInstance,
+		NULL
+	);
 
-	m_DXDisplay = new WndDXDisplay(m_hInstance, m_hWnd, 50, 50, 600, 600);
+	m_DXDisplay = new WndDXDisplay(m_hInstance, m_hWnd, 30, 30, 600, 600);
 	m_DXDisplay->ShowWindow();
-	
-	m_hCheckDLight = CreateWindow(L"button", L"directional light", WS_VISIBLE | WS_CHILD | BS_AUTOCHECKBOX, 800, 50, 100, 30, m_hWnd, (HMENU)ID_CHECK_MAIN_DIRECTIONAL_LIGHT, m_hInstance, NULL);
-	m_hCheckPLight = CreateWindow(L"button", L"point light", WS_VISIBLE | WS_CHILD | BS_AUTOCHECKBOX, 800, 80, 100, 30, m_hWnd, (HMENU)ID_CHECK_MAIN_POINT_LIGHT, m_hInstance, NULL);
-	m_hCheckSLight = CreateWindow(L"button", L"spot light", WS_VISIBLE | WS_CHILD | BS_AUTOCHECKBOX, 800, 110, 100, 30, m_hWnd, (HMENU)ID_CHECK_MAIN_SPOT_LIGHT, m_hInstance, NULL);
+
+	SetRadioSceneVersion(ID_CONTROL_MAIN_VISUAL);
 }
 
-void WndMain::WndProc(UINT msg, WPARAM wparam, LPARAM lparam)
+void WndMain::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	switch (msg)
 	{
-	case WM_NCCREATE:
-
-		break;
 	case WM_COMMAND:
 
 		switch (LOWORD(wparam))
@@ -55,33 +66,19 @@ void WndMain::WndProc(UINT msg, WPARAM wparam, LPARAM lparam)
 		case ID_COMMAND_REALTIME_UPDATE:
 			SendMessage(m_DXDisplay->HWnd(), msg, wparam, lparam);
 			break;
-		case ID_CHECK_MAIN_DIRECTIONAL_LIGHT:
-		{
-			LRESULT lrCheck = SendMessage(m_hCheckDLight, BM_GETCHECK, NULL, NULL);
-
-			SetCheckBoxLight(ID_CHECK_MAIN_DIRECTIONAL_LIGHT, lrCheck ==BST_CHECKED);
-
+		case ID_CONTROL_MAIN_VISUAL:
+		case ID_CONTROL_MAIN_PLAY:
+			SetRadioSceneVersion(wparam);
 			break;
-		}
-		case ID_CHECK_MAIN_POINT_LIGHT:
-		{
-			LRESULT lrCheck = SendMessage(m_hCheckPLight, BM_GETCHECK, NULL, NULL);
-
-			SetCheckBoxLight(ID_CHECK_MAIN_POINT_LIGHT, lrCheck == BST_CHECKED);
-
+		case ID_CONTROL_RESOLUTION_1:
+		case ID_CONTROL_RESOLUTION_2:
+		case ID_CONTROL_RESOLUTION_4:
+		case ID_CONTROL_RESOLUTION_8:
+		case ID_CONTROL_RESOLUTION_16:
+			SetComboResolution(wparam);
 			break;
-		}
-		case ID_CHECK_MAIN_SPOT_LIGHT:
-		{
-			LRESULT lrCheck = SendMessage(m_hCheckSLight, BM_GETCHECK, NULL, NULL);
-
-			SetCheckBoxLight(ID_CHECK_MAIN_SPOT_LIGHT, lrCheck == BST_CHECKED);
-
-			break;
-		}
 		}
 		break;
-
 	case WM_KEYDOWN:
 	{
 		if (wparam == VK_ESCAPE)
@@ -96,14 +93,23 @@ void WndMain::WndProc(UINT msg, WPARAM wparam, LPARAM lparam)
 	}
 }
 
-void WndMain::SetCheckBoxLight(int setID, bool bCheck)
+void WndMain::SetComboResolution(int setID)
+{
+}
+
+void WndMain::SetRadioSceneVersion(int setID)
 {
 	switch (setID)
 	{
-	case ID_CHECK_MAIN_DIRECTIONAL_LIGHT:
-	case ID_CHECK_MAIN_POINT_LIGHT:
-	case ID_CHECK_MAIN_SPOT_LIGHT:
-		SendMessage(m_DXDisplay->HWnd(), WM_COMMAND, setID, bCheck? 1:0);
+	case ID_CONTROL_MAIN_VISUAL:
+		SendMessage(m_hRadioVisualVersion, BM_SETCHECK, BST_CHECKED, NULL);
+		SendMessage(m_hRadioPlayVersion, BM_SETCHECK, BST_UNCHECKED, NULL);
+		break;
+	case ID_CONTROL_MAIN_PLAY:
+		SendMessage(m_hRadioVisualVersion, BM_SETCHECK, BST_UNCHECKED, NULL);
+		SendMessage(m_hRadioPlayVersion, BM_SETCHECK, BST_CHECKED, NULL);
 		break;
 	}
+
+	SendMessage(m_DXDisplay->HWnd(), WM_COMMAND, setID, NULL);
 }

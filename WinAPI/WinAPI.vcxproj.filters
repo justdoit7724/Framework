@@ -30,9 +30,6 @@
     <ClCompile Include="Scene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="StartScene.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Keyboard.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -48,6 +45,12 @@
     <ClCompile Include="WndDXDisplay.cpp">
       <Filter>Window</Filter>
     </ClCompile>
+    <ClCompile Include="VisualAAScene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayScene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -60,9 +63,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Scene.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="StartScene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Keyboard.h">
@@ -82,6 +82,12 @@
     </ClInclude>
     <ClInclude Include="WndDXDisplay.h">
       <Filter>Window</Filter>
+    </ClInclude>
+    <ClInclude Include="VisualAAScene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayScene.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -6,7 +6,7 @@ struct VS_OUTPUT
     float3 wPos : TEXCOORD1;
     float3 normal : TEXCOORD2;
     float2 tex : TEXCOORD3;
-    float3 tangent : TEXCOORD4;
+    //float3 tangent : TEXCOORD4;
 };
 
 cbuffer CB_VS_PROPERTY : register(b0)
@@ -35,7 +35,7 @@ VS_OUTPUT main(STD_VS_INPUT input)
     output.pos = pPos;
     output.normal = mul((float3x3) NMat, input.normal);
     output.tex = input.tex;
-    output.tangent = mul((float3x3) WMat, input.tangent);
+    //output.tangent = mul((float3x3) WMat, input.tangent);
     
     return output;
 }

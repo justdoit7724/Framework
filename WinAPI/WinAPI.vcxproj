@@ -146,10 +146,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Keyboard.cpp" />
+    <ClCompile Include="PlayScene.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneMgr.cpp" />
     <ClCompile Include="Source.cpp" />
-    <ClCompile Include="StartScene.cpp" />
+    <ClCompile Include="VisualAAScene.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
@@ -160,10 +161,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Keyboard.h" />
+    <ClInclude Include="PlayScene.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneMgr.h" />
     <ClInclude Include="Singleton.h" />
-    <ClInclude Include="StartScene.h" />
+    <ClInclude Include="VisualAAScene.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="Window.h" />

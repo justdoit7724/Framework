@@ -21,7 +21,7 @@ struct PS_INPUT
     float3 wPos : TEXCOORD1;
     float3 normal : TEXCOORD2;
     float2 tex : TEXCOORD3;
-    float3 tangent : TEXCOORD4;
+    //float3 tangent : TEXCOORD4;
 };
 float4 main(PS_INPUT input) : SV_Target
 {

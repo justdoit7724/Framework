@@ -25,7 +25,7 @@ void Camera::SetFrame(const FRAME_KIND fKind, XMFLOAT2 orthoSize, const float n,
 	assert(n > 0.0f);
 
 	curFrame = fKind;
-	size = orthoSize;
+	m_size = orthoSize;
 	this->n = n;
 	this->f = f;
 	this->verticalRadian = verticalViewRad;
@@ -48,13 +48,13 @@ void Camera::SetFrame(const FRAME_KIND fKind, XMFLOAT2 orthoSize, const float n,
 		break;
 	case FRAME_KIND_ORTHOGONAL:
 	{
-		float sX = 2.0f / size.x;
-		float sY = 2.0f / size.y;
+		float sX = 2.0f / m_size.x;
+		float sY = 2.0f / m_size.y;
 		projMat = XMMATRIX(
 			sX, 0, 0, 0,
 			0, sY, 0, 0,
-			0, 0, 1.0f/(f-n), -n/(f-n),
-			0, 0, 0, 1
+			0, 0, 1.0f/(f-n), 0,
+			0, 0, -n / (f - n), 1
 		);
 	}
 		break;
@@ -114,11 +114,11 @@ void Camera::Update()
 
 	SetView();
 }
-void Camera::Pick(int iScnWidth, int iScnHeight, XMFLOAT2 scnPos, OUT Geometrics::Ray* ray)const
+void Camera::Pick(XMFLOAT2 scnPos, OUT Geometrics::Ray* ray)const
 {
 	XMFLOAT2 pPos = XMFLOAT2(
-		((scnPos.x * 2) / (float)iScnWidth - 1),
-		-(scnPos.y * 2) / (float)iScnHeight + 1);
+		((scnPos.x * 2) / (float)m_size.x - 1),
+		-(scnPos.y * 2) / (float)m_size.y + 1);
 	XMFLOAT3 vDir = XMFLOAT3(NULL,NULL,NULL);
 
 	const XMFLOAT3 forward = transform->GetForward();
@@ -149,8 +149,8 @@ void Camera::Pick(int iScnWidth, int iScnHeight, XMFLOAT2 scnPos, OUT Geometrics
 		break;
 	case FRAME_KIND_ORTHOGONAL:
 	{
-		float invSX = size.x/2;
-		float invSY = size.y/2;
+		float invSX = m_size.x/2;
+		float invSY = m_size.y/2;
 		XMFLOAT3 vPos = XMFLOAT3(
 			pPos.x * invSX,
 			pPos.y * invSY,

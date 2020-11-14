@@ -120,6 +120,16 @@ namespace DX {
 		v.w /= f;
 	}
 
+	DXLIB_DLL bool operator==(XMFLOAT2 a, XMFLOAT2 b)
+	{
+		return (a.x == b.x && a.y == b.y);
+	}
+
+	DXLIB_DLL bool operator!=(XMFLOAT2 a, XMFLOAT2 b)
+	{
+		return (a.x != b.x || a.y != b.y);
+	}
+
 	DXLIB_DLL bool operator==(XMFLOAT3 a, XMFLOAT3 b)
 	{
 		return (a.x == b.x && a.y == b.y && a.z == b.z);

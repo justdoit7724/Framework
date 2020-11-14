@@ -3,7 +3,7 @@
 
 namespace DX
 {
-	class BlendState : public Component
+	class DXLIB_DLL BlendState : public Component
 	{
 	public:
 		BlendState(ID3D11Device* device, D3D11_BLEND_DESC* desc);

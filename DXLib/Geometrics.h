@@ -55,6 +55,21 @@ namespace DX {
 				return o + d * t;
 			}
 		};
+		struct Ray2D {
+		public:
+			XMFLOAT2 p;
+			XMFLOAT2 d;
+
+			Ray2D() {
+				p = XMFLOAT2(0, 0);
+				d = XMFLOAT2(0, 1);
+			}
+			Ray2D(XMFLOAT2 pt, XMFLOAT2 dir)
+			{
+				p = pt;
+				d = dir;
+			}
+		};
 
 		inline bool IntersectInPlaneSphere(PlaneInf plane, Sphere sph)
 		{
@@ -71,7 +86,7 @@ namespace DX {
 
 			return (Dot(toRayPt, dir) < sph.rad);
 		}
-		inline bool IntersectRayPlaneInf(const Ray ray, const PlaneInf plane, XMFLOAT3* itsPt)
+		inline bool DXLIB_DLL IntersectRayPlaneInf(const Ray ray, const PlaneInf plane, XMFLOAT3* itsPt)
 		{
 			float dirDot = Dot(ray.d, plane.n);
 			if (dirDot == 0)
@@ -101,6 +116,32 @@ namespace DX {
 				(xDist < plane.rad.x) &&  // check if hitPt is in x range
 				(yDist < plane.rad.y) // check if hitPt is in y range
 				);
+		}
+		inline bool Intersect2DRayLine(Ray2D ray, XMFLOAT2 linePt1, XMFLOAT2 linePt2)
+		{
+			XMFLOAT2 o = ray.p;
+			XMFLOAT2 d = ray.d;
+			XMFLOAT2 a = linePt1;
+			XMFLOAT2 b = linePt2;
+
+			if (a == b || d == XMFLOAT2(0,0))
+				return false;
+			/*
+			±âº»
+			o+t1*d = a+t2*(b-a)
+
+			t1
+			oX(b-a) + t1 * dX(b-a) = aX(b-a)
+			t1 = |(a-o)X(b-a)| / |dX(b-a)|
+
+			t2
+			same way
+			
+			*/
+			float t1 = ((a.x - o.x) * (b.y - a.y) - (a.y - o.y) * (b.x - a.x)) / (d.x * (b.y - a.y) - d.y * (b.x - a.x));
+			float t2 = ((o.x - a.x) * d.y - (o.y - a.y) * d.x) / ((b.x - a.x) * d.y - (b.y - a.y) * d.x);
+
+			return (t1>0&&0<t2&&t2<=1);
 		}
 	}
 }

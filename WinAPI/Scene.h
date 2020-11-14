@@ -8,15 +8,16 @@ public:
 
 	virtual void Update(float elapsed, float spf) = 0;
 
-	virtual void Message(UINT msg) {};
+	virtual void Message(UINT msg) {}
 
-	virtual void RButtonDown() {};
-	virtual void RButtonUp() {};
-	virtual void LButtonDown() {};
-	virtual void LButtonUp() {};
-	virtual void KeyDown(WPARAM wparam) {};
-	virtual void KeyUp(WPARAM wparam) {};
-	virtual void MouseMove(LPARAM lparam) {};
+	virtual void WM_RButtonDown() {}
+	virtual void WM_RButtonUp() {}
+	virtual void WM_LButtonDown() {}
+	virtual void WM_LButtonUp() {}
+	virtual void WM_KeyDown(WPARAM wparam) {}
+	virtual void WM_KeyUp(WPARAM wparam) {}
+	virtual void WM_MouseMove(LPARAM lparam) {}
+	virtual void WM_Resize(int width, int height) {}
 
 	const wchar_t* m_key;
 protected:
@@ -28,6 +29,8 @@ protected:
 	XMFLOAT2 m_scnMousePos;
 	bool m_bPressingRMouse;
 	bool m_bPressingLMouse;
+	int m_iWidth;
+	int m_iHeight;
 };
 
 

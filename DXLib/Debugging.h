@@ -19,7 +19,7 @@ class RasterizerState;
 class Camera;
 class IDebug;
 struct SHADER_STD_TRANSF;
-	class Debugging
+	class DXLIB_DLL Debugging
 	{
 	public:
 		Debugging(ID3D11Device* device, ID3D11DeviceContext* dContext);
@@ -49,10 +49,10 @@ struct SHADER_STD_TRANSF;
 		void Enabled(bool b) { enabled = b; }
 		void SetCamera(const Camera* cam);
 
-	private:
-		const Camera* debugCam = nullptr;
 		void Update(float spf);
 		void Render(ID3D11DeviceContext* dContext, int iScnWidth, int iScnHeight);
+	private:
+		const Camera* debugCam = nullptr;
 
 		bool enabled = true;
 

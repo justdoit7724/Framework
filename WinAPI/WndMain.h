@@ -6,13 +6,15 @@ class WndMain :
 public:
 	WndMain(HINSTANCE hInstance, int x, int y, int width, int height);
 
-	void WndProc(UINT MSG, WPARAM wparam, LPARAM lparam) override;
-	void SetCheckBoxLight(int setID, bool bCheck);
+	void WndProc(HWND hwnd, UINT MSG, WPARAM wparam, LPARAM lparam) override;
+	void SetComboResolution(int setID);
+	void SetRadioSceneVersion(int setID);
 
 private:
-	HWND m_hCheckDLight;
-	HWND m_hCheckPLight;
-	HWND m_hCheckSLight;
+	HWND m_hRadioVisualVersion;
+	HWND m_hRadioPlayVersion;
+	HWND m_hComboResolution;
+
 
 	Window* m_DXDisplay;
 };

@@ -3,9 +3,12 @@
 
 LRESULT WndDefaultProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
-Window::Window(HINSTANCE hInstance, int x, int y, int width, int height, std::wstring className)
+Window::Window(HINSTANCE hInstance, std::wstring className)
 	:m_hWnd(nullptr), m_hInstance(hInstance), m_wstrName(className)
 {
+
+	// only register here not create window
+	// for getting create message in inherited class
 	WNDCLASSEX wc = { 0 };
 	wc.style = CS_OWNDC;
 	wc.lpfnWndProc = WndDefaultProc;
@@ -20,6 +23,8 @@ Window::Window(HINSTANCE hInstance, int x, int y, int width, int height, std::ws
 	wc.lpszClassName = m_wstrName.c_str();
 	wc.cbSize = sizeof(WNDCLASSEX);
 	RegisterClassEx(&wc);
+
+	
 }
 
 Window::Window(Window*&& wnd)
@@ -111,15 +116,10 @@ void Window::Size(int& w, int& h)const
 
 LRESULT CALLBACK WndDefaultProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
-	if (msg == WM_NCCREATE)
-	{
- 		Window* pWnd = (Window*)((LPCREATESTRUCT)lparam)->lpCreateParams;
-		SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pWnd));
-	}
-
 	auto pWnd = (Window*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+
 	if (pWnd)
-		pWnd->WndProc(msg, wparam, lparam);
+		pWnd->WndProc(hwnd, msg, wparam, lparam);
 
 	return DefWindowProc(hwnd, msg, wparam, lparam);
 }

@@ -3,7 +3,7 @@
 #include "Component.h"
 
 namespace DX {
-	class RasterizerState :
+	class DXLIB_DLL RasterizerState :
 		public Component
 	{
 	public:

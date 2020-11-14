@@ -31,6 +31,8 @@ namespace DX {
 	DXLIB_DLL XMFLOAT3 operator*(XMFLOAT3 a, XMFLOAT3 b);
 	DXLIB_DLL XMFLOAT3 operator/(XMFLOAT3 v, float f);
 	DXLIB_DLL void operator/=(XMFLOAT4& v, float f);
+	DXLIB_DLL bool operator== (XMFLOAT2 a, XMFLOAT2 b);
+	DXLIB_DLL bool operator!= (XMFLOAT2 a, XMFLOAT2 b);
 	DXLIB_DLL bool operator== (XMFLOAT3 a, XMFLOAT3 b);
 	DXLIB_DLL bool operator!= (XMFLOAT3 a, XMFLOAT3 b);
 	DXLIB_DLL bool operator== (XMFLOAT4 a, XMFLOAT4 b);

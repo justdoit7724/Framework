@@ -26,3 +26,8 @@
 #include "SphereMesh.h"
 #include "CubeMesh.h"
 #include "TextureLoad.h"
+#include "BlendState.h"
+#include "RasterizerState.h"
+#include "PostProcessing.h"
+#include "SamplingDraw.h"
+#include "Debugging.h"

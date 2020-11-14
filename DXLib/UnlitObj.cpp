@@ -36,7 +36,9 @@ void UnlitObj::Render(ID3D11DeviceContext* dContext, const XMMATRIX & v, const X
 
 	if (IsInsideFrustum(frustum))
 	{
-		XMMATRIX wvp = transform->WorldMatrix() * v*p;
+		XMMATRIX w = transform->WorldMatrix();
+
+		XMMATRIX wvp =  w* v*p;
 
 		vs->WriteCB(dContext, 0, &wvp);
 		ps->WriteCB(dContext, SHADER_REG_CB_COLOR, &color);

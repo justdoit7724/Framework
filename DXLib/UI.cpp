@@ -80,7 +80,7 @@ void UIButton::Update(ID3D11DeviceContext* dContext, int iScnWidth, int iScnHeig
 	Object::Update();
 
 	Geometrics::Ray ray;
-	canvas->GetCamera()->Pick(iScnWidth , iScnHeight, mousePos ,&ray);
+	canvas->GetCamera()->Pick(mousePos ,&ray);
 
 
 	SetMulColor(dContext,XMFLOAT3(1.0f, 1.0f, 1.0f));

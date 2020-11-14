@@ -18,6 +18,7 @@ private:
 
 	std::unordered_map<const wchar_t*, Scene*> list;
 	std::vector<const wchar_t*> executeOrder;
+
 };
 
 

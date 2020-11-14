@@ -11,7 +11,7 @@ enum class WindowType {
 class Window
 {
 public:
-	Window(HINSTANCE hInstance, int x, int y, int width, int height, std::wstring className);
+	Window(HINSTANCE hInstance, std::wstring className);
 	Window(Window*&&);
 	~Window();
 
@@ -26,7 +26,7 @@ public:
 	HWND HWnd()const;
 	void Size(int& w, int& h)const;
 
-	virtual void WndProc(UINT msg, WPARAM wparam, LPARAM lparam) {};
+	virtual void WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {};
 
 protected:
 	HWND m_hWnd;

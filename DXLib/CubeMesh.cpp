@@ -104,7 +104,7 @@ DX::CubeMesh::CubeMesh(ID3D11Device* device)
 	OBJ_CUBE[23].pos = XMFLOAT3(0.5, -0.5, 0.5);
 	OBJ_CUBE[23].tex = XMFLOAT2(1, 1);
 
-	int polyCount = ARRAYSIZE(OBJ_CUBE_INDICE) / 3;
+	/*int polyCount = ARRAYSIZE(OBJ_CUBE_INDICE) / 3;
 	for (int i = 0; i < polyCount; ++i)
 	{
 		Vertex v0 = OBJ_CUBE[OBJ_CUBE_INDICE[i * 3]];
@@ -115,7 +115,7 @@ DX::CubeMesh::CubeMesh(ID3D11Device* device)
 		OBJ_CUBE[OBJ_CUBE_INDICE[i * 3]].tangent = tangent;
 		OBJ_CUBE[OBJ_CUBE_INDICE[i * 3 + 1]].tangent = tangent;
 		OBJ_CUBE[OBJ_CUBE_INDICE[i * 3 + 2]].tangent = tangent;
-	}
+	}*/
 
 	Init(device, &OBJ_CUBE[0], sizeof(Vertex), ARRAYSIZE(OBJ_CUBE), &OBJ_CUBE_INDICE[0], ARRAYSIZE(OBJ_CUBE_INDICE), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
