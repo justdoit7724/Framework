@@ -13,18 +13,17 @@
 *.userprefs
 
 # Build results
-x64/
+#x64/
 !Framework/DirectXTK/lib/x64
-x86/
+#x86/
 !Framework/DirectXTK/lib/x86
-[Dd]ebug/
+#[Dd]ebug/
 !Framework/DirectXTK/lib/x64/[Dd]ebug
 !Framework/DirectXTK/lib/x86/[Dd]ebug
 [Dd]ebugPublic/
-[Rr]elease/
+#[Rr]elease/
 !Framework/DirectXTK/lib/x64/[Rr]elease
 !Framework/DirectXTK/lib/x86/[Rr]elease
-[Rr]eleases/
 bld/
 [Bb]in/
 [Oo]bj/
