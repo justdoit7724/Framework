@@ -42,14 +42,17 @@
     <ClCompile Include="WndMain.cpp">
       <Filter>Window</Filter>
     </ClCompile>
-    <ClCompile Include="WndDXDisplay.cpp">
-      <Filter>Window</Filter>
-    </ClCompile>
     <ClCompile Include="VisualAAScene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="PlayScene.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WndDXDisplayVisual.cpp">
+      <Filter>Window</Filter>
+    </ClCompile>
+    <ClCompile Include="WndDXDisplayPlay.cpp">
+      <Filter>Window</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -80,14 +83,17 @@
     <ClInclude Include="WindowDef.h">
       <Filter>Window</Filter>
     </ClInclude>
-    <ClInclude Include="WndDXDisplay.h">
-      <Filter>Window</Filter>
-    </ClInclude>
     <ClInclude Include="VisualAAScene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PlayScene.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WndDXDisplayVisual.h">
+      <Filter>Window</Filter>
+    </ClInclude>
+    <ClInclude Include="WndDXDisplayPlay.h">
+      <Filter>Window</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

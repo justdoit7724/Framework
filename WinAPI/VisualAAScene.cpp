@@ -27,14 +27,6 @@ VisualAAScene::VisualAAScene(ID3D11Device* device, ID3D11DeviceContext* dContext
 	m_dContext->PSSetSamplers(SHADER_REG_SAMP_POINT, 1, &samp);
 	samp->Release();
 
-	m_dLight = new DX::DirectionalLight(
-		XMFLOAT3(0.25, 0.25, 0.25),
-		XMFLOAT3(0.8, 0.8, 0.8),
-		XMFLOAT3(0.7, 0.7, 0.7),
-		0.7f,
-		DX::Normalize(XMFLOAT3(-1, -0.5f, -1))
-	);
-	
 	m_camera = new DX::Camera("cam", DX::FRAME_KIND_ORTHOGONAL, 600, 400, 1.0f, 100, NULL, NULL, true);
 	m_camera->transform->SetTranslation(0, 0, -50);
 	m_camera->Update();
@@ -82,19 +74,10 @@ VisualAAScene::VisualAAScene(ID3D11Device* device, ID3D11DeviceContext* dContext
 	m_dxQuad2->rsState = new DX::RasterizerState(device, &rsDesc);
 	m_vObj.push_back(m_dxQuad1);
 	m_vObj.push_back(m_dxQuad2);
-	
-	m_dxDebugging = new DX::Debugging(device, dContext);
-	m_dxDebugging->SetCamera(m_camera);
-
-	/*
-	TextureMgr::Instance()->Load("white", "DXFramework\\Data\\Texture\\white.png");
-	TextureMgr::Instance()->Load("green", "DXFramework\\Data\\Texture\\green_light.png");
-	TextureMgr::Instance()->Load("sample", "DXFramework\\Data\\Texture\\sample.jpg");*/
 }
 
 VisualAAScene::~VisualAAScene()
 {
-	delete m_dLight;
 	delete m_camera;
 	delete m_cbPrimitive;
 	delete m_keyboard;
@@ -108,40 +91,6 @@ VisualAAScene::~VisualAAScene()
 
 void VisualAAScene::Update(float elapsed, float spf)
 {
-	static XMFLOAT3 o = XMFLOAT3(0, -100, 0);
-	static XMFLOAT3 d = XMFLOAT3(0, 1, 0);
-	static XMFLOAT3 a = XMFLOAT3(-200, 100, 0);
-	static XMFLOAT3 b = XMFLOAT3(200, 100, 0);
-
-	DX::Geometrics::Ray ray;
-	m_camera->Pick(m_scnMousePos, &ray);
-	DX::Geometrics::PlaneInf rayPlane(XMFLOAT3(0, 0, 0), -FORWARD);
-	XMFLOAT3 rayInteractPt=XMFLOAT3(0,0,0);
-	
-	if(Geometrics::IntersectRayPlaneInf(ray, rayPlane, &rayInteractPt))
-	{
-		d = Normalize(rayInteractPt - o);
-	}
-
-	m_dxDebugging->PtLine(o, rayInteractPt);
-	m_dxDebugging->PtLine(a,b, Colors::Orange);
-
-	DX::Geometrics::Ray2D ray2D;
-	ray2D.p.x = o.x;
-	ray2D.p.y = o.y;
-	ray2D.d.x = d.x;
-	ray2D.d.y = d.y;
-	if (Geometrics::Intersect2DRayLine(ray2D, XMFLOAT2(a.x, a.y), XMFLOAT2(b.x, b.y)))
-	{
-		m_dxDebugging->Mark(XMFLOAT3(0, -20, 0), 25, Colors::Red);
-	}
-	else
-	{
-		m_dxDebugging->Mark(XMFLOAT3(0, -20, 0), 25, Colors::Wheat);
-	}
-
-	m_dLight->Apply(m_device,m_dContext);
-
 	XMFLOAT3 upDir1 = XMFLOAT3(
 		-sin(elapsed / 21),
 		cos(elapsed / 21),
@@ -191,9 +140,6 @@ void VisualAAScene::Update(float elapsed, float spf)
 	XMMATRIX matP=m_camera->ProjMat();
 	DX::Frustum frustum = m_camera->GetFrustum();
 
-	m_dxDebugging->Render(m_dContext, m_iWidth, m_iHeight);
-
-
 	for (auto obj : m_vObj)
 	{
 		obj->Render(m_dContext, matV, matP, frustum, 0);
@@ -206,6 +152,11 @@ void VisualAAScene::WM_Resize(int width, int height)
 	m_iHeight = height;
 	m_camera->SetFrame(FRAME_KIND::FRAME_KIND_ORTHOGONAL, XMFLOAT2(width, height), 0.01, 100, NULL, NULL);
 
+}
+
+void VisualAAScene::SetResolution(int res)
+{
+	m_dxSampling->SetResolution(res);
 }
 
 void VisualAAScene::WM_RButtonDown()

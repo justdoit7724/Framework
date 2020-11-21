@@ -41,8 +41,10 @@ Buffer::Buffer(ID3D11Device* device, UINT byteSize)
 Buffer::~Buffer()
 {
 	resource->Release();
-	srv->Release();
-	uav->Release();
+	if(srv)
+		srv->Release();
+	if(uav)
+		uav->Release();
 }
 
 

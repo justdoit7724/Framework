@@ -14,6 +14,14 @@
 #include <DXLibExport.h>
 #pragma comment(lib,"DXLib.lib")
 
+#define SAFEDELETE(p)\
+if (p) delete p; \
+p=nullptr;
 
+#define SAFEDELETEARR(p)\
+if (p) delete[] p; \
+p=nullptr;
+
+extern DX::Graphic* g_dxGraphic;
 
 

@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "WndMain.h"
-#include "WndDXDisplay.h"
 
 #include "Timer.h"
 

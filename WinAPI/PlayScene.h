@@ -16,6 +16,7 @@ public:
 	void EnablePLight(bool b);
 	void EnableSLight(bool b);
 
+	void WM_LButtonDown()override;
 	void WM_RButtonDown()override;
 	void WM_RButtonUp()override;
 	void WM_KeyDown(WPARAM wparam)override;
@@ -35,6 +36,8 @@ private:
 	DX::Object* m_dxRedBox;
 	DX::Object* m_dxPLightBlub;
 	DX::Object* m_dxSLightBlub;
+
+	ID3D11SamplerState* m_dxSamp;
 
 	std::vector<DX::Object*> m_vObj;
 

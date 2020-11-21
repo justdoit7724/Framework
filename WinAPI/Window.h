@@ -5,7 +5,7 @@
 
 enum class WindowType {
 	Frame = WS_OVERLAPPED | WS_SYSMENU,
-	Popup= WS_BORDER | WS_CHILD
+	Popup=  WS_CHILD
 };
 
 class Window

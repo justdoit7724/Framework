@@ -90,8 +90,6 @@ void ComputeSpotLight(float3 pos, float3 normal, float3 view, out float3 ambient
     spec = float3(0, 0, 0);
     ambient = float3(0, 0, 0);
     
-    spec = float3(abs(s_info[1].www));
-    
     for (int i = 0; i < LIGHT_MAX_EACH; ++i)
     {
         float3 tmpA = 0;

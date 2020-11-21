@@ -17,12 +17,11 @@ struct SHADER_SPOT_LIGHT;
 	class DXLIB_DLL Light
 	{
 	protected:
-		Light();
-		virtual ~Light();
 		int id = -1;
 		XMFLOAT3 ambient;
 		XMFLOAT3 diffuse;
 		XMFLOAT3 specular;
+		ID3D11Buffer* m_cb;
 
 	public:
 
@@ -35,16 +34,17 @@ struct SHADER_SPOT_LIGHT;
 		virtual void SetSpecular(const XMFLOAT3& s) = 0;
 		virtual void SetIntensity(float i) = 0;
 		virtual void Enable(bool enable) = 0;
+
+		virtual void Apply(ID3D11Device* device, ID3D11DeviceContext* dContext) = 0;
 	};
 
 	class DXLIB_DLL DirectionalLight : public Light
 	{
 	private:
-		static SHADER_DIRECTIONAL_LIGHT data;
-		static ID3D11Buffer* cb;
+		SHADER_DIRECTIONAL_LIGHT* m_data;
 
 	public:
-		DirectionalLight(XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, float intensity, XMFLOAT3 dir);
+		DirectionalLight(ID3D11Device* device, XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, float intensity, XMFLOAT3 dir);
 		~DirectionalLight();
 		void SetAmbient(const XMFLOAT3& a) override;
 		void SetDiffuse(const XMFLOAT3& d) override;
@@ -55,7 +55,7 @@ struct SHADER_SPOT_LIGHT;
 		void SetDir(XMFLOAT3 d);
 		XMFLOAT3 GetDir()const;
 
-		static void Apply(ID3D11Device* device, ID3D11DeviceContext* dContext);
+		void Apply(ID3D11Device* device, ID3D11DeviceContext* dContext) override;
 	};
 
 	class DXLIB_DLL PointLight : public Light
@@ -64,11 +64,10 @@ struct SHADER_SPOT_LIGHT;
 		float range;
 		XMFLOAT3 att;
 
-		static SHADER_POINT_LIGHT data;
-		static ID3D11Buffer* cb;
+		SHADER_POINT_LIGHT* m_data;
 
 	public:
-		PointLight(XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, float intensity, XMFLOAT3 att, XMFLOAT3 pos);
+		PointLight(ID3D11Device* device, XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, float intensity, XMFLOAT3 att, XMFLOAT3 pos);
 		~PointLight();
 		void SetAmbient(const XMFLOAT3& a) override;
 		void SetDiffuse(const XMFLOAT3& d) override;
@@ -80,14 +79,13 @@ struct SHADER_SPOT_LIGHT;
 
 		XMFLOAT3 GetPos();
 
-		static void Apply(ID3D11Device* device, ID3D11DeviceContext* dContext);
+		void Apply(ID3D11Device* device, ID3D11DeviceContext* dContext)override;
 	};
 
 	class DXLIB_DLL SpotLight : public Light
 	{
 	private:
-		static SHADER_SPOT_LIGHT data;
-		static ID3D11Buffer* cb;
+		SHADER_SPOT_LIGHT* m_data;
 
 		float range;
 		float spot;
@@ -95,7 +93,7 @@ struct SHADER_SPOT_LIGHT;
 		XMFLOAT3 att;
 
 	public:
-		SpotLight(XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, float range, float spot, float intensity, float rad, XMFLOAT3 att, XMFLOAT3 pos, XMFLOAT3 dir);
+		SpotLight(ID3D11Device* device, XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, float range, float spot, float intensity, float rad, XMFLOAT3 att, XMFLOAT3 pos, XMFLOAT3 dir);
 		~SpotLight();
 		void SetAmbient(const XMFLOAT3& a) override;
 		void SetDiffuse(const XMFLOAT3& d) override;
@@ -112,8 +110,7 @@ struct SHADER_SPOT_LIGHT;
 
 		XMFLOAT3 GetPos();
 
-
-		static void Apply(ID3D11Device* device, ID3D11DeviceContext* dContext);
+		void Apply(ID3D11Device* device, ID3D11DeviceContext* dContext)override;
 	};
 
 }

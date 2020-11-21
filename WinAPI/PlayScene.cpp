@@ -13,21 +13,19 @@ PlayScene::PlayScene(ID3D11Device* device, ID3D11DeviceContext* dContext, const 
 
 	D3D11_SAMPLER_DESC sampDesc;
 	ZeroMemory(&sampDesc, sizeof(D3D11_SAMPLER_DESC));
-	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
-	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
-	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
 	FLOAT black[4] = { 0,0,0,1 };
 	sampDesc.BorderColor[0] = 0;
 	sampDesc.BorderColor[1] = 0;
 	sampDesc.BorderColor[2] = 0;
 	sampDesc.BorderColor[3] = 1;
 	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
-	ID3D11SamplerState* samp;
-	m_device->CreateSamplerState(&sampDesc, &samp);
-	m_dContext->PSSetSamplers(SHADER_REG_SAMP_POINT, 1, &samp);
-	samp->Release();
-
+	m_device->CreateSamplerState(&sampDesc, &m_dxSamp);
+	
 	m_dLight = new DX::DirectionalLight(
+		device,
 		XMFLOAT3(0.25, 0.25, 0.25),
 		XMFLOAT3(0.8, 0.8, 0.8),
 		XMFLOAT3(0.7, 0.7, 0.7),
@@ -36,6 +34,7 @@ PlayScene::PlayScene(ID3D11Device* device, ID3D11DeviceContext* dContext, const 
 	);
 	m_dLight->Enable(false);
 	m_pLight = new DX::PointLight(
+		device,
 		XMFLOAT3(0.25, 0.25, 0.25),
 		XMFLOAT3(0.8, 0.8, 0.8),
 		XMFLOAT3(0.5, 0.5, 0.5),
@@ -43,8 +42,10 @@ PlayScene::PlayScene(ID3D11Device* device, ID3D11DeviceContext* dContext, const 
 		XMFLOAT3(0.01f, 0.01f, 0.01f),
 		XMFLOAT3(0, 30, 0)
 	);
+	m_pLight->SetPos(XMFLOAT3(20, 40, 20));
 	m_pLight->Enable(false);
 	m_sLight = new DX::SpotLight(
+		device,
 		XMFLOAT3(0.25, 0.25, 0.25),
 		XMFLOAT3(0.8, 0.8, 0.8),
 		XMFLOAT3(0.7, 0.7, 0.7),
@@ -53,6 +54,7 @@ PlayScene::PlayScene(ID3D11Device* device, ID3D11DeviceContext* dContext, const 
 		XMFLOAT3(0, 20, 0),
 		FORWARD
 	);
+	m_sLight->SetPos(XMFLOAT3(-10, 30, -40));
 	m_sLight->Enable(false);
 
 	m_camera = new DX::Camera("cam", DX::FRAME_KIND_PERSPECTIVE, NULL, NULL, 1.0f, 1000.0f, XM_PIDIV2, 1, false);
@@ -108,7 +110,6 @@ PlayScene::PlayScene(ID3D11Device* device, ID3D11DeviceContext* dContext, const 
 	dxFloor->transform->SetRot(UP);
 	m_vObj.push_back(dxFloor);
 
-
 	EnableDLight(true);
 	EnablePLight(true);
 	EnableSLight(true);
@@ -120,6 +121,7 @@ PlayScene::~PlayScene()
 	delete m_camera;
 	delete m_cbEye;
 	delete m_keyboard;
+	m_dxSamp->Release();
 }
 
 void PlayScene::Update(float elapsed, float spf)
@@ -133,6 +135,7 @@ void PlayScene::Update(float elapsed, float spf)
 	m_dxPLightBlub->transform->SetTranslation(pLightPos);
 	m_sLight->SetPos(sLightPos);
 	m_dxSLightBlub->transform->SetTranslation(sLightPos);
+
 	m_dLight->Apply(m_device, m_dContext);
 	m_pLight->Apply(m_device, m_dContext);
 	m_sLight->Apply(m_device, m_dContext);
@@ -141,7 +144,6 @@ void PlayScene::Update(float elapsed, float spf)
 	XMFLOAT3 right = m_camera->transform->GetRight();
 	XMFLOAT3 forward = m_camera->transform->GetForward();
 	const float speed = 50;
-
 
 	if (m_keyboard->IsPressing('A')) {
 
@@ -181,6 +183,7 @@ void PlayScene::Update(float elapsed, float spf)
 
 	m_cbEye->Write(m_dContext, &eye);
 	m_dContext->PSSetConstantBuffers(SHADER_REG_CB_EYE, 1, m_cbEye->GetAddress());
+	m_dContext->PSSetSamplers(SHADER_REG_SAMP_POINT, 1, &m_dxSamp);
 
 
 	for (auto obj : m_vObj)
@@ -212,6 +215,10 @@ void PlayScene::EnableSLight(bool b)
 {
 	m_sLight->Enable(b);
 	m_dxSLightBlub->SetEnabled(b);
+}
+
+void PlayScene::WM_LButtonDown()
+{
 }
 
 void PlayScene::WM_RButtonDown()

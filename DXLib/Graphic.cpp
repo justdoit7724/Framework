@@ -7,8 +7,10 @@
 
 namespace DX {
 
-	Graphic::Graphic(HWND _hwnd)
+	Graphic::Graphic(HWND _hwnd, int msaa)
 	{
+		assert(msaa == 1 || msaa == 2 || msaa == 4 || msaa == 8 || msaa == 16);
+
 		RECT rc;
 		if (!GetClientRect(_hwnd, &rc))
 		{
@@ -16,25 +18,6 @@ namespace DX {
 		}
 		int iWidth = rc.right - rc.left;
 		int iHeight = rc.bottom - rc.top;
-
-		XMFLOAT4 p(1, 1, 1, 1);
-		const float n = 10;
-		const float f = 100;
-		XMMATRIX m1(
-			n, 0.0f, 0.0f, 0.0f,
-			0.0f, n, 0.0f, 0.0f,
-			0, 0, (f + n) / (f - n), 1,
-			0, 0, -2 * f * n / (f - n), 0
-		); 
-		XMMATRIX m2(
-			n, 0, 0, 0,
-			0, n, 0, 0,
-			0, 0, 1, 1,
-			0, 0, -2 * n, 0
-		);
-
-		auto r1 = Multiply(p, m1);
-		auto r2 = Multiply(p, m2);
 
 		hwnd = _hwnd;
 
@@ -49,7 +32,7 @@ namespace DX {
 		scd.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 		scd.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
 
-		scd.SampleDesc.Count = 1;
+		scd.SampleDesc.Count = msaa;
 		scd.SampleDesc.Quality = 0;
 
 		scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
@@ -126,7 +109,15 @@ namespace DX {
 		ZeroMemory(&dsv_desc, sizeof(D3D11_DEPTH_STENCIL_VIEW_DESC));
 		dsv_desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 		dsv_desc.Flags = 0;
-		dsv_desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
+		if (msaa == 1)
+		{
+			dsv_desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+			dsv_desc.Texture2D.MipSlice = 0;
+		}
+		else
+		{
+			dsv_desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
+		}
 		hr = m_device->CreateDepthStencilView(
 			depthStencilBuffer,
 			&dsv_desc,
@@ -140,10 +131,10 @@ namespace DX {
 
 		//map vertex positions in clip space into render target positions
 		ZeroMemory(&viewport, sizeof(D3D11_VIEWPORT));
-		viewport.Width = scd.BufferDesc.Width;
-		viewport.Height = scd.BufferDesc.Height;
 		viewport.TopLeftX = 0;
 		viewport.TopLeftY = 0;
+		viewport.Width = scd.BufferDesc.Width;
+		viewport.Height = scd.BufferDesc.Height;
 		viewport.MinDepth = 0.0f;
 		viewport.MaxDepth = 1.0f;
 

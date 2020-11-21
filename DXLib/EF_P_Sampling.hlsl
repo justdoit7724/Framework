@@ -7,8 +7,7 @@
 cbuffer CB_Sample : register(b7)
 {
     float cbSample;
-    float cbVisual;
-    float2 pad;
+    float3 pad;
 }
 
 

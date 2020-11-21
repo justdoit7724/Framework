@@ -17,15 +17,15 @@ public:
 	void WM_MouseMove(LPARAM lparam)override;
 	void WM_Resize(int width, int height) override;
 
+	void SetResolution(int res);
+
 private:
 
-	DX::DirectionalLight* m_dLight;
 	DX::Camera* m_camera;
 	DX::Buffer* m_cbPrimitive;
 	DX::Object* m_dxQuad1;
 	DX::Object* m_dxQuad2;
 	DX::SamplingDraw* m_dxSampling;
-	DX::Debugging* m_dxDebugging;
 
 	std::vector<DX::Object*> m_vObj;
 

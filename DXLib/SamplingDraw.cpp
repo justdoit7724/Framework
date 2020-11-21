@@ -23,10 +23,19 @@ SamplingDraw::SamplingDraw(ID3D11Device* device, ID3D11DeviceContext* dContext)
 	dsDesc.StencilEnable = false;
 	dsDesc.DepthFunc = D3D11_COMPARISON_ALWAYS;
 	dsState->Modify(device, &dsDesc);
+
+	m_sampleInfo.x = 1;
 }
 
 SamplingDraw::~SamplingDraw()
 {
+}
+
+void DX::SamplingDraw::SetResolution(int res)
+{
+	assert(res == 1 || res == 2 || res == 4 || res == 8 || res == 16);
+
+	m_sampleInfo.x = res;
 }
 
 void SamplingDraw::Render(ID3D11DeviceContext* dContext, const XMMATRIX& v, const XMMATRIX& p, const Frustum& frustum, UINT sceneDepth) const
@@ -36,10 +45,8 @@ void SamplingDraw::Render(ID3D11DeviceContext* dContext, const XMMATRIX& v, cons
 
 	XMMATRIX wvp = transform->WorldMatrix();
 	vs->WriteCB(dContext, 0, &wvp);
-	XMFLOAT4 sampleInfo;
-	sampleInfo.x = 16;
-	sampleInfo.y = 1;
-	ps->WriteCB(dContext, 7, &sampleInfo);
+	
+	ps->WriteCB(dContext, 7, &m_sampleInfo);
 
 	Object::Render(dContext);
 }
