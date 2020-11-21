@@ -14,6 +14,7 @@ public:
 
 private:
 
+	DX::Graphic* m_graphic;
 	VisualAAScene* m_scene;
 	int m_iMSAA;
 };

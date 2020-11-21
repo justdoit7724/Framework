@@ -35,10 +35,10 @@ void WndDXDisplayPlay::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam
 	{
 	case WM_SHOWWINDOW:
 
-		SAFEDELETE(g_dxGraphic);
+		SAFEDELETE(m_dxGraphic);
 		SAFEDELETE(m_scene);
-		g_dxGraphic = new DX::Graphic(m_hWnd, m_iMSAA);
-		m_scene = new PlayScene(g_dxGraphic->Device(), g_dxGraphic->DContext(), L"main");
+		m_dxGraphic = new DX::Graphic(m_hWnd, m_iMSAA);
+		m_scene = new PlayScene(m_dxGraphic->Device(), m_dxGraphic->DContext(), L"main");
 		break;
 	case WM_COMMAND:
 
@@ -49,16 +49,16 @@ void WndDXDisplayPlay::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam
 				Timer* timer = (Timer*)lparam;
 
 				m_scene->Update(timer->Elapsed(), timer->SPF());
-				g_dxGraphic->Present();
+				m_dxGraphic->Present();
 			}
 			break;
 			case ID_CONTROL_RESOLUTION:
 			{
 				m_iMSAA = HIWORD(wparam);
-				SAFEDELETE(g_dxGraphic);
+				SAFEDELETE(m_dxGraphic);
 				SAFEDELETE(m_scene);
-				g_dxGraphic = new DX::Graphic(m_hWnd, m_iMSAA);
-				m_scene = new PlayScene(g_dxGraphic->Device(), g_dxGraphic->DContext(), L"main");
+				m_dxGraphic = new DX::Graphic(m_hWnd, m_iMSAA);
+				m_scene = new PlayScene(m_dxGraphic->Device(), m_dxGraphic->DContext(), L"main");
 			}
 			break;
 			

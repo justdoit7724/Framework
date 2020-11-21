@@ -18,24 +18,23 @@ WndDXDisplayVisual::WndDXDisplayVisual(HINSTANCE hInstance, HWND parent, int x, 
 		hInstance,
 		nullptr);
 	SetWindowLongPtr(m_hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
+
+	m_graphic = new DX::Graphic(m_hWnd);
+	m_scene = new VisualAAScene(m_graphic->Device(), m_graphic->DContext(), L"VisualDisplay");
+	m_scene->WM_Resize(width, height);
 }
 
 WndDXDisplayVisual::~WndDXDisplayVisual()
 {
+	delete m_scene;
+	delete m_graphic;
+	DestroyWindow(m_hWnd);
 }
 
 void WndDXDisplayVisual::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	switch (msg)
 	{
-	case WM_SHOWWINDOW:
-
-		SAFEDELETE(g_dxGraphic);
-		g_dxGraphic = new DX::Graphic(m_hWnd);
-
-		m_scene = new VisualAAScene(g_dxGraphic->Device(), g_dxGraphic->DContext(), L"VisualDisplay");
-		m_scene->WM_Resize(GetWidth(), GetHeight());
-		break;
 		case WM_COMMAND:
 
 			switch (LOWORD(wparam))
@@ -45,19 +44,12 @@ void WndDXDisplayVisual::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lpar
 					Timer* timer = (Timer*)lparam;
 
 					m_scene->Update(timer->Elapsed(), timer->SPF());
-					g_dxGraphic->Present();
+					m_graphic->Present();
 				}
 				break;
 				case ID_CONTROL_RESOLUTION:
 			
-					m_iMSAA = HIWORD(wparam);
-
-					SAFEDELETE(g_dxGraphic);
-					g_dxGraphic = new DX::Graphic(m_hWnd);
-
-					m_scene = new VisualAAScene(g_dxGraphic->Device(), g_dxGraphic->DContext(), L"VisualDisplay");
-					m_scene->WM_Resize(GetWidth(), GetHeight());
-
+					m_scene->SetResolution(HIWORD(wparam));
 					break;
 			}
 		break;

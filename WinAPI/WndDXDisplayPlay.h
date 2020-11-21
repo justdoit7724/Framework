@@ -14,7 +14,10 @@ public:
 
 private:
 
+	DX::Graphic* m_dxGraphic;
 	PlayScene* m_scene;
 	int m_iMSAA;
+
+
 };
 

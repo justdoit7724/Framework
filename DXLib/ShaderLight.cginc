@@ -51,6 +51,18 @@ void ComputeDirectionalLight(float3 n, float3 v, out float3 ambient, out float3 
     spec = float3(0, 0, 0);
     ambient = float3(0, 0, 0);
     
+    /*
+    WARNING !!! HARD CODING HERE
+    i had to switch values here into CONSTANT NUMBER because conflict between register of constant value from multiple deviceContext
+    original code is commented below and same for rest light types
+    */
+    ambient = 0.1 * 0.25;
+    diffuse = 0.6 * saturate(dot(float3(0.666, 0.333, 0.666), n)) * 0.8;
+    
+    float3 r = reflect(float3(-0.666, -0.333, -0.666), n);
+    float specFactor = pow(max(EPSILON, dot(r, v)), LIGHT_SPEC_POWER_MAX);
+    spec = 0.4 * specFactor * 0.7;
+    /*
     for (int i = 0; i < LIGHT_MAX_EACH; ++i)
     {
         ambient += d_Enabled[i].x * d_intensity[i].x * mAmbient.xyz * d_Ambient[i].xyz;
@@ -60,6 +72,7 @@ void ComputeDirectionalLight(float3 n, float3 v, out float3 ambient, out float3 
         float specFactor = pow(max(EPSILON,dot(r, v)), LIGHT_SPEC_POWER_MAX);
         spec += d_Enabled[i].x * d_intensity[i].x * specFactor * mSpecular.xyz * d_Specular[i].xyz;
     }
+    */
 }
 void ComputePointLight(float3 pos, float3 n, float3 v, out float3 ambient, out float3 diffuse, out float3 spec)
 {
@@ -67,6 +80,17 @@ void ComputePointLight(float3 pos, float3 n, float3 v, out float3 ambient, out f
     spec = float3(0, 0, 0);
     ambient = float3(0, 0, 0);
     
+    float3 l = float3(15, 30, 35) - pos;
+    float d = length(l);
+    l /= d; // normalize
+    float diffuseFactor = max(0.0f, dot(l, n));
+    float3 r = reflect(-v, n);
+    float specFactor = pow(saturate(dot(r, l)), LIGHT_SPEC_POWER_MAX);
+    float att = 300 / (d * d + 1);
+    ambient = 0.05 * att;
+    diffuse = diffuseFactor * 0.6 * att;
+    spec = specFactor * 0.7 * att;
+    /*
     for (int i = 0; i < LIGHT_MAX_EACH; ++i)
     {
         float3 l = p_Pos[i].xyz - pos;
@@ -83,12 +107,37 @@ void ComputePointLight(float3 pos, float3 n, float3 v, out float3 ambient, out f
         diffuse += p_Info[i].x * diffuseFactor * mDiffuse.xyz * p_Diffuse[i].xyz * att;
         spec += p_Info[i].x * specFactor * mSpecular.xyz * p_Specular[i].xyz * att;
     }
+    */
 }
 void ComputeSpotLight(float3 pos, float3 normal, float3 view, out float3 ambient, out float3 diffuse, out float3 spec)
 {
     diffuse = float3(0, 0, 0);
     spec = float3(0, 0, 0);
     ambient = float3(0, 0, 0);
+    
+    float3 tmpA = 0;
+    float3 tmpD = 0;
+    float3 tmpS = 0;
+    float3 l = float3(-15, 30, -40) - pos;
+    float d = length(l);
+    l /= d;
+    float diffuseFactor = saturate(dot(l, normal));
+    float3 r = reflect(-l, normal);
+    float specT = saturate(dot(r, view));
+    float specFactor = pow(max(EPSILON, specT), 8);
+    float spot = 1.0 - saturate(acos(saturate(dot(-l, float3(0, 0, 1)))) / (PIDIV2*0.65 + EPSILON));
+    spot = -pow(min(-EPSILON, spot - 1), 2) + 1;
+    float att = spot * 450 / (d * d + EPSILON);
+    tmpD = diffuseFactor * 0.8 * att;
+    tmpS = specFactor * att;
+    tmpA = 0.1 * spot + 0.05f;
+    ambient = tmpA;
+    diffuse = tmpD;
+    spec = tmpS;
+
+    
+    /*
+    spec = float3(abs(s_info[1].www));
     
     for (int i = 0; i < LIGHT_MAX_EACH; ++i)
     {
@@ -118,6 +167,7 @@ void ComputeSpotLight(float3 pos, float3 normal, float3 view, out float3 ambient
         spec += s_info[i].x * tmpS;
 
     }
+    */
 }
 
 #endif

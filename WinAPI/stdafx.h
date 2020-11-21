@@ -22,6 +22,5 @@ p=nullptr;
 if (p) delete[] p; \
 p=nullptr;
 
-extern DX::Graphic* g_dxGraphic;
 
 

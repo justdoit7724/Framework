@@ -4,8 +4,6 @@
 #include "WndDXDisplayVisual.h"
 #include "WndDXDisplayPlay.h"
 
-DX::Graphic* g_dxGraphic=nullptr;
-
 LRESULT WndDefaultProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
 WndMain::WndMain(HINSTANCE hInstance, int x, int y, int width, int height)
@@ -77,7 +75,6 @@ WndMain::~WndMain()
 
 	delete m_DXDisplayPlay;
 	delete m_DXDisplayVisual;
-	SAFEDELETE(g_dxGraphic);
 }
 
 void WndMain::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
