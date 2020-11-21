@@ -13,7 +13,7 @@ class Window
 public:
 	Window(HINSTANCE hInstance, std::wstring className);
 	Window(Window*&&);
-	~Window();
+	virtual ~Window();
 
 	void ShowWindow();
 	void AddChild(Window* CWnd);

@@ -90,6 +90,8 @@ namespace DX {
 		hr = device->CreateShaderResourceView(newTex, &srvDesc, outSRV);
 		r_assert(hr);
 		dContext->GenerateMips(*outSRV);
+
+		newTex->Release();
 	}
 
 	void LoadTextureArray(ID3D11Device* device, ID3D11DeviceContext* dContext, std::wstring folderName, std::vector<std::string> fileNames, ID3D11ShaderResourceView** outSRV)

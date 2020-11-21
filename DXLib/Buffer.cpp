@@ -50,6 +50,9 @@ Buffer::~Buffer()
 
 void Buffer::SetSRV(ID3D11Device* device, D3D11_SHADER_RESOURCE_VIEW_DESC* srvDesc)
 {
+	if (srv)
+		srv->Release();
+
 	HRESULT hr = device->CreateShaderResourceView(
 			resource,
 			srvDesc,
@@ -58,6 +61,9 @@ void Buffer::SetSRV(ID3D11Device* device, D3D11_SHADER_RESOURCE_VIEW_DESC* srvDe
 }
 void Buffer::SetUAV(ID3D11Device* device, D3D11_UNORDERED_ACCESS_VIEW_DESC * uavDesc)
 {
+	if (uav)
+		uav->Release();
+
 	HRESULT hr = device->CreateUnorderedAccessView(
 			resource,
 			uavDesc,

@@ -68,13 +68,13 @@ WndMain::WndMain(HINSTANCE hInstance, int x, int y, int width, int height)
 
 WndMain::~WndMain()
 {
+	delete m_DXDisplayPlay;
+	delete m_DXDisplayVisual;
 	DestroyWindow(m_hRadioVisualVersion);
 	DestroyWindow(m_hRadioPlayVersion);
 	DestroyWindow(m_hlbResolution);
 	DestroyWindow(m_hWnd);
 
-	delete m_DXDisplayPlay;
-	delete m_DXDisplayVisual;
 }
 
 void WndMain::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
@@ -111,11 +111,22 @@ void WndMain::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 			break;
 		}
 		break;
+	case WM_KEYDOWN:
+	{
+		switch (wparam)
+		{
+		case VK_ESCAPE:
+			PostQuitMessage(0);
+			break;
+		}
+	}
+		break;
 	case WM_CLOSE:
 
 		PostQuitMessage(0);
 		break;
 	}
+
 }
 
 void WndMain::SetLBResolution(int index)

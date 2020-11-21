@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Window.h"
 
-LRESULT WndDefaultProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
+LRESULT CALLBACK WndDefaultProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
 Window::Window(HINSTANCE hInstance, std::wstring className)
 	:m_hWnd(nullptr), m_hInstance(hInstance), m_wstrName(className)

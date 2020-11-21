@@ -136,8 +136,10 @@ VShader::VShader(ID3D11Device* device, std::string fileName, const D3D11_INPUT_E
 
 VShader::~VShader()
 {
-	iLayout->Release();
-	vs->Release();
+	if(iLayout)
+		iLayout->Release();
+	if(vs)
+		vs->Release();
 }
 
 
@@ -191,7 +193,8 @@ GShader::GShader(ID3D11Device* device, std::string fileName)
 
 GShader::~GShader()
 {
-	gs->Release();
+	if(gs)
+		gs->Release();
 }
 
 void GShader::Apply(ID3D11DeviceContext* dContext)const
@@ -248,7 +251,8 @@ PShader::PShader(ID3D11Device* device, std::string fileName)
 }
 PShader::~PShader()
 {
-	ps->Release();
+	if(ps)
+		ps->Release();
 }
 void PShader::Apply(ID3D11DeviceContext* dContext)const
 {
@@ -296,7 +300,8 @@ CShader::CShader(ID3D11Device* device, const std::string CSfileName)
 
 CShader::~CShader()
 {
-	cs->Release();
+	if(cs)
+		cs->Release();
 }
 
 void CShader::Apply(ID3D11DeviceContext* dContext)const
@@ -348,7 +353,8 @@ HShader::HShader(ID3D11Device* device, std::string fileName)
 
 HShader::~HShader()
 {
-	hs->Release();
+	if(hs)
+		hs->Release();
 }
 
 void HShader::Apply(ID3D11DeviceContext* dContext)const
@@ -401,7 +407,8 @@ DShader::DShader(ID3D11Device* device, std::string fileName)
 
 DShader::~DShader()
 {
-	ds->Release();
+	if(ds)
+		ds->Release();
 }
 
 void DShader::Apply(ID3D11DeviceContext* dContext)const

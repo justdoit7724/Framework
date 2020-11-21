@@ -27,6 +27,9 @@ WndDXDisplayPlay::~WndDXDisplayPlay()
 {
 	if(m_scene)
 		delete m_scene;
+	if (m_dxGraphic)
+		delete m_dxGraphic;
+	DestroyWindow(m_hWnd);
 }
 
 void WndDXDisplayPlay::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
@@ -80,6 +83,12 @@ void WndDXDisplayPlay::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam
 	break;
 	case WM_KEYDOWN:
 	{
+		switch (wparam)
+		{
+		case VK_ESCAPE:
+			PostQuitMessage(0);
+			return;
+		}
 		m_scene->WM_KeyDown(wparam);
 	}
 	break;

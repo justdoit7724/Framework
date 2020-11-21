@@ -53,6 +53,16 @@ void WndDXDisplayVisual::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lpar
 					break;
 			}
 		break;
+
+		case WM_KEYDOWN:
+
+			switch (wparam)
+			{
+			case VK_ESCAPE:
+				PostQuitMessage(0);
+				return;
+			}
+		break;
 	}
 
 }

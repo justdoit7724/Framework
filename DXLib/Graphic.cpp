@@ -69,21 +69,6 @@ namespace DX {
 			&rtv);
 		r_assert(hr);
 
-#pragma endregion
-
-		hr = swapchain->GetBuffer(
-			0,
-			__uuidof(ID3D11Texture2D),
-			reinterpret_cast<void**>(&backBuffer));
-		r_assert(hr);
-		hr = m_device->CreateRenderTargetView(
-			backBuffer,
-			nullptr,
-			&rtv);
-		r_assert(hr);
-
-#pragma endregion
-
 #pragma region Depth&Stencil Buffer
 
 		D3D11_TEXTURE2D_DESC ds_desc;
@@ -156,14 +141,15 @@ namespace DX {
 	Graphic::~Graphic()
 	{
 		backBuffer->Release();
-		depthStencilBuffer->Release();
-		m_dContext->Release();
 		m_device->Release();
-
+		m_dContext->Release();
 		swapchain->Release();
+
 		rtv->Release();
 		dsView->Release();
+		depthStencilBuffer->Release();
 		rasterizerState->Release();
+
 	}
 
 	void Graphic::Present()

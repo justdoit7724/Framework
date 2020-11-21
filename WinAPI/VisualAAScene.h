@@ -6,7 +6,7 @@ class VisualAAScene :
 {
 public:
 	VisualAAScene(ID3D11Device* device, ID3D11DeviceContext* dContext, const wchar_t* key);
-	~VisualAAScene();
+	~VisualAAScene()override;
 
 	void Update(float elapsed, float spf) override;
 

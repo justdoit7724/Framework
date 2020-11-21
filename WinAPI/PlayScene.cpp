@@ -71,30 +71,24 @@ PlayScene::PlayScene(ID3D11Device* device, ID3D11DeviceContext* dContext, const 
 	std::shared_ptr<DX::Mesh> pCubeMesh = std::make_shared<DX::CubeMesh>(m_device);
 	std::shared_ptr<DX::Mesh> pFloorMesh = std::make_shared<DX::QuadMesh>(m_device);
 
-
-	ID3D11ShaderResourceView* redSRV;
-	ID3D11ShaderResourceView* blueSRV;
-	ID3D11ShaderResourceView* greenSRV;
-	ID3D11ShaderResourceView* whiteSRV;
-	ID3D11ShaderResourceView* normSRV;
-	DX::LoadTexture(m_device, m_dContext, "C:\\Users\\Jun\\source\\repos\\Framework\\Data\\Texture\\red_light.png", &redSRV);
-	DX::LoadTexture(m_device, m_dContext, "C:\\Users\\Jun\\source\\repos\\Framework\\Data\\Texture\\green_light.png", &greenSRV);
-	DX::LoadTexture(m_device, m_dContext, "C:\\Users\\Jun\\source\\repos\\Framework\\Data\\Texture\\blue_light.png", &blueSRV);
-	DX::LoadTexture(m_device, m_dContext, "C:\\Users\\Jun\\source\\repos\\Framework\\Data\\Texture\\white.png", &whiteSRV);
-	DX::LoadTexture(m_device, m_dContext, "C:\\Users\\Jun\\source\\repos\\Framework\\Data\\Texture\\default_normal.png", &normSRV);
+	DX::LoadTexture(m_device, m_dContext, "C:\\Users\\Jun\\source\\repos\\Framework\\Data\\Texture\\red_light.png", &m_dxRedSRV);
+	DX::LoadTexture(m_device, m_dContext, "C:\\Users\\Jun\\source\\repos\\Framework\\Data\\Texture\\green_light.png", &m_dxGreenSRV);
+	DX::LoadTexture(m_device, m_dContext, "C:\\Users\\Jun\\source\\repos\\Framework\\Data\\Texture\\blue_light.png", &m_dxBlueSRV);
+	DX::LoadTexture(m_device, m_dContext, "C:\\Users\\Jun\\source\\repos\\Framework\\Data\\Texture\\white.png", &m_dxWhiteSRV);
+	DX::LoadTexture(m_device, m_dContext, "C:\\Users\\Jun\\source\\repos\\Framework\\Data\\Texture\\default_normal.png", &m_dxNormSRV);
 
 
-	m_dxBlueBox = new DX::Object(m_device, m_dContext, "obj", pCubeMesh, nullptr, redSRV, normSRV);
+	m_dxBlueBox = new DX::Object(m_device, m_dContext, "obj", pCubeMesh, nullptr, m_dxRedSRV, m_dxNormSRV);
 	m_dxBlueBox->transform->SetScale(40, 40, 20);
 	m_dxBlueBox->transform->SetTranslation(0, 20, 80);
 	m_vObj.push_back(m_dxBlueBox);
 
-	m_dxBlueBox = new DX::Object(m_device, m_dContext, "obj", pSphereMesh, nullptr, greenSRV, normSRV);
+	m_dxBlueBox = new DX::Object(m_device, m_dContext, "obj", pSphereMesh, nullptr, m_dxGreenSRV, m_dxNormSRV);
 	m_dxBlueBox->transform->SetScale(20, 20, 20);
 	m_dxBlueBox->transform->SetTranslation(40, 40, 50);
 	m_vObj.push_back(m_dxBlueBox);
 
-	m_dxBlueBox = new DX::Object(m_device, m_dContext, "obj", pCubeMesh, nullptr, blueSRV, normSRV);
+	m_dxBlueBox = new DX::Object(m_device, m_dContext, "obj", pCubeMesh, nullptr, m_dxBlueSRV, m_dxNormSRV);
 	m_dxBlueBox->transform->SetScale(25, 35, 20);
 	m_dxBlueBox->transform->SetTranslation(-10, 25, 0);
 	m_vObj.push_back(m_dxBlueBox);
@@ -110,7 +104,7 @@ PlayScene::PlayScene(ID3D11Device* device, ID3D11DeviceContext* dContext, const 
 	m_dxSLightBlub->SetEnabled(false);
 	m_vObj.push_back(m_dxSLightBlub);
 
-	DX::Object* dxFloor = new DX::Object(m_device, m_dContext, "obj", pFloorMesh, nullptr, whiteSRV, normSRV);
+	DX::Object* dxFloor = new DX::Object(m_device, m_dContext, "obj", pFloorMesh, nullptr, m_dxWhiteSRV, m_dxNormSRV);
 	dxFloor->transform->SetScale(300, 300, 1);
 	dxFloor->transform->SetRot(UP);
 	m_vObj.push_back(dxFloor);
@@ -122,7 +116,14 @@ PlayScene::PlayScene(ID3D11Device* device, ID3D11DeviceContext* dContext, const 
 
 PlayScene::~PlayScene()
 {
+	m_dxRedSRV->Release();
+	m_dxBlueSRV->Release();
+	m_dxGreenSRV->Release();
+	m_dxWhiteSRV->Release();
+	m_dxNormSRV->Release();
 	delete m_dLight;
+	delete m_pLight;
+	delete m_sLight;
 	g_playerPos= m_camera->transform->GetPos();
 	g_playerForward= m_camera->transform->GetForward();
 	g_playerUp= m_camera->transform->GetUp();
@@ -130,6 +131,12 @@ PlayScene::~PlayScene()
 	delete m_cbEye;
 	delete m_keyboard;
 	m_dxSamp->Release();
+
+	for (auto it = m_vObj.begin(); it != m_vObj.end(); ++it)
+	{
+		SAFEDELETE(*it);
+	}
+
 }
 
 void PlayScene::Update(float elapsed, float spf)

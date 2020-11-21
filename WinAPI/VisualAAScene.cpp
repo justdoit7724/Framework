@@ -46,7 +46,11 @@ VisualAAScene::VisualAAScene(ID3D11Device* device, ID3D11DeviceContext* dContext
 	DX::LoadTexture(m_device, m_dContext, "C:\\Users\\Jun\\source\\repos\\Framework\\Data\\Texture\\blue_light.png", &blueSRV);
 	DX::LoadTexture(m_device, m_dContext, "C:\\Users\\Jun\\source\\repos\\Framework\\Data\\Texture\\white.png", &whiteSRV);
 	DX::LoadTexture(m_device, m_dContext, "C:\\Users\\Jun\\source\\repos\\Framework\\Data\\Texture\\default_normal.png", &normSRV);
-
+	redSRV->Release();
+	blueSRV->Release();
+	greenSRV->Release();
+	whiteSRV->Release();
+	normSRV->Release();
 
 	m_dxSampling = new DX::SamplingDraw(device, dContext);
 	m_vObj.push_back(m_dxSampling);
@@ -74,6 +78,7 @@ VisualAAScene::VisualAAScene(ID3D11Device* device, ID3D11DeviceContext* dContext
 	m_dxQuad2->rsState = new DX::RasterizerState(device, &rsDesc);
 	m_vObj.push_back(m_dxQuad1);
 	m_vObj.push_back(m_dxQuad2);
+	
 }
 
 VisualAAScene::~VisualAAScene()
@@ -84,8 +89,7 @@ VisualAAScene::~VisualAAScene()
 
 	for (auto it = m_vObj.begin(); it != m_vObj.end(); ++it)
 	{
-		delete* it;
-		*it = nullptr;
+		SAFEDELETE(*it)
 	}
 }
 

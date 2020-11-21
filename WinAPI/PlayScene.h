@@ -8,7 +8,7 @@ class PlayScene :
 {
 public:
 	PlayScene(ID3D11Device* device, ID3D11DeviceContext* dContext, const wchar_t* key);
-	~PlayScene();
+	~PlayScene() override;
 
 	void Update(float elapsed, float spf) override;
 
@@ -36,6 +36,12 @@ private:
 	DX::Object* m_dxRedBox;
 	DX::Object* m_dxPLightBlub;
 	DX::Object* m_dxSLightBlub;
+
+	ID3D11ShaderResourceView* m_dxRedSRV;
+	ID3D11ShaderResourceView* m_dxBlueSRV;
+	ID3D11ShaderResourceView* m_dxGreenSRV;
+	ID3D11ShaderResourceView* m_dxWhiteSRV;
+	ID3D11ShaderResourceView* m_dxNormSRV;
 
 	ID3D11SamplerState* m_dxSamp;
 

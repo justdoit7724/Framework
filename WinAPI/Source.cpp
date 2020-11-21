@@ -3,7 +3,7 @@
 
 #include "Timer.h"
 
-int APIENTRY main(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 
 	CoInitialize(NULL);
 
@@ -33,6 +33,9 @@ int APIENTRY main(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine,
 			SendMessage(mainWnd->HWnd(), WM_COMMAND, ID_COMMAND_REALTIME_UPDATE, (LPARAM)&timer);
 		}
 	}
+
+	delete mainWnd;
+	CoUninitialize();
 
 	return 0;
 }

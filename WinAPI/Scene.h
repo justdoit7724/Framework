@@ -5,6 +5,7 @@ class Keyboard;
 class Scene
 {
 public:
+	virtual ~Scene();
 
 	virtual void Update(float elapsed, float spf) = 0;
 

@@ -11,16 +11,37 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include <DXLibExport.h>
-#pragma comment(lib,"DXLib.lib")
+#include "..\DXLib\DXLibExport.h"
+
+#ifdef _WIN64
+
+#ifdef _DEBUG
+#pragma comment(lib, __FILE__"\\..\\..\\x64\\Debug\\DXLib.lib")
+#else
+#pragma comment(lib, __FILE__"\\..\\..\\x64\\Release\\DXLib.lib")
+#endif
+
+#else
+
+#ifdef _DEBUG
+#pragma comment(lib, __FILE__"\\..\\..\\Debug\\DXLib.lib")
+#else
+#pragma comment(lib, __FILE__"\\..\\..\\Release\\DXLib.lib")
+#endif
+
+#endif
 
 #define SAFEDELETE(p)\
+{\
 if (p) delete p; \
-p=nullptr;
+p=nullptr;\
+}
 
 #define SAFEDELETEARR(p)\
+{\
 if (p) delete[] p; \
-p=nullptr;
+p=nullptr;\
+}
 
 
 
