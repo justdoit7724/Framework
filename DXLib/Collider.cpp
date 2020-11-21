@@ -11,12 +11,6 @@ Collider::Collider(XMFLOAT3 center)
 
 void Collider::SetRotate(XMFLOAT3 f, XMFLOAT3 u)
 {
-	float d = Dot(f, u);
-	assert(0.0001f > abs(d));
-
 	forward = f;
 	up = u;
-
-	XMMATRIX a;
-	XMVECTOR b;
 }
