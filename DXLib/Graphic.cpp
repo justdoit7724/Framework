@@ -5,6 +5,8 @@
 #include "Graphic.h"
 #include "Math.h"
 
+#pragma comment(lib, "DXGI.lib")
+
 namespace DX {
 
 	Graphic::Graphic(HWND _hwnd, int msaa)
@@ -20,6 +22,21 @@ namespace DX {
 		int iHeight = rc.bottom - rc.top;
 
 		hwnd = _hwnd;
+
+		IDXGIFactory* pFactory;
+		HRESULT hr2=CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&pFactory);
+		r_assert(hr2);
+
+		IDXGIAdapter* pAdapter;
+		UINT index = 0;
+		std::map<int, IDXGIAdapter*> vAdapter;
+		while (SUCCEEDED(pFactory->EnumAdapters(index,&pAdapter)))
+		{
+			DXGI_ADAPTER_DESC desc;
+			pAdapter->GetDesc(&desc);
+			vAdapter.insert(std::pair<int, IDXGIAdapter*>(desc.DedicatedVideoMemory, pAdapter));
+			index++;
+		}
 
 		DXGI_SWAP_CHAIN_DESC scd;
 		ZeroMemory(&scd, sizeof(DXGI_SWAP_CHAIN_DESC));
@@ -43,8 +60,8 @@ namespace DX {
 		scd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
 		HRESULT hr = D3D11CreateDeviceAndSwapChain(
-			NULL,
-			D3D_DRIVER_TYPE_HARDWARE,
+			vAdapter.begin()->second,
+			D3D_DRIVER_TYPE_UNKNOWN,
 			NULL,
 			D3D11_CREATE_DEVICE_DEBUG,
 			NULL,

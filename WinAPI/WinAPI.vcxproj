@@ -152,14 +152,12 @@
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneMgr.cpp" />
     <ClCompile Include="Source.cpp" />
-    <ClCompile Include="VisualAAScene.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="Window.cpp" />
-    <ClCompile Include="WndDXDisplayPlay.cpp" />
-    <ClCompile Include="WndDXDisplayVisual.cpp" />
+    <ClCompile Include="WndDXDisplay.cpp" />
     <ClCompile Include="WndMain.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -168,13 +166,11 @@
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneMgr.h" />
     <ClInclude Include="Singleton.h" />
-    <ClInclude Include="VisualAAScene.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="Window.h" />
     <ClInclude Include="WindowDef.h" />
-    <ClInclude Include="WndDXDisplayPlay.h" />
-    <ClInclude Include="WndDXDisplayVisual.h" />
+    <ClInclude Include="WndDXDisplay.h" />
     <ClInclude Include="WndMain.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -156,9 +156,6 @@
     <ClInclude Include="Object.h">
       <Filter>Object</Filter>
     </ClInclude>
-    <ClInclude Include="SamplingDraw.h">
-      <Filter>Object</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -263,9 +260,6 @@
     <ClCompile Include="Object.cpp">
       <Filter>Object</Filter>
     </ClCompile>
-    <ClCompile Include="SamplingDraw.cpp">
-      <Filter>Object</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="StdPS.hlsl">
@@ -290,12 +284,6 @@
       <Filter>HLSL</Filter>
     </FxCompile>
     <FxCompile Include="UnlitPS.hlsl">
-      <Filter>HLSL</Filter>
-    </FxCompile>
-    <FxCompile Include="EF_V_Sampling.hlsl">
-      <Filter>HLSL</Filter>
-    </FxCompile>
-    <FxCompile Include="EF_P_Sampling.hlsl">
       <Filter>HLSL</Filter>
     </FxCompile>
   </ItemGroup>

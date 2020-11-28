@@ -1,9 +1,9 @@
 #include "stdafx.h"
-#include "WndDXDisplayPlay.h"
+#include "WndDXDisplay.h"
 #include "PlayScene.h"
 #include "Timer.h"
 
-WndDXDisplayPlay::WndDXDisplayPlay(HINSTANCE hInstance, HWND parent, int x, int y, int width, int height, int msaa)
+WndDXDisplay::WndDXDisplay(HINSTANCE hInstance, HWND parent, int x, int y, int width, int height, int msaa)
 	:Window(hInstance, L"DX DisplayRight"), m_iMSAA(msaa)
 {
 	assert(msaa == 1 || msaa == 2 || msaa == 4 || msaa == 8 || msaa == 16);
@@ -21,9 +21,11 @@ WndDXDisplayPlay::WndDXDisplayPlay(HINSTANCE hInstance, HWND parent, int x, int 
 		nullptr);
 	SetWindowLongPtr(m_hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
 
+	m_dxGraphic = new DX::Graphic(m_hWnd, m_iMSAA);
+	m_scene = new PlayScene(m_dxGraphic->Device(), m_dxGraphic->DContext(), L"main");
 }
 
-WndDXDisplayPlay::~WndDXDisplayPlay()
+WndDXDisplay::~WndDXDisplay()
 {
 	if(m_scene)
 		delete m_scene;
@@ -32,17 +34,10 @@ WndDXDisplayPlay::~WndDXDisplayPlay()
 	DestroyWindow(m_hWnd);
 }
 
-void WndDXDisplayPlay::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
+void WndDXDisplay::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	switch (msg)
 	{
-	case WM_SHOWWINDOW:
-
-		SAFEDELETE(m_dxGraphic);
-		SAFEDELETE(m_scene);
-		m_dxGraphic = new DX::Graphic(m_hWnd, m_iMSAA);
-		m_scene = new PlayScene(m_dxGraphic->Device(), m_dxGraphic->DContext(), L"main");
-		break;
 	case WM_COMMAND:
 
 		switch (LOWORD(wparam))
@@ -53,15 +48,6 @@ void WndDXDisplayPlay::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam
 
 				m_scene->Update(timer->Elapsed(), timer->SPF());
 				m_dxGraphic->Present();
-			}
-			break;
-			case ID_CONTROL_RESOLUTION:
-			{
-				m_iMSAA = HIWORD(wparam);
-				SAFEDELETE(m_dxGraphic);
-				SAFEDELETE(m_scene);
-				m_dxGraphic = new DX::Graphic(m_hWnd, m_iMSAA);
-				m_scene = new PlayScene(m_dxGraphic->Device(), m_dxGraphic->DContext(), L"main");
 			}
 			break;
 			

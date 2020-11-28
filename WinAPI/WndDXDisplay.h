@@ -3,12 +3,12 @@
 
 class PlayScene;
 
-class WndDXDisplayPlay :
+class WndDXDisplay :
 	public Window
 {
 public:
-	WndDXDisplayPlay(HINSTANCE hInstance, HWND parent, int x, int y, int width, int height, int msaa);
-	~WndDXDisplayPlay();
+	WndDXDisplay(HINSTANCE hInstance, HWND parent, int x, int y, int width, int height, int msaa);
+	~WndDXDisplay();
 
 	void WndProc(HWND hwnd, UINT MSG, WPARAM wparam, LPARAM lparam) override;
 

@@ -29,9 +29,6 @@ DirectionalLight::DirectionalLight(ID3D11Device* device, XMFLOAT3 a, XMFLOAT3 d,
 
 	m_data = new SHADER_DIRECTIONAL_LIGHT();
 
-	
-	/*
-	set id to 0 for this project, bc separated device
 	for (int i = 0; i < LIGHT_MAX_EACH; ++i)
 	{
 		if (m_data->enabled[i].x == LIGHT_DISABLED)
@@ -39,9 +36,7 @@ DirectionalLight::DirectionalLight(ID3D11Device* device, XMFLOAT3 a, XMFLOAT3 d,
 			id = i;
 			break;
 		}
-	}*/
-
-	id = 0;
+	}
 
 	SetAmbient(a);
 	SetDiffuse(d);

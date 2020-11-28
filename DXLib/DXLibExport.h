@@ -29,5 +29,4 @@
 #include "BlendState.h"
 #include "RasterizerState.h"
 #include "PostProcessing.h"
-#include "SamplingDraw.h"
 #include "Debugging.h"

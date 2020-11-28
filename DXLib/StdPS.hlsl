@@ -48,5 +48,6 @@ float4 main(PS_INPUT input) : SV_Target
     float3 diffuse = (dDiffuse + pDiffuse + sDiffuse) * tex;
     float3 spec = (dSpecular + pSpecular + sSpecular);
     
+    return float4(d_Ambient[0].xyz, 1);
     return float4(spec+ambient+diffuse, 1);
 }
