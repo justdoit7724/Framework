@@ -12,10 +12,6 @@ public:
 
 	void Update(float elapsed, float spf) override;
 
-	void EnableDLight(bool b);
-	void EnablePLight(bool b);
-	void EnableSLight(bool b);
-
 	void WM_LButtonDown()override;
 	void WM_RButtonDown()override;
 	void WM_RButtonUp()override;
@@ -26,16 +22,10 @@ public:
 private:
 
 	DX::DirectionalLight* m_dLight;
-	DX::PointLight* m_pLight;
-	DX::SpotLight* m_sLight;
 	DX::Camera* m_camera;
 	DX::Buffer* m_cbEye;
 
-	DX::Object* m_dxBlueBox;
-	DX::Object* m_dxGreenBox;
 	DX::Object* m_dxRedBox;
-	DX::Object* m_dxPLightBlub;
-	DX::Object* m_dxSLightBlub;
 
 	ID3D11ShaderResourceView* m_dxRedSRV;
 	ID3D11ShaderResourceView* m_dxBlueSRV;

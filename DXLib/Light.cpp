@@ -15,7 +15,8 @@
 
 using namespace DX;
 
-DirectionalLight::DirectionalLight(ID3D11Device* device, XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, float intensity, XMFLOAT3 dir)
+DirectionalLight::DirectionalLight(ID3D11Device* device, int id, XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, float intensity, XMFLOAT3 dir)
+	:Light(id)
 {
 	D3D11_BUFFER_DESC cb_desc;
 	cb_desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -27,11 +28,9 @@ DirectionalLight::DirectionalLight(ID3D11Device* device, XMFLOAT3 a, XMFLOAT3 d,
 	HRESULT hr = device->CreateBuffer(&cb_desc, nullptr, &m_cb);
 	r_assert(hr);
 
-	m_data = new SHADER_DIRECTIONAL_LIGHT();
-
 	for (int i = 0; i < LIGHT_MAX_EACH; ++i)
 	{
-		if (m_data->enabled[i].x == LIGHT_DISABLED)
+		if (m_data.enabled[i].x == LIGHT_DISABLED)
 		{
 			id = i;
 			break;
@@ -50,49 +49,48 @@ DirectionalLight::DirectionalLight(ID3D11Device* device, XMFLOAT3 a, XMFLOAT3 d,
 DirectionalLight::~DirectionalLight()
 {
 	m_cb->Release();
-	delete m_data;
 }
 
 void DirectionalLight::SetAmbient(const XMFLOAT3 & a)
 {
 	ambient = a;
-	m_data->ambient[id] = XMFLOAT4(a.x, a.y, a.z, 0);
+	m_data.ambient[m_id] = XMFLOAT4(a.x, a.y, a.z, 0);
 }
 
 void DirectionalLight::SetDiffuse(const XMFLOAT3 & d)
 {
 	diffuse = d;
-	m_data->diffuse[id] = XMFLOAT4(d.x, d.y, d.z, 0);
+	m_data.diffuse[m_id] = XMFLOAT4(d.x, d.y, d.z, 0);
 }
 
 void DirectionalLight::SetSpecular(const XMFLOAT3 & s)
 {
 	specular = s;
-	m_data->specular[id] = XMFLOAT4(s.x, s.y, s.z, 0);
+	m_data.specular[m_id] = XMFLOAT4(s.x, s.y, s.z, 0);
 }
 
 void DX::DirectionalLight::SetIntensity(float i)
 {
-	m_data->intensity[id] = XMFLOAT4(i, i, i, i);
+	m_data.intensity[m_id] = XMFLOAT4(i, i, i, i);
 }
 
 void DirectionalLight::SetDir(XMFLOAT3 d)
 {
-	m_data->dir[id] = XMFLOAT4(d.x, d.y, d.z, 0);
+	m_data.dir[m_id] = XMFLOAT4(d.x, d.y, d.z, 0);
 }
 
 void DirectionalLight::Enable(bool enable)
 {
 	if(enable)
-		m_data->enabled[id] = XMFLOAT4(LIGHT_ENABLED, LIGHT_ENABLED, LIGHT_ENABLED, LIGHT_ENABLED);
+		m_data.enabled[m_id] = XMFLOAT4(LIGHT_ENABLED, LIGHT_ENABLED, LIGHT_ENABLED, LIGHT_ENABLED);
 	else
-		m_data->enabled[id] = XMFLOAT4(LIGHT_DISABLED, LIGHT_DISABLED, LIGHT_DISABLED, LIGHT_DISABLED);
+		m_data.enabled[m_id] = XMFLOAT4(LIGHT_DISABLED, LIGHT_DISABLED, LIGHT_DISABLED, LIGHT_DISABLED);
 }
 
 
 XMFLOAT3 DirectionalLight::GetDir()const
 {
-	XMFLOAT4 dir = m_data->dir[id];
+	XMFLOAT4 dir = m_data.dir[m_id];
 
 	return XMFLOAT3(dir.x, dir.y, dir.z);
 }
@@ -113,7 +111,8 @@ void DirectionalLight::Apply(ID3D11Device* device, ID3D11DeviceContext* dContext
 
 
 
-PointLight::PointLight(ID3D11Device* device, XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, float intensity, XMFLOAT3 att, XMFLOAT3 pos)
+PointLight::PointLight(ID3D11Device* device, int id, XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, float intensity, XMFLOAT3 att, XMFLOAT3 pos)
+	:Light(id)
 {
 	D3D11_BUFFER_DESC cb_desc;
 	cb_desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -125,20 +124,17 @@ PointLight::PointLight(ID3D11Device* device, XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s,
 	HRESULT hr = device->CreateBuffer(&cb_desc, nullptr, &m_cb);
 	r_assert(hr);
 
-	m_data = new SHADER_POINT_LIGHT();
-
 	/*
 	set id to 0 for this project, bc separated device
 	for (int i = 0; i < LIGHT_MAX_EACH; ++i)
 	{
-		if (m_data->info[i].x == LIGHT_DISABLED)
+		if (m_data.info[i].x == LIGHT_DISABLED)
 		{
 			id = i;
 			break;
 		}
 	}
 	*/
-	id = 0;
 
 
 	SetAmbient(a);
@@ -153,56 +149,55 @@ PointLight::PointLight(ID3D11Device* device, XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s,
 PointLight::~PointLight()
 {
 	m_cb->Release();
-	delete m_data;
 }
 
 void PointLight::SetAmbient(const XMFLOAT3 & a)
 {
 	ambient = a;
-	m_data->ambient[id] = XMFLOAT4(a.x, a.y, a.z, 0);
+	m_data.ambient[m_id] = XMFLOAT4(a.x, a.y, a.z, 0);
 }
 
 void PointLight::SetDiffuse(const XMFLOAT3 & d)
 {
 	diffuse = d;
-	m_data->diffuse[id] = XMFLOAT4(d.x, d.y, d.z, 0);
+	m_data.diffuse[m_id] = XMFLOAT4(d.x, d.y, d.z, 0);
 }
 
 void PointLight::SetSpecular(const XMFLOAT3 & s)
 {
 	specular = s;
-	m_data->specular[id] = XMFLOAT4(s.x, s.y, s.z, 0);
+	m_data.specular[m_id] = XMFLOAT4(s.x, s.y, s.z, 0);
 }
 
 void DX::PointLight::SetIntensity(float i)
 {
-	m_data->intensity[id] = XMFLOAT4(i, i, i, i);
+	m_data.intensity[m_id] = XMFLOAT4(i, i, i, i);
 }
 
 void PointLight::SetPos(XMFLOAT3 p)
 {
-	m_data->pos[id] = XMFLOAT4(p.x, p.y, p.z, 0);
+	m_data.pos[m_id] = XMFLOAT4(p.x, p.y, p.z, 0);
 }
 
 
 void PointLight::SetAtt(XMFLOAT3 at)
 {
 	att = at;
-	m_data->att[id] = XMFLOAT4(at.x, at.y, at.z, 0);
+	m_data.att[m_id] = XMFLOAT4(at.x, at.y, at.z, 0);
 }
 
 void PointLight::Enable(bool enable)
 {
 	if(enable)
-		m_data->info[id].x = LIGHT_ENABLED;
+		m_data.info[m_id].x = LIGHT_ENABLED;
 	else
-		m_data->info[id].x = LIGHT_DISABLED;
+		m_data.info[m_id].x = LIGHT_DISABLED;
 
 }
 
 XMFLOAT3 DX::PointLight::GetPos()
 {
-	return XMFLOAT3(m_data->pos[id].x, m_data->pos[id].y, m_data->pos[id].z);
+	return XMFLOAT3(m_data.pos[m_id].x, m_data.pos[m_id].y, m_data.pos[m_id].z);
 }
 
 void PointLight::Apply(ID3D11Device* device, ID3D11DeviceContext* dContext)
@@ -221,7 +216,8 @@ void PointLight::Apply(ID3D11Device* device, ID3D11DeviceContext* dContext)
 	dContext->PSSetConstantBuffers(SHADER_REG_CB_POINT_LIGHT, 1, &m_cb);
 }
 
-SpotLight::SpotLight(ID3D11Device* device, XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, float r, float spot, float intensity, float rad, XMFLOAT3 att, XMFLOAT3 pos, XMFLOAT3 dir)
+SpotLight::SpotLight(ID3D11Device* device, int id, XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, float r, float spot, float intensity, float rad, XMFLOAT3 att, XMFLOAT3 pos, XMFLOAT3 dir)
+	:Light(id)
 {
 	D3D11_BUFFER_DESC cb_desc;
 	cb_desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -232,23 +228,6 @@ SpotLight::SpotLight(ID3D11Device* device, XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, f
 	cb_desc.Usage = D3D11_USAGE_DYNAMIC;
 	HRESULT hr = device->CreateBuffer(&cb_desc, nullptr, &m_cb);
 	r_assert(hr);
-
-	m_data = new SHADER_SPOT_LIGHT();
-
-
-	/*
-	set id to 0 for this project, bc separated device
-	for (int i = 0; i < LIGHT_MAX_EACH; ++i)
-	{
-		if (m_data->info[i].x == LIGHT_DISABLED)
-		{
-			id = i;
-			break;
-		}
-	}
-	*/
-	id = 0;
-	
 
 	SetAmbient(a);
 	SetDiffuse(d);
@@ -266,78 +245,77 @@ SpotLight::SpotLight(ID3D11Device* device, XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, f
 SpotLight::~SpotLight()
 {
 	m_cb->Release();
-	delete m_data;
 }
 
 void SpotLight::SetAmbient(const XMFLOAT3 & a)
 {
 	ambient = a;
-	m_data->ambient[id] = XMFLOAT4(ambient.x, ambient.y, ambient.z, 0);
+	m_data.ambient[m_id] = XMFLOAT4(ambient.x, ambient.y, ambient.z, 0);
 }
 
 void SpotLight::SetDiffuse(const XMFLOAT3 & d)
 {
 	diffuse = d;
-	m_data->diffuse[id] = XMFLOAT4(diffuse.x, diffuse.y, diffuse.z, 0);
+	m_data.diffuse[m_id] = XMFLOAT4(diffuse.x, diffuse.y, diffuse.z, 0);
 }
 
 void SpotLight::SetSpecular(const XMFLOAT3 & s)
 {
 	specular = s;
-	m_data->specular[id] = XMFLOAT4(specular.x, specular.y, specular.z, 0);
+	m_data.specular[m_id] = XMFLOAT4(specular.x, specular.y, specular.z, 0);
 }
 
 void DX::SpotLight::SetIntensity(float i)
 {
-	m_data->intensity[id] = XMFLOAT4(i, i, i, i);
+	m_data.intensity[m_id] = XMFLOAT4(i, i, i, i);
 }
 
 void SpotLight::SetPos(XMFLOAT3 p)
 {
-	m_data->pos[id] = XMFLOAT4(p.x, p.y, p.z, 0);
+	m_data.pos[m_id] = XMFLOAT4(p.x, p.y, p.z, 0);
 }
 
 void SpotLight::SetDir(XMFLOAT3 d)
 {
-	m_data->dir[id] = XMFLOAT4(d.x, d.y, d.z, 0);
+	m_data.dir[m_id] = XMFLOAT4(d.x, d.y, d.z, 0);
 }
 
 void SpotLight::SetRange(float r)
 {
 	range = r;
-	m_data->info[id].y = r;
+	m_data.info[m_id].y = r;
 }
 
 void SpotLight::SetRad(float r)
 {
 	rad = r;
-	m_data->info[id].z = r;
+	m_data.info[m_id].z = r;
 }
 
 
 void SpotLight::SetSpot(float s)
 {
 	spot = s;
-	m_data->info[id].w = spot;
+	m_data.info[m_id].w = spot;
 }
 
 void SpotLight::SetAtt(XMFLOAT3 at)
 {
 	att = at;
-	m_data->att[id] = XMFLOAT4(att.x, att.y,att.z, 0);
+	m_data.att[m_id] = XMFLOAT4(att.x, att.y,att.z, 0);
 }
 
 void SpotLight::Enable(bool enable)
 {
 	if (enable)
-		m_data->info[id].x = LIGHT_ENABLED;
+		m_data.info[m_id].x = LIGHT_ENABLED;
 	else
-		m_data->info[id].x = LIGHT_DISABLED;
+		m_data.info[m_id].x = LIGHT_DISABLED;
 }
 
 XMFLOAT3 DX::SpotLight::GetPos()
 {
-	return XMFLOAT3(m_data->pos[id].x, m_data->pos[id].y, m_data->pos[id].z);
+	return XMFLOAT3(m_data.pos[m_id].x, m_data.pos[m_id].y, m_data.pos[m_id].z);
 }
 
 
@@ -356,3 +334,7 @@ void SpotLight::Apply(ID3D11Device* device, ID3D11DeviceContext* dContext)
 	dContext->PSSetConstantBuffers(SHADER_REG_CB_SPOT_LIGHT, 1, &m_cb);
 }
 
+DX::Light::Light(int id)
+	:m_id(id)
+{
+}

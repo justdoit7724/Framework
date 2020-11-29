@@ -30,36 +30,14 @@ PlayScene::PlayScene(ID3D11Device* device, ID3D11DeviceContext* dContext, const 
 	
 	m_dLight = new DX::DirectionalLight(
 		device,
+		0,
 		XMFLOAT3(0.25, 0.25, 0.25),
 		XMFLOAT3(0.8, 0.8, 0.8),
 		XMFLOAT3(0.7, 0.7, 0.7),
 		0.7f,
 		DX::Normalize(XMFLOAT3(-1, -0.5f, -1))
 	);
-	m_dLight->Enable(false);
-	m_pLight = new DX::PointLight(
-		device,
-		XMFLOAT3(0.25, 0.25, 0.25),
-		XMFLOAT3(0.8, 0.8, 0.8),
-		XMFLOAT3(0.5, 0.5, 0.5),
-		300,
-		XMFLOAT3(0.01f, 0.01f, 0.01f),
-		XMFLOAT3(0, 30, 0)
-	);
-	m_pLight->SetPos(XMFLOAT3(15, 30, 35));
-	m_pLight->Enable(false);
-	m_sLight = new DX::SpotLight(
-		device,
-		XMFLOAT3(0.25, 0.25, 0.25),
-		XMFLOAT3(0.8, 0.8, 0.8),
-		XMFLOAT3(0.7, 0.7, 0.7),
-		60, 2, 1000, XM_PIDIV4,
-		XMFLOAT3(2, 2, 2),
-		XMFLOAT3(0, 20, 0),
-		FORWARD
-	);
-	m_sLight->SetPos(XMFLOAT3(-15, 30, -40));
-	m_sLight->Enable(false);
+	m_dLight->Enable(true);
 
 	m_camera = new DX::Camera("cam", DX::FRAME_KIND_PERSPECTIVE, NULL, NULL, 1.0f, 1000.0f, XM_PIDIV2, 1, false);
 	m_camera->transform->SetTranslation(g_playerPos);
@@ -67,9 +45,7 @@ PlayScene::PlayScene(ID3D11Device* device, ID3D11DeviceContext* dContext, const 
 
 	m_cbEye = new DX::Buffer(device, sizeof(XMFLOAT4));
 
-	std::shared_ptr<DX::Mesh> pSphereMesh = std::make_shared<DX::SphereMesh>(m_device, 6);
 	std::shared_ptr<DX::Mesh> pCubeMesh = std::make_shared<DX::CubeMesh>(m_device);
-	std::shared_ptr<DX::Mesh> pFloorMesh = std::make_shared<DX::QuadMesh>(m_device);
 
 	DX::LoadTexture(m_device, m_dContext, "C:\\Users\\Jun\\source\\repos\\Framework\\Data\\Texture\\red_light.png", &m_dxRedSRV);
 	DX::LoadTexture(m_device, m_dContext, "C:\\Users\\Jun\\source\\repos\\Framework\\Data\\Texture\\green_light.png", &m_dxGreenSRV);
@@ -78,40 +54,10 @@ PlayScene::PlayScene(ID3D11Device* device, ID3D11DeviceContext* dContext, const 
 	DX::LoadTexture(m_device, m_dContext, "C:\\Users\\Jun\\source\\repos\\Framework\\Data\\Texture\\default_normal.png", &m_dxNormSRV);
 
 
-	m_dxBlueBox = new DX::Object(m_device, m_dContext, "obj", pCubeMesh, nullptr, m_dxRedSRV, m_dxNormSRV);
-	m_dxBlueBox->transform->SetScale(40, 40, 20);
-	m_dxBlueBox->transform->SetTranslation(0, 20, 80);
-	m_vObj.push_back(m_dxBlueBox);
-
-	m_dxBlueBox = new DX::Object(m_device, m_dContext, "obj", pSphereMesh, nullptr, m_dxGreenSRV, m_dxNormSRV);
-	m_dxBlueBox->transform->SetScale(20, 20, 20);
-	m_dxBlueBox->transform->SetTranslation(40, 40, 50);
-	m_vObj.push_back(m_dxBlueBox);
-
-	m_dxBlueBox = new DX::Object(m_device, m_dContext, "obj", pCubeMesh, nullptr, m_dxBlueSRV, m_dxNormSRV);
-	m_dxBlueBox->transform->SetScale(25, 35, 20);
-	m_dxBlueBox->transform->SetTranslation(-10, 25, 0);
-	m_vObj.push_back(m_dxBlueBox);
-
-	m_dxPLightBlub = new DX::UnlitObj(m_device, m_dContext, "plightBulb", pSphereMesh, nullptr, XMVectorSet(1, 1, 1, 1));
-	m_dxPLightBlub->transform->SetTranslation(m_pLight->GetPos());
-	m_dxPLightBlub->transform->SetScale(4, 4, 4);
-	m_dxPLightBlub->SetEnabled(false);
-	m_vObj.push_back(m_dxPLightBlub);
-	m_dxSLightBlub = new DX::UnlitObj(m_device, m_dContext, "slightBulb", pSphereMesh, nullptr, XMVectorSet(1, 1, 1, 1));
-	m_dxSLightBlub->transform->SetTranslation(m_sLight->GetPos());
-	m_dxSLightBlub->transform->SetScale(4, 4, 4);
-	m_dxSLightBlub->SetEnabled(false);
-	m_vObj.push_back(m_dxSLightBlub);
-
-	DX::Object* dxFloor = new DX::Object(m_device, m_dContext, "obj", pFloorMesh, nullptr, m_dxWhiteSRV, m_dxNormSRV);
-	dxFloor->transform->SetScale(300, 300, 1);
-	dxFloor->transform->SetRot(UP);
-	m_vObj.push_back(dxFloor);
-
-	EnableDLight(true);
-	EnablePLight(true);
-	EnableSLight(true);
+	m_dxRedBox = new DX::Object(m_device, m_dContext, "obj", pCubeMesh, nullptr, m_dxRedSRV, m_dxNormSRV);
+	m_dxRedBox->transform->SetScale(40, 40, 20);
+	m_dxRedBox->transform->SetTranslation(0, 20, 80);
+	m_vObj.push_back(m_dxRedBox);
 }
 
 PlayScene::~PlayScene()
@@ -122,8 +68,6 @@ PlayScene::~PlayScene()
 	m_dxWhiteSRV->Release();
 	m_dxNormSRV->Release();
 	delete m_dLight;
-	delete m_pLight;
-	delete m_sLight;
 	g_playerPos= m_camera->transform->GetPos();
 	g_playerForward= m_camera->transform->GetForward();
 	g_playerUp= m_camera->transform->GetUp();
@@ -141,19 +85,7 @@ PlayScene::~PlayScene()
 
 void PlayScene::Update(float elapsed, float spf)
 {
-	/*const float lightMoveRad = 50;
-	const float lightMoveSpeed = 10;
-	const float mElapsed = elapsed / 5;
-	XMFLOAT3 pLightPos = (RIGHT * cos(mElapsed) + FORWARD * sin(mElapsed)) * lightMoveRad + UP * 25;
-	XMFLOAT3 sLightPos = (RIGHT * cos(mElapsed * 1.3) + FORWARD * sin(mElapsed * 1.3)) * lightMoveRad + UP * 20;
-	m_pLight->SetPos(pLightPos);
-	m_dxPLightBlub->transform->SetTranslation(pLightPos);
-	m_sLight->SetPos(sLightPos);
-	m_dxSLightBlub->transform->SetTranslation(sLightPos);*/
-
 	m_dLight->Apply(m_device, m_dContext);
-	m_pLight->Apply(m_device, m_dContext);
-	m_sLight->Apply(m_device, m_dContext);
 
 	XMFLOAT3 newPos = m_camera->transform->GetPos();
 	XMFLOAT3 right = m_camera->transform->GetRight();
@@ -213,23 +145,6 @@ void PlayScene::Update(float elapsed, float spf)
 
 
 
-}
-
-void PlayScene::EnableDLight(bool b)
-{
-	m_dLight->Enable(b);
-}
-
-void PlayScene::EnablePLight(bool b)
-{
-	m_pLight->Enable(b);
-	m_dxPLightBlub->SetEnabled(b);
-}
-
-void PlayScene::EnableSLight(bool b)
-{
-	m_sLight->Enable(b);
-	m_dxSLightBlub->SetEnabled(b);
 }
 
 void PlayScene::WM_LButtonDown()

@@ -2,7 +2,7 @@
 #include "ShaderInfo.cginc"
 #include "ShaderReg.cginc"
 
-#define LIGHT_MAX_EACH 1 // multiple lights can be applied
+#define LIGHT_MAX_EACH 3 // multiple lights can be applied
 #define LIGHT_SPEC_POWER_MAX 16
 
 cbuffer DIRECTIONAL_LIGHT : SHADER_REG_CB_DIRLIGHT

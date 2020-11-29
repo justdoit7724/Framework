@@ -3,7 +3,7 @@
 
 #define LIGHT_ENABLED 1
 #define LIGHT_DISABLED 0
-#define LIGHT_MAX_EACH 1
+#define LIGHT_MAX_EACH 3
 
 namespace DX {
 	static const D3D11_INPUT_ELEMENT_DESC simple_ILayouts[1] =
