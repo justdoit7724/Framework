@@ -9,6 +9,7 @@ using namespace DX;
 VisualAAScene::VisualAAScene(ID3D11Device* device, ID3D11DeviceContext* dContext, const wchar_t* key)
 	:Scene(device, dContext, key)
 {
+
 	m_keyboard = new Keyboard();
 
 	D3D11_SAMPLER_DESC sampDesc;
@@ -58,9 +59,11 @@ VisualAAScene::VisualAAScene(ID3D11Device* device, ID3D11DeviceContext* dContext
 	m_dxQuad1 = new DX::UnlitObj(m_device, m_dContext, "quad1", pQuadMesh, nullptr, XMVectorSet(1, 0, 0, 1),true);
 	m_dxQuad1->transform->SetScale(240, 240, 1);
 	m_dxQuad1->transform->SetTranslation(-110, 15, 40.0);
+
 	m_dxQuad2 = new DX::UnlitObj(m_device, m_dContext, "quad2", pQuadMesh, nullptr, XMVectorSet(0, 1, 0, 1),true);
 	m_dxQuad2->transform->SetScale(340, 90, 1);
 	m_dxQuad2->transform->SetTranslation(110, -10, -20);
+
 	D3D11_RASTERIZER_DESC rsDesc;
 	rsDesc.CullMode = D3D11_CULL_BACK;
 	rsDesc.FillMode = D3D11_FILL_WIREFRAME;
@@ -78,7 +81,6 @@ VisualAAScene::VisualAAScene(ID3D11Device* device, ID3D11DeviceContext* dContext
 	m_dxQuad2->rsState = new DX::RasterizerState(device, &rsDesc);
 	m_vObj.push_back(m_dxQuad1);
 	m_vObj.push_back(m_dxQuad2);
-	
 }
 
 VisualAAScene::~VisualAAScene()

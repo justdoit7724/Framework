@@ -7,7 +7,6 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 	CoInitialize(NULL);
 
-
 	srand(time(NULL));
 
 	Window* mainWnd = new WndMain(hInstance, 50,50, 1000, 700);

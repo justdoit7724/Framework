@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "WndMain.h"
 
+
 #include "WndDXDisplayVisual.h"
 #include "WndDXDisplayPlay.h"
 
@@ -64,11 +65,12 @@ WndMain::WndMain(HINSTANCE hInstance, int x, int y, int width, int height)
 
 	SetLBResolution(0);
 	SetRadioSceneVersion(ID_CONTROL_MAIN_VISUAL);
+
 }
 
 WndMain::~WndMain()
 {
-	delete m_DXDisplayPlay;
+	//delete m_DXDisplayPlay;
 	delete m_DXDisplayVisual;
 	DestroyWindow(m_hRadioVisualVersion);
 	DestroyWindow(m_hRadioPlayVersion);

@@ -25,6 +25,7 @@ SamplingDraw::SamplingDraw(ID3D11Device* device, ID3D11DeviceContext* dContext)
 	dsState->Modify(device, &dsDesc);
 
 	m_sampleInfo.x = 1;
+
 }
 
 SamplingDraw::~SamplingDraw()

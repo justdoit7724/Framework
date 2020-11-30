@@ -159,6 +159,9 @@
     <ClInclude Include="SamplingDraw.h">
       <Filter>Object</Filter>
     </ClInclude>
+    <ClInclude Include="LogMgr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -265,6 +268,9 @@
     </ClCompile>
     <ClCompile Include="SamplingDraw.cpp">
       <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="LogMgr.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -20,7 +20,9 @@ WndDXDisplayVisual::WndDXDisplayVisual(HINSTANCE hInstance, HWND parent, int x, 
 	SetWindowLongPtr(m_hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
 
 	m_graphic = new DX::Graphic(m_hWnd);
+
 	m_scene = new VisualAAScene(m_graphic->Device(), m_graphic->DContext(), L"VisualDisplay");
+
 	m_scene->WM_Resize(width, height);
 }
 

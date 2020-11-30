@@ -31,3 +31,4 @@
 #include "PostProcessing.h"
 #include "SamplingDraw.h"
 #include "Debugging.h"
+#include "LogMgr.h"

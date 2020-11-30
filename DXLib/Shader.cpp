@@ -11,15 +11,15 @@ using namespace DX;
 static const wchar_t* ShaderPath() {
 #ifdef _DEBUG
 #ifdef _WIN64
-	return L"..\\x64\\Debug\\";
+	return __FILE__ L"\\..\\..\\x64\\Debug\\";
 #else
-	return L"..\\Debug\\";
+	return __FILE__ L"\\..\\..\\Debug\\";
 #endif
 #else
 #ifdef _WIN64
-	return L"..\\x64\\Release\\";
+	return __FILE__ L"\\..\\..\\x64\\Release\\";
 #else
-	return L"..\\Release\\";
+	return __FILE__ L"\\..\\..\\Release\\";
 #endif 
 #endif
 }
@@ -105,9 +105,6 @@ bool Shader::CheckCBSlot(UINT slot)
 	return cbs.count(slot);
 }
 
-
-
-
 VShader::VShader(ID3D11Device* device, std::string fileName, const D3D11_INPUT_ELEMENT_DESC * layoutDesc, UINT layoutNum)
 {
 	std::wstring wVS(fileName.begin(), fileName.end());
@@ -131,7 +128,6 @@ VShader::VShader(ID3D11Device* device, std::string fileName, const D3D11_INPUT_E
 			&iLayout);
 	r_assert(hr);
 	vsBlob->Release();
-
 }
 
 VShader::~VShader()

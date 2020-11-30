@@ -6,3 +6,5 @@ enum {
 	ID_CONTROL_MAIN_PLAY,
 	ID_CONTROL_RESOLUTION
 };
+
+#define LOG_PROCESS "Process.log"
