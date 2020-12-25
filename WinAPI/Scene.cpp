@@ -4,8 +4,8 @@
 #include "Keyboard.h"
 
 
-Scene::Scene(ID3D11Device* device, ID3D11DeviceContext* dContext, const wchar_t* key)
-	:m_device(device), m_dContext(dContext), m_key(key),m_iWidth(0), m_iHeight(0)
+Scene::Scene(DX::Graphic* graphic, const wchar_t* key)
+	:m_dxGraphic(graphic), m_key(key),m_iWidth(0), m_iHeight(0)
 {
 }
 

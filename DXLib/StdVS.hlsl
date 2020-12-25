@@ -4,8 +4,9 @@ struct VS_OUTPUT
 {
     float4 pos : SV_POSITION;
     float3 wPos : TEXCOORD1;
-    float3 normal : TEXCOORD2;
-    float2 tex : TEXCOORD3;
+    float4 pPos : TEXCOORD2;
+    float3 normal : TEXCOORD3;
+    float2 tex : TEXCOORD4;
     //float3 tangent : TEXCOORD4;
 };
 
@@ -33,6 +34,7 @@ VS_OUTPUT main(STD_VS_INPUT input)
    
     output.wPos = wPos.xyz;
     output.pos = pPos;
+    output.pPos = pPos;
     output.normal = mul((float3x3) NMat, input.normal);
     output.tex = input.tex;
     //output.tangent = mul((float3x3) WMat, input.tangent);

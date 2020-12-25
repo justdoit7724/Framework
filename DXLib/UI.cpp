@@ -16,14 +16,14 @@
 
 using namespace DX;
 
-UI::UI(ID3D11Device* device, ID3D11DeviceContext* dContext, int iScnHeight, XMFLOAT2 pivot, XMFLOAT2 size, float zDepth, ID3D11ShaderResourceView * srv)
+UI::UI(ID3D11Device* device, ID3D11DeviceContext* dContext, XMFLOAT2 pivot, XMFLOAT2 size, float zDepth, ID3D11ShaderResourceView * srv)
 	:Object(device, dContext, "UI", nullptr, nullptr, "UIVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts),
 		"","","","UIPS.cso"),
 	size(size), srv(srv),
 	mulColor(XMFLOAT4(1,1,1,1))
 {
 	mesh = std::make_shared<QuadMesh>(device);
-	XMFLOAT3 pos = XMFLOAT3(pivot.x + size.x * 0.5f, (iScnHeight - size.y * 0.5f) - pivot.y, FLT_MIN + zDepth);
+	XMFLOAT3 pos = XMFLOAT3(pivot.x, pivot.y, FLT_MIN + zDepth);
 	collider = std::make_shared<QuadCollider>(pos);
 	
 	assert(0 <= zDepth && zDepth <= 1);
@@ -65,8 +65,8 @@ void UI::SetMulColor(ID3D11DeviceContext* dContext, XMFLOAT3 c)
 	ps->WriteCB(dContext, SHADER_REG_CB_COLOR, &mulColor);
 }
 
-UIButton::UIButton(ID3D11Device* device, ID3D11DeviceContext* dContext, int iScnHeight, XMFLOAT2 pivot, XMFLOAT2 size, ID3D11ShaderResourceView* srv)
-	:UI(device, dContext, iScnHeight, pivot, size, 0, srv)
+UIButton::UIButton(ID3D11Device* device, ID3D11DeviceContext* dContext, XMFLOAT2 pivot, XMFLOAT2 size, ID3D11ShaderResourceView* srv)
+	:UI(device, dContext, pivot, size, 0, srv)
 {
 	bound = Geometrics::Plane(transform->GetPos(),
 		transform->GetForward(),
@@ -104,8 +104,8 @@ void UIButton::Update(ID3D11DeviceContext* dContext, int iScnWidth, int iScnHeig
 		}*/
 	}
 }
-UICanvas::UICanvas(int iScnWidth, int iScnHeight)
-	: totalWidth(iScnWidth), totalHeight(iScnHeight)
+UICanvas::UICanvas(ID3D11DeviceContext* dContext, int iScnWidth, int iScnHeight)
+	: m_dxDContext(dContext), totalWidth(iScnWidth), totalHeight(iScnHeight)
 {
 	camera = new Camera("UI", FRAME_KIND_ORTHOGONAL, totalWidth, totalHeight, 0.1f, 10, NULL, NULL, true);
 	camera->transform->SetTranslation(XMFLOAT3(totalWidth * 0.5f, totalHeight * 0.5f, 0));
@@ -117,5 +117,34 @@ UICanvas::UICanvas(int iScnWidth, int iScnHeight)
 UICanvas::~UICanvas()
 {
 	delete camera;
+}
+
+void DX::UICanvas::Add(UI* ui)
+{
+	m_vUI.push_back(ui);
+}
+
+void DX::UICanvas::Remove(UI* ui)
+{
+	for (auto it = m_vUI.begin(); it != m_vUI.end(); ++it)
+	{
+		if (ui == *it)
+		{
+			m_vUI.erase(it);
+			break;
+		}
+	}
+}
+
+void DX::UICanvas::Update(XMFLOAT2 mousePos)
+{
+	XMMATRIX v = camera->VMat();
+	XMMATRIX p = camera->ProjMat();
+
+	for (auto it = m_vUI.begin(); it != m_vUI.end(); ++it)
+	{
+		(*it)->Update(m_dxDContext, totalWidth, totalHeight, mousePos, this);
+		(*it)->Render(m_dxDContext, v,p,DX::Frustum(),0);
+	}
 }
 

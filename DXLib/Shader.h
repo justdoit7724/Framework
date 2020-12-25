@@ -5,8 +5,9 @@
 namespace DX {
 
 
-class Buffer;
-	class Shader : public Component
+	class Buffer;
+
+	class DXLIB_DLL Shader : public Component
 	{
 	public:
 		~Shader();
@@ -17,6 +18,8 @@ class Buffer;
 		void WriteSRV(UINT slot, ID3D11ShaderResourceView* srv);
 		void RemoveCB(UINT slot);
 		bool CheckCBSlot(UINT slot);
+
+		virtual void UnboundSRVAll(ID3D11DeviceContext* dContext)const = 0;
 
 	protected:
 		struct BindingCB
@@ -52,72 +55,78 @@ class Buffer;
 		std::unordered_map<UINT, BindingSamp> samps;
 	};
 
-	class VShader : public Shader
+	class DXLIB_DLL VShader : public Shader
 	{
 	public:
 		VShader(ID3D11Device* device, std::string fileName, const D3D11_INPUT_ELEMENT_DESC* layoutDesc, UINT layoutNum);
 		~VShader();
 
 		void Apply(ID3D11DeviceContext* dContext)const override;
+		void UnboundSRVAll(ID3D11DeviceContext* dContext)const override;
 
 	private:
 		ID3D11InputLayout* iLayout = nullptr;
 		ID3D11VertexShader* vs = nullptr;
 	};
 
-	class GShader : public Shader
+	class DXLIB_DLL GShader : public Shader
 	{
 	public:
 		GShader(ID3D11Device* device, std::string fileName = "");
 		~GShader();
 
 		void Apply(ID3D11DeviceContext* dContext)const override;
+		void UnboundSRVAll(ID3D11DeviceContext* dContext)const override;
 	private:
 		ID3D11GeometryShader* gs = nullptr;
 	};
 
-	class HShader : public Shader
+	class DXLIB_DLL HShader : public Shader
 	{
 	public:
 		HShader(ID3D11Device* device, std::string fileName = "");
 		~HShader();
 
 		void Apply(ID3D11DeviceContext* dContext)const override;
+		void UnboundSRVAll(ID3D11DeviceContext* dContext)const override;
 	private:
 		ID3D11HullShader* hs = nullptr;
 	};
-	class DShader : public Shader
+	class DXLIB_DLL DShader : public Shader
 	{
 	public:
 		DShader(ID3D11Device* device, std::string fileName = "");
 		~DShader();
 
 		void Apply(ID3D11DeviceContext* dContext)const override;
+		void UnboundSRVAll(ID3D11DeviceContext* dContext)const override;
 	private:
 		ID3D11DomainShader* ds = nullptr;
 	};
 
 
-	class PShader : public Shader
+	class DXLIB_DLL PShader : public Shader
 	{
 	public:
 		PShader(ID3D11Device* device, std::string fileName = "");
 		~PShader();
 
 		void Apply(ID3D11DeviceContext* dContext)const override;
+		void UnboundSRVAll(ID3D11DeviceContext* dContext)const override;
 
 	private:
 		ID3D11PixelShader* ps = nullptr;
 	};
 
 
-	class CShader : public Shader
+	class DXLIB_DLL CShader : public Shader
 	{
 	public:
 		CShader(ID3D11Device* device, const std::string CSfileName);
 		~CShader();
 
 		void Apply(ID3D11DeviceContext* dContext)const override;
+		void UnboundSRVAll(ID3D11DeviceContext* dContext)const override;
 
 	private:
 		ID3D11ComputeShader* cs = nullptr;

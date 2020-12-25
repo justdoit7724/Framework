@@ -11,15 +11,15 @@ using namespace DX;
 static const wchar_t* ShaderPath() {
 #ifdef _DEBUG
 #ifdef _WIN64
-	return L"..\\x64\\Debug\\";
+	return __FILE__ L"\\..\\..\\x64\\Debug\\";
 #else
-	return L"..\\Debug\\";
+	return __FILE__ L"\\..\\..\\Debug\\";
 #endif
 #else
 #ifdef _WIN64
-	return L"..\\x64\\Release\\";
+	return __FILE__ L"\\..\\..\\x64\\Release\\";
 #else
-	return L"..\\Release\\";
+	return __FILE__ L"\\..\\..\\Release\\";
 #endif 
 #endif
 }
@@ -170,6 +170,15 @@ void VShader::Apply(ID3D11DeviceContext* dContext)const
 	}
 }
 
+void DX::VShader::UnboundSRVAll(ID3D11DeviceContext* dContext) const
+{
+	for (auto it = srvs.begin(); it != srvs.end(); ++it)
+	{
+		ID3D11ShaderResourceView* nullSRV = nullptr;
+		dContext->VSSetShaderResources(it->first, it->second.arrayNum, &nullSRV);
+	}
+}
+
 
 GShader::GShader(ID3D11Device* device, std::string fileName)
 {
@@ -230,6 +239,15 @@ void GShader::Apply(ID3D11DeviceContext* dContext)const
 	}
 }
 
+void DX::GShader::UnboundSRVAll(ID3D11DeviceContext* dContext) const
+{
+	for (auto it = srvs.begin(); it != srvs.end(); ++it)
+	{
+		ID3D11ShaderResourceView* nullSRV = nullptr;
+		dContext->GSSetShaderResources(it->first, it->second.arrayNum, &nullSRV);
+	}
+}
+
 PShader::PShader(ID3D11Device* device, std::string fileName)
 {
 	if (fileName != "")
@@ -280,6 +298,15 @@ void PShader::Apply(ID3D11DeviceContext* dContext)const
 	}
 }
 
+void DX::PShader::UnboundSRVAll(ID3D11DeviceContext* dContext) const
+{
+	for (auto it = srvs.begin(); it != srvs.end(); ++it)
+	{
+		ID3D11ShaderResourceView* nullSRV = nullptr;
+		dContext->PSSetShaderResources(it->first, it->second.arrayNum, &nullSRV);
+	}
+}
+
 CShader::CShader(ID3D11Device* device, const std::string CSfileName)
 {
 	std::wstring wCS(CSfileName.begin(), CSfileName.end());
@@ -327,6 +354,15 @@ void CShader::Apply(ID3D11DeviceContext* dContext)const
 		ID3D11SamplerState* samp = i->second.data;
 
 		dContext->CSSetSamplers(slot, arrayNum, &samp);
+	}
+}
+
+void DX::CShader::UnboundSRVAll(ID3D11DeviceContext* dContext) const
+{
+	for (auto it = srvs.begin(); it != srvs.end(); ++it)
+	{
+		ID3D11ShaderResourceView* nullSRV = nullptr;
+		dContext->CSSetShaderResources(it->first, it->second.arrayNum, &nullSRV);
 	}
 }
 
@@ -383,6 +419,15 @@ void HShader::Apply(ID3D11DeviceContext* dContext)const
 	}
 }
 
+void DX::HShader::UnboundSRVAll(ID3D11DeviceContext* dContext) const
+{
+	for (auto it = srvs.begin(); it != srvs.end(); ++it)
+	{
+		ID3D11ShaderResourceView* nullSRV = nullptr;
+		dContext->HSSetShaderResources(it->first, it->second.arrayNum, &nullSRV);
+	}
+}
+
 DShader::DShader(ID3D11Device* device, std::string fileName)
 {
 	if (fileName == "")
@@ -434,5 +479,14 @@ void DShader::Apply(ID3D11DeviceContext* dContext)const
 		ID3D11SamplerState* samp = i->second.data;
 
 		dContext->DSSetSamplers(slot, arrayNum, &samp);
+	}
+}
+
+void DX::DShader::UnboundSRVAll(ID3D11DeviceContext* dContext) const
+{
+	for (auto it = srvs.begin(); it != srvs.end(); ++it)
+	{
+		ID3D11ShaderResourceView* nullSRV = nullptr;
+		dContext->DSSetShaderResources(it->first, it->second.arrayNum, &nullSRV);
 	}
 }

@@ -3,7 +3,7 @@
 #include "Component.h"
 
 namespace DX {
-	class DepthStencilState :
+	class DXLIB_DLL DepthStencilState :
 		public Component
 	{
 	private:

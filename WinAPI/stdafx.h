@@ -7,6 +7,8 @@
 #include <vector>
 #include <time.h>
 #include <assert.h>
+#include <iostream>
+#include <fstream>
 
 #include <unordered_map>
 #include <unordered_set>

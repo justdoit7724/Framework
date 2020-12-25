@@ -1,0 +1,596 @@
+#include "DXFramework.h"
+#include "DX_info.h"
+#include "Graphic.h"
+
+void CreateUAV(int count, Buffer** buffer)
+{
+	D3D11_BUFFER_DESC outDesc;
+	outDesc.BindFlags = D3D11_BIND_UNORDERED_ACCESS;
+	outDesc.ByteWidth = count * sizeof(int);
+	outDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+	outDesc.StructureByteStride = sizeof(int);
+	outDesc.Usage = D3D11_USAGE_DEFAULT;
+	outDesc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+	*buffer = new Buffer(&outDesc, nullptr);
+	D3D11_UNORDERED_ACCESS_VIEW_DESC outuavDesc;
+	outuavDesc.Format = DXGI_FORMAT_UNKNOWN;
+	outuavDesc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
+	outuavDesc.Buffer.FirstElement = 0;
+	outuavDesc.Buffer.Flags = 0;
+	outuavDesc.Buffer.NumElements = outDesc.ByteWidth / outDesc.StructureByteStride;
+	(*buffer)->SetUAV(&outuavDesc);
+}
+
+DXFramework::DXFramework(HWND hwnd, int scnWidth, int scnHeight)
+	:stopwatch("BG_time.txt")
+{
+    env = new Graphic(hwnd, scnWidth, scnHeight);
+	
+#pragma region main
+	//image = cv::imread("BayerBG0.bmp", cv::IMREAD_GRAYSCALE);
+	//int channels = image.channels();
+	//IMAGE_W = image.cols;
+	//IMAGE_H = image.rows;
+	//TOTAL_COUNT_BYTE = IMAGE_W * IMAGE_H;
+
+	//cbResX = new Buffer(sizeof(float));
+	//cbResY = new Buffer(sizeof(float));
+
+	////srv buffer
+	//D3D11_BUFFER_DESC bdesc;
+	//bdesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	//bdesc.ByteWidth = TOTAL_COUNT_BYTE;
+	//bdesc.CPUAccessFlags = 0;
+	//bdesc.StructureByteStride = sizeof(int);
+	//bdesc.Usage = D3D11_USAGE_IMMUTABLE;
+	//bdesc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+	//cbVertice = new Buffer(&bdesc, image.data);
+	//D3D11_SHADER_RESOURCE_VIEW_DESC bsrvdesc;
+	//bsrvdesc.Format = DXGI_FORMAT_UNKNOWN;
+	//bsrvdesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
+	//bsrvdesc.Buffer.ElementOffset = 0;
+	//bsrvdesc.Buffer.ElementWidth = bdesc.ByteWidth / bdesc.StructureByteStride;
+	//cbVertice->SetSRV(&bsrvdesc);
+
+
+	//// rw srv buffer
+	//CreateUAV(TOTAL_COUNT_BYTE / sizeof(int), &csOutputB);
+	//CreateUAV(TOTAL_COUNT_BYTE / sizeof(int), &csOutputG);
+	//CreateUAV(TOTAL_COUNT_BYTE / sizeof(int), &csOutputR);
+
+
+	//// buffer for copy-----------------------------------------------------------
+	//D3D11_BUFFER_DESC rb_desc;
+	//rb_desc.ByteWidth = TOTAL_COUNT_BYTE;
+	//rb_desc.StructureByteStride = sizeof(int);
+	//rb_desc.Usage = D3D11_USAGE_STAGING;
+	//rb_desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+	//rb_desc.BindFlags = 0;
+	//rb_desc.MiscFlags = 0;
+	//DX_Device->CreateBuffer(
+	//	&rb_desc,
+	//	nullptr,
+	//	&stagBuffer);
+	////--------------------------------------------------------------------------
+
+	//ComPtr<ID3DBlob> rcsblob;
+	//HRESULT hr = D3DReadFileToBlob(
+	//	L"DXFramework\\HLSL\\_x64\\_Debug\\BayerConvertBGCS.cso",
+	//	rcsblob.GetAddressOf());
+	//r_assert(hr);
+	//hr = DX_Device->CreateComputeShader(
+	//	rcsblob->GetBufferPointer(),
+	//	rcsblob->GetBufferSize(),
+	//	nullptr,
+	//	cvtCS.GetAddressOf());
+	//r_assert(hr);
+#pragma endregion
+
+	
+
+	//---------------test-----------------------------------------------------------------
+	D3D11_BUFFER_DESC testOutDesc;
+	testOutDesc.BindFlags = D3D11_BIND_UNORDERED_ACCESS;
+	testOutDesc.ByteWidth = 4;
+	testOutDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+	testOutDesc.StructureByteStride = 4;
+	testOutDesc.Usage = D3D11_USAGE_DEFAULT;
+	testOutDesc.MiscFlags = 0;
+	outBuffer = new Buffer(&testOutDesc, nullptr);
+	D3D11_UNORDERED_ACCESS_VIEW_DESC testOutuavDesc;
+	testOutuavDesc.Format = DXGI_FORMAT_R32_SINT;
+	testOutuavDesc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
+	testOutuavDesc.Buffer.FirstElement = 0;
+	testOutuavDesc.Buffer.Flags = 0;
+	testOutuavDesc.Buffer.NumElements = testOutDesc.ByteWidth / testOutDesc.StructureByteStride;
+	outBuffer->SetUAV(&testOutuavDesc);
+
+	// buffer for copy-----------------------------------------------------------
+	D3D11_BUFFER_DESC testRb_desc;
+	testRb_desc.ByteWidth = sizeof(int);
+	testRb_desc.StructureByteStride = sizeof(int);
+	testRb_desc.Usage = D3D11_USAGE_STAGING;
+	testRb_desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+	testRb_desc.BindFlags = 0;
+	testRb_desc.MiscFlags = 0;
+	DX_Device->CreateBuffer(
+		&testRb_desc,
+		nullptr,
+		&testStageBuffer);
+	//--------------------------------------------------------------------------
+
+	ComPtr<ID3DBlob> testRcsblob;
+	HRESULT hr = D3DReadFileToBlob(
+		L"DXFramework\\HLSL\\_x64\\_Debug\\BitTestCS.cso",
+		testRcsblob.GetAddressOf());
+	r_assert(hr);
+	hr = DX_Device->CreateComputeShader(
+		testRcsblob->GetBufferPointer(),
+		testRcsblob->GetBufferSize(),
+		nullptr,
+		testCS.GetAddressOf());
+	r_assert(hr);
+}
+
+void DXFramework::Update()
+{
+#pragma region main
+	//DX_DContext->CSSetShaderResources(0, 1, cbVertice->GetSRV());
+
+	//const UINT uavCount = 1;
+	//DX_DContext->CSSetUnorderedAccessViews(0, 1, csOutputB->GetUAV(), &uavCount);
+	//DX_DContext->CSSetUnorderedAccessViews(1, 1, csOutputG->GetUAV(), &uavCount);
+	//DX_DContext->CSSetUnorderedAccessViews(2, 1, csOutputR->GetUAV(), &uavCount);
+
+
+	//stopwatch.Start();
+	//ConvertImage(cvtCS.Get());
+
+	//DX_DContext->CopyResource(stagBuffer, csOutputB->Get());
+	//D3D11_MAPPED_SUBRESOURCE mappedResource;
+	//ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
+	//DX_DContext->Map(stagBuffer, 0, D3D11_MAP_READ, 0, &mappedResource);
+	//unsigned char* pb = (unsigned char*)malloc(TOTAL_COUNT_BYTE);
+	//memcpy(pb, mappedResource.pData, TOTAL_COUNT_BYTE);
+	//DX_DContext->Unmap(stagBuffer, 0);
+
+	//DX_DContext->CopyResource(stagBuffer, csOutputG->Get());
+	//ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
+	//DX_DContext->Map(stagBuffer, 0, D3D11_MAP_READ, 0, &mappedResource);
+	//unsigned char* pg = (unsigned char*)malloc(TOTAL_COUNT_BYTE);
+	//memcpy(pg, mappedResource.pData, TOTAL_COUNT_BYTE);
+	//DX_DContext->Unmap(stagBuffer, 0);
+
+	//DX_DContext->CopyResource(stagBuffer, csOutputR->Get());
+	//ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
+	//DX_DContext->Map(stagBuffer, 0, D3D11_MAP_READ, 0, &mappedResource);
+	//unsigned char* pr = (unsigned char*)malloc(TOTAL_COUNT_BYTE);
+	//memcpy(pr, mappedResource.pData, TOTAL_COUNT_BYTE);
+	//DX_DContext->Unmap(stagBuffer, 0);
+
+	//for (int i = 0; i < IMAGE_W*IMAGE_H; ++i)
+	//{
+	//	if (pb[i] == 0)
+	//	{
+	//		int a = 0;
+	//	}
+	//}
+
+	//cv::Mat outputImage[3];
+	//outputImage[2] = cv::Mat(cv::Size(IMAGE_W, IMAGE_H), CV_8UC1, pb);
+	//outputImage[1] = cv::Mat(cv::Size(IMAGE_W, IMAGE_H), CV_8UC1, pg);
+	//outputImage[0] = cv::Mat(cv::Size(IMAGE_W, IMAGE_H), CV_8UC1, pr);
+	//stopwatch.End();
+	////stopwatch.PrintTime();
+
+	//static bool bb = false;
+	//if (!bb)
+	//{
+	//	cv::imwrite("cvt_b.jpg", outputImage[2]);
+	//	cv::imwrite("cvt_g.jpg", outputImage[1]);
+	//	cv::imwrite("cvt_r.jpg", outputImage[0]);
+
+	//	cv::Mat outputImageColor;
+	//	cv::merge(outputImage, 3, outputImageColor);
+	//	cv::imwrite("cvt_col.jpg", outputImageColor);
+
+
+	//	bb = true;
+	//}
+	//else
+	//{
+	//	delete[] pb;
+	//	delete[] pg;
+	//	delete[] pr;
+	//}
+#pragma endregion
+
+	UINT uavCount=1;
+	DX_DContext->CSSetUnorderedAccessViews(0, 1, outBuffer->GetUAV(), &uavCount);
+
+
+	stopwatch.Start();
+	DX_DContext->CSSetShader(testCS.Get(), nullptr, 0);
+
+	DX_DContext->Dispatch(1, 1, 1);
+
+	DX_DContext->CopyResource(testStageBuffer, outBuffer->Get());
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
+	DX_DContext->Map(testStageBuffer, 0, D3D11_MAP_READ, 0, &mappedResource);
+	unsigned char* pTest = (unsigned char*)malloc(4);
+	memcpy(pTest, mappedResource.pData, 4);
+	DX_DContext->Unmap(testStageBuffer, 0);
+
+	for (int i = 0; i < 4; ++i)
+	{
+		unsigned char a = pTest[i];
+		int b = 0;
+	}
+
+	env->Present();
+}
+
+void DXFramework::ConvertImage(ID3D11ComputeShader * brain)
+{
+	DX_DContext->CSSetShader(brain, nullptr, 0);
+
+
+	cbResX->Write(&IMAGE_W);
+	cbResY->Write(&IMAGE_H);
+	DX_DContext->CSSetConstantBuffers(0, 1, cbResX->GetAddress());
+	DX_DContext->CSSetConstantBuffers(1, 1, cbResY->GetAddress());
+
+	int threadx = (IMAGE_W / 32);
+	int thready = (IMAGE_H / 32);
+	DX_DContext->Dispatch(threadx + 1, thready + 1, 1);
+}
+
+
+
+
+//----------------------------------------------------hlsl 1
+
+#define IMAGE_W 7904	
+#define IMAGE_H 6004
+
+
+StructuredBuffer<int> inputImage : register(t0);
+RWStructuredBuffer<int> outputB : register(u0);
+RWStructuredBuffer<int> outputG : register(u1);
+RWStructuredBuffer<int> outputR : register(u2);
+
+[numthreads(32, 32, 1)]
+void main(uint3 id : SV_DispatchThreadID)
+{
+	if (id.x >= IMAGE_W || id.y >= IMAGE_H)
+		return;
+
+
+	int x = id.x;
+	int y = id.y;
+	uint lx = (x - 1) + saturate(-x + 1) * 2;
+	uint rx = (x + 1) + saturate(x - IMAGE_W + 2) * (-2);
+	uint ty = (y - 1) + saturate(-y + 1) * 2;
+	uint by = (y + 1) + saturate(y - IMAGE_H + 2) * (-2);
+
+	uint total = x + y * IMAGE_W;
+	uint elem = total / 4;
+	uint lElem = (total & 3);
+	uint bitShift = 8 * lElem;
+
+	bool bEvenY = ((y & 1) == 0);
+	bool bEvenX = ((x & 1) == 0);
+
+	int avgCol = 0;
+
+	if (bEvenY)
+	{
+		if (bEvenX)
+		{
+			/*
+			бсбр
+			брбр
+			*/
+
+			//B-----------------------------------------------------------------------------------
+			if (lElem == 0)
+				outputB[elem] |= (inputImage[elem] & (0x000000ff << bitShift));
+			else if (lElem == 2)
+				outputB[elem] |= (inputImage[elem] & (0x000000ff << bitShift));
+
+			//G------------------------------------------------------------------------------------------------
+			avgCol = 0;
+			uint l_Total = lx + y * IMAGE_W;
+			uint l_elem = l_Total / 4;
+			uint l_lElem = l_Total & 3;
+			uint l_bitShift = 8 * l_lElem;
+			avgCol += ((inputImage[l_elem] & (0x000000ff << l_bitShift)) >> l_bitShift);
+			uint r_Total = rx + y * IMAGE_W;
+			uint r_elem = r_Total / 4;
+			uint r_lElem = r_Total & 3;
+			uint r_bitShift = 8 * r_lElem;
+			avgCol += ((inputImage[r_elem] & (0x000000ff << r_bitShift)) >> r_bitShift);
+			uint t_Total = x + ty * IMAGE_W;
+			uint t_elem = t_Total / 4;
+			uint t_lElem = t_Total & 3;
+			uint t_bitShift = 8 * t_lElem;
+			avgCol += ((inputImage[t_elem] & (0x000000ff << t_bitShift)) >> t_bitShift);
+			uint b_Total = x + by * IMAGE_W;
+			uint b_elem = b_Total / 4;
+			uint b_lElem = b_Total & 3;
+			uint b_bitShift = 8 * b_lElem;
+			avgCol += ((inputImage[b_elem] & (0x000000ff << b_bitShift)) >> b_bitShift);
+			avgCol = round(avgCol * 0.25f);
+
+			if (lElem == 0)
+				outputG[elem] |= (avgCol << (8 * lElem));
+			else if (lElem == 2)
+				outputG[elem] |= (avgCol << (8 * lElem));
+
+			//R-------------------------------------------------------------------------------------
+			avgCol = 0;
+			uint tl_Total = lx + ty * IMAGE_W;
+			uint tl_elem = tl_Total / 4;
+			uint tl_lElem = (tl_Total & 3);
+			uint tl_bitShift = 8 * tl_lElem;
+			avgCol += ((inputImage[tl_elem] & (0x000000ff << tl_bitShift)) >> tl_bitShift);
+			uint tr_Total = rx + ty * IMAGE_W;
+			uint tr_elem = tr_Total / 4;
+			uint tr_lElem = (tr_Total & 3);
+			uint tr_bitShift = 8 * tr_lElem;
+			avgCol += ((inputImage[tr_elem] & (0x000000ff << tr_bitShift)) >> tr_bitShift);
+			uint bl_Total = lx + by * IMAGE_W;
+			uint bl_elem = bl_Total / 4;
+			uint bl_lElem = bl_Total & 3;
+			uint bl_bitShift = 8 * bl_lElem;
+			avgCol += ((inputImage[bl_elem] & (0x000000ff << bl_bitShift)) >> bl_bitShift);
+			uint br_Total = rx + by * IMAGE_W;
+			uint br_elem = br_Total / 4;
+			uint br_lElem = br_Total & 3;
+			uint br_bitShift = 8 * br_lElem;
+			avgCol += ((inputImage[br_elem] & (0x000000ff << br_bitShift)) >> br_bitShift);
+			avgCol = round(avgCol * 0.25f);
+
+			if (lElem == 0)
+				outputR[elem] |= (avgCol << (8 * lElem));
+			else if (lElem == 2)
+				outputR[elem] |= (avgCol << (8 * lElem));
+			//-------------------------------------------------------------------------------------
+		}
+		else
+		{
+			/*
+			брбс
+			брбр
+			*/
+
+			//B------------------------------------------------------------------------------------------
+			avgCol = 0;
+			uint l_Total = lx + y * IMAGE_W;
+			uint l_elem = l_Total / 4;
+			uint l_lElem = l_Total & 3;
+			uint l_bitShift = 8 * l_lElem;
+			avgCol += ((inputImage[l_elem] & (0x000000ff << l_bitShift)) >> l_bitShift);
+			uint r_Total = rx + y * IMAGE_W;
+			uint r_elem = r_Total / 4;
+			uint r_lElem = r_Total & 3;
+			uint r_bitShift = 8 * r_lElem;
+			avgCol += ((inputImage[r_elem] & (0x000000ff << r_bitShift)) >> r_bitShift);
+			avgCol = round(avgCol * 0.5f);
+
+			if (lElem == 1)
+				outputB[elem] |= (avgCol << (8 * lElem));
+			else if (lElem == 3)
+				outputB[elem] |= (avgCol << (8 * lElem));
+
+			//G-----------------------------------------------------------------------------------
+			if (lElem == 1)
+				outputG[elem] |= (inputImage[elem] & (0x000000ff << bitShift));
+			else if (lElem == 3)
+				outputG[elem] |= (inputImage[elem] & (0x000000ff << bitShift));
+
+			//R------------------------------------------------------------------------------------------------
+			avgCol = 0;
+			uint t_Total = x + ty * IMAGE_W;
+			uint t_elem = t_Total / 4;
+			uint t_lElem = t_Total & 3;
+			uint t_bitShift = 8 * t_lElem;
+			avgCol += ((inputImage[t_elem] & (0x000000ff << t_bitShift)) >> t_bitShift);
+			uint b_Total = x + by * IMAGE_W;
+			uint b_elem = b_Total / 4;
+			uint b_lElem = b_Total & 3;
+			uint b_bitShift = 8 * b_lElem;
+			avgCol += ((inputImage[b_elem] & (0x000000ff << b_bitShift)) >> b_bitShift);
+			avgCol = round(avgCol * 0.5f);
+
+			if (lElem == 1)
+				outputR[elem] |= (avgCol << (8 * lElem));
+			else if (lElem == 3)
+				outputR[elem] |= (avgCol << (8 * lElem));
+			//-------------------------------------------------------------------------------------------------
+		}
+	}
+	else
+	{
+		if (bEvenX)
+		{
+			/*
+			брбр
+			бсбр
+			*/
+
+			//B---------------------------------------------------------------------------------
+			avgCol = 0;
+			uint t_Total = x + ty * IMAGE_W;
+			uint t_elem = t_Total / 4;
+			uint t_lElem = t_Total & 3;
+			uint t_bitShift = 8 * t_lElem;
+			avgCol += ((inputImage[t_elem] & (0x000000ff << t_bitShift)) >> t_bitShift);
+			uint b_Total = x + by * IMAGE_W;
+			uint b_elem = b_Total / 4;
+			uint b_lElem = b_Total & 3;
+			uint b_bitShift = 8 * b_lElem;
+			avgCol += ((inputImage[b_elem] & (0x000000ff << b_bitShift)) >> b_bitShift);
+			avgCol = round(avgCol * 0.5f);
+
+			if (lElem == 0)
+				outputB[elem] |= (avgCol << (8 * lElem));
+			else if (lElem == 2)
+				outputB[elem] |= (avgCol << (8 * lElem));
+			//G-----------------------------------------------------------------------------------
+			if (lElem == 0)
+				outputG[elem] |= (inputImage[elem] & (0x000000ff << bitShift));
+			else if (lElem == 2)
+				outputG[elem] |= (inputImage[elem] & (0x000000ff << bitShift));
+
+			//R------------------------------------------------------------------------------------------
+			avgCol = 0;
+			uint l_Total = lx + y * IMAGE_W;
+			uint l_elem = l_Total / 4;
+			uint l_lElem = l_Total & 3;
+			uint l_bitShift = 8 * l_lElem;
+			avgCol += ((inputImage[l_elem] & (0x000000ff << l_bitShift)) >> l_bitShift);
+			uint r_Total = rx + y * IMAGE_W;
+			uint r_elem = r_Total / 4;
+			uint r_lElem = r_Total & 3;
+			uint r_bitShift = 8 * r_lElem;
+			avgCol += ((inputImage[r_elem] & (0x000000ff << r_bitShift)) >> r_bitShift);
+			avgCol = round(avgCol * 0.5f);
+
+			if (lElem == 0)
+				outputR[elem] |= (avgCol << (8 * lElem));
+			else if (lElem == 2)
+				outputR[elem] |= (avgCol << (8 * lElem));
+			//------------------------------------------------------------------------------------------
+		}
+		else
+		{
+			/*
+			брбр
+			брбс
+			*/
+
+			//B-------------------------------------------------------------------------------------------------------
+			avgCol = 0;
+			uint tl_Total = lx + ty * IMAGE_W;
+			uint tl_elem = tl_Total / 4;
+			uint tl_lElem = (tl_Total & 3);
+			uint tl_bitShift = 8 * tl_lElem; 
+			avgCol += ((inputImage[tl_elem] & (0x000000ff << tl_bitShift)) >> tl_bitShift);
+			uint tr_Total = rx + ty * IMAGE_W;
+			uint tr_elem = tr_Total / 4;
+			uint tr_lElem = (tr_Total & 3);
+			uint tr_bitShift = 8 * tr_lElem;
+			avgCol += ((inputImage[tr_elem] & (0x000000ff << tr_bitShift))>> tr_bitShift);
+			uint bl_Total = lx + by * IMAGE_W;
+			uint bl_elem = bl_Total / 4;
+			uint bl_lElem = bl_Total & 3;
+			uint bl_bitShift = 8 * bl_lElem;
+			avgCol += ((inputImage[bl_elem] & (0x000000ff << bl_bitShift)) >> bl_bitShift);
+			uint br_Total = rx + by * IMAGE_W;
+			uint br_elem = br_Total / 4;
+			uint br_lElem = br_Total & 3;
+			uint br_bitShift = 8 * br_lElem;
+			avgCol += ((inputImage[br_elem] & (0x000000ff<< br_bitShift))>> br_bitShift);
+			avgCol = round(avgCol * 0.25f);
+
+			if(lElem==1)
+				outputB[elem] |= (avgCol << (8 * lElem));
+			else if(lElem==3)
+				outputB[elem] |= (avgCol << (8 * lElem));
+
+
+			//G------------------------------------------------------------------------------------------------
+			avgCol = 0;
+			uint l_Total = lx + y * IMAGE_W;
+			uint l_elem = l_Total / 4;
+			uint l_lElem = l_Total & 3;
+			uint l_bitShift = 8 * l_lElem;
+			avgCol += ((inputImage[l_elem] & (0x000000ff << l_bitShift)) >> l_bitShift);
+			uint r_Total = rx + y * IMAGE_W;
+			uint r_elem = r_Total / 4;
+			uint r_lElem = r_Total & 3;
+			uint r_bitShift = 8 * r_lElem;
+			avgCol += ((inputImage[r_elem] & (0x000000ff << r_bitShift)) >> r_bitShift);
+			uint t_Total = x + ty * IMAGE_W;
+			uint t_elem = t_Total / 4;
+			uint t_lElem = t_Total & 3;
+			uint t_bitShift = 8 * t_lElem;
+			avgCol += ((inputImage[t_elem] & (0x000000ff << t_bitShift)) >> t_bitShift);
+			uint b_Total = x + by * IMAGE_W;
+			uint b_elem = b_Total / 4;
+			uint b_lElem = b_Total & 3;
+			uint b_bitShift = 8 * b_lElem;
+			avgCol += ((inputImage[b_elem] & (0x000000ff << b_bitShift)) >> b_bitShift);
+			avgCol = round(avgCol * 0.25f);
+
+			if (lElem == 1)
+				outputG[elem] |= (avgCol << (8 * lElem));
+			else if (lElem == 3)
+				outputG[elem] |= (avgCol << (8 * lElem));
+
+			//R----------------------------------------------------------------------------------------------------
+			if (lElem == 1)
+				outputR[elem] |= (inputImage[elem] & (0x000000ff << bitShift));
+			else if (lElem == 3)
+				outputR[elem] |= (inputImage[elem] & (0x000000ff << bitShift));
+			//--------------------------------------------------------------------------------------------------------
+		}
+	}
+}
+
+
+//hlsl2------------------------------------------------------
+
+
+RWBuffer<int> output : register(u0);
+
+[numthreads(4, 1, 1)]
+void main(uint3 id : SV_DispatchThreadID)
+{
+	if (id.x == 0)
+	{
+		if ((output[0] & 0x000000ff) > 0x000000cc) {
+
+			output[0] |= 0x000000cc;
+		}
+		else
+		{
+			output[0] |= 0x000000ff;
+		}
+	}
+	else if (id.x == 1)
+	{
+		if ((output[0] & 0x0000ff00) > 0x0000cc00) {
+
+			output[0] |= 0x0000cc00;
+		}
+		else
+		{
+			output[0] |= 0x0000ff00;
+		}
+	}
+	else if (id.x == 2)
+	{
+		if ((output[0] & 0x00ff0000) > 0x00cc0000) {
+
+			output[0] |= 0x00cc0000;
+		}
+		else
+		{
+			output[0] |= 0x00ff0000;
+		}
+	}
+	else if (id.x == 3)
+	{
+		if ((output[0] & 0xff000000) > 0xcc000000) {
+
+			output[0] |= 0xcc000000;
+		}
+		else
+		{
+			output[0] |= 0xff000000;
+		}
+	}
+}

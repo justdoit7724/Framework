@@ -19,8 +19,9 @@ struct PS_INPUT
 {
     float4 pos : SV_POSITION;
     float3 wPos : TEXCOORD1;
-    float3 normal : TEXCOORD2;
-    float2 tex : TEXCOORD3;
+    float4 pPos : TEXCOORD2;
+    float3 normal : TEXCOORD3;
+    float2 tex : TEXCOORD4;
     //float3 tangent : TEXCOORD4;
 };
 float4 main(PS_INPUT input) : SV_Target
@@ -48,5 +49,5 @@ float4 main(PS_INPUT input) : SV_Target
     float3 diffuse = (dDiffuse + pDiffuse + sDiffuse) * tex;
     float3 spec = (dSpecular + pSpecular + sSpecular);
     
-    return float4(spec+ambient+diffuse, 1);
+    return float4(spec + ambient + diffuse, mDiffuse.w);
 }

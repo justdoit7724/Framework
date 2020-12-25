@@ -22,7 +22,7 @@ WndDXDisplay::WndDXDisplay(HINSTANCE hInstance, HWND parent, int x, int y, int w
 	SetWindowLongPtr(m_hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
 
 	m_dxGraphic = new DX::Graphic(m_hWnd, m_iMSAA);
-	m_scene = new PlayScene(m_dxGraphic->Device(), m_dxGraphic->DContext(), L"main");
+	m_scene = new PlayScene(m_dxGraphic, L"main");
 }
 
 WndDXDisplay::~WndDXDisplay()
@@ -55,6 +55,10 @@ void WndDXDisplay::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 		break;
 	case WM_LBUTTONDOWN:
 		SetFocus(m_hWnd);
+		m_scene->WM_LButtonDown();
+		break;
+	case WM_LBUTTONUP:
+		m_scene->WM_LButtonUp();
 		break;
 	case WM_RBUTTONDOWN:
 	{

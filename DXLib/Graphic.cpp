@@ -5,8 +5,6 @@
 #include "Graphic.h"
 #include "Math.h"
 
-#pragma comment(lib, "DXGI.lib")
-
 namespace DX {
 
 	Graphic::Graphic(HWND _hwnd, int msaa)
@@ -22,21 +20,6 @@ namespace DX {
 		int iHeight = rc.bottom - rc.top;
 
 		hwnd = _hwnd;
-
-		IDXGIFactory* pFactory;
-		HRESULT hr2=CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&pFactory);
-		r_assert(hr2);
-
-		IDXGIAdapter* pAdapter;
-		UINT index = 0;
-		std::map<int, IDXGIAdapter*> vAdapter;
-		while (SUCCEEDED(pFactory->EnumAdapters(index,&pAdapter)))
-		{
-			DXGI_ADAPTER_DESC desc;
-			pAdapter->GetDesc(&desc);
-			vAdapter.insert(std::pair<int, IDXGIAdapter*>(desc.DedicatedVideoMemory, pAdapter));
-			index++;
-		}
 
 		DXGI_SWAP_CHAIN_DESC scd;
 		ZeroMemory(&scd, sizeof(DXGI_SWAP_CHAIN_DESC));
@@ -60,30 +43,30 @@ namespace DX {
 		scd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
 		HRESULT hr = D3D11CreateDeviceAndSwapChain(
-			vAdapter.begin()->second,
-			D3D_DRIVER_TYPE_UNKNOWN,
+			NULL,
+			D3D_DRIVER_TYPE_HARDWARE,
 			NULL,
 			D3D11_CREATE_DEVICE_DEBUG,
 			NULL,
 			0,
 			D3D11_SDK_VERSION,
 			&scd,
-			&swapchain,
+			&m_swapchain,
 			&m_device,
 			NULL,
 			&m_dContext);
 		r_assert(hr);
 
-		hr = swapchain->GetBuffer(
+		hr = m_swapchain->GetBuffer(
 			0,
 			__uuidof(ID3D11Texture2D),
-			reinterpret_cast<void**>(&backBuffer));
+			reinterpret_cast<void**>(&m_backBuffer));
 		r_assert(hr);
 
 		hr = m_device->CreateRenderTargetView(
-			backBuffer,
+			m_backBuffer,
 			nullptr,
-			&rtv);
+			&m_rtv);
 		r_assert(hr);
 
 #pragma region Depth&Stencil Buffer
@@ -104,7 +87,7 @@ namespace DX {
 		hr = m_device->CreateTexture2D(
 			&ds_desc,
 			nullptr,
-			&depthStencilBuffer);
+			&m_depthStencilBuffer);
 		r_assert(hr);
 
 		D3D11_DEPTH_STENCIL_VIEW_DESC dsv_desc;
@@ -121,26 +104,26 @@ namespace DX {
 			dsv_desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
 		}
 		hr = m_device->CreateDepthStencilView(
-			depthStencilBuffer,
+			m_depthStencilBuffer,
 			&dsv_desc,
-			&dsView);
+			&m_dsView);
 		r_assert(hr);
-		m_dContext->OMSetRenderTargets(1, &rtv, dsView);
+		m_dContext->OMSetRenderTargets(1, &m_rtv, m_dsView);
 
 #pragma endregion
 
 #pragma region Viewport
 
 		//map vertex positions in clip space into render target positions
-		ZeroMemory(&viewport, sizeof(D3D11_VIEWPORT));
-		viewport.TopLeftX = 0;
-		viewport.TopLeftY = 0;
-		viewport.Width = scd.BufferDesc.Width;
-		viewport.Height = scd.BufferDesc.Height;
-		viewport.MinDepth = 0.0f;
-		viewport.MaxDepth = 1.0f;
+		ZeroMemory(&m_viewport, sizeof(D3D11_VIEWPORT));
+		m_viewport.TopLeftX = 0;
+		m_viewport.TopLeftY = 0;
+		m_viewport.Width = scd.BufferDesc.Width;
+		m_viewport.Height = scd.BufferDesc.Height;
+		m_viewport.MinDepth = 0.0f;
+		m_viewport.MaxDepth = 1.0f;
 
-		m_dContext->RSSetViewports(1, &viewport);
+		m_dContext->RSSetViewports(1, &m_viewport);
 #pragma endregion
 
 #pragma region Rasterizer
@@ -148,34 +131,38 @@ namespace DX {
 		ZeroMemory(&rs_desc, sizeof(D3D11_RASTERIZER_DESC));
 		rs_desc.FillMode = D3D11_FILL_SOLID;
 		rs_desc.CullMode = D3D11_CULL_BACK;
-		hr = m_device->CreateRasterizerState(&rs_desc, &rasterizerState);
+		hr = m_device->CreateRasterizerState(&rs_desc, &m_rasterizerState);
 		r_assert(hr);
-		m_dContext->RSSetState(rasterizerState);
+		m_dContext->RSSetState(m_rasterizerState);
 #pragma endregion
 
 	}
 
 	Graphic::~Graphic()
 	{
-		backBuffer->Release();
+		m_backBuffer->Release();
 		m_device->Release();
 		m_dContext->Release();
-		swapchain->Release();
+		m_swapchain->Release();
 
-		rtv->Release();
-		dsView->Release();
-		depthStencilBuffer->Release();
-		rasterizerState->Release();
+		m_rtv->Release();
+		m_dsView->Release();
+		m_depthStencilBuffer->Release();
+		m_rasterizerState->Release();
 
 	}
 
 	void Graphic::Present()
 	{
-		swapchain->Present(1, 0);
+		m_swapchain->Present(1, 0);
 
 		const float black[4] = { 0.1,0.1,0.1,1 };
-		m_dContext->ClearRenderTargetView(rtv, black);
-		m_dContext->ClearDepthStencilView(dsView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+		m_dContext->ClearRenderTargetView(m_rtv, black);
+		m_dContext->ClearDepthStencilView(m_dsView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	}
+	void Graphic::BindView()
+	{
+		m_dContext->OMSetRenderTargets(1, &m_rtv, m_dsView);
 	}
 	ID3D11Device* Graphic::Device()
 	{
@@ -184,6 +171,22 @@ namespace DX {
 	ID3D11DeviceContext* Graphic::DContext()
 	{
 		return m_dContext;
+	}
+	ID3D11Texture2D* Graphic::DepthBuffer()
+	{
+		return m_depthStencilBuffer;
+	}
+	ID3D11Texture2D* Graphic::BackBuffer()
+	{
+		return m_backBuffer;
+	}
+	ID3D11DepthStencilView* Graphic::DSV()
+	{
+		return m_dsView;
+	}
+	ID3D11RenderTargetView* Graphic::RTV()
+	{
+		return m_rtv;
 	}
 }
 	

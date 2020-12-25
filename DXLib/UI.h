@@ -4,18 +4,16 @@
 #include "Object.h"
 
 
-struct SHADER_STD_TRANSF;
-
 namespace DX {
 
 	class Transform;
 	class Camera;
 	class UICanvas;
 
-	class UI : public Object
+	class DXLIB_DLL UI : public Object
 	{
 	public:
-		UI(ID3D11Device* device, ID3D11DeviceContext* dContext, int iScnHeight, XMFLOAT2 pivot, XMFLOAT2 size, float zDepth, ID3D11ShaderResourceView* srv);
+		UI(ID3D11Device* device, ID3D11DeviceContext* dContext, XMFLOAT2 pivot, XMFLOAT2 size, float zDepth, ID3D11ShaderResourceView* srv);
 		~UI();
 
 		virtual void Update(ID3D11DeviceContext* dContext, int iScnWidth, int iScnHeight, XMFLOAT2 mousePos, UICanvas* canvas);
@@ -30,10 +28,10 @@ namespace DX {
 		XMFLOAT2 size;
 	};
 
-	class UIButton : public UI, public Subject
+	class DXLIB_DLL UIButton : public UI, public Subject
 	{
 	public:
-		UIButton(ID3D11Device* device, ID3D11DeviceContext* dContext, int iScnHeight, XMFLOAT2 pivot, XMFLOAT2 size, ID3D11ShaderResourceView* idleSRV);
+		UIButton(ID3D11Device* device, ID3D11DeviceContext* dContext, XMFLOAT2 pivot, XMFLOAT2 size, ID3D11ShaderResourceView* idleSRV);
 
 		void Update(ID3D11DeviceContext* dContext, int iScnWidth, int iScnHeight, XMFLOAT2 mousePos, UICanvas* canvas) override;
 
@@ -48,18 +46,25 @@ namespace DX {
 	};
 
 
-	class UICanvas
+	class DXLIB_DLL UICanvas
 	{
 	public:
-		UICanvas(int iScnWidth, int iScnHeight);
+		UICanvas(ID3D11DeviceContext* dContext, int iScnWidth, int iScnHeight);
 		~UICanvas();
 
 		const float totalWidth, totalHeight;
 
 		const Camera* GetCamera() { return camera; }
 
+		void Add(UI* ui);
+		void Remove(UI* ui);
+		void Update(XMFLOAT2 mousePos);
+
 	private:
 		Camera* camera;
+		std::vector<UI*> m_vUI;
+
+		ID3D11DeviceContext* m_dxDContext;
 	};
 }
 

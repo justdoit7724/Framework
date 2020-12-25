@@ -6,12 +6,8 @@
 
 using namespace DX;
 
-XMFLOAT3 g_playerPos=XMFLOAT3(10,60,-30);
-XMFLOAT3 g_playerForward = XMFLOAT3(0, 0, 1);
-XMFLOAT3 g_playerUp= XMFLOAT3(0, 1, 0);
-
-PlayScene::PlayScene(ID3D11Device* device, ID3D11DeviceContext* dContext, const wchar_t* key)
-	:Scene(device, dContext, key)
+PlayScene::PlayScene(DX::Graphic* graphic, const wchar_t* key)
+	:Scene(graphic, key)
 {
 	m_keyboard = new Keyboard();
 
@@ -26,38 +22,89 @@ PlayScene::PlayScene(ID3D11Device* device, ID3D11DeviceContext* dContext, const 
 	sampDesc.BorderColor[2] = 0;
 	sampDesc.BorderColor[3] = 1;
 	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
-	m_device->CreateSamplerState(&sampDesc, &m_dxSamp);
+	graphic->Device()->CreateSamplerState(&sampDesc, &m_dxSamp);
+	m_dxGraphic->DContext()->PSSetSamplers(SHADER_REG_SAMP_POINT, 1, &m_dxSamp);
 	
 	m_dLight = new DX::DirectionalLight(
-		device,
+		graphic->Device(),
 		0,
-		XMFLOAT3(0.25, 0.25, 0.25),
+		XMFLOAT3(0.4, 0.4, 0.4),
 		XMFLOAT3(0.8, 0.8, 0.8),
 		XMFLOAT3(0.7, 0.7, 0.7),
 		0.7f,
-		DX::Normalize(XMFLOAT3(-1, -0.5f, -1))
+		DX::Normalize(XMFLOAT3(1, -0.5f, 1))
 	);
 	m_dLight->Enable(true);
 
-	m_camera = new DX::Camera("cam", DX::FRAME_KIND_PERSPECTIVE, NULL, NULL, 1.0f, 1000.0f, XM_PIDIV2, 1, false);
-	m_camera->transform->SetTranslation(g_playerPos);
-	m_camera->transform->SetRot(g_playerForward, g_playerUp);
+	m_camera = new DX::Camera("cam", DX::FRAME_KIND_ORTHOGONAL, 600, 600, 0.001f, 100.0, NULL, NULL, false);
+	m_camera->transform->SetTranslation(0,0,0);
+	m_camera->transform->SetRot(FORWARD);
+	m_camera->Update();
 
-	m_cbEye = new DX::Buffer(device, sizeof(XMFLOAT4));
-
-	std::shared_ptr<DX::Mesh> pCubeMesh = std::make_shared<DX::CubeMesh>(m_device);
-
-	DX::LoadTexture(m_device, m_dContext, "C:\\Users\\Jun\\source\\repos\\Framework\\Data\\Texture\\red_light.png", &m_dxRedSRV);
-	DX::LoadTexture(m_device, m_dContext, "C:\\Users\\Jun\\source\\repos\\Framework\\Data\\Texture\\green_light.png", &m_dxGreenSRV);
-	DX::LoadTexture(m_device, m_dContext, "C:\\Users\\Jun\\source\\repos\\Framework\\Data\\Texture\\blue_light.png", &m_dxBlueSRV);
-	DX::LoadTexture(m_device, m_dContext, "C:\\Users\\Jun\\source\\repos\\Framework\\Data\\Texture\\white.png", &m_dxWhiteSRV);
-	DX::LoadTexture(m_device, m_dContext, "C:\\Users\\Jun\\source\\repos\\Framework\\Data\\Texture\\default_normal.png", &m_dxNormSRV);
+	auto mat = m_camera->ProjMat();
+	auto result = DX::Multiply(XMFLOAT4(300, 0, 10, 1), mat);
 
 
-	m_dxRedBox = new DX::Object(m_device, m_dContext, "obj", pCubeMesh, nullptr, m_dxRedSRV, m_dxNormSRV);
-	m_dxRedBox->transform->SetScale(40, 40, 20);
-	m_dxRedBox->transform->SetTranslation(0, 20, 80);
+	m_cbEye = new DX::Buffer(graphic->Device(), sizeof(XMFLOAT4));
+
+	m_dxDepthPeeling = new DX::DepthPeeling(graphic);
+
+	std::shared_ptr<DX::Mesh> pCubeMesh = std::make_shared<DX::CubeMesh>(graphic->Device());
+	std::shared_ptr<DX::Mesh> pSphereMesh = std::make_shared<DX::SphereMesh>(graphic->Device(), 4);
+
+	DX::LoadTexture(graphic->Device(), graphic->DContext(), "C:\\Users\\Jun\\source\\repos\\Framework\\Data\\Texture\\red_light.png", &m_dxRedSRV);
+	DX::LoadTexture(graphic->Device(), graphic->DContext(), "C:\\Users\\Jun\\source\\repos\\Framework\\Data\\Texture\\green_light.png", &m_dxGreenSRV);
+	DX::LoadTexture(graphic->Device(), graphic->DContext(), "C:\\Users\\Jun\\source\\repos\\Framework\\Data\\Texture\\blue_light.png", &m_dxBlueSRV);
+	DX::LoadTexture(graphic->Device(), graphic->DContext(), "C:\\Users\\Jun\\source\\repos\\Framework\\Data\\Texture\\white.png", &m_dxWhiteSRV);
+	DX::LoadTexture(graphic->Device(), graphic->DContext(), "C:\\Users\\Jun\\source\\repos\\Framework\\Data\\Texture\\default_normal.png", &m_dxNormSRV);
+
+	D3D11_BLEND_DESC blendDesc;
+	blendDesc.AlphaToCoverageEnable = FALSE;
+	blendDesc.IndependentBlendEnable = FALSE;
+	blendDesc.RenderTarget[0].BlendEnable = TRUE;
+	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
+	blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	D3D11_DEPTH_STENCIL_DESC dsDesc;
+	dsDesc.DepthEnable = TRUE;
+	dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+	dsDesc.DepthFunc = D3D11_COMPARISON_EQUAL;
+	dsDesc.StencilEnable = FALSE;
+
+	m_dxRedBox = new DX::Object(graphic->Device(), graphic->DContext(), "obj", pCubeMesh, nullptr, m_dxRedSRV, m_dxNormSRV);
+	m_dxRedBox->transform->SetScale(100, 100, 1);
+	m_dxRedBox->transform->SetTranslation(0, 0, 25);
+	m_dxRedBox->blendState->Modify(graphic->Device(), &blendDesc);
+	m_dxRedBox->dsState->Modify(graphic->Device(), &dsDesc);
 	m_vObj.push_back(m_dxRedBox);
+
+	/*m_dxGreenBox = new DX::Object(graphic->Device(), graphic->DContext(), "obj", pCubeMesh, nullptr, m_dxGreenSRV, m_dxNormSRV);
+	m_dxGreenBox->transform->SetScale(180, 180, 10);
+	m_dxGreenBox->transform->Rotate(-FORWARD, XM_PI / 18);
+	m_dxGreenBox->transform->SetTranslation(0, 0, 50);
+	m_dxGreenBox->blendState->Modify(graphic->Device(), &blendDesc);
+	m_dxGreenBox->dsState->Modify(graphic->Device(), &dsDesc);
+	m_vObj.push_back(m_dxGreenBox);*/
+
+	/*m_dxBlueBox = new DX::Object(graphic->Device(), graphic->DContext(), "obj", pCubeMesh, nullptr, m_dxBlueSRV, m_dxNormSRV);
+	m_dxBlueBox->transform->SetScale(50, 50, 10);
+	m_dxBlueBox->transform->Rotate(-FORWARD, XM_PI / 9);
+	m_dxBlueBox->transform->SetTranslation(0, 0, 90);
+	m_dxBlueBox->blendState->Modify(graphic->Device(), &blendDesc);
+	m_dxBlueBox->dsState->Modify(graphic->Device(), &dsDesc);
+	m_vObj.push_back(m_dxBlueBox);*/
+
+	
+	
+	m_dxCanvas = new DX::UICanvas(graphic->DContext(), 600, 600);
+	m_dxTestUI = new DX::UI(graphic->Device(), graphic->DContext(), XMFLOAT2(150, 150), XMFLOAT2(300, 300), 0, nullptr);
+
+	//m_dxCanvas->Add(m_dxTestUI);
+
 }
 
 PlayScene::~PlayScene()
@@ -67,13 +114,11 @@ PlayScene::~PlayScene()
 	m_dxGreenSRV->Release();
 	m_dxWhiteSRV->Release();
 	m_dxNormSRV->Release();
-	delete m_dLight;
-	g_playerPos= m_camera->transform->GetPos();
-	g_playerForward= m_camera->transform->GetForward();
-	g_playerUp= m_camera->transform->GetUp();
-	delete m_camera;
-	delete m_cbEye;
-	delete m_keyboard;
+	SAFEDELETE(m_dLight);
+	SAFEDELETE(m_camera);
+	SAFEDELETE(m_cbEye);
+	SAFEDELETE(m_keyboard);
+	SAFEDELETE(m_dxDepthPeeling);
 	m_dxSamp->Release();
 
 	for (auto it = m_vObj.begin(); it != m_vObj.end(); ++it)
@@ -85,7 +130,7 @@ PlayScene::~PlayScene()
 
 void PlayScene::Update(float elapsed, float spf)
 {
-	m_dLight->Apply(m_device, m_dContext);
+	m_dLight->Apply(m_dxGraphic->Device(), m_dxGraphic->DContext());
 
 	XMFLOAT3 newPos = m_camera->transform->GetPos();
 	XMFLOAT3 right = m_camera->transform->GetRight();
@@ -128,10 +173,16 @@ void PlayScene::Update(float elapsed, float spf)
 
 	XMFLOAT3 eye = m_camera->transform->GetPos();
 
-	m_cbEye->Write(m_dContext, &eye);
-	m_dContext->PSSetConstantBuffers(SHADER_REG_CB_EYE, 1, m_cbEye->GetAddress());
-	m_dContext->PSSetSamplers(SHADER_REG_SAMP_POINT, 1, &m_dxSamp);
+	m_cbEye->Write(m_dxGraphic->DContext(), &eye);
+	m_dxGraphic->DContext()->PSSetConstantBuffers(SHADER_REG_CB_EYE, 1, m_cbEye->GetAddress());
 
+	m_dxDepthPeeling->Run(m_camera, m_vObj, 3);
+	auto dsv = m_dxDepthPeeling->GetDSV(0);
+	ID3D11RenderTargetView* rtv = m_dxGraphic->RTV();
+	//MakeDepthFile(dsv);
+	m_dxGraphic->DContext()->OMSetRenderTargets(1, &rtv, dsv);
+
+	return;
 
 	for (auto obj : m_vObj)
 	{
@@ -140,11 +191,12 @@ void PlayScene::Update(float elapsed, float spf)
 
 	for (auto obj : m_vObj)
 	{
-		obj->Render(m_dContext, m_camera->VMat(), m_camera->ProjMat(), m_camera->GetFrustum(), 0);
+		obj->Render(m_dxGraphic->DContext(), m_camera->VMat(), m_camera->ProjMat(), m_camera->GetFrustum(), 0);
 	}
 
+	//m_dxCanvas->Update(m_scnMousePos);
 
-
+	//m_dxGraphic->BindView();
 }
 
 void PlayScene::WM_LButtonDown()
@@ -176,4 +228,65 @@ void PlayScene::WM_MouseMove(LPARAM lparam)
 	POINTS p = MAKEPOINTS(lparam);
 	m_scnMousePos.x = p.x;
 	m_scnMousePos.y = p.y;
+}
+
+#include <opencv2/opencv.hpp>
+#pragma comment(lib,"C:/IMS/Library/opencv/x64/vc15/lib/opencv_world430d.lib")
+
+void PlayScene::MakeDepthFile(ID3D11DepthStencilView* dsv)
+{
+	D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc;
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	ID3D11Texture2D* depthTex;
+	ID3D11Texture2D* stageTex;
+	D3D11_TEXTURE2D_DESC stageTexDesc;
+
+	ID3D11Resource* tmpResource;
+	dsv->GetResource(&tmpResource);
+	depthTex = (ID3D11Texture2D*)tmpResource;
+
+	depthTex->GetDesc(&stageTexDesc);
+
+	stageTexDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	stageTexDesc.BindFlags = 0;
+	stageTexDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+	stageTexDesc.Usage = D3D11_USAGE_STAGING;
+	m_dxGraphic->Device()->CreateTexture2D(&stageTexDesc, nullptr, &stageTex);
+	
+	m_dxGraphic->DContext()->CopyResource(stageTex, depthTex);
+	
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	
+	ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
+	m_dxGraphic->DContext()->Map(stageTex, 0, D3D11_MAP_READ, 0, &mappedResource);
+	int nSize = mappedResource.RowPitch * stageTexDesc.Height;
+	unsigned char*const pTest = (unsigned char*)malloc(nSize);
+	ZeroMemory(pTest, nSize);
+	memcpy(pTest, mappedResource.pData, nSize);
+	m_dxGraphic->DContext()->Unmap(stageTex, 0);
+
+	std::ofstream outdata;
+	outdata.open("C:\\Users\\Jun\\Desktop\\depth_result\\data.csv");
+	if (!outdata.is_open()) return;
+
+	outdata << "WIDTH = " << stageTexDesc.Width << std::endl;
+	outdata << "HEIGHT = " << stageTexDesc.Height << std::endl;
+	for (int y = 0; y < stageTexDesc.Height; ++y)
+	{
+		for (int x = 0; x < stageTexDesc.Width; ++x)
+		{
+			int index = x + y * stageTexDesc.Width;
+
+			int value = *(int*)(pTest + size_t(mappedResource.RowPitch) * y + x * sizeof(int));
+
+			outdata << value << ",";
+		}
+		outdata << std::endl;
+	}
+
+	outdata.close();
+
+	stageTex->Release();
+
+	exit(-1);
 }

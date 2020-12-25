@@ -22,9 +22,8 @@ public:
 
 	const wchar_t* m_key;
 protected:
-	Scene(ID3D11Device* device, ID3D11DeviceContext* dContext, const wchar_t* key);
-	ID3D11Device* m_device;
-	ID3D11DeviceContext* m_dContext;
+	Scene(DX::Graphic* graphic, const wchar_t* key);
+	DX::Graphic* m_dxGraphic;
 
 	Keyboard* m_keyboard;
 	XMFLOAT2 m_scnMousePos;
