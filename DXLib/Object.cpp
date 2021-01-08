@@ -32,11 +32,12 @@ Object::Object(ID3D11Device* device, ID3D11DeviceContext* dContext, std::string 
 	dsState = new DepthStencilState(device, nullptr);
 	rsState = new RasterizerState(device,nullptr);
 
+	m_material = new SHADER_MATERIAL(XMFLOAT3(0.6, 0.6, 0.6), 0.4, XMFLOAT3(0.6, 0.6, 0.6), XMFLOAT3(1.0, 1.0, 1.0));
 }
 
 //standard elements
 Object::Object(ID3D11Device* device, ID3D11DeviceContext* dContext, std::string name, std::shared_ptr <Mesh> mesh, std::shared_ptr<Collider> collider, ID3D11ShaderResourceView* diffSRV, ID3D11ShaderResourceView* normalSRV, bool directRender)
-	: name(name), mesh(mesh), collider(collider), layer(LAYER_STD)
+	: name(name), mesh(mesh), collider(collider), layer(LAYER_STD), m_mainTex(diffSRV), m_normal(normalSRV)
 {
 	transform = new Transform();
 	vs = new VShader(device,"StdVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
@@ -45,14 +46,16 @@ Object::Object(ID3D11Device* device, ID3D11DeviceContext* dContext, std::string 
 	gs = new GShader(device);
 	ps = new PShader(device,"StdPS.cso");
 
+	m_material = new SHADER_MATERIAL(XMFLOAT3(0.6, 0.6, 0.6), 0.4, XMFLOAT3(0.6, 0.6, 0.6), XMFLOAT3(1.0, 1.0, 1.0));
+
 	vs->AddCB(device, 0, 1, sizeof(SHADER_STD_TRANSF));
 	ps->AddCB(device, SHADER_REG_CB_MATERIAL, 1, sizeof(SHADER_MATERIAL));
-	ps->WriteCB(dContext, SHADER_REG_CB_MATERIAL,&SHADER_MATERIAL(XMFLOAT3(0.6,0.6,0.6), 0.4, XMFLOAT3(0.6, 0.6, 0.6), XMFLOAT3(1.0, 1.0, 1.0)));
+	ps->WriteCB(dContext, SHADER_REG_CB_MATERIAL,m_material);
 	
 	ps->AddSRV(SHADER_REG_SRV_DIFFUSE, 1);
 	ps->AddSRV(SHADER_REG_SRV_NORMAL, 1);
-	ps->WriteSRV(SHADER_REG_SRV_DIFFUSE, diffSRV);
-	ps->WriteSRV(SHADER_REG_SRV_NORMAL, normalSRV);
+	ps->WriteSRV(SHADER_REG_SRV_DIFFUSE, m_mainTex);
+	ps->WriteSRV(SHADER_REG_SRV_NORMAL, m_normal);
 
 	blendState = new BlendState(device, nullptr);
 	dsState = new DepthStencilState(device, nullptr);
@@ -72,6 +75,8 @@ Object::~Object()
 	delete dsState;
 	delete blendState;
 	delete rsState;
+
+	delete m_material;
 }
 
 void Object::Update()
@@ -108,6 +113,36 @@ void Object::UpdateCollider()
 	collider->SetScale(transform->GetScale());
 }
 
+Geometrics::Sphere DX::Object::Bound()
+{
+	return bound;
+}
+
+int DX::Object::Layer() const
+{
+	return layer;
+}
+
+void DX::Object::SetLayer(int l)
+{
+	layer = l;
+}
+
+void DX::Object::GetMaterial(SHADER_MATERIAL* material)
+{
+	*material = *m_material;
+}
+
+void DX::Object::GetMainTex(ID3D11ShaderResourceView** ppSRV)
+{
+	*ppSRV = m_mainTex;
+}
+
+void DX::Object::GetNormal(ID3D11ShaderResourceView** ppNormal)
+{
+	*ppNormal = m_normal;
+}
+
 void Object::Visualize()
 {
 
@@ -133,7 +168,7 @@ void Object::Render(ID3D11DeviceContext* dContext)const
 
 	mesh->Apply(dContext);
 }
-void Object::Render(ID3D11DeviceContext* dContext, const XMMATRIX& v, const XMMATRIX& p, const Frustum& frustum, UINT sceneDepth) const
+void Object::Render(ID3D11DeviceContext* dContext, const XMMATRIX& v, const XMMATRIX& p, const Frustum* frustum, UINT sceneDepth) const
 {
 	if (!enabled || !show)
 		return;
@@ -156,18 +191,18 @@ void Object::RenderGeom(ID3D11DeviceContext* dContext) const
 	mesh->Apply(dContext);
 }
 
-bool Object::IsInsideFrustum(const Frustum& frustum) const
+bool Object::IsInsideFrustum(const Frustum* frustum) const
 {
-	if (frustum.skip || !collider)
+	if (!frustum || frustum->skip || !collider)
 		return true;
 
 	return (
-		IntersectInPlaneSphere(frustum.right, bound) &&
-		IntersectInPlaneSphere(frustum.left, bound) &&
-		IntersectInPlaneSphere(frustum.top, bound) &&
-		IntersectInPlaneSphere(frustum.bottom, bound) &&
-		IntersectInPlaneSphere(frustum.front, bound) &&
-		IntersectInPlaneSphere(frustum.back, bound));
+		IntersectInPlaneSphere(frustum->right, bound) &&
+		IntersectInPlaneSphere(frustum->left, bound) &&
+		IntersectInPlaneSphere(frustum->top, bound) &&
+		IntersectInPlaneSphere(frustum->bottom, bound) &&
+		IntersectInPlaneSphere(frustum->front, bound) &&
+		IntersectInPlaneSphere(frustum->back, bound));
 }
 
 bool Object::IsPicking(Geometrics::Ray ray) const

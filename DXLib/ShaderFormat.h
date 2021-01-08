@@ -193,6 +193,7 @@ namespace DX {
 		XMFLOAT4 specular;
 
 	public:
+		SHADER_MATERIAL() {}
 		SHADER_MATERIAL(XMFLOAT3 d, float transparency, XMFLOAT3 a, XMFLOAT3 s)
 			:
 			diffuse(XMFLOAT4(d.x, d.y, d.z, transparency)),

@@ -13,12 +13,12 @@ namespace DX {
 
 		void Mapping(ID3D11DeviceContext* dContext, ID3D11ShaderResourceView* cmSRV)const;
 		void Update() override {};
-		void Render(ID3D11DeviceContext* dContext, const XMMATRIX& v, const XMMATRIX& p, const Frustum& frustum, UINT sceneDepth)const override;
+		void Render(ID3D11DeviceContext* dContext, const XMMATRIX& v, const XMMATRIX& p, const Frustum* frustum, UINT sceneDepth=0)const override;
 		void RenderGeom(ID3D11DeviceContext* dContext) const override {};
 
 	private:
 		void Blur()const;
-		bool IsInsideFrustum(const Frustum& frustum) const override { return true; }
+		bool IsInsideFrustum(const Frustum* frustum) const override { return true; }
 		ID3D11SamplerState* samplerState;
 
 		ID3D11ShaderResourceView* blur1SRV, * blur2SRV;

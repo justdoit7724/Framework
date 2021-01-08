@@ -48,7 +48,7 @@ namespace DX
 		float GetVRad()const { return verticalRadian; }
 		float GetAspectRatio()const { return aspectRatio; }
 
-		const Frustum& GetFrustum()const { return frustum; }
+		const Frustum* GetFrustum()const { return &frustum; }
 
 		void SetLayer(int i)
 		{

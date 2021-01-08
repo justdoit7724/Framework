@@ -19,7 +19,7 @@ public:
 	void WM_KeyUp(WPARAM wparam)override;
 	void WM_MouseMove(LPARAM lparam)override;
 
-	void MakeDepthFile(ID3D11DepthStencilView* dsv);
+	void MakeDepthFile(ID3D11DepthStencilView* dsv, std::string strFileName);
 
 private:
 

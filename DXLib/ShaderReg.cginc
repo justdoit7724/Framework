@@ -20,6 +20,7 @@
 #define SHADER_REG_SRV_DISPLACE register(t7)
 #define SHADER_REG_SRV_ROUGHNESS register(t8)
 #define SHADER_REG_SRV_METALLIC register(t9)
+#define SHADER_REG_SRV_DEPTH register(t10)
 
 #define SHADER_REG_SAMP_POINT register(s0)
 #define SHADER_REG_SAMP_LINEAR register(s1)

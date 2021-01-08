@@ -144,7 +144,7 @@ void DX::UICanvas::Update(XMFLOAT2 mousePos)
 	for (auto it = m_vUI.begin(); it != m_vUI.end(); ++it)
 	{
 		(*it)->Update(m_dxDContext, totalWidth, totalHeight, mousePos, this);
-		(*it)->Render(m_dxDContext, v,p,DX::Frustum(),0);
+		(*it)->Render(m_dxDContext, v,p,nullptr);
 	}
 }
 
