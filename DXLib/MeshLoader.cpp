@@ -12,63 +12,64 @@
 #include "_Packages\Assimp.3.0.0\include\Importer.hpp"
 #include "_Packages\Assimp.3.0.0\include\scene.h"
 
-using namespace DX;
-
-
-void ProcessNode(ID3D11Device* device, std::vector<Mesh*>* storage, std::string filepath, aiNode* node, const aiScene* scene)
+namespace DX
 {
-	for (UINT i = 0; i < node->mNumMeshes; i++)
+	void ProcessNode(ID3D11Device* device, std::vector<Mesh*>* storage, std::string filepath, aiNode* node, const aiScene* scene)
 	{
-		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		const aiMaterial* const material = scene->mMaterials[mesh->mMaterialIndex];
-
-		std::vector<Vertex> vertice(mesh->mNumVertices);
-		std::vector<UINT> indice(mesh->mNumFaces*3);
-		
-		for (int j = 0; j < mesh->mNumVertices; ++j)
+		for (UINT i = 0; i < node->mNumMeshes; i++)
 		{
-			vertice[j].pos = XMFLOAT3(
-				mesh->mVertices[j].x,
-				mesh->mVertices[j].y,
-				mesh->mVertices[j].z);
-			vertice[j].n = XMFLOAT3(
-				mesh->mNormals[j].x,
-				mesh->mNormals[j].y,
-				mesh->mNormals[j].z);
-		}
-		for (int i = 0; i < mesh->mNumFaces; ++i)
-		{
-			aiFace face = mesh->mFaces[i];
+			aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+			const aiMaterial* const material = scene->mMaterials[mesh->mMaterialIndex];
 
-			for (int j = 0; j < face.mNumIndices; ++j)
+			std::vector<Vertex> vertice(mesh->mNumVertices);
+			std::vector<UINT> indice(mesh->mNumFaces * 3);
+
+			for (int j = 0; j < mesh->mNumVertices; ++j)
 			{
-				assert(face.mNumIndices == 3 && "should be composed of only POLYGON");
-				indice[(i * 3) + j] = face.mIndices[j];
+				vertice[j].pos = XMFLOAT3(
+					mesh->mVertices[j].x,
+					mesh->mVertices[j].y,
+					mesh->mVertices[j].z);
+				vertice[j].n = XMFLOAT3(
+					mesh->mNormals[j].x,
+					mesh->mNormals[j].y,
+					mesh->mNormals[j].z);
 			}
+			for (int i = 0; i < mesh->mNumFaces; ++i)
+			{
+				aiFace face = mesh->mFaces[i];
+
+				for (int j = 0; j < face.mNumIndices; ++j)
+				{
+					assert(face.mNumIndices == 3 && "should be composed of only POLYGON");
+					indice[(i * 3) + j] = face.mIndices[j];
+				}
+			}
+
+			storage->push_back(new Mesh(device, vertice.data(), sizeof(Vertex), vertice.size(), indice.data(), indice.size(), D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
 		}
 
-		storage->push_back(new Mesh(device,vertice.data(), sizeof(Vertex), vertice.size(), indice.data(), indice.size(), D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
+		for (UINT i = 0; i < node->mNumChildren; i++)
+		{
+			ProcessNode(device, storage, filepath, node->mChildren[i], scene);
+		}
 	}
 
-	for (UINT i = 0; i < node->mNumChildren; i++)
+	void LoadOBJ(ID3D11Device* device, std::vector<Mesh*>* storage, std::string filepath, std::string filename)
 	{
-		ProcessNode(device, storage,filepath, node->mChildren[i], scene);
+		Assimp::Importer importer;
+
+		const aiScene* pScene = importer.ReadFile(filepath + filename,
+			aiProcess_MakeLeftHanded |
+			aiProcess_FlipUVs |
+			aiProcess_FlipWindingOrder |
+			aiProcess_GenNormals|
+			aiProcess_Triangulate);
+
+		assert(
+			pScene != nullptr &&
+			pScene->HasMeshes());
+
+		ProcessNode(device, storage, filepath, pScene->mRootNode, pScene);
 	}
-}
-
-void Load(ID3D11Device* device, std::vector<Mesh*>* storage, std::string filepath, std::string filename)
-{
-	Assimp::Importer importer;
-
-	const aiScene* pScene = importer.ReadFile(filepath+filename,
-		aiProcess_MakeLeftHanded|
-		aiProcess_FlipUVs|
-		aiProcess_FlipWindingOrder|
-		aiProcess_GenNormals);
-
-	assert(
-		pScene != nullptr &&
-		pScene->HasMeshes());
-
-	ProcessNode(device, storage, filepath, pScene->mRootNode, pScene);
 }

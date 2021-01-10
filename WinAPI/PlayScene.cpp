@@ -7,7 +7,8 @@
 using namespace DX;
 
 PlayScene::PlayScene(DX::Graphic* graphic, const wchar_t* key)
-	:Scene(graphic, key)
+	:Scene(graphic, key),
+	m_bUseDepthPeel(FALSE)
 {
 	m_keyboard = new Keyboard();
 
@@ -50,14 +51,21 @@ PlayScene::PlayScene(DX::Graphic* graphic, const wchar_t* key)
 
 	m_dxDepthPeeling = new DX::DepthPeeling(graphic);
 
-	std::shared_ptr<DX::Mesh> pCubeMesh = std::make_shared<DX::CubeMesh>(graphic->Device());
-	std::shared_ptr<DX::Mesh> pSphereMesh = std::make_shared<DX::SphereMesh>(graphic->Device(), 4);
+	std::vector<Mesh*> vdxMesh;
+	DX::LoadOBJ(
+		graphic->Device(),
+		&vdxMesh,
+		__FILE__"\\..\\..\\Data\\Model\\OBJ\\",
+		"SKULL_low.obj");
 
-	DX::LoadTexture(graphic->Device(), graphic->DContext(), "C:\\Users\\Jun\\source\\repos\\Framework\\Data\\Texture\\red_light.png", &m_dxRedSRV);
-	DX::LoadTexture(graphic->Device(), graphic->DContext(), "C:\\Users\\Jun\\source\\repos\\Framework\\Data\\Texture\\green_light.png", &m_dxGreenSRV);
-	DX::LoadTexture(graphic->Device(), graphic->DContext(), "C:\\Users\\Jun\\source\\repos\\Framework\\Data\\Texture\\blue_light.png", &m_dxBlueSRV);
-	DX::LoadTexture(graphic->Device(), graphic->DContext(), "C:\\Users\\Jun\\source\\repos\\Framework\\Data\\Texture\\white.png", &m_dxWhiteSRV);
-	DX::LoadTexture(graphic->Device(), graphic->DContext(), "C:\\Users\\Jun\\source\\repos\\Framework\\Data\\Texture\\default_normal.png", &m_dxNormSRV);
+
+	std::shared_ptr<DX::Mesh> pObjMesh(vdxMesh[0]);
+
+	DX::LoadTexture(graphic->Device(), graphic->DContext(), __FILE__"\\..\\..\\Data\\Texture\\red_light.png", &m_dxRedSRV);
+	DX::LoadTexture(graphic->Device(), graphic->DContext(), __FILE__"\\..\\..\\Data\\Texture\\green_light.png", &m_dxGreenSRV);
+	DX::LoadTexture(graphic->Device(), graphic->DContext(), __FILE__"\\..\\..\\Data\\Texture\\blue_light.png", &m_dxBlueSRV);
+	DX::LoadTexture(graphic->Device(), graphic->DContext(), __FILE__"\\..\\..\\Data\\Texture\\white.png", &m_dxWhiteSRV);
+	DX::LoadTexture(graphic->Device(), graphic->DContext(), __FILE__"\\..\\..\\Data\\Texture\\default_normal.png", &m_dxNormSRV);
 
 	D3D11_DEPTH_STENCIL_DESC dsDesc;
 	ZeroMemory(&dsDesc, sizeof(D3D11_DEPTH_STENCIL_DESC));
@@ -74,35 +82,37 @@ PlayScene::PlayScene(DX::Graphic* graphic, const wchar_t* key)
 	blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
 	blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
 	blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_MAX;
-	m_dxRedBox = new DX::Object(graphic->Device(), graphic->DContext(), "obj", pCubeMesh, nullptr, m_dxRedSRV, m_dxNormSRV);
-	m_dxRedBox->transform->SetScale(100, 100, 20);
-	m_dxRedBox->transform->SetTranslation(0, 0, 80);
-	m_dxRedBox->blendState->Modify(graphic->Device(), &blendDesc);
-	m_dxRedBox->dsState->Modify(graphic->Device(), &dsDesc);
 
-	m_dxGreenBox = new DX::Object(graphic->Device(), graphic->DContext(), "obj", pCubeMesh, nullptr, m_dxGreenSRV, m_dxNormSRV);
-	m_dxGreenBox->transform->SetScale(180, 180, 10);
-	m_dxGreenBox->transform->Rotate(-FORWARD, XM_PI / 18);
-	m_dxGreenBox->transform->SetTranslation(0, 0, 160);
-	m_dxGreenBox->blendState->Modify(graphic->Device(), &blendDesc);
-	m_dxGreenBox->dsState->Modify(graphic->Device(), &dsDesc);
-
-	m_vObj.push_back(m_dxGreenBox);
-	m_vObj.push_back(m_dxRedBox);
-
-	/*m_dxBlueBox = new DX::Object(graphic->Device(), graphic->DContext(), "obj", pCubeMesh, nullptr, m_dxBlueSRV, m_dxNormSRV);
-	m_dxBlueBox->transform->SetScale(50, 50, 10);
-	m_dxBlueBox->transform->Rotate(-FORWARD, XM_PI / 9);
-	m_dxBlueBox->transform->SetTranslation(0, 0, 90);
-	m_vObj.push_back(m_dxBlueBox);*/
-
-	
-	
-	m_dxCanvas = new DX::UICanvas(graphic->DContext(), 600, 600);
-	m_dxTestUI = new DX::UI(graphic->Device(), graphic->DContext(), XMFLOAT2(0, 150), XMFLOAT2(150, 100), 0, m_dxBlueSRV);
-
-	//m_dxCanvas->Add(m_dxTestUI);
-
+	for (int x = 0; x < 3; ++x)
+	{
+		DX::Object* dxObj;
+		dxObj = new DX::Object(graphic->Device(), graphic->DContext(), "obj", pObjMesh, nullptr, m_dxRedSRV, m_dxNormSRV);
+		dxObj->transform->SetScale(50, 50, 50);
+		dxObj->transform->SetTranslation(x * 120, 0, 0);
+		dxObj->blendState->Modify(graphic->Device(), &blendDesc);
+		dxObj->dsState->Modify(graphic->Device(), &dsDesc);
+		m_vObj.push_back(dxObj);
+	}
+	for (int x = 0; x < 3; ++x)
+	{
+		DX::Object* dxObj;
+		dxObj = new DX::Object(graphic->Device(), graphic->DContext(), "obj", pObjMesh, nullptr, m_dxGreenSRV, m_dxNormSRV);
+		dxObj->transform->SetScale(50, 50, 50);
+		dxObj->transform->SetTranslation(x * 120, 0, 120);
+		dxObj->blendState->Modify(graphic->Device(), &blendDesc);
+		dxObj->dsState->Modify(graphic->Device(), &dsDesc);
+		m_vObj.push_back(dxObj);
+	}
+	for (int x = 0; x < 3; ++x)
+	{
+		DX::Object* dxObj;
+		dxObj = new DX::Object(graphic->Device(), graphic->DContext(), "obj", pObjMesh, nullptr, m_dxBlueSRV, m_dxNormSRV);
+		dxObj->transform->SetScale(50, 50, 50);
+		dxObj->transform->SetTranslation(x * 120, 0, 240);
+		dxObj->blendState->Modify(graphic->Device(), &blendDesc);
+		dxObj->dsState->Modify(graphic->Device(), &dsDesc);
+		m_vObj.push_back(dxObj);
+	}
 }
 
 PlayScene::~PlayScene()
@@ -132,7 +142,7 @@ void PlayScene::Update(float elapsed, float spf)
 	XMFLOAT3 newPos = m_camera->transform->GetPos();
 	XMFLOAT3 right = m_camera->transform->GetRight();
 	XMFLOAT3 forward = m_camera->transform->GetForward();
-	const float speed = 50;
+	const float speed = 75;
 
 	if (m_keyboard->IsPressing('A')) {
 
@@ -168,29 +178,29 @@ void PlayScene::Update(float elapsed, float spf)
 	m_camera->transform->SetRot(f, u);
 	m_camera->Update();
 
-	XMFLOAT3 eye = m_camera->transform->GetPos();
-
-	m_cbEye->Write(m_dxGraphic->DContext(), &eye);
-	m_dxGraphic->DContext()->PSSetConstantBuffers(SHADER_REG_CB_EYE, 1, m_cbEye->GetAddress());
-
-	std::vector<Light*> vLight;
-	vLight.push_back(m_dLight);
-	m_dxDepthPeeling->Run(m_camera, vLight, m_vObj, 2);
-	m_dxDepthPeeling->Render(m_dxGraphic->DContext());
-	
-	/*for (auto obj : m_vObj)
+	if (m_bUseDepthPeel)
 	{
-		obj->Update();
+		std::vector<Light*> vLight;
+		vLight.push_back(m_dLight);
+		m_dxDepthPeeling->Run(m_camera, vLight, m_vObj, m_nDepthPeel);
+		m_dxDepthPeeling->Render(m_dxGraphic->DContext());
 	}
-
-	for (auto obj : m_vObj)
+	else
 	{
-		obj->Render(m_dxGraphic->DContext(), m_camera->VMat(), m_camera->ProjMat(), m_camera->GetFrustum());
-	}*/
-	
-	m_dxCanvas->Update(m_scnMousePos);
+		XMFLOAT3 eye = m_camera->transform->GetPos();
 
-	//m_dxGraphic->BindView();
+		m_cbEye->Write(m_dxGraphic->DContext(), &eye);
+		m_dxGraphic->DContext()->PSSetConstantBuffers(SHADER_REG_CB_EYE, 1, m_cbEye->GetAddress());
+
+		XMMATRIX v = m_camera->VMat();
+		XMMATRIX p = m_camera->ProjMat();
+
+		for (auto it = m_vObj.begin(); it != m_vObj.end(); ++it)
+		{
+			(*it)->Update();
+			(*it)->Render(m_dxGraphic->DContext(), v, p, nullptr);
+		}
+	}
 }
 
 void PlayScene::WM_LButtonDown()
@@ -224,64 +234,8 @@ void PlayScene::WM_MouseMove(LPARAM lparam)
 	m_scnMousePos.y = p.y;
 }
 
-#include <opencv2/opencv.hpp>
-#pragma comment(lib,"C:/IMS/Library/opencv/x64/vc15/lib/opencv_world430d.lib")
-
-void PlayScene::MakeDepthFile(ID3D11DepthStencilView* dsv, std::string strFileName)
+void PlayScene::SetTransparency(int nTime)
 {
-	D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc;
-	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-	ID3D11Texture2D* depthTex;
-	ID3D11Texture2D* stageTex;
-	D3D11_TEXTURE2D_DESC stageTexDesc;
-
-	ID3D11Resource* tmpResource;
-	dsv->GetResource(&tmpResource);
-	depthTex = (ID3D11Texture2D*)tmpResource;
-
-	depthTex->GetDesc(&stageTexDesc);
-
-	stageTexDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	stageTexDesc.BindFlags = 0;
-	stageTexDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
-	stageTexDesc.Usage = D3D11_USAGE_STAGING;
-	m_dxGraphic->Device()->CreateTexture2D(&stageTexDesc, nullptr, &stageTex);
-	
-	m_dxGraphic->DContext()->CopyResource(stageTex, depthTex);
-	
-	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	
-	ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
-	m_dxGraphic->DContext()->Map(stageTex, 0, D3D11_MAP_READ, 0, &mappedResource);
-	int nSize = mappedResource.RowPitch * stageTexDesc.Height;
-	unsigned char*const pTest = (unsigned char*)malloc(nSize);
-	ZeroMemory(pTest, nSize);
-	memcpy(pTest, mappedResource.pData, nSize);
-	m_dxGraphic->DContext()->Unmap(stageTex, 0);
-
-	std::ofstream outdata;
-	std::string strFullName = "C:\\Users\\Jun\\Desktop\\depth_result\\" + strFileName + ".csv";
-	outdata.open(strFullName.c_str());
-	if (!outdata.is_open()) return;
-
-	outdata << "WIDTH = " << stageTexDesc.Width << std::endl;
-	outdata << "HEIGHT = " << stageTexDesc.Height << std::endl;
-	for (int y = 0; y < stageTexDesc.Height; ++y)
-	{
-		for (int x = 0; x < stageTexDesc.Width; ++x)
-		{
-			int index = x + y * stageTexDesc.Width;
-
-			int value = *(int*)(pTest + size_t(mappedResource.RowPitch) * y + x * sizeof(int));
-
-			outdata << value << ",";
-		}
-		outdata << std::endl;
-	}
-
-	outdata.close();
-
-	stageTex->Release();
-
-	exit(-1);
+	m_bUseDepthPeel = (nTime != 0);
+	m_nDepthPeel = nTime;
 }

@@ -51,6 +51,10 @@ void WndDXDisplay::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 			}
 			break;
 			
+			case ID_CONTROL_TRANSPARENCY:
+
+				m_scene->SetTransparency(lparam);
+				break;
 		}
 		break;
 	case WM_LBUTTONDOWN:
@@ -92,3 +96,4 @@ void WndDXDisplay::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 		break;
 	}
 }
+

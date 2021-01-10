@@ -3,8 +3,8 @@
 
 namespace DX {
 
-class Mesh;
+	class Mesh;
 
-	inline void DXLIB_DLL Load(ID3D11Device* device, std::vector<Mesh*>* storage, std::string filepath, std::string filename);
+	DXLIB_DLL void LoadOBJ(ID3D11Device* device, std::vector<Mesh*>* storage, std::string filepath, std::string filename);
 }
 
