@@ -173,14 +173,6 @@ void DX::DepthPeeling::Render(ID3D11DeviceContext* dContext)
 	}
 }
 
-void DX::DepthPeeling::ApplyDSV(int index)
-{
-	ID3D11RenderTargetView* oriRTV;
-	ID3D11DepthStencilView* oriDTV;
-	m_dxGraphic->DContext()->OMGetRenderTargets(1, &oriRTV, &oriDTV);
-	m_dxGraphic->DContext()->OMSetRenderTargets(1, &oriRTV, m_vdxPic[index].dsv);
-}
-
 void DX::DepthPeeling::GetSRV(int index, ID3D11ShaderResourceView** ppSRV)
 {
 	*ppSRV = m_vdxPic[index].depthSrv;
@@ -219,17 +211,9 @@ void DepthPeeling::Create(PictureInfo* picInfo)
 	m_dxGraphic->DContext()->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH, 1.0f, NULL);
 
 	depthSrvDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
-	switch (dsvDesc.ViewDimension)
-	{
-	case D3D11_DSV_DIMENSION_TEXTURE2D:
-		depthSrvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-		depthSrvDesc.Texture2D.MipLevels = 1;
-		depthSrvDesc.Texture2D.MostDetailedMip = 0;
-		break;
-	case D3D11_DSV_DIMENSION_TEXTURE2DMS:
-		depthSrvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DMS;
-		break;
-	}
+	depthSrvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	depthSrvDesc.Texture2D.MipLevels = 1;
+	depthSrvDesc.Texture2D.MostDetailedMip = 0;
 	m_dxGraphic->Device()->CreateShaderResourceView(depthTex, &depthSrvDesc, &depthSrv);
 	depthTex->Release();
 

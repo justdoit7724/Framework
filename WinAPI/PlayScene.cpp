@@ -36,8 +36,8 @@ PlayScene::PlayScene(DX::Graphic* graphic, const wchar_t* key)
 	);
 	m_dLight->Enable(true);
 
-	m_camera = new DX::Camera("cam", DX::FRAME_KIND_PERSPECTIVE, NULL, NULL, 0.001f, 500.0, XM_PIDIV2, 1, false);
-	//m_camera = new DX::Camera("cam", DX::FRAME_KIND_ORTHOGONAL, 600, 600, 0.001f, 100.0, NULL, NULL, false);
+	m_camera = new DX::Camera("cam", DX::FRAME_KIND_PERSPECTIVE, NULL, NULL, 0.001f, 500, XM_PIDIV2, 1, false);
+	//m_camera = new DX::Camera("cam", DX::FRAME_KIND_ORTHOGONAL, 600, 600, 0.001f, 1000.0, NULL, NULL, false);
 	m_camera->transform->SetTranslation(0,0,0);
 	m_camera->transform->SetRot(FORWARD);
 	m_camera->Update();
@@ -99,7 +99,7 @@ PlayScene::PlayScene(DX::Graphic* graphic, const wchar_t* key)
 	
 	
 	m_dxCanvas = new DX::UICanvas(graphic->DContext(), 600, 600);
-	m_dxTestUI = new DX::UI(graphic->Device(), graphic->DContext(), XMFLOAT2(150, 150), XMFLOAT2(300, 300), 0, nullptr);
+	m_dxTestUI = new DX::UI(graphic->Device(), graphic->DContext(), XMFLOAT2(0, 150), XMFLOAT2(150, 100), 0, m_dxBlueSRV);
 
 	//m_dxCanvas->Add(m_dxTestUI);
 
@@ -177,7 +177,6 @@ void PlayScene::Update(float elapsed, float spf)
 	vLight.push_back(m_dLight);
 	m_dxDepthPeeling->Run(m_camera, vLight, m_vObj, 2);
 	m_dxDepthPeeling->Render(m_dxGraphic->DContext());
-	
 	
 	/*for (auto obj : m_vObj)
 	{
