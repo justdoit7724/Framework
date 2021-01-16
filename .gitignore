@@ -17,6 +17,10 @@
 *.idb
 *.cso
 *.dll
+!Framework/x64/[Rr]elease/Assimp64.dll
+!Framework/x64/[Dd]ebug/Assimp64.dll
+!Framework/[Rr]elease/Assimp32.dll
+!Framework/[Dd]ebug/Assimp32.dll
 *.exp
 *.lib
 *.exe
