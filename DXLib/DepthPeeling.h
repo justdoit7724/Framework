@@ -22,7 +22,7 @@ namespace DX {
 		~DepthPeeling();
 
 		void Run(const Camera* cam, const std::vector<Light*>& lights, const std::vector<Object*>& objs, int nPic);
-		void Render(ID3D11DeviceContext* dContext);
+		void Render(ID3D11DeviceContext* dContext, int iIndex=-1);
 		void GetSRV(int index, ID3D11ShaderResourceView** ppSRV);
 		void GetDSV(int index, ID3D11DepthStencilView** ppDSV);
 		void GetRTV(int index, ID3D11RenderTargetView** ppRTV);

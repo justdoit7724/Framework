@@ -18,6 +18,7 @@ public:
 	virtual void WM_KeyDown(WPARAM wparam) {}
 	virtual void WM_KeyUp(WPARAM wparam) {}
 	virtual void WM_MouseMove(LPARAM lparam) {}
+	virtual void WM_MouseWheel(WPARAM wparam) {}
 	virtual void WM_Resize(int width, int height) {}
 
 	const wchar_t* m_key;
@@ -29,6 +30,7 @@ protected:
 	XMFLOAT2 m_scnMousePos;
 	bool m_bPressingRMouse;
 	bool m_bPressingLMouse;
+	int m_iMouseWheel;
 	int m_iWidth;
 	int m_iHeight;
 };

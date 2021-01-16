@@ -41,18 +41,31 @@ WndMain::WndMain(HINSTANCE hInstance, int x, int y, int width, int height)
 		m_hWnd, (HMENU)ID_CONTROL_TRANSPARENCY, hInstance, NULL);
 	for (int i = 0; i < 7; i++)
 		SendMessage(m_hlbDepthPeeling, LB_ADDSTRING, 0, (LPARAM)items[i]);
+	
+	m_hgbCurPeel = CreateWindow(
+		L"button",
+		L"Peeling Layer",
+		WS_CHILD | WS_VISIBLE | BS_GROUPBOX,
+		700, 275, 110, 60,
+		m_hWnd,
+		(HMENU)0,
+		hInstance,
+		NULL
+	);
 
 	m_DXDisplay = new WndDXDisplay(m_hInstance, m_hWnd, 30, 30, 600, 600,1);
 	m_DXDisplay->ShowWindow();
 
 	SendMessage(m_hlbDepthPeeling, LB_SETCURSEL, 0, 0);
+
 }
 
 WndMain::~WndMain()
 {
 	delete m_DXDisplay;
+	DestroyWindow(m_hlbDepthPeeling);
 	DestroyWindow(m_hWnd);
-
+	DestroyWindow(m_hgbCurPeel);
 }
 
 void WndMain::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
@@ -65,7 +78,16 @@ void WndMain::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 		{
 		case ID_COMMAND_REALTIME_UPDATE:
 			if (IsWindowVisible(m_DXDisplay->HWnd()))
+			{
 				SendMessage(m_DXDisplay->HWnd(), msg, wparam, lparam);
+
+				RECT roi;
+				roi.left = 700;
+				roi.top = 300;
+				roi.right = roi.left + 110;
+				roi.bottom = roi.top + 60;
+				InvalidateRect(hwnd, &roi, TRUE);
+			}
 			break;
 		case ID_CONTROL_TRANSPARENCY:
 
@@ -83,6 +105,34 @@ void WndMain::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 			break;
 		}
 		break;
+	case WM_PAINT:
+	{
+		PAINTSTRUCT ps;
+		HDC dc = BeginPaint(hwnd, &ps);
+
+		int iCurSel = SendMessage(m_hlbDepthPeeling, LB_GETCURSEL, NULL, NULL);
+
+		int iPeelingIndex = m_DXDisplay->GetPeelIndex();
+
+		std::string strPeelingIndex = "None";
+		if (iCurSel != 0)
+		{
+			strPeelingIndex = std::to_string(iPeelingIndex);
+
+			if (iPeelingIndex == -1)
+			{
+				strPeelingIndex = "All";
+			}
+		}
+
+		SetBkColor(dc, RGB(240, 240, 240));
+		TextOutA(dc, 720, 300, strPeelingIndex.c_str(), strPeelingIndex.size());
+
+		TextOutA(dc, 850, 300, "Mouse wheel", 11);
+
+		EndPaint(hwnd, &ps);
+	}
+	break;
 	case WM_KEYDOWN:
 	{
 		switch (wparam)

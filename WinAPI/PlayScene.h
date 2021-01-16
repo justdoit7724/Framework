@@ -18,8 +18,10 @@ public:
 	void WM_KeyDown(WPARAM wparam)override;
 	void WM_KeyUp(WPARAM wparam)override;
 	void WM_MouseMove(LPARAM lparam)override;
+	void WM_MouseWheel(WPARAM wparam)override;
 
 	void SetTransparency(int nTime);
+	int GetPeelIndex();
 
 private:
 
@@ -41,6 +43,7 @@ private:
 
 	BOOL m_bUseDepthPeel;
 	int m_nDepthPeel;
+	int m_iCurPeel;
 };
 
 

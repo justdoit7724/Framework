@@ -67,9 +67,7 @@ DepthPeeling::DepthPeeling(Graphic* graphic)
 	m_renderQuad->transform->SetScale(2, 2, 1);
 	D3D11_DEPTH_STENCIL_DESC renderDepthDesc;
 	ZeroMemory(&renderDepthDesc, sizeof(D3D11_DEPTH_STENCIL_DESC));
-	renderDepthDesc.DepthEnable = TRUE;
-	renderDepthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
-	renderDepthDesc.DepthFunc = D3D11_COMPARISON_LESS;
+	renderDepthDesc.DepthEnable = FALSE;
 	renderDepthDesc.StencilEnable = FALSE;
 	D3D11_BLEND_DESC blendDesc;
 	blendDesc.AlphaToCoverageEnable = FALSE;
@@ -86,7 +84,6 @@ DepthPeeling::DepthPeeling(Graphic* graphic)
 	m_renderQuad->blendState->Modify(m_dxGraphic->Device(), &blendDesc);
 	m_renderQuad->vs->AddCB(m_dxGraphic->Device(), 0, 1, sizeof(SHADER_STD_TRANSF));
 	m_renderQuad->ps->AddSRV(SHADER_REG_SRV_DIFFUSE, 1); 
-	m_renderQuad->ps->AddSRV(SHADER_REG_SRV_DEPTH, 1);
 }
 
 DepthPeeling::~DepthPeeling()
@@ -161,14 +158,21 @@ void DepthPeeling::Run(const Camera* cam, const std::vector<Light*>& lights, con
 
 }
 
-void DX::DepthPeeling::Render(ID3D11DeviceContext* dContext)
+void DX::DepthPeeling::Render(ID3D11DeviceContext* dContext, int iIndex)
 {
 	Frustum nullFrustum;
 
-	for (auto it = m_vdxPic.rbegin(); it != m_vdxPic.rend(); it++)
+	if (iIndex < 0)
 	{
-		m_renderQuad->ps->WriteSRV(SHADER_REG_SRV_DIFFUSE, it->backSrv);
-		m_renderQuad->ps->WriteSRV(SHADER_REG_SRV_DEPTH, it->depthSrv);
+		for (auto it = m_vdxPic.rbegin(); it != m_vdxPic.rend(); it++)
+		{
+			m_renderQuad->ps->WriteSRV(SHADER_REG_SRV_DIFFUSE, it->backSrv);
+			m_renderQuad->Render(m_dxGraphic->DContext(), XMMatrixIdentity(), XMMatrixIdentity(), nullptr);
+		}
+	}
+	else
+	{
+		m_renderQuad->ps->WriteSRV(SHADER_REG_SRV_DIFFUSE, m_vdxPic[iIndex].backSrv);
 		m_renderQuad->Render(m_dxGraphic->DContext(), XMMatrixIdentity(), XMMatrixIdentity(), nullptr);
 	}
 }

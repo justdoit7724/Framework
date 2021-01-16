@@ -8,7 +8,7 @@ using namespace DX;
 
 PlayScene::PlayScene(DX::Graphic* graphic, const wchar_t* key)
 	:Scene(graphic, key),
-	m_bUseDepthPeel(FALSE)
+	m_bUseDepthPeel(FALSE), m_iCurPeel(0)
 {
 	m_keyboard = new Keyboard();
 
@@ -183,7 +183,10 @@ void PlayScene::Update(float elapsed, float spf)
 		std::vector<Light*> vLight;
 		vLight.push_back(m_dLight);
 		m_dxDepthPeeling->Run(m_camera, vLight, m_vObj, m_nDepthPeel);
-		m_dxDepthPeeling->Render(m_dxGraphic->DContext());
+		if(m_nDepthPeel <= m_iCurPeel)
+			m_dxDepthPeeling->Render(m_dxGraphic->DContext());
+		else
+			m_dxDepthPeeling->Render(m_dxGraphic->DContext(), m_iCurPeel);
 	}
 	else
 	{
@@ -234,8 +237,36 @@ void PlayScene::WM_MouseMove(LPARAM lparam)
 	m_scnMousePos.y = p.y;
 }
 
+void PlayScene::WM_MouseWheel(WPARAM wparam)
+{
+	if (m_nDepthPeel == 0)
+	{
+		m_iCurPeel = 0;
+		return;
+	}
+
+	if (GET_WHEEL_DELTA_WPARAM(wparam) == WHEEL_DELTA)
+	{
+		m_iCurPeel++;
+		if (m_iCurPeel >= m_nDepthPeel)
+			m_iCurPeel = m_nDepthPeel-1;
+	}
+	else
+	{
+		m_iCurPeel--;
+		if (m_iCurPeel < 0)
+			m_iCurPeel = -1;
+	}
+}
+
 void PlayScene::SetTransparency(int nTime)
 {
 	m_bUseDepthPeel = (nTime != 0);
 	m_nDepthPeel = nTime;
+	m_iCurPeel = -1;
+}
+
+int PlayScene::GetPeelIndex()
+{
+	return m_iCurPeel;
 }

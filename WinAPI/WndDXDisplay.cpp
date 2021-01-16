@@ -94,6 +94,13 @@ void WndDXDisplay::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 	case WM_MOUSEMOVE:
 		m_scene->WM_MouseMove(lparam);
 		break;
+	case WM_MOUSEWHEEL:
+		m_scene->WM_MouseWheel(wparam);
 	}
+}
+
+int WndDXDisplay::GetPeelIndex()
+{
+	return m_scene->GetPeelIndex();
 }
 

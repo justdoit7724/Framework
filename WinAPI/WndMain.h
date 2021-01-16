@@ -17,6 +17,6 @@ private:
 
 	WndDXDisplay* m_DXDisplay;
 	HWND m_hlbDepthPeeling;
-
+	HWND m_hgbCurPeel;
 };
 
