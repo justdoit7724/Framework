@@ -31,7 +31,7 @@
 ##!Framework/DirectXTK/lib/x86/[Rr]elease
 bld/
 [Bb]in/
-[Oo]bj/
+##[Oo]bj/
 [Ll]og/
 
 # Visual Studio 2015/2017 cache/options directory
@@ -73,8 +73,8 @@ StyleCopReport.xml
 *_i.h
 *.ilk
 *.meta
-*.obj
-!Framework/Data/Model/**/*.obj
+##*.obj
+##!Framework/Data/Model/**/*.obj
 *.iobj
 *.pch
 *.pdb
@@ -339,3 +339,5 @@ ASALocalRun/
 
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
+/DXLib/x64/Release
+/WinAPI/x64/Release
