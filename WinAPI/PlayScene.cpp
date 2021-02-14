@@ -7,8 +7,7 @@
 using namespace DX;
 
 PlayScene::PlayScene(DX::Graphic* graphic, const wchar_t* key)
-	:Scene(graphic, key),
-	m_bUseDepthPeel(FALSE), m_iCurPeel(0)
+	:Scene(graphic, key)
 {
 	m_keyboard = new Keyboard();
 
@@ -38,28 +37,18 @@ PlayScene::PlayScene(DX::Graphic* graphic, const wchar_t* key)
 	m_dLight->Enable(true);
 
 	m_camera = new DX::Camera("cam", DX::FRAME_KIND_PERSPECTIVE, NULL, NULL, 0.001f, 500, XM_PIDIV2, 1, false);
-	//m_camera = new DX::Camera("cam", DX::FRAME_KIND_ORTHOGONAL, 600, 600, 0.001f, 1000.0, NULL, NULL, false);
 	m_camera->transform->SetTranslation(0,0,0);
 	m_camera->transform->SetRot(FORWARD);
 	m_camera->Update();
 
-	auto mat = m_camera->ProjMat();
-	auto result = DX::Multiply(XMFLOAT4(300, 0, 10, 1), mat);
-
 
 	m_cbEye = new DX::Buffer(graphic->Device(), sizeof(XMFLOAT4));
 
-	m_dxDepthPeeling = new DX::DepthPeeling(graphic);
+	std::vector<DX::Mesh*> vMesh;
+	DX::SkinnedData* skinnedData = new DX::SkinnedData();
+	DX::LoadOBJ(graphic->Device(), skinnedData, "C:\\Users\\Jun\\Downloads\\model(bot)\\56-sphere-bot-basic\\Sphere-Bot Basic", "Armature_001-(COLLADA_3 (COLLAborative Design Activity)).dae");
 
-	std::vector<Mesh*> vdxMesh;
-	DX::LoadOBJ(
-		graphic->Device(),
-		&vdxMesh,
-		__FILE__"\\..\\..\\Data\\Model\\OBJ\\",
-		"SKULL_low.obj");
-
-
-	std::shared_ptr<DX::Mesh> pObjMesh(vdxMesh[0]);
+	std::shared_ptr<DX::Mesh> pObjMesh(vMesh[0]);
 
 	DX::LoadTexture(graphic->Device(), graphic->DContext(), __FILE__"\\..\\..\\Data\\Texture\\red_light.png", &m_dxRedSRV);
 	DX::LoadTexture(graphic->Device(), graphic->DContext(), __FILE__"\\..\\..\\Data\\Texture\\green_light.png", &m_dxGreenSRV);
@@ -67,52 +56,11 @@ PlayScene::PlayScene(DX::Graphic* graphic, const wchar_t* key)
 	DX::LoadTexture(graphic->Device(), graphic->DContext(), __FILE__"\\..\\..\\Data\\Texture\\white.png", &m_dxWhiteSRV);
 	DX::LoadTexture(graphic->Device(), graphic->DContext(), __FILE__"\\..\\..\\Data\\Texture\\default_normal.png", &m_dxNormSRV);
 
-	D3D11_DEPTH_STENCIL_DESC dsDesc;
-	ZeroMemory(&dsDesc, sizeof(D3D11_DEPTH_STENCIL_DESC));
-	dsDesc.DepthEnable = FALSE;
-	dsDesc.StencilEnable = FALSE;
-	D3D11_BLEND_DESC blendDesc;
-	blendDesc.AlphaToCoverageEnable = FALSE;
-	blendDesc.IndependentBlendEnable = FALSE;
-	blendDesc.RenderTarget[0].BlendEnable = TRUE;
-	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-	blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
-	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
-	blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
-	blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
-	blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
-	blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_MAX;
 
-	for (int x = 0; x < 3; ++x)
-	{
-		DX::Object* dxObj;
-		dxObj = new DX::Object(graphic->Device(), graphic->DContext(), "obj", pObjMesh, nullptr, m_dxRedSRV, m_dxNormSRV);
-		dxObj->transform->SetScale(50, 50, 50);
-		dxObj->transform->SetTranslation(x * 120, 0, 0);
-		dxObj->blendState->Modify(graphic->Device(), &blendDesc);
-		dxObj->dsState->Modify(graphic->Device(), &dsDesc);
-		m_vObj.push_back(dxObj);
-	}
-	for (int x = 0; x < 3; ++x)
-	{
-		DX::Object* dxObj;
-		dxObj = new DX::Object(graphic->Device(), graphic->DContext(), "obj", pObjMesh, nullptr, m_dxGreenSRV, m_dxNormSRV);
-		dxObj->transform->SetScale(50, 50, 50);
-		dxObj->transform->SetTranslation(x * 120, 0, 120);
-		dxObj->blendState->Modify(graphic->Device(), &blendDesc);
-		dxObj->dsState->Modify(graphic->Device(), &dsDesc);
-		m_vObj.push_back(dxObj);
-	}
-	for (int x = 0; x < 3; ++x)
-	{
-		DX::Object* dxObj;
-		dxObj = new DX::Object(graphic->Device(), graphic->DContext(), "obj", pObjMesh, nullptr, m_dxBlueSRV, m_dxNormSRV);
-		dxObj->transform->SetScale(50, 50, 50);
-		dxObj->transform->SetTranslation(x * 120, 0, 240);
-		dxObj->blendState->Modify(graphic->Device(), &blendDesc);
-		dxObj->dsState->Modify(graphic->Device(), &dsDesc);
-		m_vObj.push_back(dxObj);
-	}
+	DX::Object* dxObj;
+	dxObj = new DX::Object(graphic->Device(), graphic->DContext(), "obj", pObjMesh, nullptr, m_dxRedSRV, m_dxNormSRV);
+	dxObj->transform->SetScale(1, 1, 1);
+	m_vObj.push_back(dxObj);
 }
 
 PlayScene::~PlayScene()
@@ -126,7 +74,6 @@ PlayScene::~PlayScene()
 	SAFEDELETE(m_camera);
 	SAFEDELETE(m_cbEye);
 	SAFEDELETE(m_keyboard);
-	SAFEDELETE(m_dxDepthPeeling);
 	m_dxSamp->Release();
 
 	for (auto it = m_vObj.begin(); it != m_vObj.end(); ++it)
@@ -178,31 +125,18 @@ void PlayScene::Update(float elapsed, float spf)
 	m_camera->transform->SetRot(f, u);
 	m_camera->Update();
 
-	if (m_bUseDepthPeel)
+	XMFLOAT3 eye = m_camera->transform->GetPos();
+
+	m_cbEye->Write(m_dxGraphic->DContext(), &eye);
+	m_dxGraphic->DContext()->PSSetConstantBuffers(SHADER_REG_CB_EYE, 1, m_cbEye->GetAddress());
+
+	XMMATRIX v = m_camera->VMat();
+	XMMATRIX p = m_camera->ProjMat();
+
+	for (auto it = m_vObj.begin(); it != m_vObj.end(); ++it)
 	{
-		std::vector<Light*> vLight;
-		vLight.push_back(m_dLight);
-		m_dxDepthPeeling->Run(m_camera, vLight, m_vObj, m_nDepthPeel);
-		if(m_nDepthPeel <= m_iCurPeel)
-			m_dxDepthPeeling->Render(m_dxGraphic->DContext());
-		else
-			m_dxDepthPeeling->Render(m_dxGraphic->DContext(), m_iCurPeel);
-	}
-	else
-	{
-		XMFLOAT3 eye = m_camera->transform->GetPos();
-
-		m_cbEye->Write(m_dxGraphic->DContext(), &eye);
-		m_dxGraphic->DContext()->PSSetConstantBuffers(SHADER_REG_CB_EYE, 1, m_cbEye->GetAddress());
-
-		XMMATRIX v = m_camera->VMat();
-		XMMATRIX p = m_camera->ProjMat();
-
-		for (auto it = m_vObj.begin(); it != m_vObj.end(); ++it)
-		{
-			(*it)->Update();
-			(*it)->Render(m_dxGraphic->DContext(), v, p, nullptr);
-		}
+		(*it)->Update();
+		(*it)->Render(m_dxGraphic->DContext(), v, p, nullptr);
 	}
 }
 
@@ -239,34 +173,4 @@ void PlayScene::WM_MouseMove(LPARAM lparam)
 
 void PlayScene::WM_MouseWheel(WPARAM wparam)
 {
-	if (m_nDepthPeel == 0)
-	{
-		m_iCurPeel = 0;
-		return;
-	}
-
-	if (GET_WHEEL_DELTA_WPARAM(wparam) == WHEEL_DELTA)
-	{
-		m_iCurPeel++;
-		if (m_iCurPeel >= m_nDepthPeel)
-			m_iCurPeel = m_nDepthPeel-1;
-	}
-	else
-	{
-		m_iCurPeel--;
-		if (m_iCurPeel < 0)
-			m_iCurPeel = -1;
-	}
-}
-
-void PlayScene::SetTransparency(int nTime)
-{
-	m_bUseDepthPeel = (nTime != 0);
-	m_nDepthPeel = nTime;
-	m_iCurPeel = -1;
-}
-
-int PlayScene::GetPeelIndex()
-{
-	return m_iCurPeel;
 }

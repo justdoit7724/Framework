@@ -2,6 +2,8 @@
 
 #include "Component.h"
 
+#define MESH_MAX 64
+
 namespace DX {
 	struct Vertex;
 

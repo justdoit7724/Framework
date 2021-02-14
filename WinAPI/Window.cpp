@@ -18,7 +18,7 @@ Window::Window(HINSTANCE hInstance, std::wstring className)
 	wc.hIcon = NULL;
 	wc.hIconSm = NULL;
 	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-	wc.hbrBackground = (HBRUSH)(COLOR_BTNSHADOW);
+	wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
 	wc.lpszMenuName = NULL;
 	wc.lpszClassName = m_wstrName.c_str();
 	wc.cbSize = sizeof(WNDCLASSEX);

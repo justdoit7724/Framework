@@ -152,6 +152,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Algorithm.h" />
+    <ClInclude Include="Animation.h" />
     <ClInclude Include="AStar.h" />
     <ClInclude Include="BlendState.h" />
     <ClInclude Include="Buffer.h" />
@@ -180,6 +181,10 @@
     <ClInclude Include="ObjectObsInfo.h" />
     <ClInclude Include="ObjectPool.h" />
     <ClInclude Include="ObserverDP.h" />
+    <ClInclude Include="Parser\ColladaExporter.h" />
+    <ClInclude Include="Parser\ColladaHelper.h" />
+    <ClInclude Include="Parser\ColladaLoader.h" />
+    <ClInclude Include="Parser\ColladaParser.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Physic.h" />
     <ClInclude Include="PostProcessing.h" />
@@ -199,6 +204,7 @@
     <ClInclude Include="UnlitObj.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Animation.cpp" />
     <ClCompile Include="AStar.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
@@ -307,6 +313,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Parser\ColladaExporter.cpp" />
+    <ClCompile Include="Parser\ColladaLoader.cpp" />
+    <ClCompile Include="Parser\ColladaParser.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

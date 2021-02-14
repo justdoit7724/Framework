@@ -12,8 +12,6 @@ public:
 
 	void WndProc(HWND hwnd, UINT MSG, WPARAM wparam, LPARAM lparam) override;
 
-	int GetPeelIndex();
-
 private:
 
 	DX::Graphic* m_dxGraphic;

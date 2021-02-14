@@ -7,10 +7,11 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 	CoInitialize(NULL);
 
-
 	srand(time(NULL));
 
-	Window* mainWnd = new WndMain(hInstance, 50,50, 1000, 700);
+	double dScnSizeX = GetSystemMetrics(SM_CXSCREEN);
+	double dScnSizeY = GetSystemMetrics(SM_CYSCREEN);
+	Window* mainWnd = new WndMain(hInstance, 0,0, dScnSizeX, dScnSizeY);
 	mainWnd->ShowWindow();
 
 	Timer timer;

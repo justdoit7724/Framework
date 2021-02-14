@@ -36,3 +36,4 @@
 #include "UI.h"
 #include "DepthPeeling.h"
 #include "MeshLoader.h"
+#include "Animation.h"

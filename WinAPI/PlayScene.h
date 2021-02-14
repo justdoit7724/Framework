@@ -20,16 +20,11 @@ public:
 	void WM_MouseMove(LPARAM lparam)override;
 	void WM_MouseWheel(WPARAM wparam)override;
 
-	void SetTransparency(int nTime);
-	int GetPeelIndex();
-
 private:
 
 	DX::DirectionalLight* m_dLight;
 	DX::Camera* m_camera;
 	DX::Buffer* m_cbEye;
-
-	DX::DepthPeeling* m_dxDepthPeeling;
 
 	ID3D11ShaderResourceView* m_dxRedSRV;
 	ID3D11ShaderResourceView* m_dxBlueSRV;
@@ -40,10 +35,6 @@ private:
 	ID3D11SamplerState* m_dxSamp;
 
 	std::vector<DX::Object*> m_vObj;
-
-	BOOL m_bUseDepthPeel;
-	int m_nDepthPeel;
-	int m_iCurPeel;
 };
 
 
