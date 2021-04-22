@@ -1,14 +1,32 @@
 #include "stdafx.h"
 #include "Scene.h"
-#include "Scene.h"
-#include "Keyboard.h"
+#include "SceneMgr.h"
+#include "Object.h"
+#include "PaneModelScene.h"
 
-
-Scene::Scene(DX::Graphic* graphic, const wchar_t* key)
-	:m_dxGraphic(graphic), m_key(key),m_iWidth(0), m_iHeight(0), m_iMouseWheel(0)
+Scene::Scene(DX::Graphic* graphic, std::string key)
+	:m_dxGraphic(graphic), m_strKey(key)
 {
+	SGL_SceneMgr.Add(graphic, this);
 }
 
 Scene::~Scene()
 {
+	SGL_SceneMgr.Remove(m_dxGraphic, m_strKey);
+}
+
+void Scene::Update()
+{
+	for (auto obj : m_vRootObj)
+	{
+		obj->Update(m_dxGraphic);
+	}
+}
+
+void Scene::Render()
+{
+	for (auto obj : m_vRootObj)
+	{
+		obj->Render(m_dxGraphic);
+	}
 }

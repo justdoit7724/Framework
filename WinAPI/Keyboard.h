@@ -1,14 +1,29 @@
 #pragma once
+#include "Singleton.h"
+
+#define SGL_Keyboard Keyboard::Instance()
+
+enum class KEYBOARD_STATE
+{
+	NONE,
+	DOWN,
+	PRESSING,
+	UP
+};
 
 class Keyboard
 {
-private:
+	SET_SINGLETON(Keyboard)
 
-	std::unordered_set<char> keys;
+private:
+	KEYBOARD_STATE m_arKey[256];
 
 public:
+	
+	void Init();
 	void Press(const unsigned __int64 wparam);
 	void Release(const unsigned __int64 wparam);
-	bool IsPressing(const char c);
+	void Update();
+	KEYBOARD_STATE GetState(const char c);
 };
 

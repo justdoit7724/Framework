@@ -10,8 +10,6 @@
 #include "BlendState.h"
 #include "DepthStencilState.h"
 #include "RasterizerState.h"
-#include "Transform.h"
-#include "Camera.h"
 
 #include "Network.h"
 #include "LayerMask.h"
@@ -290,7 +288,8 @@ void Debugging::Render(ID3D11DeviceContext* dContext, int iScnWidth, int iScnHei
 			continue;
 		markTransform->SetTranslation(marks[i].pos);
 		markTransform->SetScale(marks[i].rad*2.0f);
-		markVS->WriteCB(dContext, 0, &(markTransform->WorldMatrix() * vp));
+		XMMATRIX wvp = markTransform->WorldMatrix() * vp;
+		markVS->WriteCB(dContext, 0, &wvp);
 		markPS->WriteCB(dContext,SHADER_REG_CB_COLOR, &(marks[i].color));
 		markVS->Apply(dContext);
 		markPS->Apply(dContext);

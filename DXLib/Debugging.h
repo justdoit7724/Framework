@@ -1,7 +1,7 @@
 #pragma once
 
-#include "_Packages\directxtk_desktop_2015.2019.12.17.1\include\SpriteBatch.h"
-#include "_Packages\directxtk_desktop_2015.2019.12.17.1\include\SpriteFont.h"
+#include "..\Packages\directxtk_desktop_2015.2019.12.17.1\include\SpriteBatch.h"
+#include "..\Packages\directxtk_desktop_2015.2019.12.17.1\include\SpriteFont.h"
 
 #define MARK_MAX 220
 

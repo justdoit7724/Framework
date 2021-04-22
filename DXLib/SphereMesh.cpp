@@ -49,7 +49,7 @@ void Subdivide(std::vector<XMFLOAT3>& vertice, std::vector<UINT>& indice)
 }
 
 SphereMesh::SphereMesh(ID3D11Device* device, int numSubDivision)
-	:Mesh()
+	:Mesh(1)
 {
 	// Put a cap on the number of subdivisions. 
 	numSubDivision = fminf(numSubDivision, 3u);
@@ -110,14 +110,14 @@ SphereMesh::SphereMesh(ID3D11Device* device, int numSubDivision)
 			-sinf(theta)
 		);
 		
-		vertice2.push_back(Vertex(pos/2.0f, n, tex, tangent));
+		vertice2.push_back(Vertex(pos/2.0f, n, tex, tangent, 0));
 	}
 
 	Vertex* verticeData = vertice2.data();
 	UINT* indiceData = indice.data();
 
 
-	Init(device, verticeData, sizeof(Vertex), vertice2.size(), indiceData, indice.size(), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	SetSubMesh(device, 0, verticeData, sizeof(Vertex), vertice2.size(), indiceData, indice.size(), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 

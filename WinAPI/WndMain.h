@@ -1,20 +1,25 @@
 #pragma once
 #include "Window.h"
 
-class WndDXDisplay;
-
+class WndDisplay;
+class WndPaneModel;
 
 class WndMain :
 	public Window
 {
 public:
-	WndMain(HINSTANCE hInstance, int x, int y, int width, int height);
+	WndMain(HINSTANCE hInstance);
 	~WndMain();
 
 	void WndProc(HWND hwnd, UINT MSG, WPARAM wparam, LPARAM lparam) override;
 
 private:
 
-	WndDXDisplay* m_DXDisplay;
+	HWND m_hPaneScene;
+	HWND m_hPaneModel;
+	HWND m_hPaneAnimation;
+
+
+	WndDisplay* m_DXDisplay;
 };
 

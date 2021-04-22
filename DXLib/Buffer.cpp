@@ -2,9 +2,8 @@
 #include "pch.h"
 #include "Buffer.h"
 
-using namespace DX;
-Buffer::Buffer(ID3D11Device* device, D3D11_BUFFER_DESC* desc, void * initValue)
-	:desc(*desc)
+Buffer::Buffer(ID3D11Device* device, D3D11_BUFFER_DESC desc, const void * initValue)
+	:desc(desc)
 {
 	D3D11_SUBRESOURCE_DATA data;
 	data.pSysMem = initValue;
@@ -12,30 +11,30 @@ Buffer::Buffer(ID3D11Device* device, D3D11_BUFFER_DESC* desc, void * initValue)
 	if (initValue == nullptr)
 	{
 		HRESULT hr = device->CreateBuffer(
-				desc,
+				&desc,
 				nullptr,
 				&m_resource);
-		r_assert(hr);
+		if (FAILED(hr))
+		{
+			return;
+		}
 	}
 	else
 	{
 		HRESULT hr = device->CreateBuffer(
-				desc,
+				&desc,
 				&data,
 				&m_resource);
-		r_assert(hr);
+		if (FAILED(hr))
+		{
+			return;
+		}
 	}
 }
 
 UINT SizeCB(UINT byteSize)
 {
 	return (15 + byteSize - (byteSize - 1) % 16);
-}
-Buffer::Buffer(ID3D11Device* device, UINT byteSize)
-	:desc(CD3D11_BUFFER_DESC(SizeCB(byteSize), D3D11_BIND_CONSTANT_BUFFER, D3D11_USAGE_DYNAMIC, D3D11_CPU_ACCESS_WRITE, 0, 0))
-{
-	HRESULT hr = device->CreateBuffer(&desc, nullptr, &m_resource);
-	r_assert(hr);
 }
 
 Buffer::~Buffer()
@@ -57,7 +56,10 @@ void Buffer::SetSRV(ID3D11Device* device, D3D11_SHADER_RESOURCE_VIEW_DESC* srvDe
 			m_resource,
 			srvDesc,
 			&m_srv);
-	r_assert(hr);
+	if (FAILED(hr))
+	{
+		return;
+	}
 }
 void Buffer::SetUAV(ID3D11Device* device, D3D11_UNORDERED_ACCESS_VIEW_DESC * uavDesc)
 {
@@ -68,7 +70,10 @@ void Buffer::SetUAV(ID3D11Device* device, D3D11_UNORDERED_ACCESS_VIEW_DESC * uav
 			m_resource,
 			uavDesc,
 			&m_uav);
-	r_assert(hr);
+	if (FAILED(hr))
+	{
+		return;
+	}
 }
 
 void Buffer::Write(ID3D11DeviceContext* dContext, const void * data)
@@ -80,12 +85,46 @@ void Buffer::Write(ID3D11DeviceContext* dContext, const void * data)
 	dContext->Unmap(m_resource, 0);
 }
 
-void DX::Buffer::GetSRV(ID3D11ShaderResourceView** srv)
+void Buffer::GetSRV(ID3D11ShaderResourceView** srv)
 {
 	*srv = m_srv;
 }
 
-void DX::Buffer::GetUAV(ID3D11UnorderedAccessView** uav)
+void Buffer::GetUAV(ID3D11UnorderedAccessView** uav)
 {
 	*uav = m_uav;
+}
+
+ConstantBuffer::ConstantBuffer(ID3D11Device* device, int byteSize)
+	:Buffer(device, CD3D11_BUFFER_DESC(SizeCB(byteSize), D3D11_BIND_CONSTANT_BUFFER, D3D11_USAGE_DYNAMIC, D3D11_CPU_ACCESS_WRITE, NULL, NULL), nullptr)
+{
+}
+
+VertexBuffer::VertexBuffer(ID3D11Device* device, const void* vertice, int verticeCount, int vertexByteStride)
+	: Buffer(device, CD3D11_BUFFER_DESC(verticeCount* vertexByteStride, D3D11_BIND_VERTEX_BUFFER, D3D11_USAGE_IMMUTABLE, NULL, NULL, NULL), vertice),
+	m_verticeCount(verticeCount),
+	m_vertexByteStride(vertexByteStride)
+
+{
+}
+BOOL VertexBuffer::Apply(ID3D11DeviceContext* dContext)
+{
+	UINT offset = 0;
+	UINT stride = m_vertexByteStride;
+	dContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	dContext->IASetVertexBuffers(0, 1, GetAddress(), &stride, &offset);
+	return TRUE;
+}
+IndexBuffer::IndexBuffer(ID3D11Device* device, const UINT* indice, int indexCount)
+	: Buffer(device, CD3D11_BUFFER_DESC(sizeof(UINT)* indexCount, D3D11_BIND_INDEX_BUFFER, D3D11_USAGE_IMMUTABLE, NULL, NULL, NULL), indice),
+	m_indiceCount(indexCount)
+{
+}
+
+BOOL IndexBuffer::Apply(ID3D11DeviceContext* dContext)
+{
+	dContext->IASetIndexBuffer(Get(), DXGI_FORMAT_R32_UINT, 0);
+	dContext->DrawIndexed(m_indiceCount, 0, 0);
+
+	return TRUE;
 }

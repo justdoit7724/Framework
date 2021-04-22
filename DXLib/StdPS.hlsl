@@ -3,17 +3,11 @@
 #include "ShaderLight.cginc"
 #include "ShaderReg.cginc"
 #include "ShaderNormal.cginc"
-#include "ShaderSampPoint.cginc"
-
-cbuffer EYE : SHADER_REG_CB_EYE
-{
-    float4 eyePos;
-};
 
 
-Texture2D diffuseTex : SHADER_REG_SRV_DIFFUSE;
-//...
-
+SHADER_REG_CB_EYE
+SHADER_REG_SRV_MATERIAL
+SHADER_REG_SAMP_POINT
 
 struct PS_INPUT
 {
@@ -24,6 +18,7 @@ struct PS_INPUT
     float2 tex : TEXCOORD4;
     //float3 tangent : TEXCOORD4;
 };
+
 float4 main(PS_INPUT input) : SV_Target
 {
 	input.normal = normalize(input.normal);
@@ -43,11 +38,11 @@ float4 main(PS_INPUT input) : SV_Target
     float3 sSpecular = 0;
     ComputeSpotLight(input.wPos, input.normal, v, sAmbient, sDiffuse, sSpecular);
     
-    float3 tex = diffuseTex.Sample(pointSamp, input.tex).xyz;
+    float3 tex = srvSubMatDiff.Sample(pointSamp, input.tex).xyz;
     
     float3 ambient = (dAmbient + pAmbient + sAmbient) * tex;
     float3 diffuse = (dDiffuse + pDiffuse + sDiffuse) * tex;
     float3 spec = (dSpecular + pSpecular + sSpecular);
     
-    return float4(spec + ambient + diffuse, mDiffuse.w);
+    return float4(input.normal, mDiffuse.w);
 }

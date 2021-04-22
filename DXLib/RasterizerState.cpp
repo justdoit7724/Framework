@@ -3,8 +3,6 @@
 
 #include "RasterizerState.h"
 
-using namespace DX;
-
 RasterizerState::RasterizerState(ID3D11Device* device, D3D11_RASTERIZER_DESC* desc)
 {
 	D3D11_RASTERIZER_DESC curDesc;
@@ -22,7 +20,8 @@ RasterizerState::RasterizerState(ID3D11Device* device, D3D11_RASTERIZER_DESC* de
 	}
 
 	HRESULT hr = device->CreateRasterizerState(&curDesc, &state);
-	r_assert(hr);
+	if (FAILED(hr))
+		return;
 }
 RasterizerState::~RasterizerState()
 {

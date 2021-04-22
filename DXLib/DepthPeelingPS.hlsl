@@ -3,18 +3,12 @@
 #include "ShaderReg.cginc"
 #include "ShaderLight.cginc"
 #include "ShaderNormal.cginc"
-#include "ShaderSampPoint.cginc"
 
 
-cbuffer EYE : SHADER_REG_CB_EYE
-{
-    float4 eyePos;
-};
-
-
-Texture2D diffuseTex : SHADER_REG_SRV_DIFFUSE;
-
-Texture2D<float2> texPrevDepth : register(t10);
+SHADER_REG_CB_EYE
+SHADER_REG_SRV_MATERIAL
+SHADER_REG_SRV_DEPTH
+SHADER_REG_SAMP_POINT
 
 struct PS_INPUT
 {
@@ -63,7 +57,7 @@ PS_OUTPUT main(PS_INPUT input)
     float3 sSpecular = 0;
     ComputeSpotLight(input.wPos, input.normal, v, sAmbient, sDiffuse, sSpecular);
     
-    float3 surfaceTex = diffuseTex.Sample(pointSamp, input.tex).xyz;
+    float3 surfaceTex = srvSubMatDiff.Sample(pointSamp, input.tex).xyz;
     
     float3 ambient = (dAmbient + pAmbient + sAmbient) * surfaceTex;
     float3 diffuse = (dDiffuse + pDiffuse + sDiffuse) * surfaceTex;

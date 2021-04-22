@@ -3,6 +3,8 @@
 
 using namespace std::chrono;
 
+SET_SINGLETON_CPP(Timer, Init)
+
 float fpsSec = 0;
 void Timer::Update()
 {
@@ -24,7 +26,7 @@ float Timer::Elapsed()
 	return duration<double, std::deca>(high_resolution_clock::now() - first).count() * 10;
 }
 
-Timer::Timer()
+void Timer::Init()
 {
 
 	fps = 0;

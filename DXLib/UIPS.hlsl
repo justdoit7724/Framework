@@ -1,6 +1,6 @@
 
 #include "ShaderReg.cginc"
-#include "ShaderSampPoint.cginc"
+SHADER_REG_SAMP_POINT
 
 struct PS_INPUT
 {

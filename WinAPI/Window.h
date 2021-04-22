@@ -4,18 +4,18 @@
 #include "WindowDef.h"
 
 enum class WindowType {
-	Frame = WS_OVERLAPPED | WS_SYSMENU,
-	Popup=  WS_CHILD
+	Frame,
+	Child
 };
 
 class Window
 {
 public:
-	Window(HINSTANCE hInstance, std::wstring className);
-	Window(Window*&&);
+	Window(HINSTANCE hInstance, std::wstring className, WindowType wndType, HWND parent, int x, int y, int width, int height);
 	virtual ~Window();
 
-	void ShowWindow();
+	void ShowWindow(BOOL show);
+	void Focus();
 	void AddChild(Window* CWnd);
 	int GetX();
 	int GetY();
@@ -28,10 +28,11 @@ public:
 
 	virtual void WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {};
 
+	const std::wstring m_wstrName;
+
 protected:
 	HWND m_hWnd;
 	HINSTANCE m_hInstance;
-	const std::wstring m_wstrName;
 
 private:
 	Window(const Window&) = delete;

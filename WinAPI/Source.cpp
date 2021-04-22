@@ -1,7 +1,9 @@
 #include "stdafx.h"
 #include "WndMain.h"
-
+#include "WndMgr.h"
 #include "Timer.h"
+#include "Keyboard.h"
+#include "Mouse.h"
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 
@@ -9,12 +11,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 	srand(time(NULL));
 
-	double dScnSizeX = GetSystemMetrics(SM_CXSCREEN);
-	double dScnSizeY = GetSystemMetrics(SM_CYSCREEN);
-	Window* mainWnd = new WndMain(hInstance, 0,0, dScnSizeX, dScnSizeY);
-	mainWnd->ShowWindow();
-
-	Timer timer;
+	Window* mainWnd = new WndMain(hInstance);
+	mainWnd->ShowWindow(TRUE);
 
 	MSG msg;
 	ZeroMemory(&msg, sizeof(MSG));
@@ -29,9 +27,12 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		}
 		else
 		{
-			timer.Update();
+			SGL_TIMER.Update();
 
-			SendMessage(mainWnd->HWnd(), WM_COMMAND, ID_COMMAND_REALTIME_UPDATE, (LPARAM)&timer);
+			SGL_WND.UpdateDisplays();
+
+			SGL_Keyboard.Update();
+			SGL_Mouse.Update();
 		}
 	}
 

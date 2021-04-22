@@ -7,6 +7,7 @@
 using namespace DX;
 
 CylinderMesh::CylinderMesh(ID3D11Device* device, int sliceCount)
+	:Mesh(1)
 {
 	assert(sliceCount >= 3);
 
@@ -29,7 +30,7 @@ CylinderMesh::CylinderMesh(ID3D11Device* device, int sliceCount)
 			vertex.tex.y = 1.0f - i;
 
 			XMFLOAT3 tangent = XMFLOAT3(-s, 0, c);
-			XMFLOAT3 bitangent = -UP;
+			XMFLOAT3 bitangent = -DIR_UP;
 			vertex.n = Cross(tangent, bitangent);
 
 			vertice.push_back(vertex);
@@ -61,14 +62,14 @@ CylinderMesh::CylinderMesh(ID3D11Device* device, int sliceCount)
 
 		Vertex vertex;
 		vertex.pos = XMFLOAT3(x, hHeight, z);
-		vertex.n = UP;
+		vertex.n = DIR_UP;
 		vertex.tex = XMFLOAT2(u, v);
 		vertice.push_back(vertex);
 	}
 
 	Vertex vertex;
 	vertex.pos = XMFLOAT3(0, hHeight, 0);
-	vertex.n = UP;
+	vertex.n = DIR_UP;
 	vertex.tex = XMFLOAT2(0.5f, 0.5f);
 	vertice.push_back(vertex);
 
@@ -91,13 +92,13 @@ CylinderMesh::CylinderMesh(ID3D11Device* device, int sliceCount)
 
 		Vertex vertex;
 		vertex.pos = XMFLOAT3(x, -hHeight, z);
-		vertex.n = -UP;
+		vertex.n = -DIR_UP;
 		vertex.tex = XMFLOAT2(u, v);
 		vertice.push_back(vertex);
 	}
 
 	vertex.pos = XMFLOAT3(0, -hHeight, 0);
-	vertex.n = -UP;
+	vertex.n = -DIR_UP;
 	vertex.tex = XMFLOAT2(0.5f, 0.5f);
 	vertice.push_back(vertex);
 
@@ -110,5 +111,5 @@ CylinderMesh::CylinderMesh(ID3D11Device* device, int sliceCount)
 	}
 #pragma endregion
 
-	Init(device,vertice.data(), sizeof(Vertex), vertice.size(), indice.data(), indice.size(), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	SetSubMesh(device, 0,vertice.data(), sizeof(Vertex), vertice.size(), indice.data(), indice.size(), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }

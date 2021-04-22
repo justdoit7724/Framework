@@ -1,42 +1,40 @@
-
 #include "stdafx.h"
-
 #include "SceneMgr.h"
 #include "Scene.h"
 
-void SceneMgr::Add(const wchar_t* strID, Scene* scene)
-{
-	assert(list.find(strID) == list.end());
+SET_SINGLETON_CPP(SceneMgr, Init)
 
-	list.insert(std::pair<const wchar_t*, Scene*>(strID, scene));
+void SceneMgr::Add(DX::Graphic* graphic, Scene* scene)
+{
+	if (m_scenes[graphic->m_id].find(scene->m_strKey) != m_scenes[graphic->m_id].end())
+		return;
+
+	m_scenes[graphic->m_id][scene->m_strKey]= scene;
+}
+void SceneMgr::Remove(DX::Graphic* graphic, std::string key)
+{
+	if (m_scenes[graphic->m_id].find(key) == m_scenes[graphic->m_id].end())
+		return;
+
+	m_scenes[graphic->m_id].erase(key);
 }
 
-SceneMgr::SceneMgr()
+void SceneMgr::Update(DX::Graphic* graphic)
 {
-}
-
-SceneMgr::~SceneMgr()
-{
-	for (auto s : list)
+	for (auto scene : m_scenes[graphic->m_id])
 	{
-		delete s.second;
+		scene.second->Update();
 	}
 }
 
-void SceneMgr::BroadcastMessage(unsigned int msg)
+void SceneMgr::Render(DX::Graphic* graphic)
 {
-	/*for (auto s : list)
+	for (auto scene : m_scenes[graphic->m_id])
 	{
-		Scene* curScene = s.second;
-
-		s.second->Message(msg);
-	}*/
+		scene.second->Render();
+	}
 }
 
-void SceneMgr::Process(float wElapsed, float wSpf)
+void SceneMgr::Init()
 {
-	for (auto curScene : list)
-	{
-		curScene.second->Update(wElapsed, wSpf);
-	}
 }

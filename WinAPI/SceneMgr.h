@@ -1,24 +1,23 @@
 #pragma once
-
 #include "Singleton.h"
+
+#define SGL_SceneMgr SceneMgr::Instance()
 
 class Scene;
 
-class SceneMgr :
-	public Singleton<SceneMgr>
+class SceneMgr
 {
+	SET_SINGLETON(SceneMgr)
+
 public:
-	SceneMgr();
-	~SceneMgr();
-	void BroadcastMessage(unsigned int msg);
+	void Add(DX::Graphic* graphic, Scene* scene);
+	void Remove(DX::Graphic* graphic, std::string key);
+	void Update(DX::Graphic* graphic);
+	void Render(DX::Graphic* graphic);
 
-	void Process(float wElapsed, float wSpf);
-	void Add(const wchar_t* strID, Scene* scene);
 private:
+	void Init();
 
-	std::unordered_map<const wchar_t*, Scene*> list;
-	std::vector<const wchar_t*> executeOrder;
-
+	std::unordered_map<int, std::unordered_map<std::string, Scene*>> m_scenes;
 };
-
 

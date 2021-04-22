@@ -9,7 +9,7 @@ namespace DX {
 		LineMesh();
 
 		void Add(XMFLOAT3 a, XMFLOAT3 b);
-		void Generate(ID3D11Device* device);
+		void Generate(ID3D11Device* device, UINT id);
 		void Clear();
 		void Apply(ID3D11DeviceContext* dContext) const override;
 

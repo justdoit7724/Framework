@@ -21,8 +21,12 @@
 
 #include <d3d11.h>
 #include <d3dcompiler.h>
-
+#include <DirectXMath.h>
+#include <DirectXColors.h>
 #pragma comment(lib,"d3d11.lib")
+
+using namespace DirectX;
+
 
 
 #ifndef LOAD_LIBRARY
@@ -33,22 +37,18 @@
 
 #ifdef _WIN64
 
-#pragma comment(lib, __FILE__"/../_Packages/Assimp.3.0.0/lib_x64/assimp.lib")
-
 #ifdef _DEBUG
-#pragma comment(lib, __FILE__"\\..\\_Packages\\directxtk_desktop_2015.2019.12.17.1\\lib_x64\\_Debug\\DirectXTK.lib")
+#pragma comment(lib, __FILE__"/../../Packages/directxtk_desktop_2015.2019.12.17.1/lib_x64/_Debug/DirectXTK.lib")
 #else
-#pragma comment(lib, __FILE__"\\..\\_Packages\\directxtk_desktop_2015.2019.12.17.1\\lib_x64\\_Release\\DirectXTK.lib")
+#pragma comment(lib, __FILE__"/../../Packages/directxtk_desktop_2015.2019.12.17.1/lib_x64/_Release/DirectXTK.lib")
 #endif
 
 #else
 
-#pragma comment(lib, __FILE__"/../_Packages/Assimp.3.0.0/lib_win32/assimp.lib")
-
 #ifdef _DEBUG
-#pragma comment(lib, __FILE__"\\..\\_Packages\\directxtk_desktop_2015.2019.12.17.1\\lib_win32\\_Debug\\DirectXTK.lib")
+#pragma comment(lib, __FILE__"/../../Packages/directxtk_desktop_2015.2019.12.17.1/lib_win32/_Debug/DirectXTK.lib")
 #else
-#pragma comment(lib, __FILE__"\\..\\_Packages\\directxtk_desktop_2015.2019.12.17.1\\lib_win32\\_Release\\DirectXTK.lib")
+#pragma comment(lib, __FILE__"/../../Packages/directxtk_desktop_2015.2019.12.17.1/lib_win32/_Release/DirectXTK.lib")
 #endif
 
 #endif
@@ -63,8 +63,6 @@
 #include <set>
 #include <assert.h>
 #include <string>
-#include <DirectXMath.h>
-#include <DirectXColors.h>
 #include <limits>
 #include <memory>
 #include <queue>
@@ -76,21 +74,6 @@
 #include <stack>
 #include <fstream>
 
-using namespace DirectX;
-
-
-namespace DX {
-
-#define MB(s) \
-MessageBox(0,s,0,0);\
-exit(-1);
-
-#define r_assert(r)	\
-assert(SUCCEEDED(r))
-
-	
-
-}
-
+#include "PipelineRegFlag.h"
 
 #endif //PCH_H

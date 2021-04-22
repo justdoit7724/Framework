@@ -4,14 +4,20 @@
 #include <Windows.h>
 #include <string>
 #include <set>
+#include <map>
+#include <queue>
+#include <memory>
+#include <algorithm>
 #include <vector>
 #include <time.h>
 #include <assert.h>
 #include <iostream>
 #include <fstream>
+#include <mutex>
 
 #include <unordered_map>
 #include <unordered_set>
+#include <stack>
 
 #include "..\DXLib\DXLibExport.h"
 
@@ -35,15 +41,18 @@
 
 #define SAFEDELETE(p)\
 {\
-if (p) delete p; \
-p=nullptr;\
+if (p) delete (p); \
+(p)=nullptr;\
 }
 
 #define SAFEDELETEARR(p)\
 {\
-if (p) delete[] p; \
-p=nullptr;\
+if (p) delete[] (p); \
+(p)=nullptr;\
 }
+
+
+#include "Math.h"
 
 
 

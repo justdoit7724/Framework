@@ -1,35 +1,21 @@
 #pragma once
 
-template<class T>
-class Singleton {
 
-public:
-	~Singleton() {}
+#define SET_SINGLETON(classname)\
+public:\
+	~classname() {}\
+	static classname& Instance() {\
+		static classname instance;\
+		return instance;\
+	}\
+	classname(classname const&)=delete;\
+	classname& operator=(classname const&) =delete;\
+private:\
+	classname();
 
-	static T* Instance() {
-		if (instance == nullptr)
-		{
-			instance = new T();
-		}
-		return instance;
-	}
-
-	void Release()
-	{
-		delete instance;
-		instance = nullptr;
-	}
-
-protected:
-	Singleton() {}
-
-
-private:
-	Singleton(Singleton const&) {};
-	Singleton& operator=(Singleton const&) {};
-	static T* instance;
-};
-
-
-template<class T>
-T* Singleton<T>::instance = nullptr;
+#define SET_SINGLETON_CPP(classname, func)\
+classname::classname()\
+{\
+	classname::func();\
+}
+	

@@ -1,11 +1,14 @@
 #pragma once
-
+#include "Singleton.h"
 #include <chrono>
+
+#define SGL_TIMER Timer::Instance()
 
 class Timer
 {
+	SET_SINGLETON(Timer)
+
 public:
-	Timer();
 	void Update();
 	float Elapsed();
 	unsigned int FPS() {
@@ -21,5 +24,7 @@ private:
 
 	float spf;
 	int fps;
+
+	void Init();
 };
 

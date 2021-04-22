@@ -1,38 +1,29 @@
 #pragma once
+#include "WndDisplay.h"
 
-class Keyboard;
+
+class Object;
 
 class Scene
 {
 public:
 	virtual ~Scene();
 
-	virtual void Update(float elapsed, float spf) = 0;
-
-	virtual void Message(UINT msg) {}
-
-	virtual void WM_RButtonDown() {}
-	virtual void WM_RButtonUp() {}
-	virtual void WM_LButtonDown() {}
-	virtual void WM_LButtonUp() {}
-	virtual void WM_KeyDown(WPARAM wparam) {}
-	virtual void WM_KeyUp(WPARAM wparam) {}
-	virtual void WM_MouseMove(LPARAM lparam) {}
-	virtual void WM_MouseWheel(WPARAM wparam) {}
-	virtual void WM_Resize(int width, int height) {}
-
-	const wchar_t* m_key;
 protected:
-	Scene(DX::Graphic* graphic, const wchar_t* key);
+	Scene() = delete;
+	Scene(DX::Graphic* graphic, std::string key);
+
+public:
+	virtual void Update();
+	virtual void Render();
+
+	const std::string m_strKey;
+protected:
 	DX::Graphic* m_dxGraphic;
 
-	Keyboard* m_keyboard;
-	XMFLOAT2 m_scnMousePos;
-	bool m_bPressingRMouse;
-	bool m_bPressingLMouse;
-	int m_iMouseWheel;
-	int m_iWidth;
-	int m_iHeight;
+	std::vector<Object*> m_vRootObj;
+
+
 };
 
 

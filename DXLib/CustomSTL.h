@@ -2,11 +2,9 @@
 #include <cstdlib>
 #include <assert.h>
 
-namespace DX
+namespace CustomSTL
 {
-	namespace CustomSTL
-	{
-		class BinaryTree
+	class BinaryTree
 		{
 		public:
 			BinaryTree(int value)
@@ -17,7 +15,7 @@ namespace DX
 			BinaryTree* right;
 		};
 
-		class BST
+	class BST
 		{
 		public:
 			BST() :root(nullptr) {}
@@ -125,32 +123,32 @@ namespace DX
 			}
 		};
 
-		template<class T>
-		class SLNode
+	template<class T>
+	class SLNode
+	{
+	public:
+		SLNode(T data) :data(data), next(nullptr) {}
+		void DeepCopy(SLNode<T>** outNode)
 		{
-		public:
-			SLNode(T data) :data(data), next(nullptr) {}
-			void DeepCopy(SLNode<T>** outNode)
+			*outNode = new SLNode<T>(data);
+			SLNode<T>* curNode = *outNode;
+			SLNode<T>* iNode = next;
+
+			while (iNode)
 			{
-				*outNode = new SLNode<T>(data);
-				SLNode<T>* curNode = *outNode;
-				SLNode<T>* iNode = next;
+				SLNode<T>* newNode = new SLNode<T>(iNode->data);
+				curNode->next = newNode;
+				curNode = newNode;
 
-				while (iNode)
-				{
-					SLNode<T>* newNode = new SLNode<T>(iNode->data);
-					curNode->next = newNode;
-					curNode = newNode;
-
-					iNode = iNode->next;
-				}
+				iNode = iNode->next;
 			}
+		}
 
-			T data;
-			SLNode* next;
-		};
-		template<class T>
-		class DLNode
+		T data;
+		SLNode* next;
+	};
+	template<class T>
+	class DLNode
 		{
 		public:
 			DLNode(T data) :data(data), prev(nullptr), next(nullptr) {}
@@ -176,8 +174,8 @@ namespace DX
 			DLNode* next = nullptr;
 		};
 
-		template<class T>
-		class SLList
+	template<class T>
+	class SLList
 		{
 		public:
 			SLList() {}
@@ -297,8 +295,8 @@ namespace DX
 			int size = 0;
 		};
 
-		template<class T>
-		class DLList
+	template<class T>
+	class DLList
 		{
 		public:
 			DLList() {}
@@ -423,6 +421,6 @@ namespace DX
 
 			int size = 0;
 		};
-	};
-}
+};
+
 
