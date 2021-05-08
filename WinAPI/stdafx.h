@@ -14,6 +14,7 @@
 #include <iostream>
 #include <fstream>
 #include <mutex>
+#include <cstdarg>
 
 #include <unordered_map>
 #include <unordered_set>
@@ -49,6 +50,20 @@ if (p) delete (p); \
 {\
 if (p) delete[] (p); \
 (p)=nullptr;\
+}
+
+#define ASSERT_MSG(b,str)\
+{\
+if(!(b))\
+{\
+std::string msg;\
+msg += __FILE__;\
+msg += "(";\
+msg += __LINE__;\
+msg += ")\n";\
+msg += str;\
+MessageBoxA(nullptr, msg.c_str(), "error", MB_OK);\
+}\
 }
 
 

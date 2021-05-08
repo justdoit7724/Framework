@@ -5,10 +5,10 @@ class Shader :
 {
 public:
 
-    void SetShader(std::string key);
+    void SetShader(std::string path);
 
 protected:
-    std::string m_key;
+    std::string m_path;
 };
 
 class VShader : public Shader

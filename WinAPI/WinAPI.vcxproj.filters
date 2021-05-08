@@ -57,9 +57,6 @@
     <ClCompile Include="WndDisplay.cpp">
       <Filter>Window</Filter>
     </ClCompile>
-    <ClCompile Include="WndMgr.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="PaneModelScene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -160,6 +157,15 @@
       <Filter>Item</Filter>
     </ClCompile>
     <ClCompile Include="WndDisplayModel.cpp">
+      <Filter>Window</Filter>
+    </ClCompile>
+    <ClCompile Include="WndMgr.cpp">
+      <Filter>Window</Filter>
+    </ClCompile>
+    <ClCompile Include="FileCtl.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="XReader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -193,9 +199,6 @@
     </ClInclude>
     <ClInclude Include="WndDisplay.h">
       <Filter>Window</Filter>
-    </ClInclude>
-    <ClInclude Include="WndMgr.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PaneModelScene.h">
       <Filter>Header Files</Filter>
@@ -306,10 +309,20 @@
       <Filter>Item</Filter>
     </ClInclude>
     <ClInclude Include="WndDisplayModel.h">
+      <Filter>Window</Filter>
+    </ClInclude>
+    <ClInclude Include="WndMgr.h">
+      <Filter>Window</Filter>
+    </ClInclude>
+    <ClInclude Include="FileCtl.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="XReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
+    <None Include="XFileTemplate.x" />
   </ItemGroup>
 </Project>

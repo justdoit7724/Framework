@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Shader.h"
 
-void Shader::SetShader(std::string key)
+void Shader::SetShader(std::string path)
 {
-	m_key = key;
+	m_path = path;
 }

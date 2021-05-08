@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include <filesystem>
 #include "ResourceMgr.h"
 #include "Mesh.h"
 #include "Shader.h"
@@ -8,7 +7,7 @@
 #include "Mesh.h"
 #include "Skeleton.h"
 #include "Animation.h"
-
+#include "FileCtl.h"
 
 #include "../Packages/Assimp/include/assimp/postprocess.h"
 #include "../Packages/Assimp/include/assimp/Importer.hpp"
@@ -26,35 +25,6 @@
 
 
 #define PATH_RESOURCE __FILE__"\\..\\..\\Resources"
-
-BOOL FindTitle(std::string str, std::string& title)
-{
-	title = "";
-
-	std::string tmpPath = str;
-	int firstPos = -1;
-	int lastPos = -1;
-	for (int i = tmpPath.size() - 1; i >= 0; --i)
-	{
-		if (tmpPath[i] == '\\' || tmpPath[i] == '/')
-		{
-			firstPos = i + 1;
-			break;
-		}
-		else if (tmpPath[i] == '.')
-		{
-			lastPos = i - 1;
-		}
-	}
-	if (firstPos == -1 || lastPos == -1 || firstPos >= lastPos)
-		return FALSE;
-
-	title = tmpPath.substr(firstPos, lastPos - firstPos + 1);
-	if (title == "")
-		return FALSE;
-
-	return TRUE;
-}
 
 SET_SINGLETON_CPP(ResourceMgr, Init)
 
@@ -173,21 +143,22 @@ BOOL ResourceMgr::LoadVShader(DX::Graphic* graphic, std::string folder)
 	std::string path = PATH_RESOURCE;
 	path += "\\Shader\\Vertex\\";
 
-	for (const auto& file : std::filesystem::directory_iterator(path))
+	std::vector<std::string> files;
+	if (!FileCtl::GetFiles(path, files))
+		return FALSE;
+
+	for (auto file : files)
 	{
-		std::wstring totalPathW = file.path().c_str();
-		std::string totalPathA = std::string(totalPathW.begin(), totalPathW.end());
 		std::string title;
-		if (!FindTitle(totalPathA, title))
+		if (!FileCtl::GetTitle(file, title))
 			continue;
 
 		std::vector<const void*> datas;
-		datas.push_back(&title);
-		datas.push_back(&totalPathA);
+		datas.push_back(&file);
 		graphic->SetPipelineData(PIP_REG::TRANSFORM_SHADER_VERTEX, datas);
 
 		VShader* vshader = new VShader;
-		vshader->SetShader(title);
+		vshader->SetShader(file);
 		m_VShader[graphic->m_id].insert(std::pair<std::string,VShader*>(title, vshader));
 	}
 
@@ -205,21 +176,22 @@ BOOL ResourceMgr::LoadHShader(DX::Graphic* graphic, std::string folder)
 	std::string path = PATH_RESOURCE;
 	path += "\\Shader\\Hull\\";
 
-	for (const auto& file : std::filesystem::directory_iterator(path))
+	std::vector<std::string> files;
+	if (!FileCtl::GetFiles(path, files))
+		return FALSE;
+
+	for (auto file : files)
 	{
-		std::wstring totalPathW = file.path().c_str();
-		std::string totalPathA = std::string(totalPathW.begin(), totalPathW.end());
 		std::string title;
-		if (!FindTitle(totalPathA, title))
+		if (!FileCtl::GetTitle(file, title))
 			continue;
 
 		std::vector<const void*> datas;
-		datas.push_back(&title);
-		datas.push_back(&totalPathA);
+		datas.push_back(&file);
 		graphic->SetPipelineData(PIP_REG::TRANSFORM_SHADER_HULL, datas);
 
 		HShader* hshader = new HShader;
-		hshader->SetShader(title);
+		hshader->SetShader(file);
 		m_HShader[graphic->m_id].insert(std::pair<std::string, HShader*>(title, hshader));
 	}
 
@@ -237,21 +209,22 @@ BOOL ResourceMgr::LoadDShader(DX::Graphic* graphic, std::string folder)
 	std::string path = PATH_RESOURCE;
 	path += "\\Shader\\Domain\\";
 
-	for (const auto& file : std::filesystem::directory_iterator(path))
+	std::vector<std::string> files;
+	if (!FileCtl::GetFiles(path, files))
+		return FALSE;
+
+	for (auto file : files)
 	{
-		std::wstring totalPathW = file.path().c_str();
-		std::string totalPathA = std::string(totalPathW.begin(), totalPathW.end());
 		std::string title;
-		if (!FindTitle(totalPathA, title))
+		if (!FileCtl::GetTitle(file, title))
 			continue;
 
 		std::vector<const void*> datas;
-		datas.push_back(&title);
-		datas.push_back(&totalPathA);
+		datas.push_back(&file);
 		graphic->SetPipelineData(PIP_REG::TRANSFORM_SHADER_DOMAIN, datas);
 
 		DShader* dshader = new DShader;
-		dshader->SetShader(title);
+		dshader->SetShader(file);
 		m_DShader[graphic->m_id].insert(std::pair<std::string, DShader*>(title, dshader));
 	}
 
@@ -269,21 +242,22 @@ BOOL ResourceMgr::LoadGShader(DX::Graphic* graphic, std::string folder)
 	std::string path = PATH_RESOURCE;
 	path += "\\Shader\\Geometry\\";
 
-	for (const auto& file : std::filesystem::directory_iterator(path))
+	std::vector<std::string> files;
+	if (!FileCtl::GetFiles(path, files))
+		return FALSE;
+
+	for (auto file : files)
 	{
-		std::wstring totalPathW = file.path().c_str();
-		std::string totalPathA = std::string(totalPathW.begin(), totalPathW.end());
 		std::string title;
-		if (!FindTitle(totalPathA, title))
+		if (!FileCtl::GetTitle(file, title))
 			continue;
 
 		std::vector<const void*> datas;
-		datas.push_back(&title);
-		datas.push_back(&totalPathA);
+		datas.push_back(&file);
 		graphic->SetPipelineData(PIP_REG::TRANSFORM_SHADER_GEOMETRY, datas);
 
 		GShader* gshader = new GShader;
-		gshader->SetShader(title);
+		gshader->SetShader(file);
 		m_GShader[graphic->m_id].insert(std::pair<std::string, GShader*>(title, gshader));
 	}
 
@@ -301,21 +275,22 @@ BOOL ResourceMgr::LoadPShader(DX::Graphic* graphic, std::string folder)
 	std::string path = PATH_RESOURCE;
 	path += "\\Shader\\Pixel\\";
 
-	for (const auto& file : std::filesystem::directory_iterator(path))
+	std::vector<std::string> files;
+	if (!FileCtl::GetFiles(path, files))
+		return FALSE;
+
+	for (auto file : files)
 	{
-		std::wstring totalPathW = file.path().c_str();
-		std::string totalPathA = std::string(totalPathW.begin(), totalPathW.end());
 		std::string title;
-		if (!FindTitle(totalPathA, title))
+		if (!FileCtl::GetTitle(file, title))
 			continue;
 
 		std::vector<const void*> datas;
-		datas.push_back(&title);
-		datas.push_back(&totalPathA);
+		datas.push_back(&file);
 		graphic->SetPipelineData(PIP_REG::PIXEL_SHADER_PIXEL, datas);
 
 		PShader* pshader = new PShader;
-		pshader->SetShader(title);
+		pshader->SetShader(file);
 		m_PShader[graphic->m_id].insert(std::pair<std::string, PShader*>(title, pshader));
 	}
 
@@ -330,12 +305,14 @@ BOOL ResourceMgr::LoadTex(DX::Graphic* graphic, std::string folder)
 		delete tex.second;
 	m_tex[graphic->m_id].clear();
 
-	for (const auto& file : std::filesystem::directory_iterator(folder))
+	std::vector<std::string> files;
+	if (!FileCtl::GetFiles(folder, files))
+		return FALSE;
+
+	for (auto file : files)
 	{
-		std::wstring totalPathW = file.path().c_str();
-		std::string totalPathA = std::string(totalPathW.begin(), totalPathW.end());
 		std::string title;
-		if (!FindTitle(totalPathA, title))
+		if (!FileCtl::GetTitle(file, title))
 			continue;
 		
 		Texture* texture = new Texture;
@@ -343,7 +320,7 @@ BOOL ResourceMgr::LoadTex(DX::Graphic* graphic, std::string folder)
 		m_tex[graphic->m_id].insert(std::pair<std::string, Texture*>(title, texture));
 
 		std::vector<const void*> datas;
-		datas.push_back(&totalPathA);
+		datas.push_back(&file);
 		graphic->SetPipelineData(PIP_REG::PIXEL_TEX, datas);
 	}
 
@@ -359,19 +336,21 @@ BOOL ResourceMgr::LoadModel(std::string folder)
 	std::string path = PATH_RESOURCE;
 	path += "\\Model\\";
 
-	for (const auto& file : std::filesystem::directory_iterator(path))
+	std::vector<std::string> files;
+	if (!FileCtl::GetFiles(path, files))
+		return FALSE;
+
+	for (auto file : files)
 	{
-		std::wstring totalPathW = file.path().c_str();
-		std::string totalPathA = std::string(totalPathW.begin(), totalPathW.end());
 		std::string title;
-		if (!FindTitle(totalPathA, title))
+		if (!FileCtl::GetTitle(file, title))
 			continue;
 
 		Mesh* newMesh = new Mesh;
 		Skeleton* newSkel = new Skeleton;
 
 		Assimp::Importer importer;
-		const aiScene* pScene = importer.ReadFile(totalPathA,
+		const aiScene* pScene = importer.ReadFile(file,
 			aiProcess_MakeLeftHanded |
 			aiProcess_FlipWindingOrder |
 			aiProcess_FlipUVs |

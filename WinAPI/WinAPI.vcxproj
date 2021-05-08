@@ -158,6 +158,7 @@
     <ClCompile Include="CubeCollider.cpp" />
     <ClCompile Include="DepthPeeling.cpp" />
     <ClCompile Include="DirectionalLight.cpp" />
+    <ClCompile Include="FileCtl.cpp" />
     <ClCompile Include="Keyboard.cpp" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="Material.cpp" />
@@ -194,6 +195,7 @@
     <ClCompile Include="WndMain.cpp" />
     <ClCompile Include="WndMgr.cpp" />
     <ClCompile Include="WndPaneModel.cpp" />
+    <ClCompile Include="XReader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Animation.h" />
@@ -207,6 +209,7 @@
     <ClInclude Include="DefComponent.h" />
     <ClInclude Include="DepthPeeling.h" />
     <ClInclude Include="DirectionalLight.h" />
+    <ClInclude Include="FileCtl.h" />
     <ClInclude Include="Keyboard.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="Material.h" />
@@ -244,9 +247,11 @@
     <ClInclude Include="WndMain.h" />
     <ClInclude Include="WndMgr.h" />
     <ClInclude Include="WndPaneModel.h" />
+    <ClInclude Include="XReader.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
+    <None Include="XFileTemplate.x" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

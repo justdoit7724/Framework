@@ -4,6 +4,7 @@
 #include "WndDisplayModel.h"
 #include "PaneModelScene.h"
 #include "SceneMgr.h"
+#include "FileCtl.h"
 
 enum {
 	ID_BTN_PANE_MODEL_OPEN=95,
@@ -123,52 +124,9 @@ void WndPaneModel::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 		{
 		case ID_BTN_PANE_MODEL_OPEN:
 		{
-			HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED |
-				COINIT_DISABLE_OLE1DDE);
-			if (SUCCEEDED(hr))
-			{
-				IFileOpenDialog* pFileOpen;
-
-				// Create the FileOpenDialog object.
-				hr = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL,
-					IID_IFileOpenDialog, reinterpret_cast<void**>(&pFileOpen));
-
-				if (SUCCEEDED(hr))
-				{
-					hr = pFileOpen->Show(NULL);
-
-					if (SUCCEEDED(hr))
-					{
-						IShellItem* pItem;
-						hr = pFileOpen->GetResult(&pItem);
-						if (SUCCEEDED(hr))
-						{
-							PWSTR pszFilePath;
-							hr = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
-
-							// Display the file name to the user.
-							if (SUCCEEDED(hr))
-							{
-								std::wstring strPath = pszFilePath;
-								int iCutIndex = -1;
-								for (int i = strPath.size() - 1; i >= 0; --i)
-								{
-									if (strPath[i] == '\\')
-									{
-										iCutIndex = i;
-										break;
-									}
-								}
-								SetWindowText(m_heditCurModel, strPath.substr(iCutIndex + 1).c_str());
-								CoTaskMemFree(pszFilePath);
-							}
-							pItem->Release();
-						}
-					}
-					pFileOpen->Release();
-				}
-				CoUninitialize();
-			}
+			std::string path;
+			if (!FileCtl::FindFile(path))
+				break;
 		}
 			break;
 		case ID_BTN_PANE_MODEL_CLOSE:
