@@ -6,6 +6,7 @@
 #define FRAMETRANSFORMMATRIX	"FrameTransformMatrix"
 #define MESH					"Mesh"
 #define MESHNORMALS				"MeshNormals"
+#define MESHMATERIALLIST
 
 XComponent::XComponent(BOOL bComposite, std::string name)
 	:m_bComposite(bComposite),
@@ -33,9 +34,9 @@ XFrame::~XFrame()
 
 BOOL XFrame::AddComponent(XComponent* c)
 {
-	m_components.push_back(c);
+m_components.push_back(c);
 
-	return TRUE;
+return TRUE;
 }
 
 int XFrame::Size()
@@ -118,49 +119,35 @@ void GetChunks(std::string line, std::vector<std::string>& list)
 
 	Pruning(line, line);
 
-	int startPos = 0;
-	for (int i = startPos; i < line.size(); ++i)
+	std::string tmp = "";
+	for (int i = 0; i < line.size(); ++i)
 	{
-		if (line[i] == ' ' && startPos < i)
+		if (line[i] == ' ' ||
+			line[i] == ',' ||
+			line[i] == ';')
 		{
-			list.push_back(line.substr(startPos, i - startPos));
-			startPos = i + 1;
+			if (tmp.size())
+				list.push_back(tmp);
+			tmp.clear();
+			continue;
 		}
-		else if (line[i] == ',' && startPos < i)
+		else if (
+			line[i] == '{' ||
+			line[i] == '}')
 		{
-			list.push_back(line.substr(startPos, i - startPos));
-			startPos = i + 1;
-		}
-		else if (line[i] == ';' && startPos < i)
-		{
-			list.push_back(line.substr(startPos, i - startPos));
-			startPos = i + 1;
-		}
-		else if (line[i] == '{' || line[i] == '}')
-		{
-			if (startPos < i)
-			{
-				list.push_back(line.substr(startPos, i - startPos));
-			}
-			std::string str;
-			str.push_back(line[i]);
-			list.push_back(str);
-			startPos = i + 1;
-		}
-	}
-
-	while (true)
-	{
-		size_t spacePos = line.find(' ');
-		if (spacePos == std::string::npos)
-		{
-			list.push_back(line);
-			break;
+			if (tmp.size())
+				list.push_back(tmp);
+			tmp = line[i];
+			list.push_back(tmp);
+			tmp.clear();
+			continue;
 		}
 
-		list.push_back(line.substr(0, spacePos));
-		line = line.substr(spacePos + 1);
+		tmp.push_back(line[i]);
 	}
+
+	if (tmp.size())
+		list.push_back(tmp);
 }
 
 std::vector<XComponent*> XReader::m_list;
@@ -171,7 +158,7 @@ BOOL XReader::Read(std::string path)
 
 	std::string line;
 	std::ifstream file(path);
-	if (!file.is_open())
+	if (!file.is_open() || !getline(file,line))
 		return FALSE;
 
 	// read id
@@ -358,9 +345,9 @@ void XReader::Read(std::ifstream& file, std::vector<XComponent*>& comps)
 				{
 					getline(file, line);
 					GetChunks(line, chunks);
-					norms.push_back(stoi(chunks[1]));//x
-					norms.push_back(stoi(chunks[2]));//y
-					norms.push_back(stoi(chunks[3]));//z
+					norms.push_back(stoi(chunks[0]));//x
+					norms.push_back(stoi(chunks[1]));//y
+					norms.push_back(stoi(chunks[2]));//z
 				}
 				XComponent* normComp = new XValue("normals", std::move(norms));
 				normComp->AddComponent(normComp);
@@ -384,6 +371,16 @@ void XReader::Read(std::ifstream& file, std::vector<XComponent*>& comps)
 				}
 				XComponent* normComp = new XValue("faceNormals", std::move(faces));
 				normComp->AddComponent(normComp);
+			}
+		}
+		else
+		{
+			while (getline(file, line))
+			{
+				if (line.find('}') != std::string::npos)
+				{
+					break;
+				}
 			}
 		}
 	}

@@ -5,6 +5,7 @@
 #include "PaneModelScene.h"
 #include "SceneMgr.h"
 #include "FileCtl.h"
+#include "XReader.h"
 
 enum {
 	ID_BTN_PANE_MODEL_OPEN=95,
@@ -17,6 +18,9 @@ enum {
 WndPaneModel::WndPaneModel(HINSTANCE hInstance, HWND parent)
 	:Window(hInstance, L"PaneModel", WindowType::Frame, nullptr, 0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN))
 {
+	XReader::Read("C:\\Users\\Jun\\Desktop\\Armature_001-(COLLADA_2 (COLLAborative Design Activity)).x");
+	XComponent* comp = XReader::Get({ "DXCC_ROOT" });
+
 	// 1. load & save
 	m_hbtnClose = CreateWindow(
 		L"button",L"Close",
