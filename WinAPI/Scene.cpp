@@ -2,7 +2,6 @@
 #include "Scene.h"
 #include "SceneMgr.h"
 #include "Object.h"
-#include "PaneModelScene.h"
 
 Scene::Scene(DX::Graphic* graphic, std::string key)
 	:m_dxGraphic(graphic), m_strKey(key)

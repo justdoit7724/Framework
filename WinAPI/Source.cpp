@@ -5,6 +5,8 @@
 #include "Keyboard.h"
 #include "Mouse.h"
 
+#include "CtrlButton.h"
+
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 
 	CoInitialize(NULL);

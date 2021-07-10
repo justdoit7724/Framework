@@ -2,10 +2,9 @@
 #include "Window.h"
 
 class WndDisplay;
-class WndPaneModel;
+class CtrlButton;
 
-class WndMain :
-	public Window
+class WndMain : public WndBkg
 {
 public:
 	WndMain(HINSTANCE hInstance);
@@ -13,11 +12,15 @@ public:
 
 	void WndProc(HWND hwnd, UINT MSG, WPARAM wparam, LPARAM lparam) override;
 
+	//button
+private:
+	void OpenWndScene();
+	void OpenWndAsset();
+
 private:
 
-	HWND m_hPaneScene;
-	HWND m_hPaneModel;
-	HWND m_hPaneAnimation;
+	CtrlButton* m_sceneBtn;
+	CtrlButton* m_assetBtn;
 
 
 	WndDisplay* m_DXDisplay;

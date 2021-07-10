@@ -7,10 +7,14 @@
 #include "Mouse.h"
 
 WndDisplay::WndDisplay(HINSTANCE hInstance, HWND parent, int x, int y, int width, int height, int msaa)
-	:Window(hInstance, L"Display", WindowType::Child, parent, x, y, width, height), 
+	:Window(hInstance, "Display"), 
 	m_iMSAA(msaa)
 {
 	assert(msaa == 1 || msaa == 2 || msaa == 4 || msaa == 8 || msaa == 16);
+	
+	RegisterWnd();
+	CreateWnd(parent, WS_CHILD, x, y, width, height);
+
 
 	m_dxGraphic = new DX::Graphic;
 	int ret = m_dxGraphic->Initialize(m_hWnd, m_iMSAA);

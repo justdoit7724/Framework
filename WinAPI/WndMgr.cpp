@@ -9,14 +9,14 @@ void WndMgr::Init()
 {
 
 }
-void WndMgr::AddWnd(std::wstring key, const Window* wnd)
+void WndMgr::AddWnd(std::string key, const Window* wnd)
 {
 	assert(m_mWnd.find(key) == m_mWnd.end());
 
-	m_mWnd.insert(std::pair < std::wstring, const Window*>(key, wnd));
+	m_mWnd.insert(std::pair < std::string, const Window*>(key, wnd));
 }
 
-void WndMgr::RemoveWnd(std::wstring key)
+void WndMgr::RemoveWnd(std::string key)
 {
 	assert(m_mWnd.find(key) != m_mWnd.end());
 

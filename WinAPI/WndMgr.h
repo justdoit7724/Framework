@@ -11,12 +11,12 @@ class WndMgr
 
 public:
 	void Init();
-	void AddWnd(std::wstring key, const Window* wnd);
-	void RemoveWnd(std::wstring key);
+	void AddWnd(std::string key, const Window* wnd);
+	void RemoveWnd(std::string key);
 	void UpdateDisplays();
 
 private:
 
-	std::unordered_map<std::wstring, const Window*> m_mWnd;
+	std::unordered_map<std::string, const Window*> m_mWnd;
 };
 

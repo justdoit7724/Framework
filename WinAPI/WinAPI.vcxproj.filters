@@ -28,6 +28,9 @@
     <Filter Include="Item">
       <UniqueIdentifier>{8303decb-be51-432f-ae2b-f8533581f278}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Window\Control">
+      <UniqueIdentifier>{eac82917-f8e6-442f-81a3-711463542bbd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source.cpp">
@@ -51,13 +54,13 @@
     <ClCompile Include="WndMain.cpp">
       <Filter>Window</Filter>
     </ClCompile>
-    <ClCompile Include="WndPaneModel.cpp">
+    <ClCompile Include="WndPaneAsset.cpp">
       <Filter>Window</Filter>
     </ClCompile>
     <ClCompile Include="WndDisplay.cpp">
       <Filter>Window</Filter>
     </ClCompile>
-    <ClCompile Include="PaneModelScene.cpp">
+    <ClCompile Include="PaneAssetScene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Mouse.cpp">
@@ -156,7 +159,7 @@
     <ClCompile Include="Texture.cpp">
       <Filter>Item</Filter>
     </ClCompile>
-    <ClCompile Include="WndDisplayModel.cpp">
+    <ClCompile Include="WndDisplayAsset.cpp">
       <Filter>Window</Filter>
     </ClCompile>
     <ClCompile Include="WndMgr.cpp">
@@ -166,6 +169,18 @@
       <Filter>Utility</Filter>
     </ClCompile>
     <ClCompile Include="XReader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CtrlListBox.cpp">
+      <Filter>Window\Control</Filter>
+    </ClCompile>
+    <ClCompile Include="CtrlEdit.cpp">
+      <Filter>Window\Control</Filter>
+    </ClCompile>
+    <ClCompile Include="CtrlButton.cpp">
+      <Filter>Window\Control</Filter>
+    </ClCompile>
+    <ClCompile Include="CtrlTreeView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -194,13 +209,13 @@
     <ClInclude Include="WindowDef.h">
       <Filter>Window</Filter>
     </ClInclude>
-    <ClInclude Include="WndPaneModel.h">
+    <ClInclude Include="WndPaneAsset.h">
       <Filter>Window</Filter>
     </ClInclude>
     <ClInclude Include="WndDisplay.h">
       <Filter>Window</Filter>
     </ClInclude>
-    <ClInclude Include="PaneModelScene.h">
+    <ClInclude Include="PaneAssetScene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Mouse.h">
@@ -308,7 +323,7 @@
     <ClInclude Include="Skeleton.h">
       <Filter>Item</Filter>
     </ClInclude>
-    <ClInclude Include="WndDisplayModel.h">
+    <ClInclude Include="WndDisplayAsset.h">
       <Filter>Window</Filter>
     </ClInclude>
     <ClInclude Include="WndMgr.h">
@@ -318,6 +333,18 @@
       <Filter>Utility</Filter>
     </ClInclude>
     <ClInclude Include="XReader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CtrlButton.h">
+      <Filter>Window\Control</Filter>
+    </ClInclude>
+    <ClInclude Include="CtrlEdit.h">
+      <Filter>Window\Control</Filter>
+    </ClInclude>
+    <ClInclude Include="CtrlListBox.h">
+      <Filter>Window\Control</Filter>
+    </ClInclude>
+    <ClInclude Include="CtrlTreeView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

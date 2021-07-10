@@ -156,6 +156,10 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Collider.cpp" />
     <ClCompile Include="Component.cpp" />
+    <ClCompile Include="CtrlButton.cpp" />
+    <ClCompile Include="CtrlEdit.cpp" />
+    <ClCompile Include="CtrlListBox.cpp" />
+    <ClCompile Include="CtrlTreeView.cpp" />
     <ClCompile Include="CubeCollider.cpp" />
     <ClCompile Include="DepthPeeling.cpp" />
     <ClCompile Include="DirectionalLight.cpp" />
@@ -169,7 +173,7 @@
     <ClCompile Include="Mouse.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="ObjectPool.cpp" />
-    <ClCompile Include="PaneModelScene.cpp" />
+    <ClCompile Include="PaneAssetScene.cpp" />
     <ClCompile Include="PointLight.cpp" />
     <ClCompile Include="QuadCollider.cpp" />
     <ClCompile Include="ResourceMgr.cpp" />
@@ -192,10 +196,10 @@
     <ClCompile Include="UI.cpp" />
     <ClCompile Include="Window.cpp" />
     <ClCompile Include="WndDisplay.cpp" />
-    <ClCompile Include="WndDisplayModel.cpp" />
+    <ClCompile Include="WndDisplayAsset.cpp" />
     <ClCompile Include="WndMain.cpp" />
     <ClCompile Include="WndMgr.cpp" />
-    <ClCompile Include="WndPaneModel.cpp" />
+    <ClCompile Include="WndPaneAsset.cpp" />
     <ClCompile Include="XReader.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -206,6 +210,10 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Collider.h" />
     <ClInclude Include="Component.h" />
+    <ClInclude Include="CtrlButton.h" />
+    <ClInclude Include="CtrlEdit.h" />
+    <ClInclude Include="CtrlListBox.h" />
+    <ClInclude Include="CtrlTreeView.h" />
     <ClInclude Include="CubeCollider.h" />
     <ClInclude Include="DefComponent.h" />
     <ClInclude Include="DepthPeeling.h" />
@@ -221,7 +229,7 @@
     <ClInclude Include="Mouse.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="ObjectPool.h" />
-    <ClInclude Include="PaneModelScene.h" />
+    <ClInclude Include="PaneAssetScene.h" />
     <ClInclude Include="PointLight.h" />
     <ClInclude Include="QuadCollider.h" />
     <ClInclude Include="ResourceMgr.h" />
@@ -244,10 +252,10 @@
     <ClInclude Include="Window.h" />
     <ClInclude Include="WindowDef.h" />
     <ClInclude Include="WndDisplay.h" />
-    <ClInclude Include="WndDisplayModel.h" />
+    <ClInclude Include="WndDisplayAsset.h" />
     <ClInclude Include="WndMain.h" />
     <ClInclude Include="WndMgr.h" />
-    <ClInclude Include="WndPaneModel.h" />
+    <ClInclude Include="WndPaneAsset.h" />
     <ClInclude Include="XReader.h" />
   </ItemGroup>
   <ItemGroup>

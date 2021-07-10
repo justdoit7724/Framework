@@ -14,7 +14,9 @@
 #include <iostream>
 #include <fstream>
 #include <mutex>
+#include <functional>
 #include <cstdarg>
+#include <CommCtrl.h>
 
 #include <unordered_map>
 #include <unordered_set>
@@ -63,8 +65,13 @@ msg += __LINE__;\
 msg += ")\n";\
 msg += str;\
 MessageBoxA(nullptr, msg.c_str(), "error", MB_OK);\
+PostQuitMessage(0);\
 }\
 }
+
+#define PREVENT_COPY_AND_ASSIGNMENT(c)\
+c(const c&) = delete;\
+c operator=(const c&) = delete;
 
 
 #include "Math.h"

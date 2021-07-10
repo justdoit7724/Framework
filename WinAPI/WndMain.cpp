@@ -1,73 +1,38 @@
 #include "stdafx.h"
 #include "WndMain.h"
 
-#include "WndDisplay.h"
-#include "WndPaneModel.h"
+#include "WndPaneAsset.h"
+#include "CtrlButton.h"
 
-LRESULT WndDefaultProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
+
+enum {
+	ID_CTRL_KEY_SCENE,
+	ID_CTRL_KEY_ASSET
+};
+
 
 WndMain::WndMain(HINSTANCE hInstance)
-	:Window(hInstance, L"main", WindowType::Frame, nullptr, 0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN)),
-	m_DXDisplay(nullptr)
+	:WndBkg(hInstance, "WndMain", WS_MAXIMIZE | WS_OVERLAPPED, nullptr, 0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN))
 {
-	m_hPaneScene = CreateWindow(
-		L"button",
-		L"Scene",
-		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-		20, 20, 200, 75,
-		m_hWnd,
-		(HMENU)ID_BTN_PANE_SCENE,
-		hInstance,
-		NULL);
-	m_hPaneModel= CreateWindow(
-		L"button",
-		L"Model",
-		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-		20, 120, 200, 75,
-		m_hWnd,
-		(HMENU)ID_BTN_PANE_MODEL,
-		hInstance,
-		NULL);
-	m_hPaneAnimation = CreateWindow(
-		L"button",
-		L"Animation",
-		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-		20, 220, 200, 75,
-		m_hWnd,
-		(HMENU)ID_BTN_PANE_ANIMATION,
-		hInstance,
-		NULL);
+	m_sceneBtn = new CtrlButton(hInstance, m_hWnd, "scene", 20, 20, 200, 75, ID_CTRL_KEY_SCENE);
+	m_sceneBtn->SetClickFunc(std::bind(&WndMain::OpenWndScene, this));
+	m_assetBtn = new CtrlButton(hInstance, m_hWnd, "asset", 20, 120, 200, 75, ID_CTRL_KEY_ASSET);
+	m_assetBtn->SetClickFunc(std::bind(&WndMain::OpenWndAsset, this));
 }
 
 WndMain::~WndMain()
 {
-	DestroyWindow(m_hPaneScene);
-	DestroyWindow(m_hPaneModel);
-	DestroyWindow(m_hPaneScene);
+	SAFEDELETE(m_sceneBtn);
+	SAFEDELETE(m_assetBtn);
 	DestroyWindow(m_hWnd);
 }
 
 void WndMain::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
+	WndBkg::WndProc(hwnd, msg, wparam, lparam);
+
 	switch (msg)
 	{
-	case WM_COMMAND:
-
-		switch (LOWORD(wparam))
-		{
-		case ID_BTN_PANE_SCENE:
-			break;
-		case ID_BTN_PANE_MODEL:
-		{
-			Window* newPane = new WndPaneModel(m_hInstance, m_hWnd);
-			newPane->ShowWindow(TRUE);
-		}
-			break;
-		case ID_BTN_PANE_ANIMATION:
-			break;
-		}
-		break;
-
 	case WM_KEYDOWN:
 	{
 		switch (wparam)
@@ -82,4 +47,13 @@ void WndMain::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 		PostQuitMessage(0);
 		break;
 	}
+}
+
+void WndMain::OpenWndScene()
+{
+}
+void WndMain::OpenWndAsset()
+{
+	WndBkg* newPane = new WndPaneAsset(m_hInstance, m_hWnd);
+	newPane->ShowWindow(TRUE);
 }

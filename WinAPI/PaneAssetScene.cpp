@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "PaneModelScene.h"
+#include "PaneAssetScene.h"
 #include "Keyboard.h"
 #include "Mouse.h"
 #include "Object.h"
@@ -7,7 +7,7 @@
 
 using namespace DX;
 
-PaneModelScene::PaneModelScene(DX::Graphic* graphic)
+PaneAssetScene::PaneAssetScene(DX::Graphic* graphic)
 	:Scene(graphic, "Model")
 {
 	m_light = new Object;
@@ -38,7 +38,7 @@ PaneModelScene::PaneModelScene(DX::Graphic* graphic)
 	*/
 }
 
-PaneModelScene::~PaneModelScene()
+PaneAssetScene::~PaneAssetScene()
 {
 	/*for (int i = 0; i < m_vMain.size(); ++i)
 	{
@@ -64,12 +64,12 @@ PaneModelScene::~PaneModelScene()
 }
 
 
-void PaneModelScene::Update()
+void PaneAssetScene::Update()
 {
 	Scene::Update();
 }
 
-void PaneModelScene::Open(std::string path)
+void PaneAssetScene::Open(std::string path)
 {
 	//release
 	/*for (int i = 0; i < m_vMain.size(); ++i)
@@ -111,7 +111,7 @@ void PaneModelScene::Open(std::string path)
 	}*/
 }
 
-void PaneModelScene::CreateGrid(int nX, int nY, XMFLOAT3 size)
+void PaneAssetScene::CreateGrid(int nX, int nY, XMFLOAT3 size)
 {
 	/*
 	m_gridMesh = std::make_shared<DX::LineMesh>();

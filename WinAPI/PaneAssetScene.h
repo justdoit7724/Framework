@@ -4,12 +4,12 @@
 
 class Object;
 
-class PaneModelScene :
+class PaneAssetScene :
 	public Scene
 {
 public:
-	PaneModelScene(DX::Graphic* graphic);
-	~PaneModelScene()override;
+	PaneAssetScene(DX::Graphic* graphic);
+	~PaneAssetScene()override;
 
 	void Update() override;
 
