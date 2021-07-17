@@ -38,17 +38,17 @@ using namespace DirectX;
 #ifdef _WIN64
 
 #ifdef _DEBUG
-#pragma comment(lib, __FILE__"/../../Packages/directxtk_desktop_2015.2019.12.17.1/lib_x64/_Debug/DirectXTK.lib")
+#pragma comment(lib, __FILE__"/../../SDK/directxtk_desktop_2015.2019.12.17.1/lib_x64/_Debug/DirectXTK.lib")
 #else
-#pragma comment(lib, __FILE__"/../../Packages/directxtk_desktop_2015.2019.12.17.1/lib_x64/_Release/DirectXTK.lib")
+#pragma comment(lib, __FILE__"/../../SDK/directxtk_desktop_2015.2019.12.17.1/lib_x64/_Release/DirectXTK.lib")
 #endif
 
 #else
 
 #ifdef _DEBUG
-#pragma comment(lib, __FILE__"/../../Packages/directxtk_desktop_2015.2019.12.17.1/lib_win32/_Debug/DirectXTK.lib")
+#pragma comment(lib, __FILE__"/../../SDK/directxtk_desktop_2015.2019.12.17.1/lib_win32/_Debug/DirectXTK.lib")
 #else
-#pragma comment(lib, __FILE__"/../../Packages/directxtk_desktop_2015.2019.12.17.1/lib_win32/_Release/DirectXTK.lib")
+#pragma comment(lib, __FILE__"/../../SDK/directxtk_desktop_2015.2019.12.17.1/lib_win32/_Release/DirectXTK.lib")
 #endif
 
 #endif

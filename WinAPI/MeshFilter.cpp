@@ -6,7 +6,7 @@
 #include "Material.h"
 #include "Texture.h"
 #include "MeshRenderer.h"
-#include "ResourceMgr.h"
+#include "AssetMgr.h"
 #include "Object.h"
 
 
@@ -44,18 +44,18 @@ void MeshFilter::Update(DX::Graphic* graphic){
 }
 void MeshFilter::Render(DX::Graphic* graphic)const 
 {
-	Mesh* mesh = SGL_ResMgr.GetMesh(m_meshKey);
+	/*Mesh* mesh = SGL_AssetMgr.GetMesh(m_meshKey);
 	MeshRenderer* renderer = (MeshRenderer*)m_object->GetComponentFromParent(CMPNT_KIND::MeshRenderer);
 
 	const std::vector<SubMesh*>& subMeshes = mesh->GetSubMesh();
 	for (int i=0; i< subMeshes.size(); ++i)
 	{
 		std::string matKey = renderer->GetMaterial(i);
-		Material* curMat = SGL_ResMgr.GetMaterial(graphic, matKey);
+		Material* curMat = SGL_AssetMgr.GetMaterial(graphic, matKey);
 		std::string curDiffKey = curMat->GetDiff();
 		std::string curNormKey = curMat->GetNorm();
-		Texture* curDiff = SGL_ResMgr.GetTexture(graphic, curDiffKey);
-		Texture* curNorm = SGL_ResMgr.GetTexture(graphic, curNormKey);
+		Texture* curDiff = SGL_AssetMgr.GetTexture(graphic, curDiffKey);
+		Texture* curNorm = SGL_AssetMgr.GetTexture(graphic, curNormKey);
 		curDiffKey = curDiff->GetKey();
 		curNormKey = curNorm->GetKey();
 
@@ -67,5 +67,5 @@ void MeshFilter::Render(DX::Graphic* graphic)const
 		datas.clear();
 		datas.push_back(&subMeshes[i]->m_key);
 		graphic->SetPipelineData(PIP_REG::TRANSFORM_MESH, datas);
-	}
+	}*/
 }

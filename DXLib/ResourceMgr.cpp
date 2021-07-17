@@ -1,12 +1,7 @@
-#include "..\WinAPI\ResourceMgr.h"
-#include "..\WinAPI\ResourceMgr.h"
-#include "..\WinAPI\ResourceMgr.h"
-#include "..\WinAPI\ResourceMgr.h"
-#include "..\WinAPI\ResourceMgr.h"
-#include "..\WinAPI\ResourceMgr.h"
+
 #include "pch.h"
 #include "ResourceMgr.h"
-#include "../Packages/directxtk_desktop_2015.2019.12.17.1/include/WICTextureLoader.h"
+#include "../SDK/directxtk_desktop_2015.2019.12.17.1/include/WICTextureLoader.h"
 #include "Shader.h"
 #include "Buffer.h"
 

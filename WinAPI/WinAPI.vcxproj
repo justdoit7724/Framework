@@ -72,7 +72,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)Packages\Assimp\include;$(SolutionDir)Packages\Assimp\include\assimp;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)SDK\Assimp\include;$(SolutionDir)SDK\Assimp\include\assimp;$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -87,7 +87,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)Packages\Assimp\include;$(SolutionDir)Packages\Assimp\include\assimp;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)SDK\Assimp\include;$(SolutionDir)SDK\Assimp\include\assimp;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -176,7 +176,7 @@
     <ClCompile Include="PaneAssetScene.cpp" />
     <ClCompile Include="PointLight.cpp" />
     <ClCompile Include="QuadCollider.cpp" />
-    <ClCompile Include="ResourceMgr.cpp" />
+    <ClCompile Include="AssetMgr.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneMgr.cpp" />
     <ClCompile Include="Script.cpp" />
@@ -232,7 +232,7 @@
     <ClInclude Include="PaneAssetScene.h" />
     <ClInclude Include="PointLight.h" />
     <ClInclude Include="QuadCollider.h" />
-    <ClInclude Include="ResourceMgr.h" />
+    <ClInclude Include="AssetMgr.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneMgr.h" />
     <ClInclude Include="Script.h" />

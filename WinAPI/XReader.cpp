@@ -1,12 +1,6 @@
 #include "stdafx.h"
 #include "XReader.h"
 
-#define TEMPLATE				"template"
-#define FRAME					"Frame"
-#define FRAMETRANSFORMMATRIX	"FrameTransformMatrix"
-#define MESH					"Mesh"
-#define MESHNORMALS				"MeshNormals"
-#define MESHMATERIALLIST
 
 XComponent::XComponent(BOOL bComposite, std::string name)
 	:m_bComposite(bComposite),
@@ -113,9 +107,14 @@ void Pruning(std::string full, std::string& core)
 		backSpaceCount++;
 	}
 }
-void GetChunks(std::string line, std::vector<std::string>& list)
+BOOL GetLineChunks(std::ifstream& file, std::queue<std::string>& chunks)
 {
-	list.clear();
+	while (chunks.size())
+		chunks.pop();
+
+	std::string line;
+	if (!getline(file, line))
+		return FALSE;
 
 	Pruning(line, line);
 
@@ -127,7 +126,7 @@ void GetChunks(std::string line, std::vector<std::string>& list)
 			line[i] == ';')
 		{
 			if (tmp.size())
-				list.push_back(tmp);
+				chunks.push(tmp);
 			tmp.clear();
 			continue;
 		}
@@ -136,9 +135,9 @@ void GetChunks(std::string line, std::vector<std::string>& list)
 			line[i] == '}')
 		{
 			if (tmp.size())
-				list.push_back(tmp);
+				chunks.push(tmp);
 			tmp = line[i];
-			list.push_back(tmp);
+			chunks.push(tmp);
 			tmp.clear();
 			continue;
 		}
@@ -147,7 +146,10 @@ void GetChunks(std::string line, std::vector<std::string>& list)
 	}
 
 	if (tmp.size())
-		list.push_back(tmp);
+		chunks.push(tmp);
+
+	return TRUE;
+
 }
 
 std::vector<XComponent*> XReader::m_list;
@@ -155,18 +157,20 @@ BOOL XReader::Read(std::string path)
 {
 	for (auto comp : m_list)
 		delete comp;
+	m_list.clear();
 
 	std::string line;
 	std::ifstream file(path);
-	if (!file.is_open() || !getline(file,line))
+	if (!file.is_open())
 		return FALSE;
 
-	// read id
-	std::vector<std::string> chunks;
-	GetChunks(line, chunks);
-
 	// read values
-	Read(file, m_list);
+	XFrame comp("Temp");
+	Read(file, &comp);
+	for (auto comp : comp.m_components)
+	{
+		m_list.push_back(comp);
+	}
 	
 	file.close();
 
@@ -195,7 +199,7 @@ XComponent* XReader::Get(const std::vector<std::string>&& list)
 		XComponent* child = curComp->GetChild(list[i]);
 		if (!child)
 		{
-			return curComp;
+			break;
 		}
 
 		curComp = child;
@@ -204,15 +208,11 @@ XComponent* XReader::Get(const std::vector<std::string>&& list)
 	return curComp;
 }
 
-void XReader::Read(std::ifstream& file, std::vector<XComponent*>& comps)
+void XReader::Read(std::ifstream& file, XComponent* parentComp)
 {
-	comps.clear();
-
-	std::string line;
-	while (getline(file, line))
+	std::queue<std::string> chunks;
+	while (GetLineChunks(file, chunks))
 	{
-		std::vector<std::string> chunks;
-		GetChunks(line, chunks);
 		if (chunks.empty()) // jump down
 		{
 			continue;
@@ -226,75 +226,76 @@ void XReader::Read(std::ifstream& file, std::vector<XComponent*>& comps)
 		std::string curName;
 		if (chunks.size() == 2)// identical
 		{
-			curKey = chunks[0];
-			curName = chunks[0];
+			curKey = chunks.front(); 
+			curName = chunks.front(); chunks.pop();
 		}
 		else
 		{
-			curKey = chunks[0];
-			curName = chunks[1];
+			curKey = chunks.front(); chunks.pop();
+			curName = chunks.front(); chunks.pop();
 		}
-		if (curKey == TEMPLATE) // skip template
+		if (curKey == XTEMPLATE) // skip template
 		{
-			while (getline(file, line))
+			while (GetLineChunks(file, chunks))
 			{
-				if (line.find('}') != std::string::npos)
+				while (chunks.size())
 				{
-					break;
+					if (chunks.front() == "}" || chunks.front() == "{")
+						break;
+					chunks.pop();
 				}
 			}
 		}
-		else if (curKey == FRAME)
+		else if (curKey == XFRAME)
 		{
-			std::vector<XComponent*> frameComps;
-			Read(file, frameComps);
-			if (frameComps.size())
-			{
-				XComponent* frameComp = new XFrame(curName);
-				for (auto comp : frameComps)
-				{
-					frameComp->AddComponent(comp);
-				}
-				comps.push_back(frameComp);
-			}
+			XComponent* frameComp = new XFrame(curName);
+			Read(file, frameComp);
 		}
-		else if (curKey == FRAMETRANSFORMMATRIX)
+		else if (curKey == XASSETKIND)
+		{
+			GetLineChunks(file, chunks);
+
+			std::vector<std::string> data;
+			data.push_back(chunks.front());
+			XComponent* newValue = new XValue(curName, std::move(data));
+			parentComp->AddComponent(newValue);
+
+			GetLineChunks(file, chunks); // end
+		}
+		else if (curKey == XFRAMETRANSFORMMATRIX)
 		{
 			std::vector<float> data;
 			for (int i = 0; i < 4; ++i)
 			{
-				getline(file, line);
-				GetChunks(line, chunks);
+				GetLineChunks(file, chunks);
 				for (int j = 0; j < 4; ++j)
 				{
-					std::string strData = chunks[j];
+					std::string strData = chunks.front(); chunks.pop();
 					data.push_back(stoi(strData));
 				}
 			}
 			XComponent* newValue = new XValue(curName, std::move(data));
-			comps.push_back(newValue);
+			parentComp->AddComponent(newValue);
 
-			getline(file, line); // end
+			GetLineChunks(file, chunks); // end
 		}
-		else if (curKey == MESH)
+		else if (curKey == XMESH)
 		{
 			XComponent* meshComp = new XFrame(curName);
 			//vertex count & vertice
 			{
-				getline(file, line);
-				GetChunks(line, chunks);
-				int vertCount = stoi(chunks[0]);
+				GetLineChunks(file, chunks);
+				int vertCount = stoi(chunks.front()); chunks.pop();
 				XComponent* vertexCountComp = new XValue("nVertices", std::vector<int>{vertCount});
 				meshComp->AddComponent(vertexCountComp);
 
 				std::vector<float> vertice;
 				for (int i = 0; i < vertCount; ++i)
 				{
-					getline(file, line);
-					GetChunks(line, chunks);
-					vertice.push_back(stoi(chunks[0]));//x
-					vertice.push_back(stoi(chunks[1]));//y
-					vertice.push_back(stoi(chunks[2]));//z
+					GetLineChunks(file, chunks);
+					vertice.push_back(stoi(chunks.front())); chunks.pop();//x
+					vertice.push_back(stoi(chunks.front())); chunks.pop();//y
+					vertice.push_back(stoi(chunks.front())); chunks.pop();//z
 				}
 				XComponent* verticeComp = new XValue("vertices", std::move(vertice));
 				meshComp->AddComponent(verticeComp);
@@ -302,85 +303,143 @@ void XReader::Read(std::ifstream& file, std::vector<XComponent*>& comps)
 
 			//face count & faces
 			{
-				getline(file, line);
-				GetChunks(line, chunks);
-				int faceCount = stoi(chunks[0]);
+				GetLineChunks(file, chunks);
+				int faceCount = stoi(chunks.front()); chunks.pop();
 				XComponent* faceCountComp = new XValue("nFaces", std::vector<int>{faceCount});
 				meshComp->AddComponent(faceCountComp);
 
 				std::vector<int> faces;
 				for (int i = 0; i < faceCount; ++i)
 				{
-					getline(file, line);
-					GetChunks(line, chunks);
-					faces.push_back(stoi(chunks[1]));//x
-					faces.push_back(stoi(chunks[2]));//y
-					faces.push_back(stoi(chunks[3]));//z
+					GetLineChunks(file, chunks);
+					chunks.pop();
+					faces.push_back(stoi(chunks.front()));chunks.pop();//x
+					faces.push_back(stoi(chunks.front()));chunks.pop();//y
+					faces.push_back(stoi(chunks.front()));chunks.pop();//z
 				}
 				XComponent* facesComp = new XValue("faces", std::move(faces));
 				meshComp->AddComponent(facesComp);
 			}
 
 			//rest
-			std::vector<XComponent*> extraComposite;
-			Read(file, extraComposite);
-			for (auto extra : extraComposite)
-			{
-				meshComp->AddComponent(extra);
-			}
+			Read(file, meshComp);
 		}
-		else if (curKey == MESHNORMALS)
+		else if (curKey == XMESHNORMALS)
 		{
 			XComponent* normComp = new XFrame(curName);
 			//normals
 			{
-				getline(file, line);
-				GetChunks(line, chunks);
-				int normCount = stoi(chunks[0]);
-				XComponent* normCountComp = new XValue("nNormals", std::vector<int>{normCount});
-				normComp->AddComponent(normCountComp);
+				GetLineChunks(file, chunks);
+				int normCount = stoi(chunks.front()); chunks.pop();
+				XComponent* normCountValue = new XValue("nNormals", std::vector<int>{normCount});
+				normComp->AddComponent(normCountValue);
 
-				std::vector<int> norms;
+				std::vector<float> norms;
 				for (int i = 0; i < normCount; ++i)
 				{
-					getline(file, line);
-					GetChunks(line, chunks);
-					norms.push_back(stoi(chunks[0]));//x
-					norms.push_back(stoi(chunks[1]));//y
-					norms.push_back(stoi(chunks[2]));//z
+					GetLineChunks(file, chunks);
+					norms.push_back(stof(chunks.front())); chunks.pop();//x
+					norms.push_back(stof(chunks.front())); chunks.pop();//y
+					norms.push_back(stof(chunks.front())); chunks.pop();//z
 				}
-				XComponent* normComp = new XValue("normals", std::move(norms));
-				normComp->AddComponent(normComp);
+				XComponent* normValue = new XValue("normals", std::move(norms));
+				normComp->AddComponent(normValue);
 			}
 			//normal faces
 			{
-				getline(file, line);
-				GetChunks(line, chunks);
-				int faceCount = stoi(chunks[0]);
-				XComponent* faceCountComp = new XValue("nFaceNormals", std::vector<int>{faceCount});
-				normComp->AddComponent(faceCountComp);
+				GetLineChunks(file, chunks);
+				int faceCount = stoi(chunks.front()); chunks.pop();
+				XComponent* faceCountValue = new XValue("nFaceNormals", std::vector<int>{faceCount});
+				normComp->AddComponent(faceCountValue);
 
 				std::vector<int> faces;
 				for (int i = 0; i < faceCount; ++i)
 				{
-					getline(file, line);
-					GetChunks(line, chunks);
-					faces.push_back(stoi(chunks[1]));//x
-					faces.push_back(stoi(chunks[2]));//y
-					faces.push_back(stoi(chunks[3]));//z
+					GetLineChunks(file, chunks);
+					faces.push_back(stoi(chunks.front()));chunks.pop();//x
+					faces.push_back(stoi(chunks.front()));chunks.pop();//y
+					faces.push_back(stoi(chunks.front()));chunks.pop();//z
 				}
-				XComponent* normComp = new XValue("faceNormals", std::move(faces));
-				normComp->AddComponent(normComp);
+				XComponent* faceNormValue = new XValue("faceNormals", std::move(faces));
+				normComp->AddComponent(faceNormValue);
 			}
+			parentComp->AddComponent(normComp);
+		}
+		else if (curKey == XANIMATIONKEY)
+		{
+			XComponent* animKeyComp = new XFrame(curName);
+
+			// skip KeyType (only take matrix)
+			GetLineChunks(file, chunks);
+			//key count
+			GetLineChunks(file, chunks);
+			int keyCount = stoi(chunks.front()); chunks.pop();
+			XComponent* keyCountValue = new XValue("KeyCount", std::vector<int>{keyCount});
+			animKeyComp->AddComponent(keyCountValue);
+
+			for (int i = 0; i < keyCount; ++i)
+			{
+				XComponent* subKeyComp = new XComponent(TRUE, "AnimationKey");
+				GetLineChunks(file, chunks);
+				float time = stof(chunks.front()); chunks.pop();
+				chunks.pop(); // skip matrix element count
+				subKeyComp->AddComponent(new XValue("Time", std::vector<float>{time}));
+				std::vector<float> matrix;
+				matrix.push_back(stof(chunks.front()));	chunks.pop();
+				matrix.push_back(stof(chunks.front()));	chunks.pop();
+				matrix.push_back(stof(chunks.front()));	chunks.pop();
+				matrix.push_back(stof(chunks.front()));	chunks.pop();
+				GetLineChunks(file, chunks);
+				matrix.push_back(stof(chunks.front()));	chunks.pop();
+				matrix.push_back(stof(chunks.front()));	chunks.pop();
+				matrix.push_back(stof(chunks.front()));	chunks.pop();
+				matrix.push_back(stof(chunks.front()));	chunks.pop();
+				GetLineChunks(file, chunks);
+				matrix.push_back(stof(chunks.front()));	chunks.pop();
+				matrix.push_back(stof(chunks.front()));	chunks.pop();
+				matrix.push_back(stof(chunks.front()));	chunks.pop();
+				matrix.push_back(stof(chunks.front()));	chunks.pop();
+				GetLineChunks(file, chunks);
+				matrix.push_back(stof(chunks.front()));	chunks.pop();
+				matrix.push_back(stof(chunks.front()));	chunks.pop();
+				matrix.push_back(stof(chunks.front()));	chunks.pop();
+				matrix.push_back(stof(chunks.front()));	chunks.pop();
+				subKeyComp->AddComponent(new XValue("Transform", std::move(matrix)));
+				animKeyComp->AddComponent(subKeyComp);
+			}
+
+			parentComp->AddComponent(animKeyComp);
+		}
+		else if (curKey == XANIMATION)
+		{
+			XComponent* animComp = new XFrame(curName);
+			GetLineChunks(file, chunks);
+			//bone name
+			chunks.pop();
+			std::string boneName = chunks.front();
+			XComponent* boneNameValue = new XValue("BoneName", std::vector<std::string>{boneName});
+			animComp->AddComponent(boneNameValue);
+
+			Read(file, animComp);
+
+			parentComp->AddComponent(animComp);
 		}
 		else
 		{
-			while (getline(file, line))
+			while (GetLineChunks(file, chunks))
 			{
-				if (line.find('}') != std::string::npos)
+				BOOL bOut = FALSE;
+				while (chunks.size())
 				{
-					break;
+					if (chunks.front() == "}")
+					{
+						bOut = TRUE;
+						break;
+					}
+					chunks.pop();
 				}
+				if (bOut)
+					break;
 			}
 		}
 	}

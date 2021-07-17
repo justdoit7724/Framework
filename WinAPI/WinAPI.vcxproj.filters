@@ -135,7 +135,7 @@
     <ClCompile Include="SpotLight.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ResourceMgr.cpp">
+    <ClCompile Include="AssetMgr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Asset.cpp">
@@ -299,7 +299,7 @@
     <ClInclude Include="SpotLight.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ResourceMgr.h">
+    <ClInclude Include="AssetMgr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Asset.h">

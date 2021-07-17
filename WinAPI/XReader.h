@@ -10,6 +10,18 @@ FEATURE
 -Composite pattern used
 */
 
+
+#define XTEMPLATE				"template"
+#define XFRAME					"Frame"
+#define XASSETKIND				"AssetKind"
+#define XFRAMETRANSFORMMATRIX	"FrameTransformMatrix"
+#define XMESH					"Mesh"
+#define XMESHNORMALS			"MeshNormals"
+#define XMESHMATERIALLIST
+#define XANIMATIONKEY			"AnimationKey"
+#define XANIMATION				"Animation"
+#define XANIMATIONSET			"AnimationSet"
+
 class XComponent
 {
 public:
@@ -65,6 +77,6 @@ public:
 
 private:
 	static std::vector<XComponent*> m_list;
-	static void Read(std::ifstream& file, std::vector<XComponent*>& comps);
+	static void Read(std::ifstream& file, XComponent* parentComp);
 };
 
