@@ -45,7 +45,7 @@ private:
 
 	//MESH
 public:
-	BOOL LoadMesh(const void* vertice, int verticeCount, int vertexByteStride, const UINT* indice, int indiceCount, std::string key);
+	BOOL LoadMesh(const DX::Vertex* vertice, int verticeCount, const UINT* indice, int indiceCount, std::string key);
 	BOOL GetMesh(std::string title, VertexBuffer** vb, IndexBuffer** ib);
 	BOOL HasMesh(std::string key);
 private:

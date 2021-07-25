@@ -451,7 +451,7 @@ BOOL ResourceMgr::GetMesh(std::string title, VertexBuffer** vb, IndexBuffer** ib
 	return TRUE;
 }
 
-BOOL ResourceMgr::LoadMesh(const void* vertice, int verticeCount, int vertexByteStride, const UINT* indice, int indiceCount, std::string key)
+BOOL ResourceMgr::LoadMesh(const DX::Vertex* vertice, int verticeCount, const UINT* indice, int indiceCount, std::string key)
 {
 	if (HasMesh(key))
 	{
@@ -460,7 +460,7 @@ BOOL ResourceMgr::LoadMesh(const void* vertice, int verticeCount, int vertexByte
 	}
 
 	MeshInfo newMesh;
-	newMesh.vb = new VertexBuffer(m_device, vertice, verticeCount, vertexByteStride);
+	newMesh.vb = new VertexBuffer(m_device, vertice, verticeCount);
 	newMesh.ib = new IndexBuffer(m_device, indice, indiceCount);
 	m_mMeshBuffer[key] = newMesh;
 

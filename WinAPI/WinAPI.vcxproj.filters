@@ -25,11 +25,11 @@
     <Filter Include="Script">
       <UniqueIdentifier>{387e55a8-caa4-4293-af6b-dfedab59fb86}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Item">
-      <UniqueIdentifier>{8303decb-be51-432f-ae2b-f8533581f278}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Window\Control">
       <UniqueIdentifier>{eac82917-f8e6-442f-81a3-711463542bbd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets">
+      <UniqueIdentifier>{b8c0c0e9-0a71-48e5-9716-6592a4e0ab2c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -135,30 +135,6 @@
     <ClCompile Include="SpotLight.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AssetMgr.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Asset.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Animation.cpp">
-      <Filter>Item</Filter>
-    </ClCompile>
-    <ClCompile Include="Material.cpp">
-      <Filter>Item</Filter>
-    </ClCompile>
-    <ClCompile Include="Mesh.cpp">
-      <Filter>Item</Filter>
-    </ClCompile>
-    <ClCompile Include="Shader.cpp">
-      <Filter>Item</Filter>
-    </ClCompile>
-    <ClCompile Include="Skeleton.cpp">
-      <Filter>Item</Filter>
-    </ClCompile>
-    <ClCompile Include="Texture.cpp">
-      <Filter>Item</Filter>
-    </ClCompile>
     <ClCompile Include="WndDisplayAsset.cpp">
       <Filter>Window</Filter>
     </ClCompile>
@@ -182,6 +158,27 @@
     </ClCompile>
     <ClCompile Include="CtrlTreeView.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Asset.cpp">
+      <Filter>Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetMgr.cpp">
+      <Filter>Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="Material.cpp">
+      <Filter>Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="Model.cpp">
+      <Filter>Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="Skeleton.cpp">
+      <Filter>Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>Assets</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -299,30 +296,6 @@
     <ClInclude Include="SpotLight.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AssetMgr.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Asset.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Animation.h">
-      <Filter>Item</Filter>
-    </ClInclude>
-    <ClInclude Include="Material.h">
-      <Filter>Item</Filter>
-    </ClInclude>
-    <ClInclude Include="Mesh.h">
-      <Filter>Item</Filter>
-    </ClInclude>
-    <ClInclude Include="Shader.h">
-      <Filter>Item</Filter>
-    </ClInclude>
-    <ClInclude Include="Texture.h">
-      <Filter>Item</Filter>
-    </ClInclude>
-    <ClInclude Include="Skeleton.h">
-      <Filter>Item</Filter>
-    </ClInclude>
     <ClInclude Include="WndDisplayAsset.h">
       <Filter>Window</Filter>
     </ClInclude>
@@ -346,6 +319,27 @@
     </ClInclude>
     <ClInclude Include="CtrlTreeView.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetMgr.h">
+      <Filter>Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="Asset.h">
+      <Filter>Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="Model.h">
+      <Filter>Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="Skeleton.h">
+      <Filter>Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Assets</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

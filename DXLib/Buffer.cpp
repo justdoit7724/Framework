@@ -100,17 +100,16 @@ ConstantBuffer::ConstantBuffer(ID3D11Device* device, int byteSize)
 {
 }
 
-VertexBuffer::VertexBuffer(ID3D11Device* device, const void* vertice, int verticeCount, int vertexByteStride)
-	: Buffer(device, CD3D11_BUFFER_DESC(verticeCount* vertexByteStride, D3D11_BIND_VERTEX_BUFFER, D3D11_USAGE_IMMUTABLE, NULL, NULL, NULL), vertice),
-	m_verticeCount(verticeCount),
-	m_vertexByteStride(vertexByteStride)
+VertexBuffer::VertexBuffer(ID3D11Device* device, const DX::Vertex* vertice, int verticeCount)
+	: Buffer(device, CD3D11_BUFFER_DESC(verticeCount* sizeof(DX::Vertex), D3D11_BIND_VERTEX_BUFFER, D3D11_USAGE_IMMUTABLE, NULL, NULL, NULL), vertice),
+	m_verticeCount(verticeCount)
 
 {
 }
 BOOL VertexBuffer::Apply(ID3D11DeviceContext* dContext)
 {
 	UINT offset = 0;
-	UINT stride = m_vertexByteStride;
+	UINT stride = sizeof(DX::Vertex);
 	dContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 	dContext->IASetVertexBuffers(0, 1, GetAddress(), &stride, &offset);
 	return TRUE;

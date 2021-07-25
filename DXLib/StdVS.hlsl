@@ -22,7 +22,7 @@ VS_OUTPUT main(STD_VS_INPUT input)
 {
     VS_OUTPUT output;
     
-    float4 wPos = mul(WMat[input.boneId], float4(input.pos, 1));
+    float4 wPos = mul(WMat[0], float4(input.pos, 1));
     float4 vPos = mul(VMat, wPos);
     float4 pPos = mul(PMat, vPos);
    

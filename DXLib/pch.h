@@ -75,5 +75,6 @@ using namespace DirectX;
 #include <fstream>
 
 #include "PipelineRegFlag.h"
+#include "DefVertex.h"
 
 #endif //PCH_H

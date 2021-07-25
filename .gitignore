@@ -16,9 +16,7 @@
 *.tlog
 *.idb
 *.cso
-*.dll
 *.exp
-*.lib
 *.exe
 ##[Dd]ebugPublic/
 bld/

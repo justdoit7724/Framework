@@ -3,7 +3,7 @@
 #include <shobjidl.h> 
 #include <filesystem>
 
-BOOL FileCtl::GetFiles(std::string folder, std::vector<std::string>& list)
+BOOL FileCtl::GetAll(std::string folder, std::vector<std::string>& list)
 {
 	list.clear();
 
@@ -14,6 +14,24 @@ BOOL FileCtl::GetFiles(std::string folder, std::vector<std::string>& list)
 		std::string tmp;
 		if (!GetTitle(totalPathA, tmp))
 			continue;
+
+		list.push_back(totalPathA);
+	}
+
+	return list.size();
+}
+
+BOOL FileCtl::GetFiles(std::string folder, std::vector<std::string>& list)
+{
+	list.clear();
+
+	for (const auto& file : std::filesystem::directory_iterator(folder))
+	{
+		std::wstring totalPathW = file.path().c_str();
+		std::string totalPathA = std::string(totalPathW.begin(), totalPathW.end());
+		std::string tmp;
+		if (!IsFile(totalPathA))
+			continue;
 		
 		list.push_back(totalPathA);
 	}
@@ -23,29 +41,23 @@ BOOL FileCtl::GetFiles(std::string folder, std::vector<std::string>& list)
 
 BOOL FileCtl::GetTitle(std::string path, std::string& title)
 {
+	std::string path2 = path;
+
     title = "";
 
-	std::string tmpPath = path;
 	int firstPos = -1;
-	int lastPos = -1;
-	for (int i = tmpPath.size() - 1; i >= 0; --i)
+	for (int i = path2.size() - 1; i >= 0; --i)
 	{
-		if (tmpPath[i] == '\\' || tmpPath[i] == '/')
+		if (path2[i] == '\\' || path2[i] == '/')
 		{
 			firstPos = i + 1;
 			break;
 		}
-		else if (tmpPath[i] == '.')
-		{
-			lastPos = i - 1;
-		}
 	}
-	if (firstPos == -1 || lastPos == -1 || firstPos > lastPos)
-		return FALSE;
-
-	title = tmpPath.substr(firstPos, lastPos - firstPos + 1);
-	if (title == "")
-		return FALSE;
+	if (firstPos >= 0)
+		title = path2.substr(firstPos);
+	else
+		title = path2;
 
 	return TRUE;
 }
@@ -97,14 +109,27 @@ BOOL FileCtl::FindFile(std::string& file)
 
 BOOL FileCtl::GetExt(std::string file, std::string& ext)
 {
+	std::string file2 = file;
+
 	ext = "";
 
-	auto dotPos = file.find('.');
+	auto dotPos = file2.rfind('.');
 	if (dotPos == std::string::npos)
 		return FALSE;
-	ext = file.substr(dotPos + 1);
+	ext = file2.substr(dotPos + 1);
 	if (ext.find('.') != std::string::npos)
 		return FALSE;
 
 	return ext.size();
+}
+
+BOOL FileCtl::IsFile(std::string file)
+{
+	if (!GetTitle(file, file))
+		return FALSE;
+
+	if (!GetExt(file, file))
+		return FALSE;
+
+	return TRUE;
 }

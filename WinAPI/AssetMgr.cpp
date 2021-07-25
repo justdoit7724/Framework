@@ -4,9 +4,7 @@
 #include "Shader.h"
 #include "Texture.h"
 #include "Material.h"
-#include "Mesh.h"
-#include "Skeleton.h"
-#include "Animation.h"
+#include "Model.h"
 #include "FileCtl.h"
 #include "XReader.h"
 
@@ -27,6 +25,11 @@
 
 #define PATH_RESOURCE __FILE__"\\..\\..\\Resources"
 
+#define ASSET_ID_MODEL		"Model"
+#define ASSET_ID_TEXTURE	"Texture"
+#define ASSET_ID_MATERIAL	"Material"
+#define ASSET_ID_SHADER		"Shader"
+
 SET_SINGLETON_CPP(AssetMgr, Init)
 
 void AssetMgr::Init()
@@ -36,21 +39,84 @@ void AssetMgr::Init()
 
 void AssetMgr::Load()
 {
-	std::vector<std::string> fileLists;
-	FileCtl::GetFiles(PATH_RESOURCE, fileLists);
-
-
-	/*if (!XReader::Read())
+	std::vector<std::string> fileLists{ PATH_RESOURCE };
+	while(fileLists.size())
 	{
-		ASSERT_MSG(FALSE, "Loading Resources");
-		return;
+		const std::string curPath = fileLists.back(); fileLists.pop_back();
+
+		XFrame* list = nullptr;
+		if (FileCtl::IsFile(curPath) && XReader::Read(curPath, &list))
+		{
+			auto assetKindValue = list->GetChild(XASSETKIND);
+			if (assetKindValue.size())
+			{
+				std::string assetKind = assetKindValue[0]->GetStrings()[0];
+				if (assetKind == ASSET_ID_MODEL)
+				{
+					Model* newModel = new Model;
+
+					std::vector<int> skelParentBoneIndice;
+					std::vector<std::string> skelNames;
+					std::vector<XMMATRIX> skelToParents;
+					std::vector<XMMATRIX> skelOffsets;
+
+					std::stack<std::pair<int, XComponent*>> boneStack;
+					boneStack.push(std::pair<int, XComponent*>(-1, list->GetChild(XFRAME)[0]));
+					while (boneStack.size())
+					{
+						//get cur info
+						int curParentIndex = boneStack.top().first;
+						XComponent* curComp = boneStack.top().second; boneStack.pop();
+						XMMATRIX curBoneTransform(curComp->GetChild(XFRAMETRANSFORMMATRIX)[0]->GetFloats().data());
+						std::string curBoneName = curComp->m_name;
+
+						// define
+						skelParentBoneIndice.push_back(curParentIndex);
+						skelToParents.push_back(curBoneTransform);
+						skelNames.push_back(curBoneName);
+
+						//again
+						int newParentIndex = skelParentBoneIndice.size() - 1;
+						auto meshChildren = curComp->GetChild(XMESH);
+						for (auto meshChild : meshChildren)
+						{
+							boneStack.push(std::pair<int, XComponent*>(newParentIndex, meshChild));
+						}
+					}
+
+					newModel->SetSkeleton(
+						std::move(skelParentBoneIndice),
+						std::move(skelNames),
+						std::move(skelToParents),
+						std::move(skelOffsets));
+				}
+				else if (assetKind == ASSET_ID_TEXTURE)
+				{
+
+				}
+				else if (assetKind == ASSET_ID_MATERIAL)
+				{
+
+				}
+				else if (assetKind == ASSET_ID_SHADER)
+				{
+
+				}
+			}
+		}
+		else
+		{
+			std::vector<std::string> subList;
+			FileCtl::GetAll(curPath, subList);
+			for (auto sub : subList)
+			{
+				fileLists.push_back(sub);
+			}
+		}
+	
 	}
-	XComponent* xComps = XReader::Get(std::vector<std::string>{ ASSETKIND });
-	if (!xComps)
-	{
-		ASSERT_MSG(FALSE, "getting Resources");
-		return;
-	}
+
+	/*
 
 	LoadVShader(folderVS);
 	LoadHShader(folderHS);
@@ -101,12 +167,12 @@ PShader* AssetMgr::GetPShader(std::string key)
 	return m_PShader[key];
 }
 
-Mesh* AssetMgr::GetMesh(std::string key)
+Model* AssetMgr::GetModel(std::string key)
 {
-	if (m_mesh.find(key) == m_mesh.end())
+	if (m_model.find(key) == m_model.end())
 		return nullptr;
 
-	return m_mesh[key];
+	return m_model[key];
 }
 
 Material* AssetMgr::GetMaterial(std::string key)
@@ -323,215 +389,200 @@ BOOL AssetMgr::LoadTex(int graphicID, std::string folder)
 		return FALSE;
 
 	return TRUE;
-}
+}*/
 BOOL AssetMgr::LoadModel(std::string folder)
 {
 	ReleaseModel();
 
-	std::string path = PATH_RESOURCE;
-	path += "\\Model\\";
-
-	std::vector<std::string> files;
-	if (!FileCtl::GetFiles(path, files))
+	std::string title;
+	std::string ext;
+	if (!FileCtl::GetTitle(folder, title) || !FileCtl::GetExt(title, ext) || ext!="fbx")
 		return FALSE;
 
-	for (auto file : files)
+	Assimp::Importer importer;
+	const aiScene* pScene = importer.ReadFile(folder,
+		aiProcess_MakeLeftHanded |
+		aiProcess_FlipWindingOrder |
+		aiProcess_FlipUVs |
+		aiProcess_Triangulate);
+
+	Model* newModel = new Model;
+
+	std::vector<XMMATRIX> vmatToParent;
+	std::vector<int> viHierarchy;
+	std::vector<XMMATRIX> vmatOffset;
+	std::vector<std::string> vBoneName;
+
+	std::stack<std::pair<int, aiNode*>> stNode;
+	stNode.push(std::pair<int, aiNode*>(-1, pScene->mRootNode));
+	while (!stNode.empty())
 	{
-		std::string title;
-		if (!FileCtl::GetTitle(file, title))
-			continue;
+		int curId = stNode.top().first;
+		aiNode* curNode = stNode.top().second;
+		stNode.pop();
 
-		Mesh* newMesh = new Mesh;
-		Skeleton* newSkel = new Skeleton;
-
-		Assimp::Importer importer;
-		const aiScene* pScene = importer.ReadFile(file,
-			aiProcess_MakeLeftHanded |
-			aiProcess_FlipWindingOrder |
-			aiProcess_FlipUVs |
-			aiProcess_Triangulate);
-
-		std::stack<std::pair<int, aiNode*>> stNode;
-		stNode.push(std::pair<int, aiNode*>(-1, pScene->mRootNode));
-
-		std::vector<XMMATRIX> vmatToParent;
-		std::vector<int> viHierarchy;
-		std::vector<XMMATRIX> vmatOffset;
-		std::unordered_map<std::string, int> mNameHierarchy;
-		std::vector<aiMesh*> vMesh;
-
-		while (!stNode.empty())
+		for (int i = curNode->mNumChildren - 1; i >= 0; --i)
 		{
-			int curId = stNode.top().first;
-			aiNode* curNode = stNode.top().second;
-			stNode.pop();
-
-			for (int i = curNode->mNumChildren - 1; i >= 0; --i)
-			{
-				stNode.push(std::pair<int, aiNode*>(viHierarchy.size(), curNode->mChildren[i]));
-			}
-
-			auto matToParent = curNode->mTransformation;
-			XMMATRIX xmmatToParent(
-				matToParent.a1, matToParent.b1, matToParent.c1, matToParent.d1,
-				matToParent.a2, matToParent.b2, matToParent.c2, matToParent.d2,
-				matToParent.a3, matToParent.b3, matToParent.c3, matToParent.d3,
-				matToParent.a4, matToParent.b4, matToParent.c4, matToParent.d4);
-			vmatToParent.push_back(xmmatToParent);
-			viHierarchy.push_back(curId);
-			mNameHierarchy.insert(std::pair<std::string, int>(curNode->mName.C_Str(), mNameHierarchy.size() - 1));
+			stNode.push(std::pair<int, aiNode*>(viHierarchy.size(), curNode->mChildren[i]));
 		}
-		vmatOffset.resize(mNameHierarchy.size());
 
-		for (int i = 0; i < pScene->mNumMeshes; ++i)
+		auto matToParent = curNode->mTransformation;
+		XMMATRIX xmmatToParent(
+			matToParent.a1, matToParent.b1, matToParent.c1, matToParent.d1,
+			matToParent.a2, matToParent.b2, matToParent.c2, matToParent.d2,
+			matToParent.a3, matToParent.b3, matToParent.c3, matToParent.d3,
+			matToParent.a4, matToParent.b4, matToParent.c4, matToParent.d4);
+		vmatToParent.push_back(xmmatToParent);
+		viHierarchy.push_back(curId);
+		vBoneName.push_back(curNode->mName.C_Str());
+	}
+	vmatOffset.resize(vBoneName.size());
+
+	for (int i = 0; i < pScene->mNumMeshes; ++i)
+	{
+		aiMesh* curMesh = pScene->mMeshes[i];
+
+		std::vector<DX::Vertex> vVertice;
+		std::vector<UINT> vIndice;
+		for (int j = 0; j < curMesh->mNumVertices; ++j)
 		{
-			aiMesh* curMesh = pScene->mMeshes[i];
-			vMesh.push_back(curMesh);
+			auto vertex = curMesh->mVertices[j];
+			auto normal = curMesh->mNormals[j];
+			auto tex =  curMesh->mTextureCoords[0][j];
+			DX::Vertex newVertex;
+			newVertex.pos = XMFLOAT3(vertex.x, vertex.y, vertex.z);
+			newVertex.n = XMFLOAT3(normal.x, normal.y, normal.z);
+			newVertex.tex = XMFLOAT2(tex.x, tex.y);
+			vVertice.push_back(newVertex);
+		}
+		for (int i = 0; i < curMesh->mNumFaces; ++i)
+		{
+			aiFace face = curMesh->mFaces[i];
+			assert(face.mNumIndices == 3);
 
-			std::vector<DX::Vertex> vVertice;
-			std::vector<UINT> vIndice;
-			for (int j = 0; j < curMesh->mNumVertices; ++j)
+			for (int j = 0; j < face.mNumIndices; ++j)
 			{
-				auto vertex = curMesh->mVertices[j];
-				auto normal = curMesh->mNormals[j];
-				DX::Vertex newVertex;
-				ZeroMemory(&newVertex, sizeof(DX::Vertex));
-				newVertex.pos = XMFLOAT3(vertex.x, vertex.y, vertex.z);
-				newVertex.n = XMFLOAT3(normal.x, normal.y, normal.z);
-				vVertice.push_back(newVertex);
+				vIndice.push_back(face.mIndices[j]);
 			}
-			for (int i = 0; i < curMesh->mNumFaces; ++i)
-			{
-				aiFace face = curMesh->mFaces[i];
-				assert(face.mNumIndices == 3);
+		}
 
-				for (int j = 0; j < face.mNumIndices; ++j)
+		for (int j = 0; j < curMesh->mNumBones; ++j)
+		{
+			aiBone* curBone = curMesh->mBones[j];
+			std::string strName = curBone->mName.C_Str();
+			int iCurId=0;
+			for (; iCurId < (int)vBoneName.size(); ++iCurId)
+			{
+				if (vBoneName[iCurId] == strName)
 				{
-					vIndice.push_back(face.mIndices[j]);
+					break;
 				}
 			}
 
-
-			std::vector<DX::Vertex> vertice;
-			std::vector<UINT> indice;
-			for (int j = 0; j < curMesh->mNumBones; ++j)
+			for (int k = 0; k < curBone->mNumWeights; ++k)
 			{
-				aiBone* curBone = curMesh->mBones[j];
-
-				std::string strName = curBone->mName.C_Str();
-				assert(mNameHierarchy.find(strName) != mNameHierarchy.end());
-				int iParentId = mNameHierarchy.at(strName);
-				int iCurId = iParentId + 1;
-
-				for (int k = 0; k < curBone->mNumWeights; ++k)
+				auto curWeight = curBone->mWeights[k];
+				for (int l = 0; l < 4; ++l)
 				{
-					auto curWeight = curBone->mWeights[k];
-					vVertice[curWeight.mVertexId].boneId = iCurId;
+					if (vVertice[curWeight.mVertexId].boneId[l] == -1)
+					{
+						vVertice[curWeight.mVertexId].boneId[l] = iCurId;
+					}
 				}
-				auto matOffset = curBone->mOffsetMatrix;
-				XMMATRIX xmmatOffset(
-					matOffset.a1, matOffset.b1, matOffset.c1, matOffset.d1,
-					matOffset.a2, matOffset.b2, matOffset.c2, matOffset.d2,
-					matOffset.a3, matOffset.b3, matOffset.c3, matOffset.d3,
-					matOffset.a4, matOffset.b4, matOffset.c4, matOffset.d4);
-				vmatOffset[iCurId] = xmmatOffset;
 			}
-
-			std::string keySubMesh = title + "_" + std::to_string(i);
-			SubMesh* subMesh = new SubMesh(keySubMesh,vVertice, vIndice);
-			newMesh->SetSubMesh(i, subMesh);
+			auto matOffset = curBone->mOffsetMatrix;
+			XMMATRIX xmmatOffset(
+				matOffset.a1, matOffset.b1, matOffset.c1, matOffset.d1,
+				matOffset.a2, matOffset.b2, matOffset.c2, matOffset.d2,
+				matOffset.a3, matOffset.b3, matOffset.c3, matOffset.d3,
+				matOffset.a4, matOffset.b4, matOffset.c4, matOffset.d4);
+			vmatOffset[iCurId] = xmmatOffset;
 		}
 
-		newSkel->Set(viHierarchy, mNameHierarchy, vmatToParent, vmatOffset);
-
-		
-		//if (pScene->HasMaterials())
-		//{
-		//	for (int i = 0; i < pScene->mNumMaterials; ++i)
-		//	{
-		//		aiMaterial* material = pScene->mMaterials[i];
-		//		for (int j = 0; j < material->mNumProperties; ++j)
-		//		{
-		//			aiMaterialProperty* matProperty = material->mProperties[j];
-		//
-		//			aiString key = matProperty->mKey;
-		//		}
-		//	}
-		//
-		//	//SGL_TEX.Load(device, dContext, )
-		//
-		//	//auto pMaterial = new Material();
-		//}
-		
-
-		
-		//if (pScene->HasAnimations())
-		//{
-		//	auto pSkeleton = new Skeleton(viHierarchy, mNameHierarchy, vmatToParent, vmatOffset);
-		//	auto pAnim = new Animation();
-		//
-		//	for (int i = 0; i < pScene->mNumAnimations; ++i)
-		//	{
-		//		AnimationClip newClip;
-		//		newClip.BoneAnimations.resize(viHierarchy.size());
-		//		auto curAnim = pScene->mAnimations[i];
-		//		for (int j = 0; j < curAnim->mNumChannels; ++j)
-		//		{
-		//			auto curAnimChannel = curAnim->mChannels[j];
-		//			std::string strNodeName = curAnimChannel->mNodeName.C_Str();
-		//			int iCurId = mNameHierarchy.at(strNodeName) + 1;
-		//
-		//			BoneAnimation animFrame;
-		//			assert(
-		//				curAnimChannel->mNumPositionKeys == curAnimChannel->mNumRotationKeys &&
-		//				curAnimChannel->mNumPositionKeys == curAnimChannel->mNumScalingKeys);
-		//			for (int k = 0; k < curAnimChannel->mNumPositionKeys; ++k)
-		//			{
-		//				KeyFrame newFrame;
-		//				aiVector3D curPosKey = curAnimChannel->mPositionKeys[k].mValue;
-		//				aiQuaternion curRotKey = curAnimChannel->mRotationKeys[k].mValue;
-		//				aiVector3D curScaleKey = curAnimChannel->mScalingKeys[k].mValue;
-		//
-		//				//newFrame.timePos = curAnimChannel->
-		//				newFrame.timePos = curAnimChannel->mPositionKeys[k].mTime;
-		//				newFrame.translation = XMFLOAT3(curPosKey.x, curPosKey.y, curPosKey.z);
-		//				newFrame.rotationQuat = XMFLOAT4(curRotKey.x, curRotKey.y, curRotKey.z, curRotKey.w);
-		//				newFrame.scale = XMFLOAT3(curScaleKey.x, curScaleKey.y, curScaleKey.z);
-		//				animFrame.Keyframes.push_back(newFrame);
-		//			}
-		//
-		//			newClip.BoneAnimations[iCurId] = animFrame;
-		//		}
-		//
-		//		std::string strAnimName = curAnim->mName.C_Str();
-		//
-		//		pAnim->Set(strAnimName, newClip);
-		//	}
-		//
-		//	(*pMesh)->SetSkeleton(pSkeleton);
-		//	(*pMesh)->SetAnimation(pAnim);
-		//}
-		
-
-
-
-		m_mesh[title] = newMesh;
-		m_skel[title] = newSkel;
+		newModel->AddSubMesh(i, vVertice, vIndice);
 	}
 
-	if (m_mesh.empty())
-		return FALSE;
+	newModel->SetSkeleton(std::move(viHierarchy), std::move(vBoneName), std::move(vmatToParent), std::move(vmatOffset));
 
+	//if (pScene->HasMaterials())
+	//{
+	//	for (int i = 0; i < pScene->mNumMaterials; ++i)
+	//	{
+	//		aiMaterial* material = pScene->mMaterials[i];
+	//		for (int j = 0; j < material->mNumProperties; ++j)
+	//		{
+	//			aiMaterialProperty* matProperty = material->mProperties[j];
+	//
+	//			aiString key = matProperty->mKey;
+	//		}
+	//	}
+	//
+	//	//SGL_TEX.Load(device, dContext, )
+	//
+	//	//auto pMaterial = new Material();
+	//}
+	
+
+	
+	if (pScene->HasAnimations())
+	{
+		for (int i = 0; i < pScene->mNumAnimations; ++i) // animation count
+		{
+			AnimationClip newClip;
+			newClip.boneAnims.resize(viHierarchy.size());
+
+			auto curAnim = pScene->mAnimations[i];
+			for (int j = 0; j < curAnim->mNumChannels; ++j) // bones's info
+			{
+				auto curAnimChannel = curAnim->mChannels[j];
+				int iCurId = -1;
+				for (int k = 0; k < vBoneName.size(); ++k)
+				{
+					if (vBoneName[k] == curAnimChannel->mNodeName.C_Str())
+					{
+						iCurId = k;
+					}
+				}
+				if (iCurId < 0)
+					continue;
+	
+				BoneAnimation animFrame;
+				assert(
+					curAnimChannel->mNumPositionKeys == curAnimChannel->mNumRotationKeys &&
+					curAnimChannel->mNumPositionKeys == curAnimChannel->mNumScalingKeys);
+				for (int k = 0; k < curAnimChannel->mNumPositionKeys; ++k)
+				{
+					aiVector3D curPosKey = curAnimChannel->mPositionKeys[k].mValue;
+					aiQuaternion curRotKey = curAnimChannel->mRotationKeys[k].mValue;
+					aiVector3D curScaleKey = curAnimChannel->mScalingKeys[k].mValue;
+	
+					KeyFrame newFrame;
+					newFrame.timePos = curAnimChannel->mPositionKeys[k].mTime;
+					newFrame.translation = XMFLOAT3(curPosKey.x, curPosKey.y, curPosKey.z);
+					newFrame.rotationQuat = XMFLOAT4(curRotKey.x, curRotKey.y, curRotKey.z, curRotKey.w);
+					newFrame.scale = XMFLOAT3(curScaleKey.x, curScaleKey.y, curScaleKey.z);
+					animFrame.keyFrames.push_back(newFrame);
+				}
+	
+				newClip.boneAnims[iCurId] = animFrame;
+			}
+	
+			newModel->SetAnimations(curAnim->mName.C_Str(), newClip);
+		}
+	}
+	
+	m_model[folder] = newModel;
+	
 	return TRUE;
-}*/
+}
 
 void AssetMgr::ReleaseModel()
 {
-	for (auto mesh : m_mesh)
+	for (auto mesh : m_model)
 	{
 		delete mesh.second;
 	}
-	m_mesh.clear();
+	m_model.clear();
 }
 
 void AssetMgr::ReleaseShader()
@@ -555,19 +606,19 @@ void AssetMgr::ReleaseShader()
 
 void AssetMgr::ReleaseTexture()
 {
-	for (auto mesh : m_mesh)
+	for (auto tex : m_tex)
 	{
-		delete mesh.second;
+		delete tex.second;
 	}
-	m_mesh.clear();
+	m_tex.clear();
 }
 
 void AssetMgr::ReleaseMaterial()
 {
-	for (auto mesh : m_mesh)
+	for (auto mat : m_mat)
 	{
-		delete mesh.second;
+		delete mat.second;
 	}
-	m_mesh.clear();
+	m_mat.clear();
 }
 

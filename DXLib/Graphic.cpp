@@ -298,11 +298,11 @@ namespace DX {
 			IndexBuffer* ib;
 			if (!m_ResourceMgr->HasMesh(*key))
 			{
-				const void* verticeData = datas[1];
+				const DX::Vertex* verticeData = (const DX::Vertex * )datas[1];
 				int* vertexCount = (int*)datas[2];
 				const UINT* indiceData = (const UINT*)datas[3];
 				int* indexCount = (int*)datas[4];
-				m_ResourceMgr->LoadMesh(verticeData, *vertexCount, sizeof(DX::Vertex), indiceData, *indexCount, *key);
+				m_ResourceMgr->LoadMesh(verticeData, *vertexCount, indiceData, *indexCount, *key);
 			}
 			m_ResourceMgr->GetMesh(*key, &vb, &ib);
 

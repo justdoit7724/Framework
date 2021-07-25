@@ -35,13 +35,12 @@ public:
 class VertexBuffer : public Buffer
 {
 public:
-	VertexBuffer(ID3D11Device* device, const void* vertice, int verticeCount, int vertexByteStride);
+	VertexBuffer(ID3D11Device* device, const DX::Vertex* vertice, int verticeCount);
 
 	BOOL Apply(ID3D11DeviceContext* dContext);
 
 private:
 	int m_verticeCount;
-	int m_vertexByteStride;
 };
 
 class IndexBuffer : public Buffer

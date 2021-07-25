@@ -2,8 +2,9 @@
 #include "XReader.h"
 
 
-XComponent::XComponent(BOOL bComposite, std::string name)
+XComponent::XComponent(BOOL bComposite, std::string key, std::string name)
 	:m_bComposite(bComposite),
+	m_key(key),
 	m_name(name)
 {
 }
@@ -13,53 +14,53 @@ XComponent::~XComponent()
 {
 }
 
-XFrame::XFrame(std::string name)
-	:XComponent(TRUE,name)
+XFrame::XFrame(std::string key, std::string name)
+	:XComponent(TRUE, key,name)
 {
 }
 
 XFrame::~XFrame()
 {
-	for (auto data : m_components)
+	for (auto components : m_components)
 	{
-		delete data;
+		for (auto comp : components.second)
+		{
+			delete comp;
+		}
 	}
+	m_components.clear();
 }
 
 BOOL XFrame::AddComponent(XComponent* c)
 {
-m_components.push_back(c);
+	m_components[c->m_key].push_back(c);
 
-return TRUE;
+	return TRUE;
 }
 
 int XFrame::Size()
 {
 	return m_components.size();
 }
-XComponent* XFrame::GetChild(std::string name)
+std::vector<XComponent*> XFrame::GetChild(std::string key)
 {
-	for (auto comp : m_components)
-	{
-		if (comp->m_name == name)
-			return comp;
-	}
+	if (m_components.find(key) != m_components.end())
+		return m_components[key];
 
-	return nullptr;
+	return std::vector<XComponent*>();
 }
-
 XValue::XValue(std::string name, std::vector<float>&& data)
-	:XComponent(FALSE, name),
+	:XComponent(FALSE, "Value", name),
 	m_floats(data)
 {
 }
 XValue::XValue(std::string name, std::vector<int>&& data)
-	: XComponent(FALSE, name),
+	: XComponent(FALSE, "Value", name),
 	m_ints(data)
 {
 }
 XValue::XValue(std::string name, std::vector<std::string>&& data)
-	: XComponent(FALSE, name),
+	: XComponent(FALSE, "Value", name),
 	m_strings(data)
 {
 }
@@ -152,60 +153,23 @@ BOOL GetLineChunks(std::ifstream& file, std::queue<std::string>& chunks)
 
 }
 
-std::vector<XComponent*> XReader::m_list;
-BOOL XReader::Read(std::string path)
+BOOL XReader::Read(std::string path, XFrame** list)
 {
-	for (auto comp : m_list)
-		delete comp;
-	m_list.clear();
+	if (*list)
+		delete (*list);
+
+	*list = new XFrame("XData","XData");
 
 	std::string line;
 	std::ifstream file(path);
-	if (!file.is_open())
+	if (!file.is_open() || !getline(file, line))
 		return FALSE;
 
-	// read values
-	XFrame comp("Temp");
-	Read(file, &comp);
-	for (auto comp : comp.m_components)
-	{
-		m_list.push_back(comp);
-	}
+	Read(file, *list);
 	
 	file.close();
 
-	return 0;
-}
-
-XComponent* XReader::Get(const std::vector<std::string>&& list)
-{
-	if (list.empty())
-		return nullptr;
-
-	XComponent* curComp = nullptr;
-	for (auto comp : m_list)
-	{
-		if (comp->m_name == list.front())
-		{
-			curComp = comp;
-			break;
-		}
-	}
-	if (!curComp)
-		return nullptr;
-	
-	for (int i=1; i<list.size(); ++i)
-	{
-		XComponent* child = curComp->GetChild(list[i]);
-		if (!child)
-		{
-			break;
-		}
-
-		curComp = child;
-	}
-
-	return curComp;
+	return TRUE;
 }
 
 void XReader::Read(std::ifstream& file, XComponent* parentComp)
@@ -248,8 +212,9 @@ void XReader::Read(std::ifstream& file, XComponent* parentComp)
 		}
 		else if (curKey == XFRAME)
 		{
-			XComponent* frameComp = new XFrame(curName);
+			XComponent* frameComp = new XFrame(curKey, curName);
 			Read(file, frameComp);
+			parentComp->AddComponent(frameComp);
 		}
 		else if (curKey == XASSETKIND)
 		{
@@ -281,7 +246,7 @@ void XReader::Read(std::ifstream& file, XComponent* parentComp)
 		}
 		else if (curKey == XMESH)
 		{
-			XComponent* meshComp = new XFrame(curName);
+			XComponent* meshComp = new XFrame(curKey, curName);
 			//vertex count & vertice
 			{
 				GetLineChunks(file, chunks);
@@ -293,9 +258,9 @@ void XReader::Read(std::ifstream& file, XComponent* parentComp)
 				for (int i = 0; i < vertCount; ++i)
 				{
 					GetLineChunks(file, chunks);
-					vertice.push_back(stoi(chunks.front())); chunks.pop();//x
-					vertice.push_back(stoi(chunks.front())); chunks.pop();//y
-					vertice.push_back(stoi(chunks.front())); chunks.pop();//z
+					vertice.push_back(stof(chunks.front())); chunks.pop();//x
+					vertice.push_back(stof(chunks.front())); chunks.pop();//y
+					vertice.push_back(stof(chunks.front())); chunks.pop();//z
 				}
 				XComponent* verticeComp = new XValue("vertices", std::move(vertice));
 				meshComp->AddComponent(verticeComp);
@@ -323,10 +288,11 @@ void XReader::Read(std::ifstream& file, XComponent* parentComp)
 
 			//rest
 			Read(file, meshComp);
+			parentComp->AddComponent(meshComp);
 		}
 		else if (curKey == XMESHNORMALS)
 		{
-			XComponent* normComp = new XFrame(curName);
+			XComponent* normComp = new XFrame(curKey, curName);
 			//normals
 			{
 				GetLineChunks(file, chunks);
@@ -364,10 +330,34 @@ void XReader::Read(std::ifstream& file, XComponent* parentComp)
 				normComp->AddComponent(faceNormValue);
 			}
 			parentComp->AddComponent(normComp);
+
+			GetLineChunks(file, chunks); // end
+		}
+		else if (curKey == XMESHTEXTURECOORDS)
+		{
+			XComponent* texCoordComp = new XFrame(curKey, curName);
+			
+			GetLineChunks(file, chunks);
+			int coordCount = stoi(chunks.front()); chunks.pop();
+			XComponent* coordCountComp = new XValue("TexCoordCount", std::vector<int>{coordCount});
+			texCoordComp->AddComponent(coordCountComp);
+
+			std::vector<int> coords;
+			for (int i = 0; i < coordCount; ++i)
+			{
+				GetLineChunks(file, chunks);
+				coords.push_back(stof(chunks.front())); chunks.pop();//x
+				coords.push_back(stof(chunks.front())); chunks.pop();//y
+			}
+			XComponent* verticeComp = new XValue("TexCoords", std::move(coords));
+			texCoordComp->AddComponent(verticeComp);
+			
+			parentComp->AddComponent(texCoordComp);
+			GetLineChunks(file, chunks); // end
 		}
 		else if (curKey == XANIMATIONKEY)
 		{
-			XComponent* animKeyComp = new XFrame(curName);
+			XComponent* animKeyComp = new XFrame(curKey, curName);
 
 			// skip KeyType (only take matrix)
 			GetLineChunks(file, chunks);
@@ -379,7 +369,7 @@ void XReader::Read(std::ifstream& file, XComponent* parentComp)
 
 			for (int i = 0; i < keyCount; ++i)
 			{
-				XComponent* subKeyComp = new XComponent(TRUE, "AnimationKey");
+				XComponent* subKeyComp = new XFrame("AnimationKey","AnimationKey");
 				GetLineChunks(file, chunks);
 				float time = stof(chunks.front()); chunks.pop();
 				chunks.pop(); // skip matrix element count
@@ -409,10 +399,11 @@ void XReader::Read(std::ifstream& file, XComponent* parentComp)
 			}
 
 			parentComp->AddComponent(animKeyComp);
+			GetLineChunks(file, chunks); // end
 		}
 		else if (curKey == XANIMATION)
 		{
-			XComponent* animComp = new XFrame(curName);
+			XComponent* animComp = new XFrame(curKey, curName);
 			GetLineChunks(file, chunks);
 			//bone name
 			chunks.pop();
@@ -423,6 +414,25 @@ void XReader::Read(std::ifstream& file, XComponent* parentComp)
 			Read(file, animComp);
 
 			parentComp->AddComponent(animComp);
+		}
+		else if (curKey == XANIMATIONSET)
+		{
+			XComponent* animSetComp = new XFrame(curKey, curName);
+
+			Read(file, animSetComp);
+
+			parentComp->AddComponent(animSetComp);
+		}
+		else if (curKey == XASSET)
+		{
+			GetLineChunks(file, chunks);
+
+			std::vector<std::string> data;
+			data.push_back(chunks.front());
+			XComponent* newValue = new XValue(curName, std::move(data));
+			parentComp->AddComponent(newValue);
+
+			GetLineChunks(file, chunks); // end
 		}
 		else
 		{

@@ -5,9 +5,7 @@
 
 #define SGL_AssetMgr AssetMgr::Instance()
 
-class Mesh;
-class Skeleton;
-class Animation;
+class Model;
 class Texture;
 class VShader;
 class HShader;
@@ -29,9 +27,11 @@ public:
 	DShader* GetDShader(std::string key);
 	GShader* GetGShader(std::string key);
 	PShader* GetPShader(std::string key);
-	Mesh* GetMesh(std::string key);
+	Model* GetModel(std::string key);
 	Material* GetMaterial(std::string key);
 	Texture* GetTexture(std::string key);
+
+	BOOL LoadModel(std::string folder);
 
 private:
 	void Load(std::string subPath);
@@ -45,7 +45,7 @@ private:
 	 BOOL LoadModel(std::string path);
 	 BOOL LoadMaterial(std::string path);*/
 
-	 void ReleaseModel();
+	void ReleaseModel();
 	 void ReleaseShader();
 	 void ReleaseTexture();
 	 void ReleaseMaterial();
@@ -57,8 +57,6 @@ private:
 	std::unordered_map<std::string,PShader*> m_PShader;
 	std::unordered_map<std::string,Texture*> m_tex;
 	std::unordered_map<std::string, Material*> m_mat;
-	std::unordered_map<std::string, Mesh*> m_mesh;
-	std::unordered_map<std::string, Skeleton*> m_skel;
-	std::unordered_map<std::string, Animation*> m_anim;
+	std::unordered_map<std::string, Model*> m_model;
 };
 
