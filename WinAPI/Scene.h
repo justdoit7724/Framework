@@ -1,6 +1,6 @@
 #pragma once
 #include "WndDisplay.h"
-
+#include "DefComponent.h"
 
 class Object;
 
@@ -8,6 +8,8 @@ class Scene
 {
 public:
 	virtual ~Scene();
+
+	static Scene* CreateScene(SCENE_KIND kind, DX::Graphic* graphic);
 
 protected:
 	Scene() = delete;

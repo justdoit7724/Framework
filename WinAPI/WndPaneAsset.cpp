@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "WndPaneAsset.h"
-#include "WndDisplayAsset.h"
 #include "PaneAssetScene.h"
 #include "SceneMgr.h"
 #include "FileCtl.h"
@@ -8,6 +7,7 @@
 #include "CtrlButton.h"
 #include "CtrlEdit.h"
 #include "CtrlTreeView.h"
+#include "DefComponent.h"
 
 enum {
 	ID_BTN_PANE_ASSET_OPEN=95,
@@ -24,8 +24,9 @@ WndPaneAsset::WndPaneAsset(HINSTANCE hInstance, HWND parent)
 	
 	m_tvProject = new CtrlTreeView(hInstance, m_hWnd, 50, 700, 200, 400, ID_BTN_PANE_ASSET_PROJECT);
 
-	m_wndDisplay = new WndDisplayAsset(hInstance, m_hWnd, 20, 20, 800, 800,1);
+	m_wndDisplay = new WndDisplay(hInstance, m_hWnd, 20, 20, 800, 800,1);
 	m_wndDisplay->ShowWindow(TRUE);
+	m_wndDisplay->AddScene(SCENE_KIND::Asset);
 }
 
 WndPaneAsset::~WndPaneAsset()

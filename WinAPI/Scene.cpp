@@ -1,17 +1,32 @@
 #include "stdafx.h"
 #include "Scene.h"
-#include "SceneMgr.h"
 #include "Object.h"
+#include "PaneAssetScene.h"
 
 Scene::Scene(DX::Graphic* graphic, std::string key)
 	:m_dxGraphic(graphic), m_strKey(key)
 {
-	SGL_SceneMgr.Add(graphic, this);
 }
 
 Scene::~Scene()
 {
-	SGL_SceneMgr.Remove(m_dxGraphic, m_strKey);
+}
+
+Scene* Scene::CreateScene(SCENE_KIND kind, DX::Graphic* graphic)
+{
+	Scene* newScene = nullptr;
+
+	switch (kind)
+	{
+		case SCENE_KIND::Play:
+			break;
+		case SCENE_KIND::Asset:
+
+			newScene = new PaneAssetScene(graphic);
+			break;
+	}
+
+	return newScene;
 }
 
 void Scene::Update()

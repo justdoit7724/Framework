@@ -24,7 +24,7 @@ void Model::AddSubMesh(int id, const std::vector<DX::Vertex>& vertice, const std
 	}
 }
 
-void Model::SetSkeleton(const std::vector<int>&& parentIndice, const std::vector<std::string>&& names, const std::vector<XMMATRIX>&& toParents, const std::vector<XMMATRIX>&& offsets)
+void Model::SetSkeleton(const std::vector<int>&& parentIndice, const std::unordered_map<std::string,int>&& names, const std::vector<XMMATRIX>&& toParents, const std::vector<std::vector<XMMATRIX>>&& offsets)
 {
 	m_SkelParentIndice = parentIndice;
 	m_SkelNames = names;
@@ -37,7 +37,7 @@ void Model::SetAnimations(std::string name, AnimationClip clip)
 	m_animClips[name] = clip;
 }
 
-std::vector<XMMATRIX> Model::GetFinalTransform(std::string name, float t)
+std::vector<XMMATRIX> Model::GetFinalTransform(int id, std::string name, float t)
 {
 	if (m_animClips.find(name) == m_animClips.end())
 		return std::vector<XMMATRIX>();
@@ -60,7 +60,7 @@ std::vector<XMMATRIX> Model::GetFinalTransform(std::string name, float t)
 	}
 	for (int i = 0; i < nBone; ++i)
 	{
-		XMMATRIX offset = m_SkelOffset[i];
+		XMMATRIX offset = m_SkelOffset[id][i];
 		XMMATRIX toRoot = lerpToParentsWorld[i];
 
 		finalTransforms.push_back(offset * toRoot);

@@ -26,7 +26,7 @@ protected:
 	//creation
 public:
 	void RegisterWnd();
-	void CreateWnd(HWND parent, DWORD dwStyle, int x, int y, int w, int h);
+	void CreateWnd(HWND parent, HMENU key, DWORD dwStyle, int x, int y, int w, int h);
 	const std::string m_id;
 protected:
 	Window(HINSTANCE hInstance, std::string id);
@@ -55,7 +55,7 @@ class WndBkg : public Window
 {
 public:
 	WndBkg(HINSTANCE hInstance, std::string key, DWORD dwStyle, HWND parent, int x, int y, int w, int h);
-	~WndBkg();
+	virtual ~WndBkg();
 
 	//controls
 protected:

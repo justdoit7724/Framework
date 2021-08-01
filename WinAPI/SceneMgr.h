@@ -1,8 +1,6 @@
 #pragma once
 #include "Singleton.h"
 
-#define SGL_SceneMgr SceneMgr::Instance()
-
 class Scene;
 
 class SceneMgr

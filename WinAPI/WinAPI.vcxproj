@@ -195,7 +195,6 @@
     <ClCompile Include="UI.cpp" />
     <ClCompile Include="Window.cpp" />
     <ClCompile Include="WndDisplay.cpp" />
-    <ClCompile Include="WndDisplayAsset.cpp" />
     <ClCompile Include="WndMain.cpp" />
     <ClCompile Include="WndMgr.cpp" />
     <ClCompile Include="WndPaneAsset.cpp" />
@@ -250,7 +249,6 @@
     <ClInclude Include="Window.h" />
     <ClInclude Include="WindowDef.h" />
     <ClInclude Include="WndDisplay.h" />
-    <ClInclude Include="WndDisplayAsset.h" />
     <ClInclude Include="WndMain.h" />
     <ClInclude Include="WndMgr.h" />
     <ClInclude Include="WndPaneAsset.h" />

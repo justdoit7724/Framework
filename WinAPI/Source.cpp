@@ -14,11 +14,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 	srand(time(NULL));
 
-	SGL_AssetMgr.LoadModel("C:\\Users\\Jun\\Downloads\\Model\\Dragon\\fbx\\Dragon_Baked_Actions_fbx_7.4_binary.fbx");
-
-	SGL_AssetMgr.Load();
-
-	return 0;
+	//SGL_AssetMgr.Load();
 
 	Window* mainWnd = new WndMain(hInstance);
 	mainWnd->ShowWindow(TRUE);

@@ -37,6 +37,12 @@ struct Frustum
 	Frustum() {}
 };
 
+enum class SCENE_KIND
+{
+	Play,
+	Asset
+};
+
 enum class CMPNT_KIND
 {
 	Transform = 0,

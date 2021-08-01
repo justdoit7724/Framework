@@ -49,18 +49,18 @@ std::vector<XComponent*> XFrame::GetChild(std::string key)
 
 	return std::vector<XComponent*>();
 }
-XValue::XValue(std::string name, std::vector<float>&& data)
-	:XComponent(FALSE, "Value", name),
+XValue::XValue(std::string key, std::vector<float>&& data)
+	:XComponent(FALSE, key, "Value"),
 	m_floats(data)
 {
 }
-XValue::XValue(std::string name, std::vector<int>&& data)
-	: XComponent(FALSE, "Value", name),
+XValue::XValue(std::string key, std::vector<int>&& data)
+	: XComponent(FALSE, key, "Value"),
 	m_ints(data)
 {
 }
-XValue::XValue(std::string name, std::vector<std::string>&& data)
-	: XComponent(FALSE, "Value", name),
+XValue::XValue(std::string key, std::vector<std::string>&& data)
+	: XComponent(FALSE, key, "Value"),
 	m_strings(data)
 {
 }
@@ -153,19 +153,14 @@ BOOL GetLineChunks(std::ifstream& file, std::queue<std::string>& chunks)
 
 }
 
-BOOL XReader::Read(std::string path, XFrame** list)
+BOOL XReader::Read(std::string path, XFrame* list)
 {
-	if (*list)
-		delete (*list);
-
-	*list = new XFrame("XData","XData");
-
 	std::string line;
 	std::ifstream file(path);
 	if (!file.is_open() || !getline(file, line))
 		return FALSE;
 
-	Read(file, *list);
+	Read(file, list);
 	
 	file.close();
 
@@ -222,7 +217,7 @@ void XReader::Read(std::ifstream& file, XComponent* parentComp)
 
 			std::vector<std::string> data;
 			data.push_back(chunks.front());
-			XComponent* newValue = new XValue(curName, std::move(data));
+			XComponent* newValue = new XValue(curKey, std::move(data));
 			parentComp->AddComponent(newValue);
 
 			GetLineChunks(file, chunks); // end
@@ -251,7 +246,7 @@ void XReader::Read(std::ifstream& file, XComponent* parentComp)
 			{
 				GetLineChunks(file, chunks);
 				int vertCount = stoi(chunks.front()); chunks.pop();
-				XComponent* vertexCountComp = new XValue("nVertices", std::vector<int>{vertCount});
+				XComponent* vertexCountComp = new XValue(XMESH_VERT_COUNT, std::vector<int>{vertCount});
 				meshComp->AddComponent(vertexCountComp);
 
 				std::vector<float> vertice;
@@ -262,7 +257,7 @@ void XReader::Read(std::ifstream& file, XComponent* parentComp)
 					vertice.push_back(stof(chunks.front())); chunks.pop();//y
 					vertice.push_back(stof(chunks.front())); chunks.pop();//z
 				}
-				XComponent* verticeComp = new XValue("vertices", std::move(vertice));
+				XComponent* verticeComp = new XValue(XMESH_VERT, std::move(vertice));
 				meshComp->AddComponent(verticeComp);
 			}
 
@@ -270,7 +265,7 @@ void XReader::Read(std::ifstream& file, XComponent* parentComp)
 			{
 				GetLineChunks(file, chunks);
 				int faceCount = stoi(chunks.front()); chunks.pop();
-				XComponent* faceCountComp = new XValue("nFaces", std::vector<int>{faceCount});
+				XComponent* faceCountComp = new XValue(XMESH_FACE_COUNT, std::vector<int>{faceCount});
 				meshComp->AddComponent(faceCountComp);
 
 				std::vector<int> faces;
@@ -282,7 +277,7 @@ void XReader::Read(std::ifstream& file, XComponent* parentComp)
 					faces.push_back(stoi(chunks.front()));chunks.pop();//y
 					faces.push_back(stoi(chunks.front()));chunks.pop();//z
 				}
-				XComponent* facesComp = new XValue("faces", std::move(faces));
+				XComponent* facesComp = new XValue(XMESH_FACE, std::move(faces));
 				meshComp->AddComponent(facesComp);
 			}
 
@@ -297,7 +292,7 @@ void XReader::Read(std::ifstream& file, XComponent* parentComp)
 			{
 				GetLineChunks(file, chunks);
 				int normCount = stoi(chunks.front()); chunks.pop();
-				XComponent* normCountValue = new XValue("nNormals", std::vector<int>{normCount});
+				XComponent* normCountValue = new XValue(XMESHNORMALS_NORM_COUNT, std::vector<int>{normCount});
 				normComp->AddComponent(normCountValue);
 
 				std::vector<float> norms;
@@ -308,14 +303,14 @@ void XReader::Read(std::ifstream& file, XComponent* parentComp)
 					norms.push_back(stof(chunks.front())); chunks.pop();//y
 					norms.push_back(stof(chunks.front())); chunks.pop();//z
 				}
-				XComponent* normValue = new XValue("normals", std::move(norms));
+				XComponent* normValue = new XValue(XMESHNORMALS_NORM, std::move(norms));
 				normComp->AddComponent(normValue);
 			}
 			//normal faces
 			{
 				GetLineChunks(file, chunks);
 				int faceCount = stoi(chunks.front()); chunks.pop();
-				XComponent* faceCountValue = new XValue("nFaceNormals", std::vector<int>{faceCount});
+				XComponent* faceCountValue = new XValue(XMESHNORMALS_INDEX_COUNT, std::vector<int>{faceCount});
 				normComp->AddComponent(faceCountValue);
 
 				std::vector<int> faces;
@@ -326,7 +321,7 @@ void XReader::Read(std::ifstream& file, XComponent* parentComp)
 					faces.push_back(stoi(chunks.front()));chunks.pop();//y
 					faces.push_back(stoi(chunks.front()));chunks.pop();//z
 				}
-				XComponent* faceNormValue = new XValue("faceNormals", std::move(faces));
+				XComponent* faceNormValue = new XValue(XMESHNORMALS_INDEX, std::move(faces));
 				normComp->AddComponent(faceNormValue);
 			}
 			parentComp->AddComponent(normComp);
@@ -430,6 +425,17 @@ void XReader::Read(std::ifstream& file, XComponent* parentComp)
 			std::vector<std::string> data;
 			data.push_back(chunks.front());
 			XComponent* newValue = new XValue(curName, std::move(data));
+			parentComp->AddComponent(newValue);
+
+			GetLineChunks(file, chunks); // end
+		}
+		else if (curKey == XRESOURCE)
+		{
+			GetLineChunks(file, chunks);
+
+			std::vector<std::string> data;
+			data.push_back(chunks.front());
+			XComponent* newValue = new XValue(curKey, std::move(data));
 			parentComp->AddComponent(newValue);
 
 			GetLineChunks(file, chunks); // end

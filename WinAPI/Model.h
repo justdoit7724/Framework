@@ -106,19 +106,19 @@ private:
 public:
 	void SetSkeleton(
 		const std::vector<int>&& parentIndice,
-		const std::vector<std::string>&& names,
+		const std::unordered_map<std::string, int>&& names,
 		const std::vector<XMMATRIX>&& toParents,
-		const std::vector<XMMATRIX>&& offsets);
+		const std::vector<std::vector<XMMATRIX>>&& offsets);
 private:
 	std::vector<int> m_SkelParentIndice;
-	std::vector<std::string> m_SkelNames;
+	std::unordered_map<std::string,int> m_SkelNames;
 	std::vector<XMMATRIX> m_SkelToParents;
-	std::vector<XMMATRIX> m_SkelOffset;
+	std::vector<std::vector<XMMATRIX>> m_SkelOffset;
 
 	//animations
 public:
 	void SetAnimations(std::string name, AnimationClip clip);
-	std::vector<XMMATRIX> GetFinalTransform(std::string name, float t);
+	std::vector<XMMATRIX> GetFinalTransform(int id, std::string name, float t);
 private:
 	std::unordered_map<std::string, AnimationClip> m_animClips;
 };

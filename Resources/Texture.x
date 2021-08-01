@@ -5,6 +5,5 @@ AssetKind {
 }
 
 Resource {
-  image;
-  jpg;
+  image.jpg;
 }

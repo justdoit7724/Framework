@@ -2,10 +2,11 @@
 #include "CtrlButton.h"
 
 CtrlButton::CtrlButton(HINSTANCE hInstance, HWND parent, std::string caption, int x, int y, int w, int h, int key)
-	:WndCtrl(hInstance, "button",m_key, WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, parent, x,y,w,h),
-	m_caption(""),
+	:WndCtrl(hInstance, "button",key, WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, parent, x,y,w,h),
+	m_caption(caption),
 	m_func(nullptr)
 {
+	SetCaption(m_caption);
 }
 
 CtrlButton::~CtrlButton()
@@ -15,6 +16,8 @@ CtrlButton::~CtrlButton()
 void CtrlButton::SetCaption(std::string caption)
 {
 	m_caption = caption;
+
+	SetWindowTextA(m_hWnd, m_caption.c_str());
 }
 
 void CtrlButton::SetClickFunc(std::function<void()>&& func)

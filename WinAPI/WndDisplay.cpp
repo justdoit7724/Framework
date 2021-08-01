@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "WndDisplay.h"
 #include "Scene.h"
-#include "SceneMgr.h"
 #include "Timer.h"
 #include "Keyboard.h"
 #include "Mouse.h"
@@ -13,7 +12,7 @@ WndDisplay::WndDisplay(HINSTANCE hInstance, HWND parent, int x, int y, int width
 	assert(msaa == 1 || msaa == 2 || msaa == 4 || msaa == 8 || msaa == 16);
 	
 	RegisterWnd();
-	CreateWnd(parent, WS_CHILD, x, y, width, height);
+	CreateWnd(parent, NULL, WS_CHILD, x, y, width, height);
 
 
 	m_dxGraphic = new DX::Graphic;
@@ -39,8 +38,11 @@ void WndDisplay::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 		{
 			case ID_COMMAND_REALTIME_UPDATE:
 			{
-				SGL_SceneMgr.Update(m_dxGraphic);
-				SGL_SceneMgr.Render(m_dxGraphic);
+				for (auto scene : m_scenes)
+				{
+					scene->Update();
+					scene->Render();
+				}
 				m_dxGraphic->Present();
 			}
 			break;
@@ -83,9 +85,9 @@ void WndDisplay::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 	}
 }
 
-BOOL WndDisplay::AddScene(Scene* scene)
+BOOL WndDisplay::AddScene(SCENE_KIND kind)
 {
-	SGL_SceneMgr.Add(m_dxGraphic, scene);
+	m_scenes.push_back(Scene::CreateScene(kind, m_dxGraphic));
 
 	return TRUE;
 }

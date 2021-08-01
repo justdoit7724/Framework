@@ -48,7 +48,7 @@ void Window::RegisterWnd()
 
 }
 
-void Window::CreateWnd(HWND parent, DWORD dwStyle, int x, int y, int w, int h)
+void Window::CreateWnd(HWND parent, HMENU key, DWORD dwStyle, int x, int y, int w, int h)
 {
 	m_hWnd = CreateWindowExA(
 		0,
@@ -58,7 +58,7 @@ void Window::CreateWnd(HWND parent, DWORD dwStyle, int x, int y, int w, int h)
 		x, y,
 		w, h,
 		parent,
-		NULL,
+		key,
 		m_hInstance,
 		nullptr);
 
@@ -148,7 +148,7 @@ WndBkg::WndBkg(HINSTANCE hInstance, std::string key, DWORD dwStyle, HWND parent,
 	:Window(hInstance, key)
 {
 	RegisterWnd();
-	CreateWnd(parent, dwStyle, x, y, w, h);
+	CreateWnd(parent, NULL, dwStyle, x, y, w, h);
 
 	SGL_WND.AddWnd(key, this);
 }
@@ -183,7 +183,7 @@ void WndBkg::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 WndCtrl::WndCtrl(HINSTANCE hInstance, std::string id, int key, DWORD dwStyle, HWND parent, int x, int y, int w, int h)
 	:Window(hInstance, id), m_key(key)
 {
-	CreateWnd(parent, dwStyle, x, y, w, h);
+	CreateWnd(parent, (HMENU)key, dwStyle, x, y, w, h);
 }
 
 WndCtrl::~WndCtrl()

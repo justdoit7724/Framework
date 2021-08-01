@@ -1,5 +1,6 @@
 #pragma once
 #include "Window.h"
+#include "DefComponent.h"
 
 class Scene;
 
@@ -11,12 +12,13 @@ public:
 	virtual ~WndDisplay();
 
 	void WndProc(HWND hwnd, UINT MSG, WPARAM wparam, LPARAM lparam) override;
-	BOOL AddScene(Scene* scene);
+	BOOL AddScene(SCENE_KIND kind);
 
 protected:
 
 	DX::Graphic* m_dxGraphic;
 	int m_iMSAA;
 
+	std::vector<Scene*> m_scenes;
 };
 

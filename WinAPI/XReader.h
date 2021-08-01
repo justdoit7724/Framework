@@ -11,21 +11,31 @@ FEATURE
 */
 
 
-#define XTEMPLATE				"template"
-#define XFRAME					"Frame"
-#define XASSETKIND				"AssetKind"
-#define XFRAMETRANSFORMMATRIX	"FrameTransformMatrix"
-#define XMESH					"Mesh"
-#define XMESHNORMALS			"MeshNormals"
-#define XMESHTEXTURECOORDS		"MeshTextureCoords"
-#define XANIMATIONKEY			"AnimationKey"
-#define XANIMATION				"Animation"
-#define XANIMATIONSET			"AnimationSet"
-#define XASSET					"Asset"
+#define XTEMPLATE					"template"
+#define XFRAME						"Frame"
+#define XASSETKIND					"AssetKind"
+#define XFRAMETRANSFORMMATRIX		"FrameTransformMatrix"
+#define XMESH						"Mesh"
+#define XMESH_VERT_COUNT			"nVertice"
+#define XMESH_VERT					"Vertice"
+#define XMESH_FACE_COUNT			"nFace"
+#define XMESH_FACE					"Faces"
+#define XMESHNORMALS				"MeshNormals"
+#define XMESHNORMALS_NORM_COUNT		"nNormal"
+#define XMESHNORMALS_NORM			"Normals"
+#define XMESHNORMALS_INDEX_COUNT	"nFace"
+#define XMESHNORMALS_INDEX			"Faces"
+#define XMESHTEXTURECOORDS			"MeshTextureCoords"
+#define XANIMATIONKEY				"AnimationKey"
+#define XANIMATION					"Animation"
+#define XANIMATIONSET				"AnimationSet"
+#define XASSET						"Asset"
+#define XRESOURCE					"Resource"
 
 class XComponent
 {
 public:
+	XComponent(BOOL bComposite, std::string key, std::string name);
 	virtual ~XComponent();
 
 	virtual int Size() { return 0; }
@@ -38,14 +48,12 @@ public:
 	const BOOL m_bComposite;
 	const std::string m_key;
 	const std::string m_name;
-
-protected:
-	friend class XReader;
-	XComponent(BOOL bComposite, std::string key, std::string name);
 };
 class XFrame : public XComponent
 {
 public:
+	XFrame(std::string key, std::string name);
+	~XFrame();
 
 	int Size()override; 
 	std::vector< XComponent*> GetChild(std::string key) override;
@@ -53,26 +61,21 @@ public:
 
 private:
 	friend class XReader;
-	XFrame(std::string key, std::string name);
-	~XFrame();
-
 	std::unordered_map<std::string, std::vector<XComponent*>> m_components;
 };
 class XValue : public XComponent
 {
 public:
+	XValue(std::string key, std::vector<float>&& data);
+	XValue(std::string key, std::vector<int>&& data);
+	XValue(std::string key, std::vector<std::string>&& data);
+	~XValue();
 
 	const std::vector<float>& GetFloats()override;
 	const std::vector<int>& GetInts()override;
 	const std::vector<std::string>& GetStrings()override;
 
 private:
-	friend class XReader;
-	XValue(std::string name, std::vector<float>&& data);
-	XValue(std::string name, std::vector<int>&& data);
-	XValue(std::string name, std::vector<std::string>&& data);
-	~XValue();
-
 	union {
 		std::vector<float> m_floats;
 		std::vector<int> m_ints;
@@ -83,7 +86,7 @@ private:
 class XReader
 {
 public:
-	static BOOL Read(std::string path, XFrame** list);
+	static BOOL Read(std::string path, XFrame* list);
 
 private:
 	static void Read(std::ifstream& file, XComponent* parentComp);

@@ -1,10 +1,9 @@
 xof 0303txt 0032
 
 AssetKind {
-  Shader;
+  VShader;
 }
 
 Resource{
   Shader;
-  cso;
 }

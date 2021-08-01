@@ -28,7 +28,15 @@
 #define ASSET_ID_MODEL		"Model"
 #define ASSET_ID_TEXTURE	"Texture"
 #define ASSET_ID_MATERIAL	"Material"
-#define ASSET_ID_SHADER		"Shader"
+#define ASSET_ID_VERTEX_SHADER		"VShader"
+#define ASSET_ID_PIXEL_SHADER		"PShader"
+#define ASSET_ID_HULL_SHADER		"HShader"
+#define ASSET_ID_DOMAIN_SHADER		"DShader"
+#define ASSET_ID_GEOM_SHADER		"GShader"
+#define ASSET_ID_COMPUTE_SHADER		"CShader"
+#define ASSET_MAT_TEX_DIFF		"StandardTex"
+#define ASSET_MAT_TEX_NORM		"NormalTex"
+
 
 SET_SINGLETON_CPP(AssetMgr, Init)
 
@@ -44,44 +52,113 @@ void AssetMgr::Load()
 	{
 		const std::string curPath = fileLists.back(); fileLists.pop_back();
 
-		XFrame* list = nullptr;
-		if (FileCtl::IsFile(curPath) && XReader::Read(curPath, &list))
+		std::string ext;
+		if (!FileCtl::IsFile(curPath))
 		{
-			auto assetKindValue = list->GetChild(XASSETKIND);
+			std::vector<std::string> subList;
+			FileCtl::GetAll(curPath, subList);
+			for (auto sub : subList)
+			{
+				fileLists.push_back(sub);
+			}
+			continue;
+		}
+
+		if (!FileCtl::GetExt(curPath, ext) || ext != "x")
+		{
+			continue;
+		}
+
+		XFrame list("DATA", "DATA");
+		if (XReader::Read(curPath, &list))
+		{
+			auto assetKindValue = list.GetChild(XASSETKIND);
 			if (assetKindValue.size())
 			{
 				std::string assetKind = assetKindValue[0]->GetStrings()[0];
 				if (assetKind == ASSET_ID_MODEL)
 				{
+					std::string resource = list.GetChild(XRESOURCE)[0]->GetStrings()[0];
+					LoadModel(resource);
+
+					/*
+					* decide to just have path to fbx file that aleady have all model info
+					* so no need to implement x file parsing code again
+					* 
 					Model* newModel = new Model;
 
 					std::vector<int> skelParentBoneIndice;
-					std::vector<std::string> skelNames;
+					std::unordered_map<std::string, int> skelNames;
 					std::vector<XMMATRIX> skelToParents;
-					std::vector<XMMATRIX> skelOffsets;
+					std::vector<std::vector<XMMATRIX>> skelOffsets;
 
-					std::stack<std::pair<int, XComponent*>> boneStack;
-					boneStack.push(std::pair<int, XComponent*>(-1, list->GetChild(XFRAME)[0]));
-					while (boneStack.size())
+					std::stack<std::pair<int, XComponent*>> nodeStack;
+					nodeStack.push(std::pair<int, XComponent*>(-1, list.GetChild(XFRAME)[0]));
+					int curId = 0;
+					while (nodeStack.size())
 					{
 						//get cur info
-						int curParentIndex = boneStack.top().first;
-						XComponent* curComp = boneStack.top().second; boneStack.pop();
-						XMMATRIX curBoneTransform(curComp->GetChild(XFRAMETRANSFORMMATRIX)[0]->GetFloats().data());
+						int parentIndex = nodeStack.top().first;
+						XComponent* curComp = nodeStack.top().second; nodeStack.pop();
 						std::string curBoneName = curComp->m_name;
 
-						// define
-						skelParentBoneIndice.push_back(curParentIndex);
-						skelToParents.push_back(curBoneTransform);
-						skelNames.push_back(curBoneName);
+						//Bone info
+						skelParentBoneIndice.push_back(parentIndex);
+						skelToParents.push_back(XMMATRIX(curComp->GetChild(XFRAMETRANSFORMMATRIX)[0]->GetFloats().data()));
+						skelNames.insert(std::pair<std::string, int>(curBoneName, curId));
 
-						//again
-						int newParentIndex = skelParentBoneIndice.size() - 1;
+						//Mesh
 						auto meshChildren = curComp->GetChild(XMESH);
 						for (auto meshChild : meshChildren)
 						{
-							boneStack.push(std::pair<int, XComponent*>(newParentIndex, meshChild));
+							//vertex
+							std::vector<XMFLOAT3> curVertice;
+							std::vector<UINT> curIndice;
+							auto verticeRaw = meshChild->GetChild(XMESH_VERT)[0]->GetFloats();
+							int vertCount = meshChild->GetChild(XMESH_VERT_COUNT)[0]->GetInts()[0];
+							for (int i = 0; i <= vertCount; ++i)
+							{
+								XMFLOAT3 curVert(
+									verticeRaw[i * 3],
+									verticeRaw[i * 3 + 1],
+									verticeRaw[i * 3 + 2]);
+
+								curVertice.push_back(curVert);
+							}
+							auto indiceRaw = meshChild->GetChild(XMESH_FACE)[0]->GetFloats();
+							int indexCount = meshChild->GetChild(XMESH_FACE_COUNT)[0]->GetInts()[0];
+							for (int i = 0; i <= indexCount; ++i)
+							{
+								XMFLOAT2 curIndex(
+									verticeRaw[i * 2],
+									verticeRaw[i * 2 + 1]);
+
+								curVertice.push_back(curVert);
+							}
+
+
+							//normal
+							auto norms = meshChild->GetChild(XMESHNORMALS)[0]->GetChild(XMESHNORMALS_NORM)[0]->GetFloats();
+							int normCount = meshChild->GetChild(XMESHNORMALS)[0]->GetChild(XMESHNORMALS_NORM_COUNT)[0]->GetInts()[0];
+							for (int i = 0; i <= normCount; ++i)
+							{
+								XMFLOAT3 curNorm(
+									norms[i * 3],
+									norms[i * 3 + 1],
+									norms[i * 3 + 2]);
+							}
+
+							//texcoord
 						}
+
+						//recursive
+						auto nodeChildren = curComp->GetChild(XFRAME);
+						for (auto node : nodeChildren)
+						{
+							nodeStack.push(std::pair<int, XComponent*>(curId, node));
+						}
+
+						curId++;
 					}
 
 					newModel->SetSkeleton(
@@ -89,28 +166,77 @@ void AssetMgr::Load()
 						std::move(skelNames),
 						std::move(skelToParents),
 						std::move(skelOffsets));
+
+					if (m_model.find(curPath) != m_model.end())
+						delete m_model[curPath];
+					m_model[curPath] = newModel;*/
+
 				}
 				else if (assetKind == ASSET_ID_TEXTURE)
 				{
+					Texture* newTexture = new Texture;
+
+					newTexture->SetKey(list.GetChild(XRESOURCE)[0]->GetStrings()[0]);
+
+					if (m_tex.find(curPath) != m_tex.end())
+						delete m_model[curPath];
+					m_tex[curPath] = newTexture;
 
 				}
 				else if (assetKind == ASSET_ID_MATERIAL)
 				{
+					Material* newMaterial = new Material;
 
+					std::string diff;
+					auto assets = list.GetChild(XASSET);
+					for (int i = 0; i <= assets.size(); ++i)
+					{
+						if (assets[i]->m_name == ASSET_MAT_TEX_DIFF)
+						{
+							newMaterial->SetDiff(assets[i]->GetStrings()[0]);
+						}
+						else if (assets[i]->m_name == ASSET_MAT_TEX_NORM)
+						{
+							newMaterial->SetNorm(assets[i]->GetStrings()[0]);
+						}
+					}
 				}
-				else if (assetKind == ASSET_ID_SHADER)
+				else if (assetKind == ASSET_ID_VERTEX_SHADER)
+				{
+					VShader* newShader = new VShader;
+
+					newShader->SetShader(list.GetChild(XRESOURCE)[0]->GetStrings()[0]);
+
+					if (m_VShader.find(curPath) != m_VShader.end())
+						delete m_VShader[curPath];
+					m_VShader[curPath] = newShader;
+				}
+				else if (assetKind == ASSET_ID_PIXEL_SHADER)
+				{
+					PShader* newShader = new PShader;
+
+					newShader->SetShader(list.GetChild(XRESOURCE)[0]->GetStrings()[0]);
+
+					if (m_PShader.find(curPath) != m_PShader.end())
+						delete m_PShader[curPath];
+					m_PShader[curPath] = newShader;
+				}
+				else if (assetKind == ASSET_ID_HULL_SHADER)
 				{
 
 				}
-			}
-		}
-		else
-		{
-			std::vector<std::string> subList;
-			FileCtl::GetAll(curPath, subList);
-			for (auto sub : subList)
-			{
-				fileLists.push_back(sub);
+				else if (assetKind == ASSET_ID_DOMAIN_SHADER)
+				{
+
+				}
+				else if (assetKind == ASSET_ID_GEOM_SHADER)
+				{
+
+				}
+				else if (assetKind == ASSET_ID_COMPUTE_SHADER)
+				{
+
+				}
 			}
 		}
 	
@@ -410,20 +536,22 @@ BOOL AssetMgr::LoadModel(std::string folder)
 
 	std::vector<XMMATRIX> vmatToParent;
 	std::vector<int> viHierarchy;
-	std::vector<XMMATRIX> vmatOffset;
-	std::vector<std::string> vBoneName;
+	std::vector<std::vector<XMMATRIX>> vmatOffset;
+	std::unordered_map<std::string, int> mNodeName;
+	std::vector<BOOL> vBoneNode;
 
 	std::stack<std::pair<int, aiNode*>> stNode;
 	stNode.push(std::pair<int, aiNode*>(-1, pScene->mRootNode));
+	int curId = 0;
 	while (!stNode.empty())
 	{
-		int curId = stNode.top().first;
+		const int parentId = stNode.top().first;
 		aiNode* curNode = stNode.top().second;
 		stNode.pop();
 
 		for (int i = curNode->mNumChildren - 1; i >= 0; --i)
 		{
-			stNode.push(std::pair<int, aiNode*>(viHierarchy.size(), curNode->mChildren[i]));
+			stNode.push(std::pair<int, aiNode*>(curId, curNode->mChildren[i]));
 		}
 
 		auto matToParent = curNode->mTransformation;
@@ -433,10 +561,12 @@ BOOL AssetMgr::LoadModel(std::string folder)
 			matToParent.a3, matToParent.b3, matToParent.c3, matToParent.d3,
 			matToParent.a4, matToParent.b4, matToParent.c4, matToParent.d4);
 		vmatToParent.push_back(xmmatToParent);
-		viHierarchy.push_back(curId);
-		vBoneName.push_back(curNode->mName.C_Str());
+		viHierarchy.push_back(parentId);
+		mNodeName.insert(std::pair<std::string, int>(curNode->mName.C_Str(), curId));
+		curId++;
 	}
-	vmatOffset.resize(vBoneName.size());
+	vBoneNode.resize(curId);
+	vmatOffset.resize(curId);
 
 	for (int i = 0; i < pScene->mNumMeshes; ++i)
 	{
@@ -466,18 +596,15 @@ BOOL AssetMgr::LoadModel(std::string folder)
 			}
 		}
 
+		vmatOffset[i].resize(viHierarchy.size());
 		for (int j = 0; j < curMesh->mNumBones; ++j)
 		{
 			aiBone* curBone = curMesh->mBones[j];
 			std::string strName = curBone->mName.C_Str();
-			int iCurId=0;
-			for (; iCurId < (int)vBoneName.size(); ++iCurId)
-			{
-				if (vBoneName[iCurId] == strName)
-				{
-					break;
-				}
-			}
+			if (mNodeName.find(strName) == mNodeName.end())
+				continue;
+			curId = mNodeName[strName];
+			vBoneNode[curId] = TRUE;
 
 			for (int k = 0; k < curBone->mNumWeights; ++k)
 			{
@@ -486,7 +613,8 @@ BOOL AssetMgr::LoadModel(std::string folder)
 				{
 					if (vVertice[curWeight.mVertexId].boneId[l] == -1)
 					{
-						vVertice[curWeight.mVertexId].boneId[l] = iCurId;
+						vVertice[curWeight.mVertexId].boneId[l] = curId;
+						break;
 					}
 				}
 			}
@@ -496,13 +624,13 @@ BOOL AssetMgr::LoadModel(std::string folder)
 				matOffset.a2, matOffset.b2, matOffset.c2, matOffset.d2,
 				matOffset.a3, matOffset.b3, matOffset.c3, matOffset.d3,
 				matOffset.a4, matOffset.b4, matOffset.c4, matOffset.d4);
-			vmatOffset[iCurId] = xmmatOffset;
+			vmatOffset[i][curId] = xmmatOffset;
 		}
 
 		newModel->AddSubMesh(i, vVertice, vIndice);
 	}
 
-	newModel->SetSkeleton(std::move(viHierarchy), std::move(vBoneName), std::move(vmatToParent), std::move(vmatOffset));
+	newModel->SetSkeleton(std::move(viHierarchy), std::move(mNodeName), std::move(vmatToParent), std::move(vmatOffset));
 
 	//if (pScene->HasMaterials())
 	//{
@@ -536,15 +664,10 @@ BOOL AssetMgr::LoadModel(std::string folder)
 			{
 				auto curAnimChannel = curAnim->mChannels[j];
 				int iCurId = -1;
-				for (int k = 0; k < vBoneName.size(); ++k)
-				{
-					if (vBoneName[k] == curAnimChannel->mNodeName.C_Str())
-					{
-						iCurId = k;
-					}
-				}
-				if (iCurId < 0)
+				std::string boneName = curAnimChannel->mNodeName.C_Str();
+				if (mNodeName.find(boneName) == mNodeName.end())
 					continue;
+				iCurId = mNodeName[boneName];
 	
 				BoneAnimation animFrame;
 				assert(

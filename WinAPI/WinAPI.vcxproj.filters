@@ -135,9 +135,6 @@
     <ClCompile Include="SpotLight.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="WndDisplayAsset.cpp">
-      <Filter>Window</Filter>
-    </ClCompile>
     <ClCompile Include="WndMgr.cpp">
       <Filter>Window</Filter>
     </ClCompile>
@@ -295,9 +292,6 @@
     </ClInclude>
     <ClInclude Include="SpotLight.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="WndDisplayAsset.h">
-      <Filter>Window</Filter>
     </ClInclude>
     <ClInclude Include="WndMgr.h">
       <Filter>Window</Filter>
