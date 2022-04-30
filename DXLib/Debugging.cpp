@@ -15,14 +15,17 @@
 #include "LayerMask.h"
 #include "SphereMesh.h"
 #include "ShaderReg.h"
+#include "Vertex.h"
 
 using namespace DX;
 
 Debugging::Debugging(ID3D11Device* device, ID3D11DeviceContext* dContext)
 {
+	auto descs = D3DLayout_Simple().GetLayout();
+
 	markVS = new VShader(device, "UnlitVS.cso",
-		simple_ILayouts,
-		ARRAYSIZE(simple_ILayouts));
+		descs.data(),
+		descs.size());
 	markPS = new PShader(device, "UnlitPS.cso");
 	markVS->AddCB(device, 0, 1, sizeof(XMMATRIX));
 	markPS->AddCB(device, SHADER_REG_CB_COLOR, 1, sizeof(XMVECTOR));
@@ -36,7 +39,8 @@ Debugging::Debugging(ID3D11Device* device, ID3D11DeviceContext* dContext)
 	rsState = new RasterizerState(device , &wrs_desc);
 
 	spriteBatch = std::make_unique<DirectX::SpriteBatch>(dContext);
-	spriteFont = std::make_unique<DirectX::SpriteFont>(device, L"Font\\Font.spritefont");
+	std::string fontPath = __FILE__"\\..\\Font\\Font.spritefont";
+	spriteFont = std::make_unique<DirectX::SpriteFont>(device, std::wstring(fontPath.begin(), fontPath.end()).c_str());
 
 	D3D11_BUFFER_DESC vb_desc;
 	vb_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
@@ -47,8 +51,9 @@ Debugging::Debugging(ID3D11Device* device, ID3D11DeviceContext* dContext)
 	vb_desc.Usage = D3D11_USAGE_DYNAMIC;
 	lineVB = new Buffer(device ,&vb_desc, nullptr);
 
-	markShape = new SphereMesh(device, 1);
-	markTransform = new Transform();
+	VertexLayout layout =  D3DLayout_Simple();
+	m_markShape = new SphereMesh(device, 2, &layout);
+	m_markTransform = new Transform();
 }
 
 Debugging::~Debugging()
@@ -58,8 +63,8 @@ Debugging::~Debugging()
 	delete blendState;
 	delete dsState;
 	delete rsState;
-	delete markShape;
-	delete markTransform;
+	delete m_markShape;
+	delete m_markTransform;
 
 	delete lineVB;
 	delete gridVB;
@@ -131,20 +136,20 @@ void Debugging::Mark(XMFLOAT3 pos, float radius, XMVECTORF32 color)
 #ifdef _DEBUG
 	for (int i = 0; i < MARK_MAX; ++i)
 	{
-		if (curMarkIdx >= MARK_MAX)
-			curMarkIdx = 0;
+		if (m_curMarkIdx >= MARK_MAX)
+			m_curMarkIdx = 0;
 
-		if (marks[curMarkIdx].isDraw == false)
+		if (m_marks[m_curMarkIdx].isDraw == false)
 		{
-			marks[curMarkIdx].isDraw = true;
-			marks[curMarkIdx].pos = pos;
-			marks[curMarkIdx].rad = radius;
-			marks[curMarkIdx].color = color;
-			curMarkIdx++;
+			m_marks[m_curMarkIdx].isDraw = true;
+			m_marks[m_curMarkIdx].pos = pos;
+			m_marks[m_curMarkIdx].rad = radius;
+			m_marks[m_curMarkIdx].color = color;
+			m_curMarkIdx++;
 			return;
 		}
 		else {
-			curMarkIdx++;
+			m_curMarkIdx++;
 		}
 	}
 
@@ -268,10 +273,8 @@ void Debugging::Update(float spf)
 
 void Debugging::Render(ID3D11DeviceContext* dContext, int iScnWidth, int iScnHeight)
 {
-	if (!enabled || !debugCam)
+	if (!enabled)
 		return;
-
-	XMMATRIX vp = debugCam->VMat() * debugCam->ProjMat();
 
 	dContext->HSSetShader(nullptr, nullptr, 0);
 	dContext->DSSetShader(nullptr, nullptr, 0);
@@ -284,27 +287,38 @@ void Debugging::Render(ID3D11DeviceContext* dContext, int iScnWidth, int iScnHei
 
 	for (int i = 0; i < MARK_MAX; ++i) {
 
-		if (!marks[i].isDraw)
+		if (!m_marks[i].isDraw)
 			continue;
+<<<<<<< HEAD
 		markTransform->SetTranslation(marks[i].pos);
 		markTransform->SetScale(marks[i].rad*2.0f);
 		XMMATRIX wvp = markTransform->WorldMatrix() * vp;
 		markVS->WriteCB(dContext, 0, &wvp);
 		markPS->WriteCB(dContext,SHADER_REG_CB_COLOR, &(marks[i].color));
+=======
+
+		XMMATRIX vp = debugCam->VMat() * debugCam->ProjMat();
+
+		m_markTransform->SetTranslation(m_marks[i].pos);
+		m_markTransform->SetScale(m_marks[i].rad);
+		auto mvp = m_markTransform->WorldMatrix() * vp;
+		markVS->WriteCB(dContext, 0, &mvp);
+		markPS->WriteCB(dContext,SHADER_REG_CB_COLOR, &(m_marks[i].color));
+>>>>>>> 03_DepthPeeling
 		markVS->Apply(dContext);
 		markPS->Apply(dContext);
-		markShape->Apply(dContext);
-		marks[i].isDraw = false;
+		m_markShape->Apply(dContext);
+		m_marks[i].isDraw = false;
 	}
 #pragma endregion
 
 #pragma region Lines
 
-
-
 	dContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 	for (auto& l : lines)
 	{
+		XMMATRIX vp = debugCam->VMat() * debugCam->ProjMat();
+
 		D3D11_MAPPED_SUBRESOURCE mapped;
 		ZeroMemory(&mapped, sizeof(D3D11_MAPPED_SUBRESOURCE));
 		HRESULT hr = dContext->Map(
@@ -329,6 +343,8 @@ void Debugging::Render(ID3D11DeviceContext* dContext, int iScnWidth, int iScnHei
 
 	if (gridVB)
 	{
+		XMMATRIX vp = debugCam->VMat() * debugCam->ProjMat();
+
 		markVS->WriteCB(dContext, 0, &vp);
 		markPS->WriteCB(dContext, SHADER_REG_CB_COLOR, (void*)(&(Colors::Red)));
 		markVS->Apply(dContext);
@@ -377,6 +393,8 @@ void Debugging::Render(ID3D11DeviceContext* dContext, int iScnWidth, int iScnHei
 		XMFLOAT4 textPos = XMFLOAT4(text.pos.x, text.pos.y, text.pos.z, 1);
 		if (text.is3D)
 		{
+			XMMATRIX vp = debugCam->VMat() * debugCam->ProjMat();
+
 			textPos = Multiply(textPos, vp);
 			textPos /= textPos.w;
 			textPos = Multiply(textPos, textMat);

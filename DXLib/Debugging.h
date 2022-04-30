@@ -1,7 +1,12 @@
 #pragma once
 
+<<<<<<< HEAD
 #include "..\Packages\directxtk_desktop_2015.2019.12.17.1\include\SpriteBatch.h"
 #include "..\Packages\directxtk_desktop_2015.2019.12.17.1\include\SpriteFont.h"
+=======
+#include "SDK\directxtk_desktop_2015.2019.12.17.1\include\SpriteBatch.h"
+#include "SDK\directxtk_desktop_2015.2019.12.17.1\include\SpriteFont.h"
+>>>>>>> 03_DepthPeeling
 
 #define MARK_MAX 220
 
@@ -25,9 +30,9 @@ struct SHADER_STD_TRANSF;
 		Debugging(ID3D11Device* device, ID3D11DeviceContext* dContext);
 
 
-		void Draw(const std::string tex, const float x, const float y, const XMVECTORF32 _color = Colors::White, const float _scale = 1.5f);
-		void Draw(const int tex, const float x, const float y, const XMVECTORF32 _color = Colors::White, const float _scale = 1.5f);
-		void Draw(float tex, const float x, const float y, XMVECTORF32 _color = Colors::White, float _scale = 1.5f);
+		void Draw(const std::string tex, const float x, const float y, const XMVECTORF32 _color = Colors::White, const float _scale = 1.f);
+		void Draw(const int tex, const float x, const float y, const XMVECTORF32 _color = Colors::White, const float _scale = 1.f);
+		void Draw(float tex, const float x, const float y, XMVECTORF32 _color = Colors::White, float _scale = 1.f);
 		void Draw(std::string title, float v, const float x, const float y, XMVECTORF32 _color = Colors::White, float _scale = 1.0f);
 		void Draw(std::string title, XMFLOAT3 v, const float x, const float y, XMVECTORF32 _color = Colors::White, float _scale = 1.0f);
 		void Draw3D(const std::string tex, const XMFLOAT3 _pos, const XMVECTORF32 _color = Colors::White, const float _scale = 1.5f);
@@ -78,10 +83,10 @@ struct SHADER_STD_TRANSF;
 
 			MarkInfo() :isDraw(false), pos(XMFLOAT3(0, 0, 0)), rad(1), color(Colors::Red) {}
 		};
-		UINT curMarkIdx = 0;
-		Transform* markTransform;
-		Mesh* markShape;
-		MarkInfo marks[MARK_MAX];
+		UINT m_curMarkIdx = 0;
+		Transform* m_markTransform;
+		Mesh* m_markShape;
+		MarkInfo m_marks[MARK_MAX];
 
 		struct LineInfo {
 			XMFLOAT3 p1, p2;

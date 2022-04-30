@@ -3,6 +3,7 @@
 #include "pch.h"
 
 #include "Graphic.h"
+<<<<<<< HEAD
 #include "ShaderReg.h"
 #include "Buffer.h"
 #include "ResourceMgr.h"
@@ -16,6 +17,17 @@ namespace DX {
 	int g_id = 0;
 
 	int Graphic::Initialize(HWND _hwnd, int msaa)
+=======
+#include "Math.h"
+#include "Vertex.h"
+
+namespace DX {
+
+	VertexLayout D3DVertLayout_Simple;
+	VertexLayout D3DVertLayout_Std;
+
+	Graphic::Graphic(HWND _hwnd, int msaa)
+>>>>>>> 03_DepthPeeling
 	{
 		assert(msaa == 1 || msaa == 2 || msaa == 4 || msaa == 8 || msaa == 16);
 
@@ -27,7 +39,7 @@ namespace DX {
 		int iWidth = rc.right - rc.left;
 		int iHeight = rc.bottom - rc.top;
 
-		hwnd = _hwnd;
+		m_hwnd = _hwnd;
 
 		DXGI_SWAP_CHAIN_DESC scd;
 		ZeroMemory(&scd, sizeof(DXGI_SWAP_CHAIN_DESC));
@@ -45,7 +57,7 @@ namespace DX {
 
 		scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		scd.BufferCount = 1;
-		scd.OutputWindow = hwnd;
+		scd.OutputWindow = m_hwnd;
 		scd.Windowed = TRUE;
 		scd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 		scd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
@@ -180,6 +192,7 @@ namespace DX {
 		((ID3D11DeviceContext*)m_dContext)->RSSetState(rasterizerState);
 		rasterizerState->Release();
 
+<<<<<<< HEAD
 		//depth stencil state
 		D3D11_DEPTH_STENCIL_DESC dsDepthEnabledDesc;
 		ZeroMemory(&dsDepthEnabledDesc, sizeof(D3D11_DEPTH_STENCIL_DESC));
@@ -193,6 +206,18 @@ namespace DX {
 		dsDepthDisabledDesc.DepthEnable = FALSE;
 		dsDepthDisabledDesc.StencilEnable = FALSE;
 		m_dsDepthDisabled = new DepthStencilState((ID3D11Device*)m_device, dsDepthDisabledDesc);
+=======
+
+		D3DVertLayout_Simple.Clear();
+		D3DVertLayout_Simple.Append(VertexLayout::ElementType::Position3D);
+
+		D3DVertLayout_Std.Clear();
+		D3DVertLayout_Std
+			.Append(VertexLayout::ElementType::Position3D)
+			.Append(VertexLayout::ElementType::Texture2D)
+			.Append(VertexLayout::ElementType::Normal);
+	}
+>>>>>>> 03_DepthPeeling
 
 		//blending state
 		D3D11_BLEND_DESC blendOpaqueDesc;
@@ -225,6 +250,7 @@ namespace DX {
 	{
 		((ID3D11DeviceContext*)m_dContext)->RSSetViewports(1, (D3D11_VIEWPORT *)m_viewport);
 
+<<<<<<< HEAD
 		HRESULT hr = ((IDXGISwapChain*)m_swapchain)->Present(1, 0);
 		if (FAILED(hr))
 			return 1;
@@ -234,6 +260,27 @@ namespace DX {
 		((ID3D11DeviceContext*)m_dContext)->ClearDepthStencilView((ID3D11DepthStencilView*)m_dsView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 		
 		return 0;
+=======
+		const float black[4] = { 0.3,0.3,0.3,1 };
+		m_dContext->ClearRenderTargetView(m_rtv, black);
+		m_dContext->ClearDepthStencilView(m_dsView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	}
+	void Graphic::BindView()
+	{
+		m_dContext->OMSetRenderTargets(1, &m_rtv, m_dsView);
+	}
+	ID3D11Device* Graphic::Device()
+	{
+		return m_device;
+	}
+	ID3D11DeviceContext* Graphic::DContext()
+	{
+		return m_dContext;
+	}
+	ID3D11Texture2D* Graphic::DepthBuffer()
+	{
+		return m_depthStencilBuffer;
+>>>>>>> 03_DepthPeeling
 	}
 
 	Graphic::Graphic()
@@ -469,6 +516,20 @@ namespace DX {
 		}
 
 		return 0;
+	}
+
+	HWND Graphic::GetHWND()
+	{
+		return m_hwnd;
+	}
+
+	const VertexLayout& D3DLayout_Simple()
+	{
+		return D3DVertLayout_Simple;
+	}
+	const VertexLayout& D3DLayout_Std()
+	{
+		return D3DVertLayout_Std;
 	}
 }
 	

@@ -7,9 +7,12 @@
 struct STD_VS_INPUT
 {
     float3 pos : POSITION;
-    float3 normal : NORMAL;
     float2 tex : TEXCOORD;
+<<<<<<< HEAD
     uint4 boneId : BONEINDICE;
+=======
+    float3 normal : NORMAL;
+>>>>>>> 03_DepthPeeling
     //float3 tangent : TANGENT;
 };
 
