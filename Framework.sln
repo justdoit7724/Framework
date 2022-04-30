@@ -3,11 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29926.136
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinAPI", "WinAPI\WinAPI.vcxproj", "{0CBDBCCC-B4E1-4365-BA0E-6EBE19A6BAAE}"
-	ProjectSection(ProjectDependencies) = postProject
-		{FD6E1C0E-0B51-44C5-8F51-CBACDAA8B984} = {FD6E1C0E-0B51-44C5-8F51-CBACDAA8B984}
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DXLib", "DXLib\DXLib.vcxproj", "{FD6E1C0E-0B51-44C5-8F51-CBACDAA8B984}"
 EndProject
 Global
@@ -18,14 +13,6 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{0CBDBCCC-B4E1-4365-BA0E-6EBE19A6BAAE}.Debug|x64.ActiveCfg = Debug|x64
-		{0CBDBCCC-B4E1-4365-BA0E-6EBE19A6BAAE}.Debug|x64.Build.0 = Debug|x64
-		{0CBDBCCC-B4E1-4365-BA0E-6EBE19A6BAAE}.Debug|x86.ActiveCfg = Debug|Win32
-		{0CBDBCCC-B4E1-4365-BA0E-6EBE19A6BAAE}.Debug|x86.Build.0 = Debug|Win32
-		{0CBDBCCC-B4E1-4365-BA0E-6EBE19A6BAAE}.Release|x64.ActiveCfg = Release|x64
-		{0CBDBCCC-B4E1-4365-BA0E-6EBE19A6BAAE}.Release|x64.Build.0 = Release|x64
-		{0CBDBCCC-B4E1-4365-BA0E-6EBE19A6BAAE}.Release|x86.ActiveCfg = Release|Win32
-		{0CBDBCCC-B4E1-4365-BA0E-6EBE19A6BAAE}.Release|x86.Build.0 = Release|Win32
 		{FD6E1C0E-0B51-44C5-8F51-CBACDAA8B984}.Debug|x64.ActiveCfg = Debug|x64
 		{FD6E1C0E-0B51-44C5-8F51-CBACDAA8B984}.Debug|x64.Build.0 = Debug|x64
 		{FD6E1C0E-0B51-44C5-8F51-CBACDAA8B984}.Debug|x86.ActiveCfg = Debug|Win32

@@ -47,8 +47,8 @@ namespace DX {
 		void GetNormal(ID3D11ShaderResourceView** pNormal);
 
 		Transform* transform;
-		std::shared_ptr <Mesh> mesh;
-		std::shared_ptr <Collider> collider;
+		std::shared_ptr <Mesh> m_mesh;
+		std::shared_ptr <Collider> m_collider;
 		VShader* vs;
 		HShader* hs;
 		DShader* ds;

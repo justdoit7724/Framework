@@ -13,18 +13,19 @@
 #include "DepthStencilState.h"
 #include "RasterizerState.h"
 #include "BlendState.h"
-
+#include "Graphic.h"
 using namespace DX;
 
 UI::UI(ID3D11Device* device, ID3D11DeviceContext* dContext, XMFLOAT2 pivot, XMFLOAT2 size, float zDepth, ID3D11ShaderResourceView * srv)
-	:Object(device, dContext, "UI", nullptr, nullptr, "UIVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts),
+	:Object(device, dContext, "UI", nullptr, nullptr, "UIVS.cso", D3DLayout_Std().GetLayout().data(), D3DLayout_Std().GetLayout().size(),
 		"","","","UIPS.cso"),
 	size(size), srv(srv),
 	mulColor(XMFLOAT4(1,1,1,1))
 {
-	mesh = std::make_shared<QuadMesh>(device);
+	VertexLayout layout = D3DLayout_Std();
+	m_mesh = std::make_shared<QuadMesh>(device, &layout);
 	XMFLOAT3 pos = XMFLOAT3(pivot.x, pivot.y, FLT_MIN + zDepth);
-	collider = std::make_shared<QuadCollider>(pos);
+	m_collider = std::make_shared<QuadCollider>(pos);
 	
 	assert(0 <= zDepth && zDepth <= 1);
 
@@ -86,7 +87,7 @@ void UIButton::Update(ID3D11DeviceContext* dContext, int iScnWidth, int iScnHeig
 	SetMulColor(dContext,XMFLOAT3(1.0f, 1.0f, 1.0f));
 
 	XMFLOAT3 hitPt;
-	if (collider->IsHit(ray, &hitPt))
+	if (m_collider->IsHit(ray, &hitPt))
 	{
 		/*
 		switch (Mouse::Instance()->LeftState())

@@ -20,23 +20,26 @@ void LineMesh::Add(XMFLOAT3 a, XMFLOAT3 b)
 	lines.push_back(newLine);
 }
 
-void LineMesh::Generate(ID3D11Device* device)
+void LineMesh::Generate(ID3D11Device* device, const VertexLayout* layout)
 {
 	isGenerated = true;
 
-	std::vector<Vertex> vertice;
+	Vertice vertice(*layout);
 	std::vector<UINT> indice;
 
 	for (int i = 0; i < lines.size(); ++i)
 	{
-		vertice.push_back(lines[i].a);
-		vertice.push_back(lines[i].b);
+		vertice.EmplaceBack();
+		vertice.EmplaceBack();
+
+		vertice[i * 2].Attr<VertexLayout::ElementType::Position3D>() = lines[i].a;
+		vertice[i * 2+1].Attr<VertexLayout::ElementType::Position3D>() = lines[i].b;
 
 		indice.push_back(i * 2);
 		indice.push_back(i * 2+1);
 	}
 
-	Mesh::Init(device, vertice.data(), sizeof(Vertex), vertice.size(), indice.data(), indice.size(), D3D_PRIMITIVE_TOPOLOGY_LINELIST);
+	Mesh::Init(device, vertice, indice.data(), indice.size(), D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 }
 
 void LineMesh::Clear()

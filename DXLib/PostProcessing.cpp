@@ -4,12 +4,15 @@
 #include "Mesh.h"
 #include "ShaderFormat.h"
 #include "BlendState.h";
+#include "Graphic.h"
 
 using namespace DX;
 
 PostProcessing::PostProcessing(ID3D11Device* device, std::string psPath)
 {
-	m_vs = new VShader(device, "HL_PP_StdVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
+	auto stdDescs = D3DLayout_Std().GetLayout();
+
+	m_vs = new VShader(device, "HL_PP_StdVS.cso", stdDescs.data(), stdDescs.size());
 	m_ps = new PShader(device, psPath);
 
 }

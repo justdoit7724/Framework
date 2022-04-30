@@ -140,8 +140,8 @@ void Camera::Pick(XMFLOAT2 scnPos, OUT Geometrics::Ray* ray)const
 			up.x, up.y, up.z, 0,
 			forward.x, forward.y, forward.z, 0,
 			eye.x, eye.y, eye.z, 1);
-		XMMATRIX id = VMat() * invVDirMat;
-		//invVDirMat = XMMatrixInverse(&XMMatrixDeterminant(VMat()), VMat());
+		auto det = XMMatrixDeterminant(VMat());
+		invVDirMat = XMMatrixInverse(&det, VMat());
 
 		ray->o = eye;
 		ray->d = MultiplyDir(vDir, invVDirMat);

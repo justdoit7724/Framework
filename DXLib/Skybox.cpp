@@ -10,15 +10,19 @@
 #include "DepthStencilState.h"
 #include "ShaderFormat.h"
 #include "ShaderReg.h"
+#include "Graphic.h"
 
 using namespace DX;
 
 Skybox::Skybox(ID3D11Device* device, ID3D11DeviceContext* dContext)
-	:Object(device, dContext, "Skybox", std::make_shared<SphereMesh>(device, 0), nullptr,
-		"SkyboxVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts),
+	:Object(device, dContext, "Skybox", nullptr, nullptr,
+		"SkyboxVS.cso", D3DLayout_Std().GetLayout().data(), D3DLayout_Std().GetLayout().size(),
 		"", "", "",
 		"SkyboxPS.cso")
 {
+	VertexLayout layout = D3DLayout_Std();
+	m_mesh = std::make_shared<SphereMesh>(device, 0, &layout);
+
 	transform->SetScale(300, 300, 300);
 	
 	vs->AddCB(device,0, 1, sizeof(XMMATRIX));

@@ -3,6 +3,9 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+
+
+
 # User-specific files
 *.suo
 *.user
@@ -17,21 +20,26 @@
 *.idb
 *.cso
 *.dll
-*.exp
 *.lib
+[Dd]ebug/
+[Rr]elease/
+[Ww]in32/
+[Xx]64/
+
+!/DXLib/SDK/*
+!/DXLib/SDK/*.*
+!/DXLib/SDK/*/*
+!/DXLib/SDK/*/*.*
+!/DXLib/SDK/*/*/*
+!/DXLib/SDK/*/*/*.*
+!/DXLib/SDK/*/*/*/*
+!/DXLib/SDK/*/*/*/*.*
+!/DXLib/SDK/*/*/*/*/*
+!/DXLib/SDK/*/*/*/*/*.*
+*.exp
 *.exe
-##*Framework/DXLib/x64/[Dd]ebug
-##*Framework/DXLib/x64/[Rr]elease
-##!Framework/x64/[Rr]elease
-##!Framework/x64/[Dd]ebug
-##!Framework/DirectXTK/lib/x64/[Dd]ebug
-##!Framework/DirectXTK/lib/x86/[Dd]ebug
-##[Dd]ebugPublic/
-##!Framework/DirectXTK/lib/x64/[Rr]elease
-##!Framework/DirectXTK/lib/x86/[Rr]elease
 bld/
-[Bb]in/
-##[Oo]bj/
+[Oo]bj/
 [Ll]og/
 
 # Visual Studio 2015/2017 cache/options directory
@@ -73,8 +81,7 @@ StyleCopReport.xml
 *_i.h
 *.ilk
 *.meta
-##*.obj
-##!Framework/Data/Model/**/*.obj
+*.obj
 *.iobj
 *.pch
 *.pdb

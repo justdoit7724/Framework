@@ -3,13 +3,16 @@
 #include "Mesh.h"
 
 namespace DX {
+
+	class VertexLayout;
+
 	class DXLIB_DLL LineMesh : public Mesh
 	{
 	public:
 		LineMesh();
 
 		void Add(XMFLOAT3 a, XMFLOAT3 b);
-		void Generate(ID3D11Device* device);
+		void Generate(ID3D11Device* device, const VertexLayout* layout);
 		void Clear();
 		void Apply(ID3D11DeviceContext* dContext) const override;
 

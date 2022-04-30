@@ -15,12 +15,13 @@
 #include "Debugging.h"
 #include "Collider.h"
 #include "UnlitObj.h"
+#include "Graphic.h"
 
 using namespace DX;
 
 UnlitObj::UnlitObj(ID3D11Device* device, ID3D11DeviceContext* dContext, std::string name, std::shared_ptr<Mesh> shape, std::shared_ptr<Collider> collider, XMVECTOR color, bool directRender)
 	:Object(device, dContext, name, shape, collider,
-		"UnlitVS.cso", simple_ILayouts, ARRAYSIZE(simple_ILayouts),
+		"UnlitVS.cso", D3DLayout_Simple().GetLayout().data(), D3DLayout_Simple().GetLayout().size(),
 		"","","",
 		"UnlitPS.cso",
 		directRender), color(color)

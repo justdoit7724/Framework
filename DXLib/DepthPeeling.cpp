@@ -24,7 +24,10 @@ DepthPeeling::DepthPeeling(Graphic* graphic)
 	m_dxRState = new RasterizerState(m_dxGraphic->Device(), nullptr);
 	m_dxDSState = new DepthStencilState(m_dxGraphic->Device(),nullptr);
 
-	m_dxVShader = new VShader(m_dxGraphic->Device(), "StdVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
+	const VertexLayout layout = D3DLayout_Std();
+	auto stdDescs = layout.GetLayout();
+
+	m_dxVShader = new VShader(m_dxGraphic->Device(), "StdVS.cso", stdDescs.data(), stdDescs.size());
 	m_dxVShader->AddCB(m_dxGraphic->Device(), 0, 1, sizeof(SHADER_STD_TRANSF));
 	m_dxPShader = new PShader(m_dxGraphic->Device(), "DepthPeelingPS.cso");
 	m_dxPShader->AddSRV(10, 1);
@@ -61,8 +64,8 @@ DepthPeeling::DepthPeeling(Graphic* graphic)
 
 	m_cbEye = new Buffer(graphic->Device(), sizeof(XMFLOAT4));
 
-	std::shared_ptr<QuadMesh> spMesh = std::make_shared<QuadMesh>(m_dxGraphic->Device());
-	m_renderQuad = new Object(m_dxGraphic->Device(), m_dxGraphic->DContext(), "renderObj", spMesh, nullptr,"StdVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts),"","","","DepthPeelingRenderPS.cso");
+	std::shared_ptr<QuadMesh> spMesh = std::make_shared<QuadMesh>(m_dxGraphic->Device(),&layout);
+	m_renderQuad = new Object(m_dxGraphic->Device(), m_dxGraphic->DContext(), "renderObj", spMesh, nullptr,"StdVS.cso", stdDescs.data(), stdDescs.size(),"","","","DepthPeelingRenderPS.cso");
 	m_renderQuad->transform->SetRot(-FORWARD, UP);
 	m_renderQuad->transform->SetScale(2, 2, 1);
 	D3D11_DEPTH_STENCIL_DESC renderDepthDesc;

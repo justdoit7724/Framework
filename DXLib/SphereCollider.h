@@ -3,7 +3,7 @@
 #include "Collider.h"
 
 namespace DX {
-	class SphereCollider : public Collider
+	class DXLIB_DLL SphereCollider : public Collider
 	{
 	public:
 		SphereCollider();

@@ -1,49 +1,33 @@
 #pragma once
-
+#include "Vertex.h"
 
 #define LIGHT_ENABLED 1
 #define LIGHT_DISABLED 0
 #define LIGHT_MAX_EACH 3
 
 namespace DX {
-	static const D3D11_INPUT_ELEMENT_DESC simple_ILayouts[1] =
-	{
-		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 }
-	};
-	static const D3D11_INPUT_ELEMENT_DESC UI_ILayouts[2] =
-	{
-		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, sizeof(XMFLOAT3), D3D11_INPUT_PER_VERTEX_DATA, 0 }
-	};
-	static const D3D11_INPUT_ELEMENT_DESC Std_ILayouts[] =
-	{
-		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, sizeof(XMFLOAT3), D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, sizeof(XMFLOAT3) + sizeof(XMFLOAT2), D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		//{"TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT,0,sizeof(XMFLOAT3) * 2 + sizeof(XMFLOAT2), D3D11_INPUT_PER_VERTEX_DATA,0}
-	};
+	
+	//struct Vertex {
+	//	XMFLOAT3 pos;
+	//	XMFLOAT2 tex;
+	//	XMFLOAT3 n;
+	//	//XMFLOAT3 tangent;
 
-	struct Vertex {
-		XMFLOAT3 pos;
-		XMFLOAT2 tex;
-		XMFLOAT3 n;
-		//XMFLOAT3 tangent;
-
-		Vertex() :pos(XMFLOAT3(0, 0, 0)), n(XMFLOAT3(0, 0, 0)), tex(XMFLOAT2(0, 0)) {}
-		Vertex(const Vertex& v)
-		{
-			pos = v.pos;
-			n = v.n;
-			tex = v.tex;
-		}
-		Vertex(XMFLOAT3 _pos)
-		{
-			pos = _pos;
-			n = XMFLOAT3(0, 0, 0);
-			tex = XMFLOAT2(0, 0);
-		}
-		Vertex(XMFLOAT3 pos, XMFLOAT3 n, XMFLOAT2 tex, XMFLOAT3 tangent) :pos(pos), n(n), tex(tex) {}
-	};
+	//	Vertex() :pos(XMFLOAT3(0, 0, 0)), n(XMFLOAT3(0, 0, 0)), tex(XMFLOAT2(0, 0)) {}
+	//	Vertex(const Vertex& v)
+	//	{
+	//		pos = v.pos;
+	//		n = v.n;
+	//		tex = v.tex;
+	//	}
+	//	Vertex(XMFLOAT3 _pos)
+	//	{
+	//		pos = _pos;
+	//		n = XMFLOAT3(0, 0, 0);
+	//		tex = XMFLOAT2(0, 0);
+	//	}
+	//	Vertex(XMFLOAT3 pos, XMFLOAT3 n, XMFLOAT2 tex, XMFLOAT3 tangent) :pos(pos), n(n), tex(tex) {}
+	//};
 
 	struct SHADER_STD_TRANSF
 	{
@@ -90,7 +74,8 @@ namespace DX {
 				0.5f, 0.5f, 0, 1)),
 			pLightP(pLightP)
 		{
-			n = DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(&DirectX::XMMatrixDeterminant(world), world));
+			auto det = DirectX::XMMatrixDeterminant(world);
+			n = DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(&det, world));
 		}
 	};
 	struct VS_Simple_Property

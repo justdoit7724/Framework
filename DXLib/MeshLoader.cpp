@@ -7,10 +7,11 @@
 #include "Shader.h"
 #include "Mesh.h"
 #include <mutex>
+#include "Graphic.h"
 
-#include "_Packages\Assimp.3.0.0\include\postprocess.h"
-#include "_Packages\Assimp.3.0.0\include\Importer.hpp"
-#include "_Packages\Assimp.3.0.0\include\scene.h"
+#include "SDK\Assimp.3.0.0\include\postprocess.h"
+#include "SDK\Assimp.3.0.0\include\Importer.hpp"
+#include "SDK\Assimp.3.0.0\include\scene.h"
 
 namespace DX
 {
@@ -21,19 +22,16 @@ namespace DX
 			aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
 			const aiMaterial* const material = scene->mMaterials[mesh->mMaterialIndex];
 
-			std::vector<Vertex> vertice(mesh->mNumVertices);
+			Vertice vertice(D3DLayout_Std());
 			std::vector<UINT> indice(mesh->mNumFaces * 3);
 
 			for (int j = 0; j < mesh->mNumVertices; ++j)
 			{
-				vertice[j].pos = XMFLOAT3(
-					mesh->mVertices[j].x,
-					mesh->mVertices[j].y,
-					mesh->mVertices[j].z);
-				vertice[j].n = XMFLOAT3(
-					mesh->mNormals[j].x,
-					mesh->mNormals[j].y,
-					mesh->mNormals[j].z);
+				vertice.EmplaceBack(
+					XMFLOAT3(mesh->mVertices[j].x, mesh->mVertices[j].y, mesh->mVertices[j].z),
+					XMFLOAT2(0, 0),
+					XMFLOAT3(mesh->mNormals[j].x, mesh->mNormals[j].y, mesh->mNormals[j].z)
+				);
 			}
 			for (int i = 0; i < mesh->mNumFaces; ++i)
 			{
@@ -46,7 +44,7 @@ namespace DX
 				}
 			}
 
-			storage->push_back(new Mesh(device, vertice.data(), sizeof(Vertex), vertice.size(), indice.data(), indice.size(), D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
+			storage->push_back(new Mesh(device, vertice, indice.data(), indice.size(), D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
 		}
 
 		for (UINT i = 0; i < node->mNumChildren; i++)

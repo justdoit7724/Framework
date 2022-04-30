@@ -4,38 +4,62 @@
 #include "Mesh.h"
 #include "ShaderFormat.h"
 #include "Math.h"
+#include "Vertex.h"
 
 using namespace DX;
 
-Mesh::Mesh(ID3D11Device* device, Vertex* vertice, UINT vertByteSize, UINT vertCount, const UINT* indice, UINT idxCount, D3D_PRIMITIVE_TOPOLOGY primitiveType)
+DX::Mesh::Mesh(ID3D11Device* device, Vertice vertice, const UINT* indice, UINT idxCount, D3D_PRIMITIVE_TOPOLOGY primitiveType)
 {
-	Init(device, vertice, vertByteSize, vertCount, indice, idxCount, primitiveType);
+	Init(device, vertice, indice, idxCount, primitiveType);
 }
 
 Mesh::~Mesh()
 {
-	vertexBuffer->Release();
-	indexBuffer->Release();
+	m_vertexBuffer->Release();
+	m_indexBuffer->Release();
+
+	delete m_vertice;
 }
 
-void Mesh::Init(ID3D11Device* device, Vertex* vertice, UINT vertByteSize, UINT vertCount, const UINT* indice, UINT idxCount, D3D_PRIMITIVE_TOPOLOGY primitiveType)
+
+
+void Mesh::CalculateTangent(XMFLOAT3 v0, XMFLOAT3 v1, XMFLOAT3 v2, XMFLOAT2 t0, XMFLOAT2 t1, XMFLOAT2 t2, OUT XMFLOAT3* tangent)
 {
-	assert(vertexBuffer == nullptr);
+	XMFLOAT2 dt0 = t1 - t0;
+	XMFLOAT2 dt1 = t2 - t0;
+	XMFLOAT3 dv0 = v1 - v0;
+	XMFLOAT3 dv1 = v2 - v0;
+	float determinant = dt0.x * dt1.y - dt0.y * dt1.x;
+	*tangent = dv0*(dt1.y / determinant) - dv1*(dt0.y / determinant);
+}
 
-	this->idxCount = idxCount;
-	this->vertByteSize = vertByteSize;
-	this->primitiveType = primitiveType;
+void Mesh::GetLBound(OUT XMFLOAT3* minPt, OUT XMFLOAT3* maxPt)
+{
+	*minPt = m_lMinPt;
+	*maxPt = m_lMaxPt;
+}
 
-	lMinPt = XMFLOAT3(FLT_MAX, FLT_MAX, FLT_MAX);
-	lMaxPt = XMFLOAT3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
-	for (int i = 0; i < vertCount; ++i)
+void DX::Mesh::Init(ID3D11Device* device, Vertice vertice, const UINT* indice, UINT idxCount, D3D_PRIMITIVE_TOPOLOGY primitiveType)
+{
+	assert(m_vertexBuffer == nullptr);
+
+	m_idxCount = idxCount;
+	m_primitiveType = primitiveType;
+
+	m_lMinPt = XMFLOAT3(FLT_MAX, FLT_MAX, FLT_MAX);
+	m_lMaxPt = XMFLOAT3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+
+	m_vertice = new Vertice(vertice.GetLayout());
+	*m_vertice = vertice;
+	
+	for (int i = 0; i < vertice.Count(); ++i)
 	{
-		lMinPt.x = fminf(lMinPt.x, vertice[i].pos.x);
-		lMinPt.y = fminf(lMinPt.y, vertice[i].pos.y);
-		lMinPt.z = fminf(lMinPt.z, vertice[i].pos.z);
-		lMaxPt.x = fmaxf(lMaxPt.x, vertice[i].pos.x);
-		lMaxPt.y = fmaxf(lMaxPt.y, vertice[i].pos.y);
-		lMaxPt.z = fmaxf(lMaxPt.z, vertice[i].pos.z);
+		m_lMinPt.x = fminf(m_lMinPt.x, vertice[i].Attr< VertexLayout::ElementType::Position3D>().x);
+		m_lMinPt.y = fminf(m_lMinPt.y, vertice[i].Attr< VertexLayout::ElementType::Position3D>().y);
+		m_lMinPt.z = fminf(m_lMinPt.z, vertice[i].Attr< VertexLayout::ElementType::Position3D>().z);
+		m_lMaxPt.x = fmaxf(m_lMaxPt.x, vertice[i].Attr< VertexLayout::ElementType::Position3D>().x);
+		m_lMaxPt.y = fmaxf(m_lMaxPt.y, vertice[i].Attr< VertexLayout::ElementType::Position3D>().y);
+		m_lMaxPt.z = fmaxf(m_lMaxPt.z, vertice[i].Attr< VertexLayout::ElementType::Position3D>().z);
 	}
 
 	// assimp calculates instead
@@ -59,16 +83,16 @@ void Mesh::Init(ID3D11Device* device, Vertex* vertice, UINT vertByteSize, UINT v
 	ZeroMemory(&vb_desc, sizeof(D3D11_BUFFER_DESC));
 	vb_desc.Usage = D3D11_USAGE_IMMUTABLE;
 	vb_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vb_desc.ByteWidth = vertByteSize * vertCount;
+	vb_desc.ByteWidth = vertice.SizeByte();
 	vb_desc.CPUAccessFlags = 0;
 	vb_desc.MiscFlags = 0;
 	vb_desc.StructureByteStride = 0;
 	D3D11_SUBRESOURCE_DATA vb_data;
-	vb_data.pSysMem = vertice;
+	vb_data.pSysMem = vertice.GetData();
 	HRESULT hr = device->CreateBuffer(
-			&vb_desc,
-			&vb_data,
-			&vertexBuffer);
+		&vb_desc,
+		&vb_data,
+		&m_vertexBuffer);
 	r_assert(hr);
 
 	D3D11_BUFFER_DESC ibd;
@@ -80,34 +104,18 @@ void Mesh::Init(ID3D11Device* device, Vertex* vertice, UINT vertByteSize, UINT v
 	ibd.StructureByteStride = 0;
 	D3D11_SUBRESOURCE_DATA iinitData;
 	iinitData.pSysMem = indice;
-	hr = device->CreateBuffer(&ibd, &iinitData, &indexBuffer);
+	hr = device->CreateBuffer(&ibd, &iinitData, &m_indexBuffer);
 	r_assert(hr);
-}
-
-
-void Mesh::CalculateTangent(XMFLOAT3 v0, XMFLOAT3 v1, XMFLOAT3 v2, XMFLOAT2 t0, XMFLOAT2 t1, XMFLOAT2 t2, OUT XMFLOAT3* tangent)
-{
-	XMFLOAT2 dt0 = t1 - t0;
-	XMFLOAT2 dt1 = t2 - t0;
-	XMFLOAT3 dv0 = v1 - v0;
-	XMFLOAT3 dv1 = v2 - v0;
-	float determinant = dt0.x * dt1.y - dt0.y * dt1.x;
-	*tangent = dv0*(dt1.y / determinant) - dv1*(dt0.y / determinant);
-}
-
-void Mesh::GetLBound(OUT XMFLOAT3* minPt, OUT XMFLOAT3* maxPt)
-{
-	*minPt = lMinPt;
-	*maxPt = lMaxPt;
 }
 
 void Mesh::Apply(ID3D11DeviceContext* dContext)const
 {
-	dContext->IASetPrimitiveTopology(primitiveType);
+	dContext->IASetPrimitiveTopology(m_primitiveType);
 	UINT offset = 0;
-	dContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertByteSize, &offset);
-	dContext->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+	UINT verticeSize = m_vertice->GetLayout().Size();
+	dContext->IASetVertexBuffers(0, 1, &m_vertexBuffer, &verticeSize, &offset);
+	dContext->IASetIndexBuffer(m_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
-	dContext->DrawIndexed(idxCount, 0, 0);
+	dContext->DrawIndexed(m_idxCount, 0, 0);
 
 }

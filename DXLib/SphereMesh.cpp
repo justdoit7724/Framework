@@ -7,7 +7,7 @@
 
 using namespace DX;
 
-void Subdivide(std::vector<XMFLOAT3>& vertice, std::vector<UINT>& indice)
+inline void Subdivide(std::vector<XMFLOAT3>& vertice, std::vector<UINT>& indice)
 {
 	std::vector<XMFLOAT3> tempVertice(vertice);
 	std::vector<UINT> tempIndice(indice);
@@ -48,7 +48,7 @@ void Subdivide(std::vector<XMFLOAT3>& vertice, std::vector<UINT>& indice)
 	}
 }
 
-SphereMesh::SphereMesh(ID3D11Device* device, int numSubDivision)
+SphereMesh::SphereMesh(ID3D11Device* device, int numSubDivision, const VertexLayout* layout)
 	:Mesh()
 {
 	// Put a cap on the number of subdivisions. 
@@ -93,31 +93,45 @@ SphereMesh::SphereMesh(ID3D11Device* device, int numSubDivision)
 		Subdivide(vertice, indice);
 	// Project vertices onto sphere and scale. 
 
-	std::vector<Vertex> vertice2;
+	const bool isTex = layout->Resolve<VertexLayout::ElementType::Texture2D>();
+	const bool isNorm = layout->Resolve<VertexLayout::ElementType::Normal>();
+
+	/**/
+	Vertice vertice2(*layout);
 	for (size_t i = 0; i < vertice.size(); ++i) {
 		
-		XMFLOAT3 n = vertice[i];
-		XMFLOAT3 pos = n;
+		vertice2.EmplaceBack();
 
-		// Derive texture coordinates from spherical coordinates. 
+		XMFLOAT3 pos = vertice[i];
+		XMFLOAT3 n = Normalize(pos);
+
+		// Derive texture coordinates from spherical coordinates.
 		float theta = atan2(pos.x, pos.z) + XM_PI;
 		float phi = acosf(pos.y);
 		XMFLOAT2 tex = XMFLOAT2(theta / XM_2PI, phi / XM_PI);
-		
+		/*
 		XMFLOAT3 tangent = XMFLOAT3(
 			cosf(theta),
 			0.0f,
 			-sinf(theta)
-		);
-		
-		vertice2.push_back(Vertex(pos/2.0f, n, tex, tangent));
+		);*/
+
+		vertice2[i].Attr<VertexLayout::ElementType::Position3D>() = pos/2.0;
+
+		if (isTex)
+		{
+			vertice2[i].Attr<VertexLayout::ElementType::Texture2D>() = tex;
+		}
+		if (isNorm)
+		{
+			vertice2[i].Attr<VertexLayout::ElementType::Normal>() = n;
+		}
 	}
 
-	Vertex* verticeData = vertice2.data();
 	UINT* indiceData = indice.data();
 
 
-	Init(device, verticeData, sizeof(Vertex), vertice2.size(), indiceData, indice.size(), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	Init(device, vertice2, indiceData, indice.size(), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 

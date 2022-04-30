@@ -36,3 +36,5 @@
 #include "UI.h"
 #include "DepthPeeling.h"
 #include "MeshLoader.h"
+#include "SphereCollider.h"
+#include "ImguiMgr.h"

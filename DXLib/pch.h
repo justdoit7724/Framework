@@ -33,22 +33,22 @@
 
 #ifdef _WIN64
 
-#pragma comment(lib, __FILE__"/../_Packages/Assimp.3.0.0/lib_x64/assimp.lib")
+#pragma comment(lib, __FILE__"/../SDK/Assimp.3.0.0/lib/x64/assimp.lib")
 
 #ifdef _DEBUG
-#pragma comment(lib, __FILE__"\\..\\_Packages\\directxtk_desktop_2015.2019.12.17.1\\lib_x64\\_Debug\\DirectXTK.lib")
+#pragma comment(lib, __FILE__"\\..\\SDK\\directxtk_desktop_2015.2019.12.17.1\\lib_x64\\_Debug\\DirectXTK.lib")
 #else
-#pragma comment(lib, __FILE__"\\..\\_Packages\\directxtk_desktop_2015.2019.12.17.1\\lib_x64\\_Release\\DirectXTK.lib")
+#pragma comment(lib, __FILE__"\\..\\SDK\\directxtk_desktop_2015.2019.12.17.1\\lib_x64\\_Release\\DirectXTK.lib")
 #endif
 
 #else
 
-#pragma comment(lib, __FILE__"/../_Packages/Assimp.3.0.0/lib_win32/assimp.lib")
+#pragma comment(lib, __FILE__"/../SDK/Assimp.3.0.0/lib/win32/assimp.lib")
 
 #ifdef _DEBUG
-#pragma comment(lib, __FILE__"\\..\\_Packages\\directxtk_desktop_2015.2019.12.17.1\\lib_win32\\_Debug\\DirectXTK.lib")
+#pragma comment(lib, __FILE__"\\..\\SDK\\directxtk_desktop_2015.2019.12.17.1\\lib_win32\\_Debug\\DirectXTK.lib")
 #else
-#pragma comment(lib, __FILE__"\\..\\_Packages\\directxtk_desktop_2015.2019.12.17.1\\lib_win32\\_Release\\DirectXTK.lib")
+#pragma comment(lib, __FILE__"\\..\\SDK\\directxtk_desktop_2015.2019.12.17.1\\lib_win32\\_Release\\DirectXTK.lib")
 #endif
 
 #endif

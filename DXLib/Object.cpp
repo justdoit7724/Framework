@@ -14,12 +14,13 @@
 #include "Debugging.h"
 #include "LayerMask.h"
 #include "Collider.h"
+#include "Graphic.h"
 
 using namespace DX;
 
 //fundamental elements
 Object::Object(ID3D11Device* device, ID3D11DeviceContext* dContext, std::string name, std::shared_ptr <Mesh> mesh, std::shared_ptr<Collider> collider, std::string sVS, const D3D11_INPUT_ELEMENT_DESC* iLayouts, UINT layoutCount, std::string sHS, std::string sDS, std::string sGS, std::string sPS, bool bDirectRender)
-	:name(name), mesh(mesh), collider(collider), layer(LAYER_STD)
+	:name(name), m_mesh(mesh), m_collider(collider), layer(LAYER_STD)
 {
 	transform = new Transform();
 	vs = new VShader(device,sVS, iLayouts, layoutCount);
@@ -37,10 +38,12 @@ Object::Object(ID3D11Device* device, ID3D11DeviceContext* dContext, std::string 
 
 //standard elements
 Object::Object(ID3D11Device* device, ID3D11DeviceContext* dContext, std::string name, std::shared_ptr <Mesh> mesh, std::shared_ptr<Collider> collider, ID3D11ShaderResourceView* diffSRV, ID3D11ShaderResourceView* normalSRV, bool directRender)
-	: name(name), mesh(mesh), collider(collider), layer(LAYER_STD), m_mainTex(diffSRV), m_normal(normalSRV)
+	: name(name), m_mesh(mesh), m_collider(collider), layer(LAYER_STD), m_mainTex(diffSRV), m_normal(normalSRV)
 {
+	auto stdDescs = D3DLayout_Std().GetLayout();
+
 	transform = new Transform();
-	vs = new VShader(device,"StdVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
+	vs = new VShader(device,"StdVS.cso", stdDescs.data(), stdDescs.size());
 	hs = new HShader(device);
 	ds = new DShader(device);
 	gs = new GShader(device);
@@ -90,12 +93,12 @@ void Object::Update()
 
 void Object::UpdateBound()
 {
-	if (!mesh)
+	if (!m_mesh)
 		return;
 
 	XMFLOAT3 boundlMinPt;
 	XMFLOAT3 boundlMaxPt;
-	mesh->GetLBound(&boundlMinPt, &boundlMaxPt);
+	m_mesh->GetLBound(&boundlMinPt, &boundlMaxPt);
 	XMMATRIX world = transform->WorldMatrix();
 	XMFLOAT3 wMinPt = Multiply(boundlMinPt, world);
 	XMFLOAT3 wMaxPt = Multiply(boundlMaxPt, world);
@@ -105,12 +108,12 @@ void Object::UpdateBound()
 
 void Object::UpdateCollider()
 {
-	if (!collider)
+	if (!m_collider)
 		return;
 
-	collider->Translate(transform->GetPos());
-	collider->SetRotate(transform->GetForward(), transform->GetUp());
-	collider->SetScale(transform->GetScale());
+	m_collider->Translate(transform->GetPos());
+	m_collider->SetRotate(transform->GetForward(), transform->GetUp());
+	m_collider->SetScale(transform->GetScale());
 }
 
 Geometrics::Sphere DX::Object::Bound()
@@ -166,7 +169,7 @@ void Object::Render(ID3D11DeviceContext* dContext)const
 	blendState->Apply(dContext);
 	rsState->Apply(dContext);
 
-	mesh->Apply(dContext);
+	m_mesh->Apply(dContext);
 }
 void Object::Render(ID3D11DeviceContext* dContext, const XMMATRIX& v, const XMMATRIX& p, const Frustum* frustum, UINT sceneDepth) const
 {
@@ -188,12 +191,12 @@ void Object::RenderGeom(ID3D11DeviceContext* dContext) const
 	if (!enabled || !show)
 		return;
 
-	mesh->Apply(dContext);
+	m_mesh->Apply(dContext);
 }
 
 bool Object::IsInsideFrustum(const Frustum* frustum) const
 {
-	if (!frustum || frustum->skip || !collider)
+	if (!frustum || frustum->skip)
 		return true;
 
 	return (
@@ -207,5 +210,9 @@ bool Object::IsInsideFrustum(const Frustum* frustum) const
 
 bool Object::IsPicking(Geometrics::Ray ray) const
 {
-	return IntersectRaySphere(ray, bound);
+	if(!m_collider)
+		return IntersectRaySphere(ray, bound);
+
+	XMFLOAT3 hit;
+	return m_collider->IsHit(ray, &hit);
 }

@@ -5,7 +5,7 @@
 
 namespace DX
 {
-	class Collider : public IDebug
+	class DXLIB_DLL Collider : public IDebug
 	{
 	public:
 		Collider(XMFLOAT3 center);

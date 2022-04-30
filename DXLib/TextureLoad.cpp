@@ -3,7 +3,7 @@
 
 #include "TextureLoad.h"
 
-#include "_Packages\directxtk_desktop_2015.2019.12.17.1\include\WICTextureLoader.h"
+#include "SDK\directxtk_desktop_2015.2019.12.17.1\include\WICTextureLoader.h"
 
 
 namespace DX {

@@ -16,7 +16,7 @@ Object* Physic::Raycast(const std::vector<Object*>& objs, Geometrics::Ray ray, i
 			continue;
 
 		XMFLOAT3 hitPt;
-		if (obj->collider->IsHit(ray, &hitPt))
+		if (obj->m_collider->IsHit(ray, &hitPt))
 		{
 			return obj;
 		}

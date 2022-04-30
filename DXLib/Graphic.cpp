@@ -4,8 +4,12 @@
 
 #include "Graphic.h"
 #include "Math.h"
+#include "Vertex.h"
 
 namespace DX {
+
+	VertexLayout D3DVertLayout_Simple;
+	VertexLayout D3DVertLayout_Std;
 
 	Graphic::Graphic(HWND _hwnd, int msaa)
 	{
@@ -19,7 +23,7 @@ namespace DX {
 		int iWidth = rc.right - rc.left;
 		int iHeight = rc.bottom - rc.top;
 
-		hwnd = _hwnd;
+		m_hwnd = _hwnd;
 
 		DXGI_SWAP_CHAIN_DESC scd;
 		ZeroMemory(&scd, sizeof(DXGI_SWAP_CHAIN_DESC));
@@ -37,7 +41,7 @@ namespace DX {
 
 		scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		scd.BufferCount = 1;
-		scd.OutputWindow = hwnd;
+		scd.OutputWindow = m_hwnd;
 		scd.Windowed = TRUE;
 		scd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 		scd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
@@ -136,6 +140,15 @@ namespace DX {
 		m_dContext->RSSetState(m_rasterizerState);
 #pragma endregion
 
+
+		D3DVertLayout_Simple.Clear();
+		D3DVertLayout_Simple.Append(VertexLayout::ElementType::Position3D);
+
+		D3DVertLayout_Std.Clear();
+		D3DVertLayout_Std
+			.Append(VertexLayout::ElementType::Position3D)
+			.Append(VertexLayout::ElementType::Texture2D)
+			.Append(VertexLayout::ElementType::Normal);
 	}
 
 	Graphic::~Graphic()
@@ -156,7 +169,7 @@ namespace DX {
 	{
 		m_swapchain->Present(1, 0);
 
-		const float black[4] = { 0.1,0.1,0.1,1 };
+		const float black[4] = { 0.3,0.3,0.3,1 };
 		m_dContext->ClearRenderTargetView(m_rtv, black);
 		m_dContext->ClearDepthStencilView(m_dsView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	}
@@ -187,6 +200,20 @@ namespace DX {
 	ID3D11RenderTargetView* Graphic::RTV()
 	{
 		return m_rtv;
+	}
+
+	HWND Graphic::GetHWND()
+	{
+		return m_hwnd;
+	}
+
+	const VertexLayout& D3DLayout_Simple()
+	{
+		return D3DVertLayout_Simple;
+	}
+	const VertexLayout& D3DLayout_Std()
+	{
+		return D3DVertLayout_Std;
 	}
 }
 	
